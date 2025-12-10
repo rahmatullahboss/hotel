@@ -4,26 +4,31 @@
 
 :root {
   /* Brand Colors - Partner App Theme (High contrast for outdoor use) */
-  --color-primary: #1D3557;      /* Deep Navy */
+  --color-primary: #1D3557;
+  /* Deep Navy */
   --color-primary-hover: #152744;
-  --color-accent: #E63946;       /* Vibe Red */
+  --color-accent: #E63946;
+  /* Vibe Red */
   --color-accent-hover: #d32f3b;
-  
+
   /* Status Colors */
-  --color-success: #2A9D8F;      /* Available/Confirmed */
-  --color-warning: #E9C46A;      /* Pending */
-  --color-error: #D00000;        /* Occupied/Blocked */
-  
+  --color-success: #2A9D8F;
+  /* Available/Confirmed */
+  --color-warning: #E9C46A;
+  /* Pending */
+  --color-error: #D00000;
+  /* Occupied/Blocked */
+
   /* Backgrounds */
   --color-bg-primary: #FFFFFF;
   --color-bg-secondary: #F8FAFC;
   --color-bg-card: #FFFFFF;
-  
+
   /* Text */
   --color-text-primary: #0F172A;
   --color-text-secondary: #64748B;
   --color-text-muted: #94A3B8;
-  
+
   /* Borders */
   --color-border: #E2E8F0;
 }
@@ -65,7 +70,8 @@ body {
   cursor: pointer;
   transition: all 0.2s ease;
   border: none;
-  min-height: 48px; /* Touch target */
+  min-height: 48px;
+  /* Touch target */
   min-width: 48px;
 }
 
@@ -287,4 +293,143 @@ main {
   font-size: 1.5rem;
   font-weight: 700;
   color: var(--color-text-primary);
+}
+
+/* ================================================
+   RESPONSIVE DESIGN - Desktop & Tablet
+   ================================================ */
+
+/* Tablet (768px+) */
+@media (min-width: 768px) {
+  .page-header {
+    padding: 1.5rem 2rem;
+  }
+
+  .room-grid {
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 1.25rem;
+  }
+
+  .stat-value {
+    font-size: 3rem;
+  }
+
+  .container {
+    padding: 0 2rem;
+  }
+}
+
+/* Desktop (1024px+) */
+@media (min-width: 1024px) {
+
+  /* Convert to sidebar layout */
+  .bottom-nav {
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 240px;
+    flex-direction: column;
+    justify-content: flex-start;
+    padding: 2rem 1rem;
+    border-top: none;
+    border-right: 1px solid var(--color-border);
+  }
+
+  .nav-item {
+    flex-direction: row;
+    justify-content: flex-start;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    width: 100%;
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+  }
+
+  .nav-item svg {
+    margin-bottom: 0;
+  }
+
+  .nav-item:hover {
+    background-color: var(--color-bg-secondary);
+  }
+
+  .nav-item.active {
+    background-color: rgba(29, 53, 87, 0.1);
+  }
+
+  /* Main content with sidebar offset */
+  main {
+    margin-left: 240px;
+    padding-bottom: 2rem;
+  }
+
+  .page-header {
+    margin-left: 240px;
+  }
+
+  /* FAB position adjustment */
+  .fab {
+    bottom: 2rem;
+    right: 2rem;
+  }
+
+  /* Larger room grid */
+  .room-grid {
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 1.5rem;
+  }
+
+  /* Stats in row */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
+  }
+
+  /* Wider containers */
+  .container {
+    max-width: 1400px;
+  }
+
+  /* Sidebar branding */
+  .nav-logo {
+    display: block;
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--color-primary);
+    margin-bottom: 2rem;
+    padding: 0 1rem;
+  }
+}
+
+/* Large Desktop (1440px+) */
+@media (min-width: 1440px) {
+  .bottom-nav {
+    width: 280px;
+  }
+
+  main,
+  .page-header {
+    margin-left: 280px;
+  }
+
+  .room-grid {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  }
+}
+
+/* ================================================
+   MOBILE-ONLY STYLES
+   ================================================ */
+@media (max-width: 1023px) {
+  .nav-logo {
+    display: none;
+  }
+
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
 }

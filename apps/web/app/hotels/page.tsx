@@ -152,9 +152,9 @@ function HotelsContent() {
                 </div>
             </header>
 
-            <main style={{ padding: "1rem" }}>
+            <main className="container" style={{ padding: "1rem" }}>
                 {view === "list" ? (
-                    <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+                    <div className="hotel-grid">
                         {hotels.map((hotel) => (
                             <HotelCard key={hotel.id} {...hotel} />
                         ))}

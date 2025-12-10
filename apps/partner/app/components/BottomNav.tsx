@@ -63,6 +63,9 @@ export function BottomNav() {
 
     return (
         <nav className="bottom-nav">
+            {/* Logo for desktop sidebar */}
+            <div className="nav-logo">Vibe Manager</div>
+
             {navItems.map(({ href, label, Icon }) => {
                 const isActive = pathname === href;
                 return (

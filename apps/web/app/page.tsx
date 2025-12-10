@@ -37,6 +37,17 @@ const featuredHotels = [
     amenities: ["AC", "WiFi", "24/7 Reception"],
     payAtHotel: true,
   },
+  {
+    id: "4",
+    name: "The Residency",
+    location: "Uttara, Dhaka",
+    price: 4500,
+    rating: 4.7,
+    reviewCount: 312,
+    imageUrl: "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=800&h=600&fit=crop",
+    amenities: ["AC", "WiFi", "Gym", "Spa"],
+    payAtHotel: true,
+  },
 ];
 
 export default function HomePage() {
@@ -46,16 +57,17 @@ export default function HomePage() {
       <section className="hero">
         <h1 className="hero-title">Find Your Perfect Stay</h1>
         <p className="hero-subtitle">
-          Book verified hotels at the best prices
+          Book verified hotels at the best prices in Bangladesh
         </p>
       </section>
 
-      {/* Search Form */}
-      <main style={{ padding: "1rem", marginTop: "-2rem" }}>
+      {/* Main Content */}
+      <main className="container" style={{ padding: "1rem", marginTop: "-2rem" }}>
+        {/* Search Form */}
         <SearchForm />
 
         {/* Featured Hotels */}
-        <section style={{ marginTop: "2rem" }}>
+        <section style={{ marginTop: "3rem" }}>
           <div className="section-header">
             <h2 className="section-title">Featured Hotels</h2>
             <a href="/hotels" className="section-link">
@@ -63,13 +75,8 @@ export default function HomePage() {
             </a>
           </div>
 
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              gap: "1rem",
-            }}
-          >
+          {/* Responsive Hotel Grid */}
+          <div className="hotel-grid">
             {featuredHotels.map((hotel) => (
               <HotelCard key={hotel.id} {...hotel} />
             ))}
@@ -77,42 +84,43 @@ export default function HomePage() {
         </section>
 
         {/* Why Vibe */}
-        <section style={{ marginTop: "2rem" }}>
-          <h2 className="section-title" style={{ marginBottom: "1rem" }}>
+        <section style={{ marginTop: "3rem" }}>
+          <h2 className="section-title" style={{ marginBottom: "1.5rem", textAlign: "center" }}>
             Why Book with Vibe?
           </h2>
 
           <div
             style={{
               display: "grid",
-              gridTemplateColumns: "repeat(2, 1fr)",
-              gap: "1rem",
+              gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
+              gap: "1.5rem",
             }}
           >
             {[
-              { icon: "✓", title: "Verified Properties", desc: "All hotels personally inspected" },
-              { icon: "💰", title: "Best Prices", desc: "Guaranteed lowest rates" },
+              { icon: "✓", title: "Verified Properties", desc: "All hotels personally inspected for quality" },
+              { icon: "💰", title: "Best Prices", desc: "Guaranteed lowest rates or money back" },
               { icon: "🏨", title: "Pay at Hotel", desc: "No advance payment needed" },
-              { icon: "⚡", title: "Instant Booking", desc: "Confirm in 3 clicks" },
+              { icon: "⚡", title: "Instant Booking", desc: "Confirm your stay in just 3 clicks" },
             ].map((item) => (
               <div
                 key={item.title}
                 className="card"
                 style={{
-                  padding: "1rem",
+                  padding: "1.5rem",
                   textAlign: "center",
                 }}
               >
-                <div style={{ fontSize: "2rem", marginBottom: "0.5rem" }}>
+                <div style={{ fontSize: "2.5rem", marginBottom: "0.75rem" }}>
                   {item.icon}
                 </div>
-                <div style={{ fontWeight: 600, marginBottom: "0.25rem" }}>
+                <div style={{ fontWeight: 600, fontSize: "1.125rem", marginBottom: "0.5rem" }}>
                   {item.title}
                 </div>
                 <div
                   style={{
-                    fontSize: "0.75rem",
+                    fontSize: "0.875rem",
                     color: "var(--color-text-secondary)",
+                    lineHeight: 1.5,
                   }}
                 >
                   {item.desc}
@@ -123,8 +131,9 @@ export default function HomePage() {
         </section>
       </main>
 
-      {/* Bottom Navigation */}
+      {/* Bottom Navigation (Mobile only) */}
       <BottomNav />
     </>
   );
 }
+
