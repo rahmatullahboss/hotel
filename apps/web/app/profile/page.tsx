@@ -64,17 +64,22 @@ export default async function ProfilePage() {
                         </div>
                     </div>
 
-                    <form
-                        action={async () => {
-                            "use server";
-                            await signOut({ redirectTo: "/" });
-                        }}
-                        style={{ marginTop: "1rem" }}
-                    >
-                        <button type="submit" className="btn btn-outline" style={{ width: "100%" }}>
-                            Sign Out
-                        </button>
-                    </form>
+                    <div style={{ display: "flex", gap: "1rem", marginTop: "1rem" }}>
+                        <Link href="/profile/edit" className="btn btn-outline" style={{ flex: 1, textAlign: "center", textDecoration: "none", color: "inherit", lineHeight: "inherit" }}>
+                            Edit Profile
+                        </Link>
+                        <form
+                            action={async () => {
+                                "use server";
+                                await signOut({ redirectTo: "/" });
+                            }}
+                            style={{ flex: 1 }}
+                        >
+                            <button type="submit" className="btn btn-outline" style={{ width: "100%" }}>
+                                Sign Out
+                            </button>
+                        </form>
+                    </div>
                 </div>
 
                 {/* Quick Stats */}

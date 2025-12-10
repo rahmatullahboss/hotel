@@ -14,7 +14,6 @@
     "@repo/config": "^0.1.0",
     "@repo/db": "^0.1.0",
     "@repo/ui": "*",
-    "@types/leaflet": "^1.9.21",
     "leaflet": "^1.9.4",
     "next": "^16.0.7",
     "next-auth": "^5.0.0-beta.30",
@@ -25,6 +24,7 @@
   "devDependencies": {
     "@repo/eslint-config": "*",
     "@repo/typescript-config": "*",
+    "@types/leaflet": "^1.9.21",
     "@types/node": "^22.15.3",
     "@types/react": "19.2.2",
     "@types/react-dom": "19.2.2",
