@@ -1,4 +1,6 @@
 {
-    "buildCommand": "cd ../.. && npm run build --workspace=web",
-    "outputDirectory": ".next"
+    "$schema": "https://openapi.vercel.sh/vercel.json",
+    "framework": "nextjs",
+    "installCommand": "npm install --prefix=../..",
+    "buildCommand": "cd ../.. && npx turbo run build --filter=web"
 }
