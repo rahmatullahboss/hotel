@@ -53,8 +53,6 @@
 ### High Priority
 1. **Payment Gateway Integration:**
    - Integrate with bKash/Nagad/Cards for real payment processing.
-2. **Partner App Wiring:**
-   - Connect Partner App inventory and scanner features to live backend data (currently some parts use mock data or need validation).
 
 ### Medium Priority
 1. **Admin Dashboard Live Stats:**
