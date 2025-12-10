@@ -83,7 +83,7 @@ export const authConfig: NextAuthConfig = {
         jwt({ token, user }) {
             if (user) {
                 token.id = user.id;
-                token.role = (user as typeof users.$inferSelect).role;
+                token.role = (user as { role?: string }).role;
             }
             return token;
         },
@@ -91,7 +91,7 @@ export const authConfig: NextAuthConfig = {
         session({ session, token }) {
             if (token && session.user) {
                 session.user.id = token.id as string;
-                session.user.role = token.role as string;
+                (session.user as { role?: string }).role = token.role as string;
             }
             return session;
         },
@@ -117,26 +117,13 @@ export const authConfig: NextAuthConfig = {
     debug: process.env.NODE_ENV === "development",
 };
 
-// Type augmentation for Auth.js
-declare module "next-auth" {
-    interface User {
-        role?: string;
-    }
-
-    interface Session {
-        user: {
-            id: string;
-            role: string;
-            email: string;
-            name?: string | null;
-            image?: string | null;
-        };
-    }
-}
-
-declare module "next-auth/jwt" {
-    interface JWT {
-        id?: string;
-        role?: string;
-    }
+// Extended session type for apps to use
+export interface ExtendedSession {
+    user: {
+        id: string;
+        role: string;
+        email: string;
+        name?: string | null;
+        image?: string | null;
+    };
 }
