@@ -2,62 +2,59 @@
 
 import { signOut, useSession } from "next-auth/react";
 
-export function AdminHeader() {
+interface AdminHeaderProps {
+    onMenuClick?: () => void;
+}
+
+export function AdminHeader({ onMenuClick }: AdminHeaderProps) {
     const { data: session } = useSession();
 
     return (
-        <header
-            style={{
-                height: "64px",
-                background: "white",
-                borderBottom: "1px solid var(--color-border)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "flex-end",
-                padding: "0 2rem",
-                marginLeft: "250px", // Offset for fixed sidebar
-            }}
-        >
-            <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+        <header className="admin-header">
+            <div className="header-left">
+                <button
+                    className="menu-toggle"
+                    onClick={onMenuClick}
+                    aria-label="Toggle menu"
+                >
+                    <svg
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                    >
+                        <line x1="3" y1="12" x2="21" y2="12" />
+                        <line x1="3" y1="6" x2="21" y2="6" />
+                        <line x1="3" y1="18" x2="21" y2="18" />
+                    </svg>
+                </button>
+                <span className="header-title">Vibe Admin</span>
+            </div>
+
+            <div className="header-right">
+                <div className="header-user">
                     {session?.user?.image ? (
                         <img
                             src={session.user.image}
                             alt=""
-                            style={{ width: 32, height: 32, borderRadius: "50%" }}
+                            className="header-avatar"
                         />
                     ) : (
-                        <div
-                            style={{
-                                width: 32,
-                                height: 32,
-                                borderRadius: "50%",
-                                background: "var(--color-primary)",
-                                color: "white",
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "center",
-                                fontSize: "0.875rem",
-                                fontWeight: 700,
-                            }}
-                        >
+                        <div className="header-avatar-placeholder">
                             {(session?.user?.name || "A")?.[0]?.toUpperCase()}
                         </div>
                     )}
-                    <span style={{ fontSize: "0.875rem", fontWeight: 500 }}>
+                    <span className="header-username">
                         {session?.user?.name || "Admin"}
                     </span>
                 </div>
                 <button
                     onClick={() => signOut({ callbackUrl: "/auth/signin" })}
-                    style={{
-                        padding: "0.5rem",
-                        background: "none",
-                        border: "none",
-                        color: "var(--color-text-secondary)",
-                        cursor: "pointer",
-                        fontSize: "0.875rem",
-                    }}
+                    className="header-signout"
                 >
                     Sign Out
                 </button>

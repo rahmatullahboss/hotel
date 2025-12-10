@@ -1,19 +1,22 @@
 "use client";
 
+import { useState } from "react";
 import { AdminHeader } from "../components/AdminHeader";
 import { AdminSidebar } from "../components/AdminSidebar";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
+    const [sidebarOpen, setSidebarOpen] = useState(false);
+
     return (
-        <div style={{ minHeight: "100vh", background: "var(--color-bg-tertiary)" }}>
-            <AdminSidebar />
-            <AdminHeader />
-            <main
-                style={{
-                    marginLeft: "250px", // Sidebar width
-                    padding: "2rem",
-                }}
-            >
+        <div className="admin-layout">
+            <AdminSidebar
+                isOpen={sidebarOpen}
+                onClose={() => setSidebarOpen(false)}
+            />
+            <AdminHeader
+                onMenuClick={() => setSidebarOpen(true)}
+            />
+            <main className="admin-main">
                 {children}
             </main>
         </div>
