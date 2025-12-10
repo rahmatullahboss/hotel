@@ -9,7 +9,7 @@ import {
     date,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
-import { users } from "./auth";
+import { users } from "./auth.js";
 
 // Hotel Status Enum
 export type HotelStatus = "PENDING" | "ACTIVE" | "SUSPENDED";

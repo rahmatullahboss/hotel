@@ -1,6 +1,6 @@
 import { neon } from "@neondatabase/serverless";
 import { drizzle } from "drizzle-orm/neon-http";
-import * as schema from "./schema";
+import * as schema from "./schema/index.js";
 
 // Create Neon client
 const createClient = () => {
@@ -32,5 +32,5 @@ export const db = new Proxy({} as ReturnType<typeof createClient>, {
 });
 
 // Re-export schema and types
-export * from "./schema";
+export * from "./schema/index.js";
 export { schema };
