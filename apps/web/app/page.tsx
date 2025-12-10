@@ -1,56 +1,10 @@
-"use client";
-
 import { BottomNav, SearchForm, HotelCard } from "./components";
+import { getFeaturedHotels } from "./actions/hotels";
 
-// Mock featured hotels data
-const featuredHotels = [
-  {
-    id: "1",
-    name: "Hotel Sunrise",
-    location: "Gulshan, Dhaka",
-    price: 2500,
-    rating: 4.5,
-    reviewCount: 128,
-    imageUrl: "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800&h=600&fit=crop",
-    amenities: ["AC", "WiFi", "TV", "Hot Water"],
-    payAtHotel: true,
-  },
-  {
-    id: "2",
-    name: "Grand Palace Hotel",
-    location: "Banani, Dhaka",
-    price: 3800,
-    rating: 4.8,
-    reviewCount: 256,
-    imageUrl: "https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=800&h=600&fit=crop",
-    amenities: ["AC", "WiFi", "Pool", "Restaurant"],
-    payAtHotel: false,
-  },
-  {
-    id: "3",
-    name: "Budget Inn Express",
-    location: "Dhanmondi, Dhaka",
-    price: 1200,
-    rating: 4.2,
-    reviewCount: 89,
-    imageUrl: "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=800&h=600&fit=crop",
-    amenities: ["AC", "WiFi", "24/7 Reception"],
-    payAtHotel: true,
-  },
-  {
-    id: "4",
-    name: "The Residency",
-    location: "Uttara, Dhaka",
-    price: 4500,
-    rating: 4.7,
-    reviewCount: 312,
-    imageUrl: "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=800&h=600&fit=crop",
-    amenities: ["AC", "WiFi", "Gym", "Spa"],
-    payAtHotel: true,
-  },
-];
+export default async function HomePage() {
+  // Fetch real hotels from database
+  const featuredHotels = await getFeaturedHotels(4);
 
-export default function HomePage() {
   return (
     <>
       {/* Hero Section */}
@@ -77,9 +31,26 @@ export default function HomePage() {
 
           {/* Responsive Hotel Grid */}
           <div className="hotel-grid">
-            {featuredHotels.map((hotel) => (
-              <HotelCard key={hotel.id} {...hotel} />
-            ))}
+            {featuredHotels.length > 0 ? (
+              featuredHotels.map((hotel) => (
+                <HotelCard
+                  key={hotel.id}
+                  id={hotel.id}
+                  name={hotel.name}
+                  location={hotel.location}
+                  price={hotel.lowestPrice}
+                  rating={hotel.rating}
+                  reviewCount={hotel.reviewCount}
+                  imageUrl={hotel.imageUrl}
+                  amenities={hotel.amenities}
+                  payAtHotel={hotel.payAtHotel}
+                />
+              ))
+            ) : (
+              <div style={{ gridColumn: "1 / -1", textAlign: "center", padding: "2rem", color: "var(--color-text-secondary)" }}>
+                No hotels available at the moment. Check back soon!
+              </div>
+            )}
           </div>
         </section>
 
@@ -136,4 +107,3 @@ export default function HomePage() {
     </>
   );
 }
-

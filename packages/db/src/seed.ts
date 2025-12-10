@@ -98,21 +98,32 @@ async function seed() {
         const { rooms: roomsData, ...hotelFields } = hotelData;
 
         // Check if hotel already exists
-        const existing = await db.query.hotels.findFirst({
+        let hotel = await db.query.hotels.findFirst({
             where: eq(hotels.name, hotelFields.name),
         });
 
-        if (existing) {
-            console.log(`⏭️  Hotel "${hotelFields.name}" already exists, skipping...`);
-            continue;
+        if (hotel) {
+            // Check if rooms exist for this hotel
+            const existingRooms = await db.query.rooms.findMany({
+                where: eq(rooms.hotelId, hotel.id),
+            });
+
+            if (existingRooms.length > 0) {
+                console.log(`⏭️  Hotel "${hotelFields.name}" already has ${existingRooms.length} rooms, skipping...`);
+                continue;
+            }
+
+            console.log(`📝 Hotel "${hotelFields.name}" exists but has no rooms. Creating rooms...`);
+        } else {
+            console.log(`Creating hotel: ${hotelFields.name}`);
+
+            const [newHotel] = await db.insert(hotels).values({
+                ...hotelFields,
+                ownerId: demoPartner.id,
+            }).returning();
+
+            hotel = newHotel;
         }
-
-        console.log(`Creating hotel: ${hotelFields.name}`);
-
-        const [hotel] = await db.insert(hotels).values({
-            ...hotelFields,
-            ownerId: demoPartner.id,
-        }).returning();
 
         if (!hotel) continue;
 
