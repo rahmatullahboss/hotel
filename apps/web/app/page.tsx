@@ -1,102 +1,130 @@
-import Image, { type ImageProps } from "next/image";
-import { Button } from "@repo/ui/button";
-import styles from "./page.module.css";
+"use client";
 
-type Props = Omit<ImageProps, "src"> & {
-  srcLight: string;
-  srcDark: string;
-};
+import { BottomNav, SearchForm, HotelCard } from "./components";
 
-const ThemeImage = (props: Props) => {
-  const { srcLight, srcDark, ...rest } = props;
+// Mock featured hotels data
+const featuredHotels = [
+  {
+    id: "1",
+    name: "Hotel Sunrise",
+    location: "Gulshan, Dhaka",
+    price: 2500,
+    rating: 4.5,
+    reviewCount: 128,
+    imageUrl: "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800&h=600&fit=crop",
+    amenities: ["AC", "WiFi", "TV", "Hot Water"],
+    payAtHotel: true,
+  },
+  {
+    id: "2",
+    name: "Grand Palace Hotel",
+    location: "Banani, Dhaka",
+    price: 3800,
+    rating: 4.8,
+    reviewCount: 256,
+    imageUrl: "https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=800&h=600&fit=crop",
+    amenities: ["AC", "WiFi", "Pool", "Restaurant"],
+    payAtHotel: false,
+  },
+  {
+    id: "3",
+    name: "Budget Inn Express",
+    location: "Dhanmondi, Dhaka",
+    price: 1200,
+    rating: 4.2,
+    reviewCount: 89,
+    imageUrl: "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=800&h=600&fit=crop",
+    amenities: ["AC", "WiFi", "24/7 Reception"],
+    payAtHotel: true,
+  },
+];
 
+export default function HomePage() {
   return (
     <>
-      <Image {...rest} src={srcLight} className="imgLight" />
-      <Image {...rest} src={srcDark} className="imgDark" />
-    </>
-  );
-};
+      {/* Hero Section */}
+      <section className="hero">
+        <h1 className="hero-title">Find Your Perfect Stay</h1>
+        <p className="hero-subtitle">
+          Book verified hotels at the best prices
+        </p>
+      </section>
 
-export default function Home() {
-  return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <ThemeImage
-          className={styles.logo}
-          srcLight="turborepo-dark.svg"
-          srcDark="turborepo-light.svg"
-          alt="Turborepo logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol>
-          <li>
-            Get started by editing <code>apps/web/app/page.tsx</code>
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+      {/* Search Form */}
+      <main style={{ padding: "1rem", marginTop: "-2rem" }}>
+        <SearchForm />
 
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new/clone?demo-description=Learn+to+implement+a+monorepo+with+a+two+Next.js+sites+that+has+installed+three+local+packages.&demo-image=%2F%2Fimages.ctfassets.net%2Fe5382hct74si%2F4K8ZISWAzJ8X1504ca0zmC%2F0b21a1c6246add355e55816278ef54bc%2FBasic.png&demo-title=Monorepo+with+Turborepo&demo-url=https%3A%2F%2Fexamples-basic-web.vercel.sh%2F&from=templates&project-name=Monorepo+with+Turborepo&repository-name=monorepo-turborepo&repository-url=https%3A%2F%2Fgithub.com%2Fvercel%2Fturborepo%2Ftree%2Fmain%2Fexamples%2Fbasic&root-directory=apps%2Fdocs&skippable-integrations=1&teamSlug=vercel&utm_source=create-turbo"
-            target="_blank"
-            rel="noopener noreferrer"
+        {/* Featured Hotels */}
+        <section style={{ marginTop: "2rem" }}>
+          <div className="section-header">
+            <h2 className="section-title">Featured Hotels</h2>
+            <a href="/hotels" className="section-link">
+              View all →
+            </a>
+          </div>
+
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: "1rem",
+            }}
           >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            href="https://turborepo.com/docs?utm_source"
-            target="_blank"
-            rel="noopener noreferrer"
-            className={styles.secondary}
+            {featuredHotels.map((hotel) => (
+              <HotelCard key={hotel.id} {...hotel} />
+            ))}
+          </div>
+        </section>
+
+        {/* Why Vibe */}
+        <section style={{ marginTop: "2rem" }}>
+          <h2 className="section-title" style={{ marginBottom: "1rem" }}>
+            Why Book with Vibe?
+          </h2>
+
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(2, 1fr)",
+              gap: "1rem",
+            }}
           >
-            Read our docs
-          </a>
-        </div>
-        <Button appName="web" className={styles.secondary}>
-          Open alert
-        </Button>
+            {[
+              { icon: "✓", title: "Verified Properties", desc: "All hotels personally inspected" },
+              { icon: "💰", title: "Best Prices", desc: "Guaranteed lowest rates" },
+              { icon: "🏨", title: "Pay at Hotel", desc: "No advance payment needed" },
+              { icon: "⚡", title: "Instant Booking", desc: "Confirm in 3 clicks" },
+            ].map((item) => (
+              <div
+                key={item.title}
+                className="card"
+                style={{
+                  padding: "1rem",
+                  textAlign: "center",
+                }}
+              >
+                <div style={{ fontSize: "2rem", marginBottom: "0.5rem" }}>
+                  {item.icon}
+                </div>
+                <div style={{ fontWeight: 600, marginBottom: "0.25rem" }}>
+                  {item.title}
+                </div>
+                <div
+                  style={{
+                    fontSize: "0.75rem",
+                    color: "var(--color-text-secondary)",
+                  }}
+                >
+                  {item.desc}
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
       </main>
-      <footer className={styles.footer}>
-        <a
-          href="https://vercel.com/templates?search=turborepo&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          href="https://turborepo.com?utm_source=create-turbo"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to turborepo.com →
-        </a>
-      </footer>
-    </div>
+
+      {/* Bottom Navigation */}
+      <BottomNav />
+    </>
   );
 }
