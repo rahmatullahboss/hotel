@@ -1,3 +1,5 @@
+"use client";
+
 import { BottomNav, ScannerFAB, StatCard } from "./components";
 
 // Mock data - will be replaced with real data from Server Actions
