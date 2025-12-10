@@ -1,107 +1,39 @@
 "use client";
 
-import { Suspense, useState, useCallback, useMemo, lazy } from "react";
+import { Suspense, useState, useEffect, useCallback, useMemo, lazy } from "react";
 import { useSearchParams } from "next/navigation";
 import { BottomNav, HotelCard } from "../components";
+import { searchHotels, type HotelWithPrice } from "../actions/hotels";
 
 // Lazy load the map component to avoid SSR issues
 const HotelMapLazy = lazy(() =>
     import("../components/Map/HotelMap").then((mod) => ({ default: mod.HotelMap }))
 );
 
-// Mock search results with coordinates
-const mockHotels = [
-    {
-        id: "1",
-        name: "Hotel Sunrise",
-        location: "Gulshan, Dhaka",
-        price: 2500,
-        rating: 4.5,
-        reviewCount: 128,
-        imageUrl: "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800&h=600&fit=crop",
-        amenities: ["AC", "WiFi", "TV", "Hot Water"],
-        payAtHotel: true,
-        lat: 23.7937,
-        lng: 90.4066,
-    },
-    {
-        id: "2",
-        name: "Grand Palace Hotel",
-        location: "Banani, Dhaka",
-        price: 3800,
-        rating: 4.8,
-        reviewCount: 256,
-        imageUrl: "https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=800&h=600&fit=crop",
-        amenities: ["AC", "WiFi", "Pool", "Restaurant"],
-        payAtHotel: false,
-        lat: 23.7946,
-        lng: 90.4029,
-    },
-    {
-        id: "3",
-        name: "Budget Inn Express",
-        location: "Dhanmondi, Dhaka",
-        price: 1200,
-        rating: 4.2,
-        reviewCount: 89,
-        imageUrl: "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=800&h=600&fit=crop",
-        amenities: ["AC", "WiFi", "24/7 Reception"],
-        payAtHotel: true,
-        lat: 23.7465,
-        lng: 90.3762,
-    },
-    {
-        id: "4",
-        name: "The Residency",
-        location: "Uttara, Dhaka",
-        price: 4500,
-        rating: 4.7,
-        reviewCount: 312,
-        imageUrl: "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=800&h=600&fit=crop",
-        amenities: ["AC", "WiFi", "Gym", "Spa"],
-        payAtHotel: true,
-        lat: 23.8759,
-        lng: 90.3795,
-    },
-    {
-        id: "5",
-        name: "City View Hotel",
-        location: "Motijheel, Dhaka",
-        price: 1800,
-        rating: 4.0,
-        reviewCount: 67,
-        imageUrl: "https://images.unsplash.com/photo-1590490360182-c33d57733427?w=800&h=600&fit=crop",
-        amenities: ["AC", "WiFi", "Restaurant"],
-        payAtHotel: false,
-        lat: 23.7331,
-        lng: 90.4209,
-    },
-];
-
 function HotelsContent() {
     const searchParams = useSearchParams();
-    const city = searchParams.get("city") || "Dhaka";
+    const city = searchParams.get("city") || "";
     const [view, setView] = useState<"list" | "map">("list");
     const [sortBy, setSortBy] = useState<"price" | "rating">("rating");
     const [filterPayAtHotel, setFilterPayAtHotel] = useState(false);
     const [selectedHotelId, setSelectedHotelId] = useState<string | undefined>();
+    const [hotels, setHotels] = useState<HotelWithPrice[]>([]);
+    const [loading, setLoading] = useState(true);
 
-    // Filter and sort hotels
-    const hotels = useMemo(() => {
-        let filtered = [...mockHotels];
-
-        if (filterPayAtHotel) {
-            filtered = filtered.filter((h) => h.payAtHotel);
+    // Fetch hotels from database
+    useEffect(() => {
+        async function fetchHotels() {
+            setLoading(true);
+            const results = await searchHotels({
+                city: city || undefined,
+                sortBy,
+                payAtHotel: filterPayAtHotel || undefined,
+            });
+            setHotels(results);
+            setLoading(false);
         }
-
-        if (sortBy === "price") {
-            filtered.sort((a, b) => a.price - b.price);
-        } else {
-            filtered.sort((a, b) => b.rating - a.rating);
-        }
-
-        return filtered;
-    }, [sortBy, filterPayAtHotel]);
+        fetchHotels();
+    }, [city, sortBy, filterPayAtHotel]);
 
     // Map markers data
     const mapMarkers = useMemo(
@@ -109,9 +41,9 @@ function HotelsContent() {
             hotels.map((h) => ({
                 id: h.id,
                 name: h.name,
-                lat: h.lat,
-                lng: h.lng,
-                price: h.price,
+                lat: h.latitude ?? 23.8103,
+                lng: h.longitude ?? 90.4125,
+                price: h.lowestPrice,
                 rating: h.rating,
             })),
         [hotels]
@@ -148,10 +80,10 @@ function HotelsContent() {
                 >
                     <div>
                         <h1 style={{ fontSize: "1.25rem", fontWeight: 700 }}>
-                            Hotels in {city}
+                            {city ? `Hotels in ${city}` : "All Hotels"}
                         </h1>
                         <p style={{ fontSize: "0.875rem", color: "var(--color-text-secondary)" }}>
-                            {hotels.length} properties found
+                            {loading ? "Searching..." : `${hotels.length} properties found`}
                         </p>
                     </div>
 
@@ -195,7 +127,15 @@ function HotelsContent() {
             </header>
 
             <main className="container" style={{ padding: "1rem" }}>
-                {view === "list" ? (
+                {loading ? (
+                    <div style={{ textAlign: "center", padding: "3rem" }}>
+                        <div className="skeleton" style={{ width: 100, height: 24, margin: "0 auto" }} />
+                    </div>
+                ) : hotels.length === 0 ? (
+                    <div style={{ textAlign: "center", padding: "3rem", color: "var(--color-text-secondary)" }}>
+                        No hotels found. Try adjusting your filters.
+                    </div>
+                ) : view === "list" ? (
                     <div className="hotel-grid">
                         {hotels.map((hotel) => (
                             <div
@@ -203,7 +143,17 @@ function HotelsContent() {
                                 onMouseEnter={() => handleHotelHover(hotel.id)}
                                 onMouseLeave={() => handleHotelHover(undefined)}
                             >
-                                <HotelCard {...hotel} />
+                                <HotelCard
+                                    id={hotel.id}
+                                    name={hotel.name}
+                                    location={hotel.location}
+                                    price={hotel.lowestPrice}
+                                    rating={hotel.rating}
+                                    reviewCount={hotel.reviewCount}
+                                    imageUrl={hotel.imageUrl}
+                                    amenities={hotel.amenities}
+                                    payAtHotel={hotel.payAtHotel}
+                                />
                             </div>
                         ))}
                     </div>
@@ -249,7 +199,18 @@ function HotelsContent() {
                                 {hotels
                                     .filter((h) => h.id === selectedHotelId)
                                     .map((hotel) => (
-                                        <HotelCard key={hotel.id} {...hotel} />
+                                        <HotelCard
+                                            key={hotel.id}
+                                            id={hotel.id}
+                                            name={hotel.name}
+                                            location={hotel.location}
+                                            price={hotel.lowestPrice}
+                                            rating={hotel.rating}
+                                            reviewCount={hotel.reviewCount}
+                                            imageUrl={hotel.imageUrl}
+                                            amenities={hotel.amenities}
+                                            payAtHotel={hotel.payAtHotel}
+                                        />
                                     ))}
                             </div>
                         )}

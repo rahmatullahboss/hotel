@@ -1,54 +1,101 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { BottomNav } from "../../components";
+import { getHotelById, getAvailableRooms } from "../../actions/hotels";
 
-// Mock hotel detail data
-const mockHotel = {
-    id: "1",
-    name: "Hotel Sunrise",
-    location: "Gulshan 2, Road 45, Dhaka",
-    city: "Dhaka",
-    description: "Experience comfort and luxury at Hotel Sunrise. Located in the heart of Gulshan, our hotel offers modern amenities, spotless rooms, and exceptional service. Perfect for both business and leisure travelers.",
-    rating: 4.5,
-    reviewCount: 128,
-    images: [
-        "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800&h=600&fit=crop",
-        "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=800&h=600&fit=crop",
-        "https://images.unsplash.com/photo-1590490360182-c33d57733427?w=800&h=600&fit=crop",
-    ],
-    amenities: ["AC", "WiFi", "TV", "Hot Water", "24/7 Reception", "Room Service", "Parking", "CCTV"],
-    rooms: [
-        { id: "r1", name: "Standard Double", type: "DOUBLE", price: 2500, maxGuests: 2 },
-        { id: "r2", name: "Deluxe Double", type: "DOUBLE", price: 3500, maxGuests: 2 },
-        { id: "r3", name: "Family Suite", type: "SUITE", price: 5500, maxGuests: 4 },
-    ],
-    payAtHotel: true,
-    policies: {
-        checkIn: "2:00 PM",
-        checkOut: "12:00 PM",
-        cancellation: "Free cancellation up to 24 hours before check-in",
-    },
-};
+interface Room {
+    id: string;
+    name: string;
+    type: string;
+    basePrice: string;
+    maxGuests: number;
+}
+
+interface HotelDetail {
+    id: string;
+    name: string;
+    address: string;
+    city: string;
+    description: string | null;
+    rating: string | null;
+    reviewCount: number;
+    images: string[];
+    amenities: string[];
+    rooms: Room[];
+    payAtHotelEnabled: boolean;
+}
 
 export default function HotelDetailPage() {
     const params = useParams();
     const router = useRouter();
-    const [selectedRoom, setSelectedRoom] = useState(mockHotel.rooms[0]);
+    const hotelId = params.id as string;
+
+    const [hotel, setHotel] = useState<HotelDetail | null>(null);
+    const [rooms, setRooms] = useState<Room[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [selectedRoom, setSelectedRoom] = useState<Room | null>(null);
     const [currentImage, setCurrentImage] = useState(0);
 
+    // Fetch hotel data
+    useEffect(() => {
+        async function fetchHotel() {
+            setLoading(true);
+            const data = await getHotelById(hotelId);
+            if (data) {
+                setHotel({
+                    ...data,
+                    images: data.images || [data.coverImage || "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800"],
+                    rooms: data.rooms || [],
+                });
+                setRooms(data.rooms || []);
+                if (data.rooms && data.rooms.length > 0) {
+                    setSelectedRoom(data.rooms[0]);
+                }
+            }
+            setLoading(false);
+        }
+        fetchHotel();
+    }, [hotelId]);
+
     const handleBookNow = () => {
-        router.push(`/booking?hotelId=${params.id}&roomId=${selectedRoom?.id}`);
+        if (!hotel || !selectedRoom) return;
+        router.push(
+            `/booking?hotelId=${hotel.id}&roomId=${selectedRoom.id}&hotel=${encodeURIComponent(hotel.name)}&room=${encodeURIComponent(selectedRoom.name)}&price=${selectedRoom.basePrice}`
+        );
     };
+
+    if (loading) {
+        return (
+            <div style={{ padding: "2rem", textAlign: "center" }}>
+                <div className="skeleton" style={{ width: "100%", height: 280 }} />
+                <div className="skeleton" style={{ width: 200, height: 24, marginTop: "1rem" }} />
+            </div>
+        );
+    }
+
+    if (!hotel) {
+        return (
+            <div style={{ padding: "2rem", textAlign: "center" }}>
+                <h2>Hotel not found</h2>
+                <p style={{ color: "var(--color-text-secondary)" }}>This hotel may have been removed or is unavailable.</p>
+                <button className="btn btn-primary" onClick={() => router.push("/hotels")} style={{ marginTop: "1rem" }}>
+                    Browse Hotels
+                </button>
+            </div>
+        );
+    }
+
+    const images = hotel.images.length > 0 ? hotel.images : ["https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800"];
 
     return (
         <>
             {/* Hero Image Gallery */}
             <div style={{ position: "relative" }}>
                 <img
-                    src={mockHotel.images[currentImage]}
-                    alt={mockHotel.name}
+                    src={images[currentImage]}
+                    alt={hotel.name}
                     style={{
                         width: "100%",
                         height: "280px",
@@ -57,31 +104,33 @@ export default function HotelDetailPage() {
                 />
 
                 {/* Image Dots */}
-                <div
-                    style={{
-                        position: "absolute",
-                        bottom: "1rem",
-                        left: "50%",
-                        transform: "translateX(-50%)",
-                        display: "flex",
-                        gap: "0.5rem",
-                    }}
-                >
-                    {mockHotel.images.map((_, i) => (
-                        <button
-                            key={i}
-                            onClick={() => setCurrentImage(i)}
-                            style={{
-                                width: "8px",
-                                height: "8px",
-                                borderRadius: "50%",
-                                background: i === currentImage ? "white" : "rgba(255,255,255,0.5)",
-                                border: "none",
-                                cursor: "pointer",
-                            }}
-                        />
-                    ))}
-                </div>
+                {images.length > 1 && (
+                    <div
+                        style={{
+                            position: "absolute",
+                            bottom: "1rem",
+                            left: "50%",
+                            transform: "translateX(-50%)",
+                            display: "flex",
+                            gap: "0.5rem",
+                        }}
+                    >
+                        {images.map((_, i) => (
+                            <button
+                                key={i}
+                                onClick={() => setCurrentImage(i)}
+                                style={{
+                                    width: "8px",
+                                    height: "8px",
+                                    borderRadius: "50%",
+                                    background: i === currentImage ? "white" : "rgba(255,255,255,0.5)",
+                                    border: "none",
+                                    cursor: "pointer",
+                                }}
+                            />
+                        ))}
+                    </div>
+                )}
 
                 {/* Back Button */}
                 <button
@@ -106,7 +155,7 @@ export default function HotelDetailPage() {
                 </button>
 
                 {/* Pay at Hotel Badge */}
-                {mockHotel.payAtHotel && (
+                {hotel.payAtHotelEnabled && (
                     <span
                         className="badge-pay-hotel"
                         style={{
@@ -124,13 +173,10 @@ export default function HotelDetailPage() {
                 {/* Hotel Info */}
                 <div style={{ marginBottom: "1.5rem" }}>
                     <h1 style={{ fontSize: "1.5rem", fontWeight: 700, marginBottom: "0.5rem" }}>
-                        {mockHotel.name}
+                        {hotel.name}
                     </h1>
 
-                    <div
-                        className="hotel-location"
-                        style={{ marginBottom: "0.75rem" }}
-                    >
+                    <div className="hotel-location" style={{ marginBottom: "0.75rem" }}>
                         <svg
                             xmlns="http://www.w3.org/2000/svg"
                             viewBox="0 0 20 20"
@@ -143,7 +189,7 @@ export default function HotelDetailPage() {
                                 clipRule="evenodd"
                             />
                         </svg>
-                        {mockHotel.location}
+                        {hotel.address}, {hotel.city}
                     </div>
 
                     {/* Rating */}
@@ -156,74 +202,82 @@ export default function HotelDetailPage() {
                         >
                             <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                         </svg>
-                        <span className="rating-value">{mockHotel.rating.toFixed(1)}</span>
+                        <span className="rating-value">{parseFloat(hotel.rating || "0").toFixed(1)}</span>
                         <span style={{ color: "var(--color-text-muted)" }}>
-                            ({mockHotel.reviewCount} reviews)
+                            ({hotel.reviewCount} reviews)
                         </span>
                     </div>
                 </div>
 
                 {/* Description */}
-                <div className="card" style={{ padding: "1rem", marginBottom: "1rem" }}>
-                    <h2 style={{ fontSize: "1rem", fontWeight: 600, marginBottom: "0.5rem" }}>
-                        About
-                    </h2>
-                    <p style={{ fontSize: "0.875rem", color: "var(--color-text-secondary)", lineHeight: 1.6 }}>
-                        {mockHotel.description}
-                    </p>
-                </div>
+                {hotel.description && (
+                    <div className="card" style={{ padding: "1rem", marginBottom: "1rem" }}>
+                        <h2 style={{ fontSize: "1rem", fontWeight: 600, marginBottom: "0.5rem" }}>
+                            About
+                        </h2>
+                        <p style={{ fontSize: "0.875rem", color: "var(--color-text-secondary)", lineHeight: 1.6 }}>
+                            {hotel.description}
+                        </p>
+                    </div>
+                )}
 
                 {/* Amenities */}
-                <div className="card" style={{ padding: "1rem", marginBottom: "1rem" }}>
-                    <h2 style={{ fontSize: "1rem", fontWeight: 600, marginBottom: "0.75rem" }}>
-                        Amenities
-                    </h2>
-                    <div className="amenity-tags">
-                        {mockHotel.amenities.map((amenity) => (
-                            <span key={amenity} className="amenity-tag">
-                                ✓ {amenity}
-                            </span>
-                        ))}
+                {hotel.amenities && hotel.amenities.length > 0 && (
+                    <div className="card" style={{ padding: "1rem", marginBottom: "1rem" }}>
+                        <h2 style={{ fontSize: "1rem", fontWeight: 600, marginBottom: "0.75rem" }}>
+                            Amenities
+                        </h2>
+                        <div className="amenity-tags">
+                            {hotel.amenities.map((amenity) => (
+                                <span key={amenity} className="amenity-tag">
+                                    ✓ {amenity}
+                                </span>
+                            ))}
+                        </div>
                     </div>
-                </div>
+                )}
 
                 {/* Room Selection */}
                 <div className="card" style={{ padding: "1rem", marginBottom: "1rem" }}>
                     <h2 style={{ fontSize: "1rem", fontWeight: 600, marginBottom: "0.75rem" }}>
                         Select Room
                     </h2>
-                    <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
-                        {mockHotel.rooms.map((room) => (
-                            <button
-                                key={room.id}
-                                onClick={() => setSelectedRoom(room)}
-                                style={{
-                                    display: "flex",
-                                    justifyContent: "space-between",
-                                    alignItems: "center",
-                                    padding: "1rem",
-                                    border: selectedRoom?.id === room.id
-                                        ? "2px solid var(--color-primary)"
-                                        : "2px solid var(--color-border)",
-                                    borderRadius: "0.75rem",
-                                    background: "white",
-                                    cursor: "pointer",
-                                    transition: "border-color 0.2s ease",
-                                }}
-                            >
-                                <div style={{ textAlign: "left" }}>
-                                    <div style={{ fontWeight: 600 }}>{room.name}</div>
-                                    <div style={{ fontSize: "0.875rem", color: "var(--color-text-secondary)" }}>
-                                        Up to {room.maxGuests} guests
+                    {rooms.length > 0 ? (
+                        <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+                            {rooms.map((room) => (
+                                <button
+                                    key={room.id}
+                                    onClick={() => setSelectedRoom(room)}
+                                    style={{
+                                        display: "flex",
+                                        justifyContent: "space-between",
+                                        alignItems: "center",
+                                        padding: "1rem",
+                                        border: selectedRoom?.id === room.id
+                                            ? "2px solid var(--color-primary)"
+                                            : "2px solid var(--color-border)",
+                                        borderRadius: "0.75rem",
+                                        background: "white",
+                                        cursor: "pointer",
+                                        transition: "border-color 0.2s ease",
+                                    }}
+                                >
+                                    <div style={{ textAlign: "left" }}>
+                                        <div style={{ fontWeight: 600 }}>{room.name}</div>
+                                        <div style={{ fontSize: "0.875rem", color: "var(--color-text-secondary)" }}>
+                                            Up to {room.maxGuests} guests
+                                        </div>
                                     </div>
-                                </div>
-                                <div className="hotel-price">
-                                    ৳{room.price.toLocaleString()}
-                                    <span className="hotel-price-label">/night</span>
-                                </div>
-                            </button>
-                        ))}
-                    </div>
+                                    <div className="hotel-price">
+                                        ৳{Number(room.basePrice).toLocaleString()}
+                                        <span className="hotel-price-label">/night</span>
+                                    </div>
+                                </button>
+                            ))}
+                        </div>
+                    ) : (
+                        <p style={{ color: "var(--color-text-secondary)" }}>No rooms available at the moment.</p>
+                    )}
                 </div>
 
                 {/* Policies */}
@@ -233,48 +287,50 @@ export default function HotelDetailPage() {
                     </h2>
                     <div style={{ fontSize: "0.875rem", color: "var(--color-text-secondary)" }}>
                         <div style={{ marginBottom: "0.5rem" }}>
-                            <strong>Check-in:</strong> {mockHotel.policies.checkIn}
+                            <strong>Check-in:</strong> 2:00 PM
                         </div>
                         <div style={{ marginBottom: "0.5rem" }}>
-                            <strong>Check-out:</strong> {mockHotel.policies.checkOut}
+                            <strong>Check-out:</strong> 12:00 PM
                         </div>
                         <div>
-                            <strong>Cancellation:</strong> {mockHotel.policies.cancellation}
+                            <strong>Cancellation:</strong> Free cancellation up to 24 hours before check-in
                         </div>
                     </div>
                 </div>
             </main>
 
             {/* Sticky Book Now Footer */}
-            <div
-                style={{
-                    position: "fixed",
-                    bottom: 0,
-                    left: 0,
-                    right: 0,
-                    background: "white",
-                    padding: "1rem",
-                    paddingBottom: "calc(1rem + env(safe-area-inset-bottom))",
-                    borderTop: "1px solid var(--color-border)",
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    zIndex: 100,
-                }}
-            >
-                <div>
-                    <div className="hotel-price">
-                        ৳{selectedRoom?.price.toLocaleString()}
-                        <span className="hotel-price-label">/night</span>
+            {selectedRoom && (
+                <div
+                    style={{
+                        position: "fixed",
+                        bottom: 0,
+                        left: 0,
+                        right: 0,
+                        background: "white",
+                        padding: "1rem",
+                        paddingBottom: "calc(1rem + env(safe-area-inset-bottom))",
+                        borderTop: "1px solid var(--color-border)",
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        zIndex: 100,
+                    }}
+                >
+                    <div>
+                        <div className="hotel-price">
+                            ৳{Number(selectedRoom.basePrice).toLocaleString()}
+                            <span className="hotel-price-label">/night</span>
+                        </div>
+                        <div style={{ fontSize: "0.75rem", color: "var(--color-text-secondary)" }}>
+                            {selectedRoom.name}
+                        </div>
                     </div>
-                    <div style={{ fontSize: "0.75rem", color: "var(--color-text-secondary)" }}>
-                        {selectedRoom?.name}
-                    </div>
+                    <button className="btn btn-primary btn-lg" onClick={handleBookNow}>
+                        Book Now
+                    </button>
                 </div>
-                <button className="btn btn-primary btn-lg" onClick={handleBookNow}>
-                    Book Now
-                </button>
-            </div>
+            )}
         </>
     );
 }
