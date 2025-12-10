@@ -1,12 +1,71 @@
 import { redirect } from "next/navigation";
 import { getPartnerHotel, getDashboardStats, getUpcomingBookings } from "./actions/dashboard";
 import { BottomNav, ScannerFAB, StatCard } from "./components";
+import { auth } from "../auth";
 
 export default async function DashboardPage() {
+  const session = await auth();
+
+  // If not logged in, middleware should handle this, but just in case
+  if (!session?.user) {
+    redirect("/auth/signin");
+  }
+
   const hotel = await getPartnerHotel();
 
   if (!hotel) {
-    redirect("/auth/signin");
+    // User is logged in but doesn't own a hotel
+    return (
+      <main style={{
+        minHeight: "100vh",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: "2rem 1rem",
+        background: "var(--color-bg-primary)",
+        textAlign: "center"
+      }}>
+        <div style={{
+          width: "80px",
+          height: "80px",
+          marginBottom: "1.5rem",
+          background: "var(--color-bg-secondary)",
+          borderRadius: "50%",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          fontSize: "2.5rem"
+        }}>
+          🏨
+        </div>
+        <h1 style={{
+          fontSize: "1.5rem",
+          fontWeight: 700,
+          marginBottom: "0.75rem",
+          color: "var(--color-text-primary)"
+        }}>
+          No Hotel Found
+        </h1>
+        <p style={{
+          color: "var(--color-text-secondary)",
+          marginBottom: "2rem",
+          maxWidth: "300px",
+          lineHeight: 1.6
+        }}>
+          Your account doesn&apos;t have a hotel registered yet. Please contact an administrator to set up your hotel.
+        </p>
+        <div style={{
+          padding: "1rem",
+          background: "var(--color-bg-secondary)",
+          borderRadius: "12px",
+          fontSize: "0.875rem",
+          color: "var(--color-text-secondary)"
+        }}>
+          Signed in as: <strong style={{ color: "var(--color-text-primary)" }}>{session.user.email}</strong>
+        </div>
+      </main>
+    );
   }
 
   const [stats, upcomingBookings] = await Promise.all([
