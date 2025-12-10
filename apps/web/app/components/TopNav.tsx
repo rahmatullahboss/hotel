@@ -2,9 +2,11 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useSession, signOut } from "next-auth/react";
 
 export function TopNav() {
     const pathname = usePathname();
+    const { data: session, status } = useSession();
 
     return (
         <nav className="top-nav">
@@ -34,12 +36,80 @@ export function TopNav() {
             </div>
 
             <div className="top-nav-actions">
-                <Link href="/auth/login" className="btn btn-outline" style={{ padding: "0.5rem 1rem" }}>
-                    Log In
-                </Link>
-                <Link href="/auth/signup" className="btn btn-primary" style={{ padding: "0.5rem 1rem" }}>
-                    Sign Up
-                </Link>
+                {status === "loading" ? (
+                    <div style={{ width: 80, height: 36 }} />
+                ) : session?.user ? (
+                    <>
+                        <Link
+                            href="/profile"
+                            className="top-nav-user"
+                            style={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: "0.5rem",
+                                textDecoration: "none",
+                                color: "var(--color-text-primary)",
+                            }}
+                        >
+                            {session.user.image ? (
+                                <img
+                                    src={session.user.image}
+                                    alt=""
+                                    style={{
+                                        width: 32,
+                                        height: 32,
+                                        borderRadius: "50%",
+                                        objectFit: "cover",
+                                    }}
+                                />
+                            ) : (
+                                <div
+                                    style={{
+                                        width: 32,
+                                        height: 32,
+                                        borderRadius: "50%",
+                                        background: "var(--color-primary)",
+                                        color: "white",
+                                        display: "flex",
+                                        alignItems: "center",
+                                        justifyContent: "center",
+                                        fontSize: "0.875rem",
+                                        fontWeight: 600,
+                                    }}
+                                >
+                                    {(session.user.name || session.user.email)?.[0]?.toUpperCase()}
+                                </div>
+                            )}
+                            <span style={{ fontWeight: 500 }}>
+                                {session.user.name || "Profile"}
+                            </span>
+                        </Link>
+                        <button
+                            onClick={() => signOut({ callbackUrl: "/" })}
+                            className="btn btn-outline"
+                            style={{ padding: "0.5rem 1rem" }}
+                        >
+                            Sign Out
+                        </button>
+                    </>
+                ) : (
+                    <>
+                        <Link
+                            href="/auth/signin"
+                            className="btn btn-outline"
+                            style={{ padding: "0.5rem 1rem" }}
+                        >
+                            Log In
+                        </Link>
+                        <Link
+                            href="/auth/signin"
+                            className="btn btn-primary"
+                            style={{ padding: "0.5rem 1rem" }}
+                        >
+                            Sign Up
+                        </Link>
+                    </>
+                )}
             </div>
         </nav>
     );

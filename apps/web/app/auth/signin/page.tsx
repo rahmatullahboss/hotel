@@ -1,24 +1,28 @@
 "use client";
 
 import { signIn } from "next-auth/react";
-import { useState } from "react";
+import { useState, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { BottomNav } from "../../components";
 
-export default function SignInPage() {
+function SignInContent() {
+    const searchParams = useSearchParams();
+    const callbackUrl = searchParams.get("callbackUrl") || "/";
+
     const [email, setEmail] = useState("");
     const [isLoading, setIsLoading] = useState(false);
 
     const handleGoogleSignIn = async () => {
         setIsLoading(true);
-        await signIn("google", { callbackUrl: "/" });
+        await signIn("google", { callbackUrl });
     };
 
     const handleDevSignIn = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!email) return;
         setIsLoading(true);
-        await signIn("credentials", { email, callbackUrl: "/" });
+        await signIn("credentials", { email, callbackUrl });
     };
 
     return (
@@ -27,9 +31,11 @@ export default function SignInPage() {
                 <div className="container" style={{ maxWidth: "400px" }}>
                     {/* Logo */}
                     <div style={{ textAlign: "center", marginBottom: "2rem" }}>
-                        <h1 style={{ fontSize: "2.5rem", fontWeight: 800, color: "var(--color-primary)" }}>
-                            Vibe
-                        </h1>
+                        <Link href="/" style={{ textDecoration: "none" }}>
+                            <h1 style={{ fontSize: "2.5rem", fontWeight: 800, color: "var(--color-primary)" }}>
+                                Vibe
+                            </h1>
+                        </Link>
                         <p style={{ color: "var(--color-text-secondary)" }}>
                             Sign in to book verified hotels
                         </p>
@@ -68,7 +74,7 @@ export default function SignInPage() {
                                     d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
                                 />
                             </svg>
-                            Continue with Google
+                            {isLoading ? "Signing in..." : "Continue with Google"}
                         </button>
 
                         <div
@@ -85,28 +91,26 @@ export default function SignInPage() {
                             <div style={{ flex: 1, height: "1px", background: "var(--color-border)" }} />
                         </div>
 
-                        {/* Dev Sign In (development only) */}
-                        {process.env.NODE_ENV === "development" && (
-                            <form onSubmit={handleDevSignIn}>
-                                <div className="form-group">
-                                    <label className="form-label">Email (Dev Only)</label>
-                                    <input
-                                        type="email"
-                                        className="form-input"
-                                        placeholder="your@email.com"
-                                        value={email}
-                                        onChange={(e) => setEmail(e.target.value)}
-                                    />
-                                </div>
-                                <button
-                                    type="submit"
-                                    disabled={isLoading || !email}
-                                    className="btn btn-primary btn-block"
-                                >
-                                    {isLoading ? "Signing in..." : "Sign In with Email"}
-                                </button>
-                            </form>
-                        )}
+                        {/* Dev Sign In - show always for testing */}
+                        <form onSubmit={handleDevSignIn}>
+                            <div className="form-group">
+                                <label className="form-label">Email</label>
+                                <input
+                                    type="email"
+                                    className="form-input"
+                                    placeholder="your@email.com"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                />
+                            </div>
+                            <button
+                                type="submit"
+                                disabled={isLoading || !email}
+                                className="btn btn-primary btn-block"
+                            >
+                                {isLoading ? "Signing in..." : "Sign In with Email"}
+                            </button>
+                        </form>
 
                         {/* Phone Sign In Placeholder */}
                         <div style={{ marginTop: "1rem" }}>
@@ -144,5 +148,13 @@ export default function SignInPage() {
 
             <BottomNav />
         </>
+    );
+}
+
+export default function SignInPage() {
+    return (
+        <Suspense fallback={<div style={{ padding: "2rem", textAlign: "center" }}>Loading...</div>}>
+            <SignInContent />
+        </Suspense>
     );
 }
