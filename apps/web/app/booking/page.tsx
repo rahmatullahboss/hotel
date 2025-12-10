@@ -113,7 +113,38 @@ function BookingContent() {
 
                 if (result.success && result.bookingId) {
                     setBookingId(result.bookingId);
-                    setStep(3);
+
+                    // Handle different payment methods
+                    if (paymentMethod === "BKASH") {
+                        // Initiate bKash payment
+                        try {
+                            const paymentResponse = await fetch("/api/payment/initiate", {
+                                method: "POST",
+                                headers: { "Content-Type": "application/json" },
+                                body: JSON.stringify({ bookingId: result.bookingId }),
+                            });
+                            const paymentData = await paymentResponse.json();
+
+                            if (paymentData.success && paymentData.redirectUrl) {
+                                // Redirect to bKash
+                                window.location.href = paymentData.redirectUrl;
+                                return;
+                            } else {
+                                setError(paymentData.error || "Failed to initiate payment. Please try again.");
+                                setStep(3); // Show confirmation anyway - they can pay later
+                            }
+                        } catch (paymentErr) {
+                            setError("Payment service unavailable. Your booking is saved - you can pay at the hotel.");
+                            setStep(3);
+                        }
+                    } else if (paymentMethod === "NAGAD" || paymentMethod === "CARD") {
+                        // TODO: Implement Nagad and Card payments
+                        setError("This payment method is coming soon. Your booking is saved - you can pay at the hotel.");
+                        setStep(3);
+                    } else {
+                        // PAY_AT_HOTEL - go straight to confirmation
+                        setStep(3);
+                    }
                 } else {
                     setError(result.error || "Failed to create booking");
                 }
