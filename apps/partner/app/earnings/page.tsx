@@ -1,43 +1,17 @@
-"use client";
-
+import { redirect } from "next/navigation";
+import { getPartnerHotel } from "../actions/dashboard";
+import { getEarningsData } from "../actions/earnings";
 import { BottomNav, ScannerFAB } from "../components";
 
-// Mock data - will be replaced with Server Actions
-const mockEarnings = {
-    today: "৳12,500",
-    thisWeek: "৳78,400",
-    thisMonth: "৳3,45,000",
-    pending: "৳25,000",
-};
+export default async function EarningsPage() {
+    const hotel = await getPartnerHotel();
 
-const mockRecentTransactions = [
-    {
-        id: "1",
-        guestName: "Mohammad Rahman",
-        roomName: "Room 101",
-        amount: "৳3,500",
-        date: "Today, 10:30 AM",
-        status: "PAID" as const,
-    },
-    {
-        id: "2",
-        guestName: "Fatima Akter",
-        roomName: "Room 205",
-        amount: "৳4,200",
-        date: "Today, 9:15 AM",
-        status: "PAID" as const,
-    },
-    {
-        id: "3",
-        guestName: "Abdul Karim",
-        roomName: "Room 302",
-        amount: "৳4,800",
-        date: "Yesterday",
-        status: "PAY_AT_HOTEL" as const,
-    },
-];
+    if (!hotel) {
+        redirect("/auth/signin");
+    }
 
-export default function EarningsPage() {
+    const earnings = await getEarningsData(hotel.id, "month");
+
     return (
         <>
             {/* Header */}
@@ -59,25 +33,25 @@ export default function EarningsPage() {
                     }}
                 >
                     <div className="card stat-card">
-                        <div className="stat-value">{mockEarnings.today}</div>
-                        <div className="stat-label">Today</div>
+                        <div className="stat-value">৳{earnings.totalRevenue.toLocaleString()}</div>
+                        <div className="stat-label">Total Revenue</div>
                     </div>
                     <div className="card stat-card">
-                        <div className="stat-value">{mockEarnings.thisWeek}</div>
-                        <div className="stat-label">This Week</div>
+                        <div className="stat-value">৳{earnings.netEarnings.toLocaleString()}</div>
+                        <div className="stat-label">Net Earnings</div>
                     </div>
                     <div className="card stat-card">
-                        <div className="stat-value">{mockEarnings.thisMonth}</div>
-                        <div className="stat-label">This Month</div>
+                        <div className="stat-value">{earnings.totalBookings}</div>
+                        <div className="stat-label">Total Bookings</div>
                     </div>
                     <div className="card stat-card">
                         <div
                             className="stat-value"
                             style={{ color: "var(--color-warning)" }}
                         >
-                            {mockEarnings.pending}
+                            -৳{earnings.totalCommission.toLocaleString()}
                         </div>
-                        <div className="stat-label">Pending (Pay at Hotel)</div>
+                        <div className="stat-label">Platform Commission</div>
                     </div>
                 </div>
 
@@ -102,7 +76,7 @@ export default function EarningsPage() {
                                 Platform Commission
                             </div>
                             <div style={{ fontSize: "0.875rem", color: "var(--color-text-secondary)" }}>
-                                20% of total bookings
+                                {hotel.status === "ACTIVE" ? "12%" : "20%"} of total bookings
                             </div>
                         </div>
                         <div
@@ -112,7 +86,7 @@ export default function EarningsPage() {
                                 color: "var(--color-primary)",
                             }}
                         >
-                            -৳69,000
+                            -৳{earnings.totalCommission.toLocaleString()}
                         </div>
                     </div>
                 </div>
@@ -131,51 +105,64 @@ export default function EarningsPage() {
                     </h2>
 
                     <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
-                        {mockRecentTransactions.map((tx) => (
+                        {earnings.transactions.length === 0 ? (
                             <div
-                                key={tx.id}
                                 className="card"
                                 style={{
-                                    display: "flex",
-                                    justifyContent: "space-between",
-                                    alignItems: "center",
-                                    padding: "1rem",
+                                    padding: "2rem",
+                                    textAlign: "center",
+                                    color: "var(--color-text-secondary)",
                                 }}
                             >
-                                <div>
-                                    <div style={{ fontWeight: 600, marginBottom: "0.25rem" }}>
-                                        {tx.guestName}
-                                    </div>
-                                    <div style={{ fontSize: "0.875rem", color: "var(--color-text-secondary)" }}>
-                                        {tx.roomName} • {tx.date}
-                                    </div>
-                                </div>
-                                <div style={{ textAlign: "right" }}>
-                                    <div
-                                        style={{
-                                            fontWeight: 700,
-                                            color: "var(--color-success)",
-                                            marginBottom: "0.25rem",
-                                        }}
-                                    >
-                                        {tx.amount}
-                                    </div>
-                                    <span
-                                        className={`badge ${tx.status === "PAID" ? "badge-success" : "badge-warning"
-                                            }`}
-                                        style={{ fontSize: "0.75rem" }}
-                                    >
-                                        {tx.status === "PAID" ? "Paid" : "Pay at Hotel"}
-                                    </span>
-                                </div>
+                                No transactions this month
                             </div>
-                        ))}
+                        ) : (
+                            earnings.transactions.map((tx) => (
+                                <div
+                                    key={tx.id}
+                                    className="card"
+                                    style={{
+                                        display: "flex",
+                                        justifyContent: "space-between",
+                                        alignItems: "center",
+                                        padding: "1rem",
+                                    }}
+                                >
+                                    <div>
+                                        <div style={{ fontWeight: 600, marginBottom: "0.25rem" }}>
+                                            {tx.guestName}
+                                        </div>
+                                        <div style={{ fontSize: "0.875rem", color: "var(--color-text-secondary)" }}>
+                                            Check-in: {tx.checkIn}
+                                        </div>
+                                    </div>
+                                    <div style={{ textAlign: "right" }}>
+                                        <div
+                                            style={{
+                                                fontWeight: 700,
+                                                color: "var(--color-success)",
+                                                marginBottom: "0.25rem",
+                                            }}
+                                        >
+                                            ৳{tx.net.toLocaleString()}
+                                        </div>
+                                        <span
+                                            className={`badge ${tx.paymentStatus === "PAID" ? "badge-success" : "badge-warning"
+                                                }`}
+                                            style={{ fontSize: "0.75rem" }}
+                                        >
+                                            {tx.paymentStatus === "PAID" ? "Paid" : tx.paymentStatus === "PAY_AT_HOTEL" ? "Pay at Hotel" : "Pending"}
+                                        </span>
+                                    </div>
+                                </div>
+                            ))
+                        )}
                     </div>
                 </section>
             </main>
 
             {/* Scanner FAB */}
-            <ScannerFAB onClick={() => (window.location.href = "/scanner")} />
+            <ScannerFAB />
 
             {/* Bottom Navigation */}
             <BottomNav />

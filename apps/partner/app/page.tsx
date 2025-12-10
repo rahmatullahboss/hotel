@@ -1,47 +1,29 @@
-"use client";
-
+import { redirect } from "next/navigation";
+import { getPartnerHotel, getDashboardStats, getUpcomingBookings } from "./actions/dashboard";
 import { BottomNav, ScannerFAB, StatCard } from "./components";
 
-// Mock data - will be replaced with real data from Server Actions
-const mockStats = {
-  roomsAvailable: 5,
-  todayEarnings: "৳12,500",
-  upcomingCheckIns: 3,
-  occupancyRate: "68%",
-};
+export default async function DashboardPage() {
+  const hotel = await getPartnerHotel();
 
-const mockUpcomingBookings = [
-  {
-    id: "1",
-    guestName: "Mohammad Rahman",
-    roomName: "Room 101",
-    checkIn: "Today, 2:00 PM",
-    status: "CONFIRMED" as const,
-  },
-  {
-    id: "2",
-    guestName: "Fatima Akter",
-    roomName: "Room 205",
-    checkIn: "Today, 4:00 PM",
-    status: "CONFIRMED" as const,
-  },
-  {
-    id: "3",
-    guestName: "Abdul Karim",
-    roomName: "Room 302",
-    checkIn: "Tomorrow, 10:00 AM",
-    status: "PENDING" as const,
-  },
-];
+  if (!hotel) {
+    redirect("/auth/signin");
+  }
 
-export default function DashboardPage() {
+  const [stats, upcomingBookings] = await Promise.all([
+    getDashboardStats(hotel.id),
+    getUpcomingBookings(hotel.id, 5),
+  ]);
+
+  // Calculate rooms available from stats (this is a simplification)
+  const roomsAvailable = Math.max(0, 10 - stats.occupancyRate / 10); // Approximate based on occupancy
+
   return (
     <>
       {/* Header */}
       <header className="page-header">
         <h1 className="page-title">Vibe Manager</h1>
         <p style={{ color: "var(--color-text-secondary)", fontSize: "0.875rem" }}>
-          Hotel Sunrise, Dhaka
+          {hotel.name}, {hotel.city}
         </p>
       </header>
 
@@ -56,20 +38,20 @@ export default function DashboardPage() {
           }}
         >
           <StatCard
-            value={mockStats.roomsAvailable}
-            label="Rooms Available"
+            value={stats.todayCheckIns}
+            label="Today's Check-ins"
           />
           <StatCard
-            value={mockStats.todayEarnings}
-            label="Today's Earnings"
-            trend={{ value: 12, isPositive: true }}
+            value={`৳${stats.monthlyRevenue.toLocaleString()}`}
+            label="Monthly Revenue"
+            trend={stats.monthlyRevenue > 0 ? { value: 12, isPositive: true } : undefined}
           />
           <StatCard
-            value={mockStats.upcomingCheckIns}
-            label="Upcoming Check-ins"
+            value={stats.pendingBookings}
+            label="Pending Bookings"
           />
           <StatCard
-            value={mockStats.occupancyRate}
+            value={`${stats.occupancyRate}%`}
             label="Occupancy Rate"
           />
         </div>
@@ -88,33 +70,46 @@ export default function DashboardPage() {
           </h2>
 
           <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
-            {mockUpcomingBookings.map((booking) => (
+            {upcomingBookings.length === 0 ? (
               <div
-                key={booking.id}
                 className="card"
                 style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  padding: "1rem",
+                  padding: "2rem",
+                  textAlign: "center",
+                  color: "var(--color-text-secondary)",
                 }}
               >
-                <div>
-                  <div style={{ fontWeight: 600, marginBottom: "0.25rem" }}>
-                    {booking.guestName}
-                  </div>
-                  <div style={{ fontSize: "0.875rem", color: "var(--color-text-secondary)" }}>
-                    {booking.roomName} • {booking.checkIn}
-                  </div>
-                </div>
-                <span
-                  className={`badge ${booking.status === "CONFIRMED" ? "badge-success" : "badge-warning"
-                    }`}
-                >
-                  {booking.status === "CONFIRMED" ? "Confirmed" : "Pending"}
-                </span>
+                No upcoming bookings
               </div>
-            ))}
+            ) : (
+              upcomingBookings.map((booking) => (
+                <div
+                  key={booking.id}
+                  className="card"
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    padding: "1rem",
+                  }}
+                >
+                  <div>
+                    <div style={{ fontWeight: 600, marginBottom: "0.25rem" }}>
+                      {booking.guestName}
+                    </div>
+                    <div style={{ fontSize: "0.875rem", color: "var(--color-text-secondary)" }}>
+                      Room {booking.roomNumber} • {booking.checkIn}
+                    </div>
+                  </div>
+                  <span
+                    className={`badge ${booking.status === "CONFIRMED" ? "badge-success" : "badge-warning"
+                      }`}
+                  >
+                    {booking.status === "CONFIRMED" ? "Confirmed" : "Pending"}
+                  </span>
+                </div>
+              ))
+            )}
           </div>
         </section>
 
@@ -135,13 +130,15 @@ export default function DashboardPage() {
             <a href="/inventory" className="btn btn-primary">
               Manage Inventory
             </a>
-            <button className="btn btn-outline">Add Walk-in Guest</button>
+            <a href="/scanner" className="btn btn-outline">
+              Check-in Guest
+            </a>
           </div>
         </section>
       </main>
 
       {/* Scanner FAB */}
-      <ScannerFAB onClick={() => window.location.href = "/scanner"} />
+      <ScannerFAB />
 
       {/* Bottom Navigation */}
       <BottomNav />

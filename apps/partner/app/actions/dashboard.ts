@@ -4,6 +4,77 @@ import { db } from "@repo/db";
 import { bookings, rooms, hotels } from "@repo/db/schema";
 import { eq, and, desc, sql, gte, lte } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
+import { auth } from "../../auth";
+
+export interface PartnerHotel {
+    id: string;
+    name: string;
+    city: string;
+    status: string;
+}
+
+/**
+ * Get the current partner's hotel from session
+ */
+export async function getPartnerHotel(): Promise<PartnerHotel | null> {
+    try {
+        const session = await auth();
+        if (!session?.user?.id) {
+            return null;
+        }
+
+        const hotel = await db.query.hotels.findFirst({
+            where: eq(hotels.ownerId, session.user.id),
+            columns: {
+                id: true,
+                name: true,
+                city: true,
+                status: true,
+            },
+        });
+
+        return hotel || null;
+    } catch (error) {
+        console.error("Error fetching partner hotel:", error);
+        return null;
+    }
+}
+
+/**
+ * Find a booking by ID (for scanner)
+ */
+export async function findBookingById(bookingId: string, hotelId: string) {
+    try {
+        const booking = await db.query.bookings.findFirst({
+            where: and(eq(bookings.id, bookingId), eq(bookings.hotelId, hotelId)),
+            with: {
+                room: true,
+            },
+        });
+
+        if (!booking) {
+            return { success: false, error: "Booking not found" };
+        }
+
+        return {
+            success: true,
+            booking: {
+                id: booking.id,
+                guestName: booking.guestName,
+                guestPhone: booking.guestPhone,
+                roomNumber: booking.room?.roomNumber || "",
+                roomName: booking.room?.name || "",
+                checkIn: booking.checkIn,
+                checkOut: booking.checkOut,
+                status: booking.status,
+                totalAmount: Number(booking.totalAmount),
+            },
+        };
+    } catch (error) {
+        console.error("Error finding booking:", error);
+        return { success: false, error: "Failed to find booking" };
+    }
+}
 
 export interface DashboardStats {
     todayCheckIns: number;

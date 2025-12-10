@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+
 // QR Scanner FAB (Floating Action Button)
 const QRIcon = () => (
     <svg
@@ -24,16 +26,30 @@ const QRIcon = () => (
 
 interface ScannerFABProps {
     onClick?: () => void;
+    href?: string;
 }
 
-export function ScannerFAB({ onClick }: ScannerFABProps) {
+export function ScannerFAB({ onClick, href = "/scanner" }: ScannerFABProps) {
+    if (onClick) {
+        return (
+            <button
+                className="fab"
+                onClick={onClick}
+                aria-label="Scan QR Code for check-in"
+            >
+                <QRIcon />
+            </button>
+        );
+    }
+
     return (
-        <button
+        <Link
+            href={href}
             className="fab"
-            onClick={onClick}
             aria-label="Scan QR Code for check-in"
         >
             <QRIcon />
-        </button>
+        </Link>
     );
 }
+

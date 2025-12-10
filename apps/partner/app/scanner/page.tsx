@@ -1,42 +1,92 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { BottomNav } from "../components";
+import { findBookingById, checkInGuest, getPartnerHotel } from "../actions/dashboard";
+
+interface BookingResult {
+    id: string;
+    guestName: string;
+    guestPhone: string;
+    roomNumber: string;
+    roomName: string;
+    checkIn: string;
+    checkOut: string;
+    status: string;
+    totalAmount: number;
+}
 
 export default function ScannerPage() {
+    const router = useRouter();
+    const [hotelId, setHotelId] = useState<string | null>(null);
     const [bookingId, setBookingId] = useState("");
     const [isScanning, setIsScanning] = useState(false);
+    const [isPending, startTransition] = useTransition();
     const [result, setResult] = useState<{
         success: boolean;
         message: string;
-        guest?: { name: string; room: string };
+        booking?: BookingResult;
     } | null>(null);
+    const [checkInDone, setCheckInDone] = useState(false);
 
-    const handleManualSearch = (e: React.FormEvent) => {
+    // Get hotel ID on mount
+    useEffect(() => {
+        getPartnerHotel().then((hotel) => {
+            if (hotel) {
+                setHotelId(hotel.id);
+            } else {
+                router.push("/auth/signin");
+            }
+        });
+    }, [router]);
+
+    const handleManualSearch = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        // Mock check-in result
-        if (bookingId.trim()) {
-            setResult({
-                success: true,
-                message: "Guest found! Ready to check in.",
-                guest: {
-                    name: "Mohammad Rahman",
-                    room: "Room 101",
-                },
-            });
-        }
+        if (!bookingId.trim() || !hotelId) return;
+
+        startTransition(async () => {
+            const response = await findBookingById(bookingId.trim(), hotelId);
+
+            if (response.success && response.booking) {
+                setResult({
+                    success: true,
+                    message: "Guest found! Ready to check in.",
+                    booking: response.booking,
+                });
+            } else {
+                setResult({
+                    success: false,
+                    message: response.error || "Booking not found",
+                });
+            }
+        });
     };
 
-    const handleCheckIn = () => {
-        // TODO: Call Server Action to check in guest
-        setResult({
-            success: true,
-            message: "✓ Guest checked in successfully!",
+    const handleCheckIn = async () => {
+        if (!result?.booking || !hotelId) return;
+
+        startTransition(async () => {
+            const response = await checkInGuest(result.booking!.id, hotelId);
+
+            if (response.success) {
+                setCheckInDone(true);
+                setResult({
+                    success: true,
+                    message: "✓ Guest checked in successfully!",
+                });
+                setTimeout(() => {
+                    router.push("/");
+                }, 2000);
+            } else {
+                setResult({
+                    success: false,
+                    message: response.error || "Failed to check in guest",
+                    booking: result.booking,
+                });
+            }
         });
-        setTimeout(() => {
-            window.location.href = "/";
-        }, 2000);
     };
 
     return (
@@ -127,7 +177,7 @@ export default function ScannerPage() {
                             type="text"
                             value={bookingId}
                             onChange={(e) => setBookingId(e.target.value)}
-                            placeholder="e.g., VBK-123456"
+                            placeholder="Enter booking ID or UUID"
                             style={{
                                 flex: 1,
                                 padding: "0.75rem 1rem",
@@ -137,8 +187,12 @@ export default function ScannerPage() {
                                 outline: "none",
                             }}
                         />
-                        <button type="submit" className="btn btn-primary">
-                            Search
+                        <button
+                            type="submit"
+                            className="btn btn-primary"
+                            disabled={isPending || !hotelId}
+                        >
+                            {isPending ? "..." : "Search"}
                         </button>
                     </div>
                 </form>
@@ -155,7 +209,7 @@ export default function ScannerPage() {
                                 : "var(--color-error)",
                         }}
                     >
-                        {result.guest ? (
+                        {result.booking && !checkInDone ? (
                             <>
                                 <div
                                     style={{
@@ -167,27 +221,43 @@ export default function ScannerPage() {
                                 >
                                     <div>
                                         <div style={{ fontWeight: 700, fontSize: "1.25rem" }}>
-                                            {result.guest.name}
+                                            {result.booking.guestName}
                                         </div>
                                         <div style={{ color: "var(--color-text-secondary)" }}>
-                                            {result.guest.room}
+                                            Room {result.booking.roomNumber} • {result.booking.roomName}
+                                        </div>
+                                        <div style={{ fontSize: "0.875rem", color: "var(--color-text-muted)", marginTop: "0.5rem" }}>
+                                            Check-in: {result.booking.checkIn} • Check-out: {result.booking.checkOut}
                                         </div>
                                     </div>
-                                    <span className="badge badge-success">Verified</span>
+                                    <span className={`badge ${result.booking.status === "CONFIRMED" ? "badge-success" : "badge-warning"}`}>
+                                        {result.booking.status}
+                                    </span>
                                 </div>
-                                <button
-                                    className="btn btn-accent"
-                                    style={{ width: "100%" }}
-                                    onClick={handleCheckIn}
-                                >
-                                    ✓ Check In Guest
-                                </button>
+                                {result.booking.status === "CONFIRMED" ? (
+                                    <button
+                                        className="btn btn-accent"
+                                        style={{ width: "100%" }}
+                                        onClick={handleCheckIn}
+                                        disabled={isPending}
+                                    >
+                                        {isPending ? "Processing..." : "✓ Check In Guest"}
+                                    </button>
+                                ) : result.booking.status === "CHECKED_IN" ? (
+                                    <div style={{ textAlign: "center", color: "var(--color-success)", fontWeight: 600 }}>
+                                        Guest is already checked in
+                                    </div>
+                                ) : (
+                                    <div style={{ textAlign: "center", color: "var(--color-warning)", fontWeight: 600 }}>
+                                        Booking must be confirmed before check-in
+                                    </div>
+                                )}
                             </>
                         ) : (
                             <div
                                 style={{
                                     textAlign: "center",
-                                    color: "var(--color-success)",
+                                    color: result.success ? "var(--color-success)" : "var(--color-error)",
                                     fontSize: "1.25rem",
                                     fontWeight: 600,
                                 }}
