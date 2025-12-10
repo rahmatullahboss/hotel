@@ -7,6 +7,10 @@
         "./auth": {
             "types": "./dist/auth.d.ts",
             "default": "./dist/auth.js"
+        },
+        "./payment": {
+            "types": "./dist/payment.d.ts",
+            "default": "./dist/payment.js"
         }
     },
     "scripts": {
