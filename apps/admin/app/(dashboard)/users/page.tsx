@@ -64,12 +64,13 @@ export default async function UsersPage() {
                                             >
                                                 <select
                                                     name="role"
-                                                    defaultValue={user.role || "USER"}
+                                                    defaultValue={user.role || "TRAVELER"}
                                                     className="form-select"
                                                 >
-                                                    <option value="USER">User</option>
-                                                    <option value="ADMIN">Admin</option>
+                                                    <option value="TRAVELER">Traveler</option>
+                                                    <option value="HOTEL_OWNER">Hotel Owner</option>
                                                     <option value="PARTNER">Partner</option>
+                                                    <option value="ADMIN">Admin</option>
                                                 </select>
                                                 <button type="submit" className="btn btn-sm btn-outline">
                                                     Update
