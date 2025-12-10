@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "@repo/db";
-import { bookings, rooms, hotels } from "@repo/db/schema";
+import { bookings, rooms, hotels, users } from "@repo/db/schema";
 import { eq, desc } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
@@ -78,6 +78,19 @@ export async function createBooking(input: CreateBookingInput): Promise<BookingR
             paymentStatus: paymentMethod === "PAY_AT_HOTEL" ? "PAY_AT_HOTEL" : "PENDING",
             status: "PENDING",
         }).returning();
+
+        // Save phone to user profile if user is logged in and phone not saved
+        if (userId && guestPhone) {
+            const user = await db.query.users.findFirst({
+                where: eq(users.id, userId),
+            });
+
+            if (user && !user.phone) {
+                await db.update(users)
+                    .set({ phone: guestPhone, updatedAt: new Date() })
+                    .where(eq(users.id, userId));
+            }
+        }
 
         revalidatePath("/bookings");
 

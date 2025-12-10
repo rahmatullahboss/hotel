@@ -5,6 +5,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { createBooking } from "../actions/bookings";
+import { getUserProfile } from "../actions/profile";
 
 type PaymentMethod = "BKASH" | "NAGAD" | "CARD" | "PAY_AT_HOTEL";
 
@@ -44,11 +45,20 @@ function BookingContent() {
     const [bookingId, setBookingId] = useState("");
     const [error, setError] = useState("");
 
-    // Pre-fill form with session data
+    // Pre-fill form with session data and profile (including phone)
     useEffect(() => {
         if (session?.user) {
             setGuestName(session.user.name || "");
             setGuestEmail(session.user.email || "");
+
+            // Fetch user profile to get saved phone number
+            if (session.user.id) {
+                getUserProfile(session.user.id).then((profile) => {
+                    if (profile?.phone) {
+                        setGuestPhone(profile.phone);
+                    }
+                });
+            }
         }
     }, [session]);
 
