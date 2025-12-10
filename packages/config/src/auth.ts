@@ -1,0 +1,142 @@
+import { DrizzleAdapter } from "@auth/drizzle-adapter";
+import type { NextAuthConfig } from "next-auth";
+import Google from "next-auth/providers/google";
+import Credentials from "next-auth/providers/credentials";
+import { getDb, users, accounts, sessions, verificationTokens } from "@repo/db";
+
+/**
+ * Shared Auth.js v5 configuration for all apps
+ * 
+ * Apps should import this config and extend it with their own settings:
+ * 
+ * ```ts
+ * import { authConfig } from "@repo/config/auth";
+ * import NextAuth from "next-auth";
+ * 
+ * export const { handlers, auth, signIn, signOut } = NextAuth({
+ *   ...authConfig,
+ *   // App-specific overrides
+ * });
+ * ```
+ */
+
+export const authConfig: NextAuthConfig = {
+    adapter: DrizzleAdapter(getDb(), {
+        usersTable: users,
+        accountsTable: accounts,
+        sessionsTable: sessions,
+        verificationTokensTable: verificationTokens,
+    }),
+
+    providers: [
+        Google({
+            clientId: process.env.AUTH_GOOGLE_ID,
+            clientSecret: process.env.AUTH_GOOGLE_SECRET,
+        }),
+
+        // Phone/OTP authentication can be added here
+        // Credentials provider for development
+        Credentials({
+            name: "Development",
+            credentials: {
+                email: { label: "Email", type: "email" },
+            },
+            async authorize(credentials) {
+                // Only for development - remove in production
+                if (process.env.NODE_ENV !== "development") {
+                    return null;
+                }
+
+                const email = credentials.email as string;
+                if (!email) return null;
+
+                // Find or create user for development
+                const db = getDb();
+                const existingUser = await db.query.users.findFirst({
+                    where: (users, { eq }) => eq(users.email, email),
+                });
+
+                if (existingUser) {
+                    return existingUser;
+                }
+
+                // Create new user for development
+                const [newUser] = await db
+                    .insert(users)
+                    .values({
+                        email,
+                        name: email.split("@")[0],
+                        role: "TRAVELER",
+                    })
+                    .returning();
+
+                return newUser ?? null;
+            },
+        }),
+    ],
+
+    session: {
+        strategy: "jwt",
+    },
+
+    callbacks: {
+        jwt({ token, user }) {
+            if (user) {
+                token.id = user.id;
+                token.role = (user as typeof users.$inferSelect).role;
+            }
+            return token;
+        },
+
+        session({ session, token }) {
+            if (token && session.user) {
+                session.user.id = token.id as string;
+                session.user.role = token.role as string;
+            }
+            return session;
+        },
+
+        authorized({ auth, request: { nextUrl } }) {
+            const isLoggedIn = !!auth?.user;
+            const isOnDashboard = nextUrl.pathname.startsWith("/dashboard");
+
+            if (isOnDashboard) {
+                if (isLoggedIn) return true;
+                return false; // Redirect unauthenticated users to login page
+            }
+
+            return true;
+        },
+    },
+
+    pages: {
+        signIn: "/auth/signin",
+        error: "/auth/error",
+    },
+
+    debug: process.env.NODE_ENV === "development",
+};
+
+// Type augmentation for Auth.js
+declare module "next-auth" {
+    interface User {
+        role?: string;
+    }
+
+    interface Session {
+        user: {
+            id: string;
+            role: string;
+            email: string;
+            name?: string | null;
+            image?: string | null;
+        };
+    }
+}
+
+declare module "next-auth/jwt" {
+    interface JWT {
+        id?: string;
+        role?: string;
+    }
+}

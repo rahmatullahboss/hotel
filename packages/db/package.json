@@ -1,0 +1,37 @@
+{
+    "name": "@repo/db",
+    "version": "0.1.0",
+    "type": "module",
+    "private": true,
+    "exports": {
+        ".": {
+            "types": "./dist/index.d.ts",
+            "default": "./dist/index.js"
+        },
+        "./schema": {
+            "types": "./dist/schema/index.d.ts",
+            "default": "./dist/schema/index.js"
+        }
+    },
+    "scripts": {
+        "build": "tsc",
+        "dev": "tsc --watch",
+        "db:generate": "drizzle-kit generate",
+        "db:push": "drizzle-kit push",
+        "db:studio": "drizzle-kit studio",
+        "lint": "eslint --max-warnings 0",
+        "check-types": "tsc --noEmit"
+    },
+    "dependencies": {
+        "@neondatabase/serverless": "^0.10.4",
+        "drizzle-orm": "^0.45.0"
+    },
+    "devDependencies": {
+        "@repo/eslint-config": "*",
+        "@repo/typescript-config": "*",
+        "@types/node": "^22.15.3",
+        "drizzle-kit": "^0.30.5",
+        "eslint": "^9.39.1",
+        "typescript": "5.9.2"
+    }
+}
