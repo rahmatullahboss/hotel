@@ -1,5 +1,8 @@
 "use client";
 
+import { useState, useEffect } from "react";
+import { useSession } from "next-auth/react";
+import { getUserBookings } from "../actions/bookings";
 import { BottomNav } from "../components";
 
 type BookingStatus = "PENDING" | "CONFIRMED" | "CHECKED_IN" | "CHECKED_OUT" | "CANCELLED";
@@ -7,52 +10,18 @@ type PaymentStatus = "PENDING" | "PAID" | "PAY_AT_HOTEL" | "REFUNDED";
 
 interface Booking {
     id: string;
-    hotel: {
-        name: string;
-        location: string;
-        imageUrl: string;
-    };
-    room: string;
+    hotelName: string | null;
+    hotelLocation: string | null;
+    hotelImage: string | null;
+    roomName: string | null;
     checkIn: string;
     checkOut: string;
     status: BookingStatus;
-    totalAmount: number;
+    totalAmount: string;
     paymentStatus: PaymentStatus;
 }
 
-// Mock user bookings
-const mockBookings: Booking[] = [
-    {
-        id: "VBK-ABC123",
-        hotel: {
-            name: "Hotel Sunrise",
-            location: "Gulshan, Dhaka",
-            imageUrl: "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=400&h=300&fit=crop",
-        },
-        room: "Standard Double",
-        checkIn: "2024-12-15",
-        checkOut: "2024-12-16",
-        status: "CONFIRMED" as const,
-        totalAmount: 2500,
-        paymentStatus: "PAY_AT_HOTEL" as const,
-    },
-    {
-        id: "VBK-DEF456",
-        hotel: {
-            name: "Grand Palace Hotel",
-            location: "Banani, Dhaka",
-            imageUrl: "https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=400&h=300&fit=crop",
-        },
-        room: "Deluxe Suite",
-        checkIn: "2024-11-20",
-        checkOut: "2024-11-22",
-        status: "CHECKED_OUT" as const,
-        totalAmount: 7600,
-        paymentStatus: "PAID" as const,
-    },
-];
-
-const statusConfig = {
+const statusConfig: Record<BookingStatus, { label: string; className: string }> = {
     PENDING: { label: "Pending", className: "badge-warning" },
     CONFIRMED: { label: "Confirmed", className: "badge-success" },
     CHECKED_IN: { label: "Checked In", className: "badge-success" },
@@ -61,12 +30,102 @@ const statusConfig = {
 };
 
 export default function BookingsPage() {
-    const upcomingBookings = mockBookings.filter(
-        (b) => b.status === "CONFIRMED" || b.status === "PENDING"
+    const { data: session } = useSession();
+    const [bookings, setBookings] = useState<Booking[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        async function fetchBookings() {
+            if (!session?.user?.id) {
+                setLoading(false);
+                return;
+            }
+
+            setLoading(true);
+            const data = await getUserBookings(session.user.id);
+            setBookings(data as Booking[]);
+            setLoading(false);
+        }
+
+        fetchBookings();
+    }, [session?.user?.id]);
+
+    const upcomingBookings = bookings.filter(
+        (b) => b.status === "CONFIRMED" || b.status === "PENDING" || b.status === "CHECKED_IN"
     );
-    const pastBookings = mockBookings.filter(
+    const pastBookings = bookings.filter(
         (b) => b.status === "CHECKED_OUT" || b.status === "CANCELLED"
     );
+
+    const formatDate = (dateStr: string) => {
+        return new Date(dateStr).toLocaleDateString("en-BD", {
+            month: "short",
+            day: "numeric",
+            year: "numeric",
+        });
+    };
+
+    if (!session) {
+        return (
+            <>
+                <header
+                    style={{
+                        padding: "1rem",
+                        background: "white",
+                        borderBottom: "1px solid var(--color-border)",
+                    }}
+                >
+                    <h1 style={{ fontSize: "1.5rem", fontWeight: 700 }}>My Bookings</h1>
+                </header>
+                <main style={{ padding: "1rem" }}>
+                    <div
+                        style={{
+                            textAlign: "center",
+                            padding: "3rem 1rem",
+                            color: "var(--color-text-secondary)",
+                        }}
+                    >
+                        <div style={{ fontSize: "3rem", marginBottom: "1rem" }}>🔒</div>
+                        <h2 style={{ marginBottom: "0.5rem", color: "var(--color-text-primary)" }}>
+                            Please sign in
+                        </h2>
+                        <p style={{ marginBottom: "1.5rem" }}>
+                            Sign in to view your bookings
+                        </p>
+                        <a href="/auth/signin" className="btn btn-primary">
+                            Sign In
+                        </a>
+                    </div>
+                </main>
+                <BottomNav />
+            </>
+        );
+    }
+
+    if (loading) {
+        return (
+            <>
+                <header
+                    style={{
+                        padding: "1rem",
+                        background: "white",
+                        borderBottom: "1px solid var(--color-border)",
+                    }}
+                >
+                    <h1 style={{ fontSize: "1.5rem", fontWeight: 700 }}>My Bookings</h1>
+                </header>
+                <main style={{ padding: "1rem", textAlign: "center" }}>
+                    <div style={{ padding: "3rem" }}>
+                        <div className="loading-spinner" style={{ margin: "0 auto" }}></div>
+                        <p style={{ marginTop: "1rem", color: "var(--color-text-secondary)" }}>
+                            Loading bookings...
+                        </p>
+                    </div>
+                </main>
+                <BottomNav />
+            </>
+        );
+    }
 
     return (
         <>
@@ -82,7 +141,7 @@ export default function BookingsPage() {
             </header>
 
             <main style={{ padding: "1rem" }}>
-                {mockBookings.length === 0 ? (
+                {bookings.length === 0 ? (
                     <div
                         style={{
                             textAlign: "center",
@@ -114,8 +173,8 @@ export default function BookingsPage() {
                                         <div key={booking.id} className="card" style={{ overflow: "hidden" }}>
                                             <div style={{ display: "flex", gap: "1rem" }}>
                                                 <img
-                                                    src={booking.hotel.imageUrl}
-                                                    alt={booking.hotel.name}
+                                                    src={booking.hotelImage || "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=400&h=300&fit=crop"}
+                                                    alt={booking.hotelName || "Hotel"}
                                                     style={{
                                                         width: "100px",
                                                         height: "100px",
@@ -132,7 +191,7 @@ export default function BookingsPage() {
                                                         }}
                                                     >
                                                         <h3 style={{ fontWeight: 600, fontSize: "1rem" }}>
-                                                            {booking.hotel.name}
+                                                            {booking.hotelName || "Unknown Hotel"}
                                                         </h3>
                                                         <span className={`badge ${statusConfig[booking.status].className}`}>
                                                             {statusConfig[booking.status].label}
@@ -145,7 +204,7 @@ export default function BookingsPage() {
                                                             marginBottom: "0.5rem",
                                                         }}
                                                     >
-                                                        {booking.room}
+                                                        {booking.roomName || "Room"}
                                                     </p>
                                                     <p
                                                         style={{
@@ -153,7 +212,7 @@ export default function BookingsPage() {
                                                             color: "var(--color-text-secondary)",
                                                         }}
                                                     >
-                                                        {booking.checkIn} → {booking.checkOut}
+                                                        {formatDate(booking.checkIn)} → {formatDate(booking.checkOut)}
                                                     </p>
                                                 </div>
                                             </div>
@@ -171,10 +230,10 @@ export default function BookingsPage() {
                                                     <span style={{ fontSize: "0.75rem", color: "var(--color-text-secondary)" }}>
                                                         Booking ID:
                                                     </span>{" "}
-                                                    <span style={{ fontWeight: 600 }}>{booking.id}</span>
+                                                    <span style={{ fontWeight: 600 }}>{booking.id.slice(0, 8).toUpperCase()}</span>
                                                 </div>
                                                 <div style={{ fontWeight: 700, color: "var(--color-primary)" }}>
-                                                    ৳{booking.totalAmount.toLocaleString()}
+                                                    ৳{Number(booking.totalAmount).toLocaleString()}
                                                 </div>
                                             </div>
                                         </div>
@@ -198,8 +257,8 @@ export default function BookingsPage() {
                                         >
                                             <div style={{ display: "flex", gap: "1rem" }}>
                                                 <img
-                                                    src={booking.hotel.imageUrl}
-                                                    alt={booking.hotel.name}
+                                                    src={booking.hotelImage || "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=400&h=300&fit=crop"}
+                                                    alt={booking.hotelName || "Hotel"}
                                                     style={{
                                                         width: "80px",
                                                         height: "80px",
@@ -209,7 +268,7 @@ export default function BookingsPage() {
                                                 />
                                                 <div style={{ flex: 1, padding: "0.5rem 0.75rem 0.5rem 0" }}>
                                                     <h3 style={{ fontWeight: 600, fontSize: "0.9375rem" }}>
-                                                        {booking.hotel.name}
+                                                        {booking.hotelName || "Unknown Hotel"}
                                                     </h3>
                                                     <p
                                                         style={{
@@ -217,7 +276,7 @@ export default function BookingsPage() {
                                                             color: "var(--color-text-secondary)",
                                                         }}
                                                     >
-                                                        {booking.checkIn} → {booking.checkOut}
+                                                        {formatDate(booking.checkIn)} → {formatDate(booking.checkOut)}
                                                     </p>
                                                     <p
                                                         style={{

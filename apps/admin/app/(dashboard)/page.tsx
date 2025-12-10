@@ -1,4 +1,8 @@
+import { getAdminStats } from "@/actions/dashboard";
+
 export default async function DashboardPage() {
+    const stats = await getAdminStats();
+
     return (
         <div>
             <h1 className="text-2xl font-bold mb-6">Admin Dashboard</h1>
@@ -12,26 +16,26 @@ export default async function DashboardPage() {
             }}>
                 <div className="card" style={{ padding: "1.5rem" }}>
                     <h3 style={{ fontSize: "0.875rem", color: "var(--color-text-secondary)", marginBottom: "0.5rem" }}>Total Revenue</h3>
-                    <div style={{ fontSize: "1.5rem", fontWeight: 700 }}>৳1,254,300</div>
-                    <div style={{ fontSize: "0.75rem", color: "var(--color-success)", marginTop: "0.25rem" }}>+12% from last month</div>
+                    <div style={{ fontSize: "1.5rem", fontWeight: 700 }}>৳{stats.totalRevenue.toLocaleString()}</div>
+                    <div style={{ fontSize: "0.75rem", color: "var(--color-text-secondary)", marginTop: "0.25rem" }}>From paid bookings</div>
                 </div>
 
                 <div className="card" style={{ padding: "1.5rem" }}>
                     <h3 style={{ fontSize: "0.875rem", color: "var(--color-text-secondary)", marginBottom: "0.5rem" }}>Active Hotels</h3>
-                    <div style={{ fontSize: "1.5rem", fontWeight: 700 }}>48</div>
-                    <div style={{ fontSize: "0.75rem", color: "var(--color-text-secondary)", marginTop: "0.25rem" }}>3 pending approval</div>
+                    <div style={{ fontSize: "1.5rem", fontWeight: 700 }}>{stats.activeHotels}</div>
+                    <div style={{ fontSize: "0.75rem", color: "var(--color-text-secondary)", marginTop: "0.25rem" }}>{stats.pendingHotels} pending approval</div>
                 </div>
 
                 <div className="card" style={{ padding: "1.5rem" }}>
                     <h3 style={{ fontSize: "0.875rem", color: "var(--color-text-secondary)", marginBottom: "0.5rem" }}>Total Bookings</h3>
-                    <div style={{ fontSize: "1.5rem", fontWeight: 700 }}>1,245</div>
-                    <div style={{ fontSize: "0.75rem", color: "var(--color-success)", marginTop: "0.25rem" }}>+8% from last month</div>
+                    <div style={{ fontSize: "1.5rem", fontWeight: 700 }}>{stats.totalBookings}</div>
+                    <div style={{ fontSize: "0.75rem", color: "var(--color-text-secondary)", marginTop: "0.25rem" }}>All time</div>
                 </div>
 
                 <div className="card" style={{ padding: "1.5rem" }}>
-                    <h3 style={{ fontSize: "0.875rem", color: "var(--color-text-secondary)", marginBottom: "0.5rem" }}>Active Accounts</h3>
-                    <div style={{ fontSize: "1.5rem", fontWeight: 700 }}>3,890</div>
-                    <div style={{ fontSize: "0.75rem", color: "var(--color-text-secondary)", marginTop: "0.25rem" }}>+150 this week</div>
+                    <h3 style={{ fontSize: "0.875rem", color: "var(--color-text-secondary)", marginBottom: "0.5rem" }}>Total Users</h3>
+                    <div style={{ fontSize: "1.5rem", fontWeight: 700 }}>{stats.totalUsers}</div>
+                    <div style={{ fontSize: "0.75rem", color: "var(--color-text-secondary)", marginTop: "0.25rem" }}>Registered accounts</div>
                 </div>
             </div>
 
