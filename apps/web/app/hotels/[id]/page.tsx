@@ -38,6 +38,12 @@ export default function HotelDetailPage() {
     const [selectedRoom, setSelectedRoom] = useState<Room | null>(null);
     const [currentImage, setCurrentImage] = useState(0);
 
+    // Default dates: today and tomorrow
+    const today = new Date().toISOString().split("T")[0];
+    const tomorrow = new Date(Date.now() + 86400000).toISOString().split("T")[0];
+    const [checkIn, setCheckIn] = useState(today);
+    const [checkOut, setCheckOut] = useState(tomorrow);
+
     // Fetch hotel data
     useEffect(() => {
         async function fetchHotel() {
@@ -61,9 +67,9 @@ export default function HotelDetailPage() {
     }, [hotelId]);
 
     const handleBookNow = () => {
-        if (!hotel || !selectedRoom) return;
+        if (!hotel || !selectedRoom || !checkIn || !checkOut) return;
         router.push(
-            `/booking?hotelId=${hotel.id}&roomId=${selectedRoom.id}&hotel=${encodeURIComponent(hotel.name)}&room=${encodeURIComponent(selectedRoom.name)}&price=${selectedRoom.basePrice}`
+            `/booking?hotelId=${hotel.id}&roomId=${selectedRoom.id}&hotel=${encodeURIComponent(hotel.name)}&room=${encodeURIComponent(selectedRoom.name)}&price=${selectedRoom.basePrice}&checkIn=${checkIn}&checkOut=${checkOut}`
         );
     };
 
@@ -237,6 +243,42 @@ export default function HotelDetailPage() {
                         </div>
                     </div>
                 )}
+
+                {/* Date Selection */}
+                <div className="card" style={{ padding: "1rem", marginBottom: "1rem" }}>
+                    <h2 style={{ fontSize: "1rem", fontWeight: 600, marginBottom: "0.75rem" }}>
+                        Select Dates
+                    </h2>
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
+                        <div className="form-group" style={{ marginBottom: 0 }}>
+                            <label className="form-label" style={{ fontSize: "0.875rem" }}>Check-in</label>
+                            <input
+                                type="date"
+                                className="form-input"
+                                value={checkIn}
+                                min={today}
+                                onChange={(e) => {
+                                    setCheckIn(e.target.value);
+                                    if (checkOut && e.target.value >= checkOut) {
+                                        const nextDay = new Date(e.target.value);
+                                        nextDay.setDate(nextDay.getDate() + 1);
+                                        setCheckOut(nextDay.toISOString().split("T")[0]);
+                                    }
+                                }}
+                            />
+                        </div>
+                        <div className="form-group" style={{ marginBottom: 0 }}>
+                            <label className="form-label" style={{ fontSize: "0.875rem" }}>Check-out</label>
+                            <input
+                                type="date"
+                                className="form-input"
+                                value={checkOut}
+                                min={checkIn || today}
+                                onChange={(e) => setCheckOut(e.target.value)}
+                            />
+                        </div>
+                    </div>
+                </div>
 
                 {/* Room Selection */}
                 <div className="card" style={{ padding: "1rem", marginBottom: "1rem" }}>
