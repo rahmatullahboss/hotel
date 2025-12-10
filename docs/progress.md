@@ -51,19 +51,19 @@
 ## 📋 Remaining Tasks (Prioritized)
 
 ### High Priority
-1. **Admin Dashboard Implementation:**
-   - Need to build out the `apps/admin` application to manage the platform.
-2. **Payment Gateway Integration:**
+1. **Payment Gateway Integration:**
    - Integrate with bKash/Nagad/Cards for real payment processing.
-3. **Partner App Wiring:**
+2. **Partner App Wiring:**
    - Connect Partner App inventory and scanner features to live backend data (currently some parts use mock data or need validation).
 
 ### Medium Priority
-1. **Booking State Machine:**
+1. **Admin Dashboard Live Stats:**
+   - Wire dashboard statistics to real database queries (currently showing hardcoded demo values).
+2. **Booking State Machine:**
    - Refine booking status transitions (Pending -> Confirmed -> CheckedIn -> CheckedOut -> Completed).
-2. **Notification System:**
+3. **Notification System:**
    - Email/SMS notifications for booking confirmations and updates.
-3. **Search Optimization:**
+4. **Search Optimization:**
    - Improve search performance and add more sophisticated filters.
 
 ### Future/Low Priority
