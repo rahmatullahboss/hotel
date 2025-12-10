@@ -28,6 +28,9 @@ export type BookingStatus =
 // Payment Status Enum
 export type PaymentStatus = "PENDING" | "PAID" | "REFUNDED" | "PAY_AT_HOTEL";
 
+// Room Inventory Status Enum
+export type InventoryStatus = "AVAILABLE" | "OCCUPIED" | "BLOCKED";
+
 // ====================
 // HOTELS
 // ====================
@@ -47,11 +50,15 @@ export const hotels = pgTable("hotels", {
     longitude: decimal("longitude", { precision: 10, scale: 7 }),
     amenities: jsonb("amenities").$type<string[]>().default([]),
     photos: jsonb("photos").$type<string[]>().default([]),
+    coverImage: text("coverImage"),
+    rating: decimal("rating", { precision: 2, scale: 1 }).default("0"),
+    reviewCount: integer("reviewCount").default(0).notNull(),
+    payAtHotelEnabled: boolean("payAtHotelEnabled").default(true).notNull(),
     status: text("status", { enum: ["PENDING", "ACTIVE", "SUSPENDED"] })
         .default("PENDING")
         .notNull(),
     commissionRate: decimal("commissionRate", { precision: 5, scale: 2 })
-        .default("20.00")
+        .default("12.00")
         .notNull(),
     createdAt: timestamp("createdAt", { mode: "date" }).defaultNow().notNull(),
     updatedAt: timestamp("updatedAt", { mode: "date" }).defaultNow().notNull(),
@@ -63,6 +70,7 @@ export const hotelsRelations = relations(hotels, ({ one, many }) => ({
         references: [users.id],
     }),
     rooms: many(rooms),
+    bookings: many(bookings),
 }));
 
 // ====================
@@ -76,6 +84,7 @@ export const rooms = pgTable("rooms", {
     hotelId: text("hotelId")
         .notNull()
         .references(() => hotels.id, { onDelete: "cascade" }),
+    roomNumber: text("roomNumber").notNull(),
     name: text("name").notNull(),
     type: text("type", { enum: ["SINGLE", "DOUBLE", "SUITE", "DORMITORY"] })
         .default("DOUBLE")
@@ -110,10 +119,12 @@ export const roomInventory = pgTable("roomInventory", {
     roomId: text("roomId")
         .notNull()
         .references(() => rooms.id, { onDelete: "cascade" }),
-    date: date("date", { mode: "date" }).notNull(),
-    availableCount: integer("availableCount").default(1).notNull(),
-    isBlocked: boolean("isBlocked").default(false).notNull(),
+    date: date("date", { mode: "string" }).notNull(),
+    status: text("status", { enum: ["AVAILABLE", "OCCUPIED", "BLOCKED"] })
+        .default("AVAILABLE")
+        .notNull(),
     price: decimal("price", { precision: 10, scale: 2 }), // Override price for specific date
+    notes: text("notes"),
     createdAt: timestamp("createdAt", { mode: "date" }).defaultNow().notNull(),
     updatedAt: timestamp("updatedAt", { mode: "date" }).defaultNow().notNull(),
 });
@@ -133,14 +144,17 @@ export const bookings = pgTable("bookings", {
     id: text("id")
         .primaryKey()
         .$defaultFn(() => crypto.randomUUID()),
-    userId: text("userId")
+    hotelId: text("hotelId")
         .notNull()
-        .references(() => users.id, { onDelete: "cascade" }),
+        .references(() => hotels.id, { onDelete: "cascade" }),
+    userId: text("userId")
+        .references(() => users.id, { onDelete: "set null" }),
     roomId: text("roomId")
         .notNull()
         .references(() => rooms.id, { onDelete: "cascade" }),
-    checkIn: date("checkIn", { mode: "date" }).notNull(),
-    checkOut: date("checkOut", { mode: "date" }).notNull(),
+    checkIn: date("checkIn", { mode: "string" }).notNull(),
+    checkOut: date("checkOut", { mode: "string" }).notNull(),
+    numberOfNights: integer("numberOfNights").default(1).notNull(),
     guestCount: integer("guestCount").default(1).notNull(),
     guestName: text("guestName").notNull(),
     guestPhone: text("guestPhone").notNull(),
@@ -156,7 +170,8 @@ export const bookings = pgTable("bookings", {
         .default("PENDING")
         .notNull(),
     totalAmount: decimal("totalAmount", { precision: 10, scale: 2 }).notNull(),
-    commission: decimal("commission", { precision: 10, scale: 2 }).notNull(),
+    commissionAmount: decimal("commissionAmount", { precision: 10, scale: 2 }).notNull(),
+    netAmount: decimal("netAmount", { precision: 10, scale: 2 }).notNull(),
     paymentMethod: text("paymentMethod"),
     paymentReference: text("paymentReference"),
     notes: text("notes"),
@@ -166,6 +181,10 @@ export const bookings = pgTable("bookings", {
 });
 
 export const bookingsRelations = relations(bookings, ({ one }) => ({
+    hotel: one(hotels, {
+        fields: [bookings.hotelId],
+        references: [hotels.id],
+    }),
     user: one(users, {
         fields: [bookings.userId],
         references: [users.id],
@@ -185,3 +204,4 @@ export type RoomInventory = typeof roomInventory.$inferSelect;
 export type NewRoomInventory = typeof roomInventory.$inferInsert;
 export type Booking = typeof bookings.$inferSelect;
 export type NewBooking = typeof bookings.$inferInsert;
+

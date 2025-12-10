@@ -11,6 +11,7 @@
     "check-types": "next typegen && tsc --noEmit"
   },
   "dependencies": {
+    "@repo/db": "^0.1.0",
     "@repo/ui": "*",
     "@types/leaflet": "^1.9.21",
     "leaflet": "^1.9.4",
