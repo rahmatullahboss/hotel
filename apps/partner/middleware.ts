@@ -3,9 +3,6 @@ import { auth } from "./auth";
 export default auth((req) => {
     const { nextUrl } = req;
     const isLoggedIn = !!req.auth?.user;
-    const userRole = (req.auth?.user as { role?: string })?.role;
-    const isPartner = userRole === "PARTNER";
-    const isAdmin = userRole === "ADMIN";
 
     // Public paths that don't require authentication
     const publicPaths = ["/auth/signin", "/auth/error", "/api/auth"];
@@ -22,16 +19,8 @@ export default auth((req) => {
         return Response.redirect(signInUrl);
     }
 
-    // Allow admins access (they can also manage as partners)
-    if (isAdmin) {
-        return;
-    }
-
-    // Redirect non-partner users to error page
-    if (!isPartner) {
-        const errorUrl = new URL("/auth/error?error=AccessDenied", nextUrl);
-        return Response.redirect(errorUrl);
-    }
+    // Allow all authenticated users - role-based access is handled at page level
+    // This allows new users to complete OAuth flow and see appropriate messages
 });
 
 export const config = {
@@ -40,3 +29,4 @@ export const config = {
         "/((?!_next/static|_next/image|favicon.ico|manifest.json|icons/|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
     ],
 };
+
