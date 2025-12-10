@@ -50,8 +50,9 @@ export default function HotelDetailPage() {
                     rooms: data.rooms || [],
                 });
                 setRooms(data.rooms || []);
-                if (data.rooms && data.rooms.length > 0) {
-                    setSelectedRoom(data.rooms[0]);
+                const firstRoom = data.rooms?.[0];
+                if (firstRoom) {
+                    setSelectedRoom(firstRoom);
                 }
             }
             setLoading(false);
