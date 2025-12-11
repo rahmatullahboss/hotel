@@ -20,6 +20,7 @@ interface Booking {
     status: BookingStatus;
     totalAmount: string;
     paymentStatus: PaymentStatus;
+    paymentMethod?: string;
     bookingFee?: string;
     bookingFeeStatus?: string;
 }
@@ -426,8 +427,46 @@ export default function BookingsPage() {
                                             {booking.roomName || "Room"} • {booking.hotelLocation || "Location"}
                                         </p>
 
-                                        {/* Payment Info */}
-                                        {!isPast && (
+                                        {/* Payment Breakdown - Show for Pay at Hotel with advance paid */}
+                                        {!isPast && booking.paymentMethod === "PAY_AT_HOTEL" && booking.bookingFeeStatus === "PAID" && (
+                                            <div style={{
+                                                background: "var(--color-bg-secondary)",
+                                                borderRadius: "0.75rem",
+                                                padding: "0.75rem",
+                                                marginBottom: "0.75rem",
+                                            }}>
+                                                <div style={{
+                                                    display: "flex",
+                                                    justifyContent: "space-between",
+                                                    alignItems: "center",
+                                                    marginBottom: "0.5rem",
+                                                }}>
+                                                    <span style={{ fontSize: "0.8125rem", color: "var(--color-text-secondary)" }}>
+                                                        ✅ Advance Paid
+                                                    </span>
+                                                    <span style={{ fontSize: "0.875rem", fontWeight: 600, color: "var(--color-success)" }}>
+                                                        ৳{Number(booking.bookingFee || 0).toLocaleString()}
+                                                    </span>
+                                                </div>
+                                                <div style={{
+                                                    display: "flex",
+                                                    justifyContent: "space-between",
+                                                    alignItems: "center",
+                                                    paddingTop: "0.5rem",
+                                                    borderTop: "1px dashed var(--color-border)",
+                                                }}>
+                                                    <span style={{ fontSize: "0.875rem", fontWeight: 600, color: "var(--color-primary)" }}>
+                                                        💵 Pay at Hotel
+                                                    </span>
+                                                    <span style={{ fontSize: "1rem", fontWeight: 700, color: "var(--color-primary)" }}>
+                                                        ৳{(Number(booking.totalAmount) - Number(booking.bookingFee || 0)).toLocaleString()}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {/* Payment Info for other cases */}
+                                        {!isPast && !(booking.paymentMethod === "PAY_AT_HOTEL" && booking.bookingFeeStatus === "PAID") && (
                                             <div
                                                 className="payment-info"
                                                 style={{
@@ -440,13 +479,12 @@ export default function BookingsPage() {
                                                         booking.paymentStatus === "PAID" ? "✅" : "⏳"}
                                                 </span>
                                                 <span style={{ fontWeight: 500 }}>
-                                                    {paymentStatusConfig[booking.paymentStatus].label}
+                                                    {booking.paymentStatus === "PAID"
+                                                        ? "Fully Paid"
+                                                        : booking.paymentStatus === "PENDING"
+                                                            ? "Payment Pending"
+                                                            : "Pay at Hotel"}
                                                 </span>
-                                                {booking.bookingFeeStatus === "PAID" && booking.paymentStatus === "PAY_AT_HOTEL" && (
-                                                    <span style={{ marginLeft: "auto", fontSize: "0.75rem" }}>
-                                                        20% advance paid
-                                                    </span>
-                                                )}
                                             </div>
                                         )}
 

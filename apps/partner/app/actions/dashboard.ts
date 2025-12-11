@@ -459,3 +459,148 @@ export async function checkOutGuest(
         return { success: false, error: "Failed to check out" };
     }
 }
+
+/**
+ * Collect remaining payment from guest at hotel
+ * Called when guest pays the remaining amount (after 20% advance) at check-in
+ */
+export async function collectRemainingPayment(
+    bookingId: string,
+    hotelId: string
+): Promise<{ success: boolean; error?: string; amountCollected?: number }> {
+    try {
+        const session = await auth();
+        const booking = await db.query.bookings.findFirst({
+            where: and(eq(bookings.id, bookingId), eq(bookings.hotelId, hotelId)),
+        });
+
+        if (!booking) {
+            return { success: false, error: "Booking not found" };
+        }
+
+        if (booking.paymentStatus === "PAID") {
+            return { success: false, error: "Payment already completed" };
+        }
+
+        // Calculate remaining amount
+        const totalAmount = Number(booking.totalAmount);
+        const advancePaid = Number(booking.bookingFee || 0);
+        const remainingAmount = totalAmount - advancePaid;
+
+        if (remainingAmount <= 0) {
+            return { success: false, error: "No remaining payment due" };
+        }
+
+        // Update booking payment status to PAID
+        await db
+            .update(bookings)
+            .set({
+                paymentStatus: "PAID",
+                updatedAt: new Date(),
+            })
+            .where(eq(bookings.id, bookingId));
+
+        // Log activity
+        await db.insert(activityLog).values({
+            type: "PAYMENT_RECEIVED",
+            actorId: session?.user?.id,
+            hotelId: hotelId,
+            bookingId: bookingId,
+            description: `Collected remaining payment ৳${remainingAmount} from ${booking.guestName}`,
+            metadata: {
+                guestName: booking.guestName,
+                amountCollected: remainingAmount,
+                totalAmount: totalAmount,
+                advancePaid: advancePaid,
+            },
+        });
+
+        revalidatePath("/");
+        revalidatePath("/scanner");
+        return { success: true, amountCollected: remainingAmount };
+    } catch (error) {
+        console.error("Error collecting payment:", error);
+        return { success: false, error: "Failed to collect payment" };
+    }
+}
+
+/**
+ * Get booking details with payment info for partner
+ */
+export async function getBookingDetails(
+    bookingId: string,
+    hotelId: string
+): Promise<{
+    success: boolean;
+    error?: string;
+    booking?: {
+        id: string;
+        guestName: string;
+        guestPhone: string;
+        roomNumber: string;
+        roomName: string;
+        checkIn: string;
+        checkOut: string;
+        status: string;
+        paymentStatus: string;
+        paymentMethod: string | null;
+        totalAmount: number;
+        advancePaid: number;
+        remainingAmount: number;
+        bookingFeeStatus: string | null;
+    };
+}> {
+    try {
+        const result = await db
+            .select({
+                id: bookings.id,
+                guestName: bookings.guestName,
+                guestPhone: bookings.guestPhone,
+                roomNumber: rooms.roomNumber,
+                roomName: rooms.name,
+                checkIn: bookings.checkIn,
+                checkOut: bookings.checkOut,
+                status: bookings.status,
+                paymentStatus: bookings.paymentStatus,
+                paymentMethod: bookings.paymentMethod,
+                totalAmount: bookings.totalAmount,
+                bookingFee: bookings.bookingFee,
+                bookingFeeStatus: bookings.bookingFeeStatus,
+            })
+            .from(bookings)
+            .leftJoin(rooms, eq(rooms.id, bookings.roomId))
+            .where(and(eq(bookings.id, bookingId), eq(bookings.hotelId, hotelId)))
+            .limit(1);
+
+        if (result.length === 0) {
+            return { success: false, error: "Booking not found" };
+        }
+
+        const b = result[0]!;
+        const totalAmount = Number(b.totalAmount) || 0;
+        const advancePaid = Number(b.bookingFee) || 0;
+
+        return {
+            success: true,
+            booking: {
+                id: b.id,
+                guestName: b.guestName,
+                guestPhone: b.guestPhone,
+                roomNumber: b.roomNumber ?? "",
+                roomName: b.roomName ?? "",
+                checkIn: b.checkIn,
+                checkOut: b.checkOut,
+                status: b.status,
+                paymentStatus: b.paymentStatus ?? "PENDING",
+                paymentMethod: b.paymentMethod,
+                totalAmount,
+                advancePaid,
+                remainingAmount: totalAmount - advancePaid,
+                bookingFeeStatus: b.bookingFeeStatus,
+            },
+        };
+    } catch (error) {
+        console.error("Error fetching booking details:", error);
+        return { success: false, error: "Failed to fetch booking" };
+    }
+}
