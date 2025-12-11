@@ -241,6 +241,7 @@ export async function getUpcomingBookings(hotelId: string, limit = 5): Promise<B
                 status: bookings.status,
                 totalAmount: bookings.totalAmount,
                 bookingFee: bookings.bookingFee,
+                bookingFeeStatus: bookings.bookingFeeStatus,
                 paymentStatus: bookings.paymentStatus,
                 paymentMethod: bookings.paymentMethod,
             })
@@ -252,7 +253,8 @@ export async function getUpcomingBookings(hotelId: string, limit = 5): Promise<B
 
         return result.map((b) => {
             const totalAmount = Number(b.totalAmount) || 0;
-            const advancePaid = Number(b.bookingFee) || 0;
+            // Only count advance as paid if bookingFeeStatus is PAID
+            const advancePaid = b.bookingFeeStatus === "PAID" ? (Number(b.bookingFee) || 0) : 0;
             return {
                 ...b,
                 roomNumber: b.roomNumber ?? "",
@@ -289,6 +291,7 @@ export async function getTodaysCheckIns(hotelId: string): Promise<BookingSummary
                 status: bookings.status,
                 totalAmount: bookings.totalAmount,
                 bookingFee: bookings.bookingFee,
+                bookingFeeStatus: bookings.bookingFeeStatus,
                 paymentStatus: bookings.paymentStatus,
                 paymentMethod: bookings.paymentMethod,
             })
@@ -299,7 +302,8 @@ export async function getTodaysCheckIns(hotelId: string): Promise<BookingSummary
 
         return result.map((b) => {
             const totalAmount = Number(b.totalAmount) || 0;
-            const advancePaid = Number(b.bookingFee) || 0;
+            // Only count advance as paid if bookingFeeStatus is PAID
+            const advancePaid = b.bookingFeeStatus === "PAID" ? (Number(b.bookingFee) || 0) : 0;
             return {
                 ...b,
                 roomNumber: b.roomNumber ?? "",
@@ -334,6 +338,7 @@ export async function getCurrentlyStaying(hotelId: string): Promise<BookingSumma
                 status: bookings.status,
                 totalAmount: bookings.totalAmount,
                 bookingFee: bookings.bookingFee,
+                bookingFeeStatus: bookings.bookingFeeStatus,
                 paymentStatus: bookings.paymentStatus,
                 paymentMethod: bookings.paymentMethod,
             })
@@ -344,7 +349,8 @@ export async function getCurrentlyStaying(hotelId: string): Promise<BookingSumma
 
         return result.map((b) => {
             const totalAmount = Number(b.totalAmount) || 0;
-            const advancePaid = Number(b.bookingFee) || 0;
+            // Only count advance as paid if bookingFeeStatus is PAID
+            const advancePaid = b.bookingFeeStatus === "PAID" ? (Number(b.bookingFee) || 0) : 0;
             return {
                 ...b,
                 roomNumber: b.roomNumber ?? "",
@@ -381,6 +387,7 @@ export async function getTodaysCheckOuts(hotelId: string): Promise<BookingSummar
                 status: bookings.status,
                 totalAmount: bookings.totalAmount,
                 bookingFee: bookings.bookingFee,
+                bookingFeeStatus: bookings.bookingFeeStatus,
                 paymentStatus: bookings.paymentStatus,
                 paymentMethod: bookings.paymentMethod,
             })
@@ -397,7 +404,8 @@ export async function getTodaysCheckOuts(hotelId: string): Promise<BookingSummar
 
         return result.map((b) => {
             const totalAmount = Number(b.totalAmount) || 0;
-            const advancePaid = Number(b.bookingFee) || 0;
+            // Only count advance as paid if bookingFeeStatus is PAID
+            const advancePaid = b.bookingFeeStatus === "PAID" ? (Number(b.bookingFee) || 0) : 0;
             return {
                 ...b,
                 roomNumber: b.roomNumber ?? "",
@@ -896,7 +904,8 @@ export async function getBookingDetails(
 
         const b = result[0]!;
         const totalAmount = Number(b.totalAmount) || 0;
-        const advancePaid = Number(b.bookingFee) || 0;
+        // Only count advance as paid if bookingFeeStatus is PAID
+        const advancePaid = b.bookingFeeStatus === "PAID" ? (Number(b.bookingFee) || 0) : 0;
 
         return {
             success: true,
