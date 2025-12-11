@@ -195,7 +195,8 @@ export async function createBooking(input: CreateBookingInput): Promise<BookingR
         };
     } catch (error) {
         console.error("Error creating booking:", error);
-        return { success: false, error: "Failed to create booking" };
+        const errorMessage = error instanceof Error ? error.message : "Failed to create booking";
+        return { success: false, error: errorMessage };
     }
 }
 
