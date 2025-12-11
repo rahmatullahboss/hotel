@@ -2,7 +2,8 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { updateHotelProfile, HOTEL_AMENITIES, type HotelProfile } from "../../actions/settings";
+import { updateHotelProfile, type HotelProfile } from "../../actions/settings";
+import { HOTEL_AMENITIES } from "../../lib/constants";
 import { BottomNav } from "../../components";
 
 interface ProfileFormProps {
