@@ -214,6 +214,9 @@ export const bookings = pgTable("bookings", {
     // Guest ID photo for security/verification (stored as URL)
     guestIdPhoto: text("guestIdPhoto"),
 
+    // Booking expiry for unpaid bookings (20 minute hold)
+    expiresAt: timestamp("expiresAt", { mode: "date" }),
+
     createdAt: timestamp("createdAt", { mode: "date" }).defaultNow().notNull(),
     updatedAt: timestamp("updatedAt", { mode: "date" }).defaultNow().notNull(),
 });

@@ -47,19 +47,28 @@ export async function GET(request: NextRequest) {
         const result = await executeBkashPayment(paymentID);
 
         if (result.success && result.data) {
+            // Determine if this was an advance payment (20%) or full payment
+            const paidAmount = Number(result.data.amount || 0);
+            const totalAmount = Number(booking.totalAmount);
+            const isAdvancePayment = paidAmount < totalAmount;
+
             // Update booking with payment info
             await db
                 .update(bookings)
                 .set({
-                    paymentStatus: "PAID",
+                    // For advance payment (Pay at Hotel), keep PAY_AT_HOTEL status
+                    // For full payment, set to PAID
+                    paymentStatus: isAdvancePayment ? "PAY_AT_HOTEL" : "PAID",
                     status: "CONFIRMED",
-                    paymentMethod: "bKash",
+                    bookingFeeStatus: "PAID",
+                    paymentMethod: isAdvancePayment ? "PAY_AT_HOTEL" : "BKASH",
                     paymentReference: result.data.trxID || paymentID,
+                    expiresAt: null, // Clear expiry since payment is done
                     updatedAt: new Date(),
                 })
                 .where(eq(bookings.id, booking.id));
 
-            console.log("Payment successful for booking:", booking.id);
+            console.log("Payment successful for booking:", booking.id, isAdvancePayment ? "(advance)" : "(full)");
             return NextResponse.redirect(
                 new URL(`/booking/confirmation/${booking.id}`, request.url)
             );

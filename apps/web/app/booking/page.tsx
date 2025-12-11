@@ -37,13 +37,15 @@ function BookingContent() {
         : 1;
     const totalAmount = price * nights;
 
-    const [step, setStep] = useState<1 | 2 | 3>(1);
+    const [step, setStep] = useState<1 | 2 | 3 | 4>(1); // 4 = Advance payment method selection
     const [guestName, setGuestName] = useState("");
     const [guestPhone, setGuestPhone] = useState("");
     const [guestEmail, setGuestEmail] = useState("");
     const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("PAY_AT_HOTEL");
+    const [advancePaymentMethod, setAdvancePaymentMethod] = useState<"BKASH" | "NAGAD">("BKASH");
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [bookingId, setBookingId] = useState("");
+    const [pendingAdvanceAmount, setPendingAdvanceAmount] = useState(0);
     const [error, setError] = useState("");
 
     // Get current payment method's advance requirement (after paymentMethod state is declared)
@@ -134,29 +136,10 @@ function BookingContent() {
 
                     // Handle payment based on method
                     if (paymentMethod === "PAY_AT_HOTEL") {
-                        if (result.requiresPayment) {
-                            // Wallet insufficient - redirect to bKash for 20% advance
-                            try {
-                                const paymentResponse = await fetch("/api/payment/initiate", {
-                                    method: "POST",
-                                    headers: { "Content-Type": "application/json" },
-                                    body: JSON.stringify({
-                                        bookingId: result.bookingId,
-                                        amount: result.advanceAmount, // Only 20% advance
-                                    }),
-                                });
-                                const paymentData = await paymentResponse.json();
-
-                                if (paymentData.success && paymentData.redirectUrl) {
-                                    // Redirect to bKash for 20% advance payment
-                                    window.location.href = paymentData.redirectUrl;
-                                    return;
-                                } else {
-                                    setError("Failed to initiate payment. Please add money to wallet and try again.");
-                                }
-                            } catch (paymentErr) {
-                                setError("Payment service unavailable. Please add money to wallet.");
-                            }
+                        if (result.requiresPayment && result.advanceAmount) {
+                            // Wallet insufficient - go to step 4 to select payment method for 20% advance
+                            setPendingAdvanceAmount(result.advanceAmount);
+                            setStep(4);
                         } else {
                             // Wallet had enough, 20% already paid - confirm booking
                             setStep(3);
@@ -192,6 +175,34 @@ function BookingContent() {
             } finally {
                 setIsSubmitting(false);
             }
+        }
+    };
+
+    // Handle advance payment for Pay at Hotel when wallet is insufficient
+    const handleAdvancePayment = async () => {
+        setIsSubmitting(true);
+        setError("");
+
+        try {
+            const paymentResponse = await fetch("/api/payment/initiate", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    bookingId: bookingId,
+                    amount: pendingAdvanceAmount,
+                }),
+            });
+            const paymentData = await paymentResponse.json();
+
+            if (paymentData.success && paymentData.redirectUrl) {
+                window.location.href = paymentData.redirectUrl;
+            } else {
+                setError(paymentData.error || "Failed to initiate payment. Please try again.");
+            }
+        } catch (err) {
+            setError("Payment service unavailable. Please try again.");
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
@@ -453,6 +464,152 @@ function BookingContent() {
                                 </button>
                             </div>
                         </form>
+                    )}
+
+                    {/* Step 4: Advance Payment Method Selection (for Pay at Hotel with insufficient wallet) */}
+                    {step === 4 && (
+                        <div className="card" style={{ padding: "1.5rem" }}>
+                            <div
+                                style={{
+                                    textAlign: "center",
+                                    marginBottom: "1.5rem",
+                                }}
+                            >
+                                <div
+                                    style={{
+                                        width: 60,
+                                        height: 60,
+                                        borderRadius: "50%",
+                                        background: "rgba(230, 57, 70, 0.1)",
+                                        color: "var(--color-primary)",
+                                        display: "flex",
+                                        alignItems: "center",
+                                        justifyContent: "center",
+                                        fontSize: "1.5rem",
+                                        margin: "0 auto 1rem",
+                                    }}
+                                >
+                                    💳
+                                </div>
+                                <h3 style={{ fontWeight: 600, marginBottom: "0.5rem" }}>
+                                    Pay 20% Advance
+                                </h3>
+                                <p style={{ color: "var(--color-text-secondary)", fontSize: "0.875rem" }}>
+                                    Your wallet balance is insufficient. Please pay ৳{pendingAdvanceAmount.toLocaleString()} to confirm your booking.
+                                </p>
+                            </div>
+
+                            {/* Booking hold notice */}
+                            <div
+                                style={{
+                                    background: "rgba(255, 193, 7, 0.1)",
+                                    border: "1px solid rgba(255, 193, 7, 0.3)",
+                                    borderRadius: "0.5rem",
+                                    padding: "0.75rem",
+                                    marginBottom: "1rem",
+                                    textAlign: "center",
+                                    fontSize: "0.875rem",
+                                }}
+                            >
+                                <strong>⏱️ Room held for 20 minutes</strong>
+                                <div style={{ color: "var(--color-text-secondary)", marginTop: "0.25rem" }}>
+                                    Complete payment to confirm booking
+                                </div>
+                            </div>
+
+                            {/* Amount to pay */}
+                            <div
+                                style={{
+                                    display: "flex",
+                                    justifyContent: "space-between",
+                                    padding: "1rem",
+                                    background: "rgba(42, 157, 143, 0.1)",
+                                    borderRadius: "0.5rem",
+                                    marginBottom: "1rem",
+                                    fontWeight: 600,
+                                }}
+                            >
+                                <span>Amount to Pay</span>
+                                <span style={{ color: "var(--color-success)", fontSize: "1.25rem" }}>
+                                    ৳{pendingAdvanceAmount.toLocaleString()}
+                                </span>
+                            </div>
+
+                            {/* Payment method selection */}
+                            <div style={{ marginBottom: "1rem" }}>
+                                <label
+                                    style={{
+                                        display: "flex",
+                                        alignItems: "center",
+                                        gap: "1rem",
+                                        padding: "1rem",
+                                        border: `2px solid ${advancePaymentMethod === "BKASH" ? "var(--color-primary)" : "var(--color-border)"}`,
+                                        borderRadius: "0.75rem",
+                                        cursor: "pointer",
+                                        marginBottom: "0.5rem",
+                                        background: advancePaymentMethod === "BKASH" ? "rgba(230, 57, 70, 0.05)" : "transparent",
+                                    }}
+                                    onClick={() => setAdvancePaymentMethod("BKASH")}
+                                >
+                                    <input
+                                        type="radio"
+                                        checked={advancePaymentMethod === "BKASH"}
+                                        onChange={() => setAdvancePaymentMethod("BKASH")}
+                                        style={{ width: 20, height: 20 }}
+                                    />
+                                    <span style={{ fontSize: "1.5rem" }}>📱</span>
+                                    <span style={{ fontWeight: 500 }}>bKash</span>
+                                </label>
+                                <label
+                                    style={{
+                                        display: "flex",
+                                        alignItems: "center",
+                                        gap: "1rem",
+                                        padding: "1rem",
+                                        border: `2px solid ${advancePaymentMethod === "NAGAD" ? "var(--color-primary)" : "var(--color-border)"}`,
+                                        borderRadius: "0.75rem",
+                                        cursor: "pointer",
+                                        background: advancePaymentMethod === "NAGAD" ? "rgba(230, 57, 70, 0.05)" : "transparent",
+                                    }}
+                                    onClick={() => setAdvancePaymentMethod("NAGAD")}
+                                >
+                                    <input
+                                        type="radio"
+                                        checked={advancePaymentMethod === "NAGAD"}
+                                        onChange={() => setAdvancePaymentMethod("NAGAD")}
+                                        style={{ width: 20, height: 20 }}
+                                    />
+                                    <span style={{ fontSize: "1.5rem" }}>📱</span>
+                                    <span style={{ fontWeight: 500 }}>Nagad</span>
+                                    <span style={{ marginLeft: "auto", fontSize: "0.75rem", color: "var(--color-text-secondary)" }}>
+                                        Coming Soon
+                                    </span>
+                                </label>
+                            </div>
+
+                            {error && (
+                                <div
+                                    style={{
+                                        padding: "0.75rem",
+                                        marginBottom: "1rem",
+                                        background: "rgba(208, 0, 0, 0.1)",
+                                        color: "var(--color-error)",
+                                        borderRadius: "0.5rem",
+                                        fontSize: "0.875rem",
+                                    }}
+                                >
+                                    {error}
+                                </div>
+                            )}
+
+                            <button
+                                className="btn btn-primary btn-block btn-lg"
+                                onClick={handleAdvancePayment}
+                                disabled={isSubmitting || advancePaymentMethod === "NAGAD"}
+                            >
+                                {isSubmitting ? "Processing..." : `Pay ৳${pendingAdvanceAmount.toLocaleString()}`}
+                            </button>
+                        </div>
                     )}
 
                     {/* Step 3: Confirmation */}

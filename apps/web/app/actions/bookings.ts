@@ -121,6 +121,14 @@ export async function createBooking(input: CreateBookingInput): Promise<BookingR
         const bookingId = crypto.randomUUID();
         const qrCodeData = JSON.stringify({ bookingId, hotelId, roomId });
 
+        // Set expiry time for unpaid bookings (20 minutes from now)
+        const expiresAt = bookingFeeStatus === "PENDING"
+            ? new Date(Date.now() + 20 * 60 * 1000) // 20 minutes
+            : undefined;
+
+        // Booking is CONFIRMED only if advance is paid
+        const bookingStatus = bookingFeeStatus === "PAID" ? "CONFIRMED" : "PENDING";
+
         const [booking] = await db.insert(bookings).values({
             id: bookingId,
             hotelId,
@@ -139,8 +147,9 @@ export async function createBooking(input: CreateBookingInput): Promise<BookingR
             bookingFeeStatus,
             paymentMethod,
             paymentStatus: paymentMethod === "PAY_AT_HOTEL" ? "PAY_AT_HOTEL" : "PENDING",
-            status: "PENDING",
+            status: bookingStatus,
             qrCode: qrCodeData,
+            expiresAt,
         }).returning();
 
         // Record wallet transaction if fee was paid
