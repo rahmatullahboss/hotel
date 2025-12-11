@@ -345,9 +345,9 @@ export default function HotelDetailPage() {
             {/* Sticky Book Now Footer */}
             {selectedRoom && (
                 <div
+                    className="book-now-bar"
                     style={{
                         position: "fixed",
-                        bottom: "70px", // Above bottom nav
                         left: 0,
                         right: 0,
                         background: "white",
