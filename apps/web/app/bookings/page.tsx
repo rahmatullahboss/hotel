@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
+import Link from "next/link";
 import { getUserBookings } from "../actions/bookings";
 import { BottomNav, BookingQRCode, CancelBookingModal } from "../components";
 
@@ -19,20 +20,32 @@ interface Booking {
     status: BookingStatus;
     totalAmount: string;
     paymentStatus: PaymentStatus;
+    bookingFee?: string;
+    bookingFeeStatus?: string;
 }
 
-const statusConfig: Record<BookingStatus, { label: string; className: string }> = {
-    PENDING: { label: "Pending", className: "badge-warning" },
-    CONFIRMED: { label: "Confirmed", className: "badge-success" },
-    CHECKED_IN: { label: "Checked In", className: "badge-success" },
-    CHECKED_OUT: { label: "Completed", className: "" },
-    CANCELLED: { label: "Cancelled", className: "badge-error" },
+const statusConfig: Record<BookingStatus, { label: string; className: string; icon: string }> = {
+    PENDING: { label: "Pending Payment", className: "badge-warning", icon: "⏳" },
+    CONFIRMED: { label: "Confirmed", className: "badge-success", icon: "✅" },
+    CHECKED_IN: { label: "Checked In", className: "badge-success", icon: "🏨" },
+    CHECKED_OUT: { label: "Completed", className: "", icon: "✓" },
+    CANCELLED: { label: "Cancelled", className: "badge-error", icon: "❌" },
 };
+
+const paymentStatusConfig: Record<PaymentStatus, { label: string; color: string }> = {
+    PENDING: { label: "Payment Pending", color: "var(--color-warning)" },
+    PAID: { label: "Fully Paid", color: "var(--color-success)" },
+    PAY_AT_HOTEL: { label: "Pay at Hotel", color: "var(--color-primary)" },
+    REFUNDED: { label: "Refunded", color: "var(--color-text-secondary)" },
+};
+
+type TabType = "upcoming" | "past";
 
 export default function BookingsPage() {
     const { data: session } = useSession();
     const [bookings, setBookings] = useState<Booking[]>([]);
     const [loading, setLoading] = useState(true);
+    const [activeTab, setActiveTab] = useState<TabType>("upcoming");
     const [selectedBookingId, setSelectedBookingId] = useState<string | null>(null);
     const [cancellingBooking, setCancellingBooking] = useState<Booking | null>(null);
 
@@ -59,44 +72,40 @@ export default function BookingsPage() {
         (b) => b.status === "CHECKED_OUT" || b.status === "CANCELLED"
     );
 
+    const displayedBookings = activeTab === "upcoming" ? upcomingBookings : pastBookings;
+
     const formatDate = (dateStr: string) => {
         return new Date(dateStr).toLocaleDateString("en-BD", {
+            weekday: "short",
             month: "short",
             day: "numeric",
-            year: "numeric",
         });
+    };
+
+    const getDaysUntilCheckIn = (checkIn: string) => {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const checkInDate = new Date(checkIn);
+        checkInDate.setHours(0, 0, 0, 0);
+        const diffTime = checkInDate.getTime() - today.getTime();
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        return diffDays;
     };
 
     if (!session) {
         return (
             <>
-                <header
-                    style={{
-                        padding: "1rem",
-                        background: "white",
-                        borderBottom: "1px solid var(--color-border)",
-                    }}
-                >
-                    <h1 style={{ fontSize: "1.5rem", fontWeight: 700 }}>My Bookings</h1>
+                <header className="bookings-header">
+                    <h1>My Bookings</h1>
                 </header>
-                <main style={{ padding: "1rem" }}>
-                    <div
-                        style={{
-                            textAlign: "center",
-                            padding: "3rem 1rem",
-                            color: "var(--color-text-secondary)",
-                        }}
-                    >
-                        <div style={{ fontSize: "3rem", marginBottom: "1rem" }}>🔒</div>
-                        <h2 style={{ marginBottom: "0.5rem", color: "var(--color-text-primary)" }}>
-                            Please sign in
-                        </h2>
-                        <p style={{ marginBottom: "1.5rem" }}>
-                            Sign in to view your bookings
-                        </p>
-                        <a href="/auth/signin" className="btn btn-primary">
+                <main className="page-content">
+                    <div className="empty-state">
+                        <div className="empty-state-icon">🔒</div>
+                        <h2>Please sign in</h2>
+                        <p>Sign in to view your bookings</p>
+                        <Link href="/auth/signin" className="btn btn-primary">
                             Sign In
-                        </a>
+                        </Link>
                     </div>
                 </main>
                 <BottomNav />
@@ -107,16 +116,10 @@ export default function BookingsPage() {
     if (loading) {
         return (
             <>
-                <header
-                    style={{
-                        padding: "1rem",
-                        background: "white",
-                        borderBottom: "1px solid var(--color-border)",
-                    }}
-                >
-                    <h1 style={{ fontSize: "1.5rem", fontWeight: 700 }}>My Bookings</h1>
+                <header className="bookings-header">
+                    <h1>My Bookings</h1>
                 </header>
-                <main style={{ padding: "1rem", textAlign: "center" }}>
+                <main className="page-content" style={{ textAlign: "center" }}>
                     <div style={{ padding: "3rem" }}>
                         <div className="loading-spinner" style={{ margin: "0 auto" }}></div>
                         <p style={{ marginTop: "1rem", color: "var(--color-text-secondary)" }}>
@@ -131,207 +134,410 @@ export default function BookingsPage() {
 
     return (
         <>
-            {/* Header */}
-            <header
-                style={{
-                    padding: "1rem",
-                    background: "white",
-                    borderBottom: "1px solid var(--color-border)",
-                }}
-            >
-                <h1 style={{ fontSize: "1.5rem", fontWeight: 700 }}>My Bookings</h1>
+            <style jsx>{`
+                .bookings-header {
+                    padding: 1rem;
+                    background: linear-gradient(135deg, var(--color-primary), #c1121f);
+                    color: white;
+                }
+                .bookings-header h1 {
+                    font-size: 1.5rem;
+                    font-weight: 700;
+                    margin: 0;
+                }
+                .bookings-tabs {
+                    display: flex;
+                    background: white;
+                    border-bottom: 1px solid var(--color-border);
+                    position: sticky;
+                    top: 0;
+                    z-index: 10;
+                }
+                .tab-btn {
+                    flex: 1;
+                    padding: 1rem;
+                    border: none;
+                    background: transparent;
+                    font-size: 0.9375rem;
+                    font-weight: 500;
+                    color: var(--color-text-secondary);
+                    cursor: pointer;
+                    position: relative;
+                    transition: all 0.2s;
+                }
+                .tab-btn.active {
+                    color: var(--color-primary);
+                }
+                .tab-btn.active::after {
+                    content: '';
+                    position: absolute;
+                    bottom: 0;
+                    left: 0;
+                    right: 0;
+                    height: 3px;
+                    background: var(--color-primary);
+                    border-radius: 3px 3px 0 0;
+                }
+                .tab-count {
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                    min-width: 20px;
+                    height: 20px;
+                    margin-left: 0.5rem;
+                    padding: 0 6px;
+                    font-size: 0.75rem;
+                    font-weight: 600;
+                    background: var(--color-bg-tertiary);
+                    border-radius: 10px;
+                }
+                .tab-btn.active .tab-count {
+                    background: var(--color-primary);
+                    color: white;
+                }
+                .booking-card {
+                    background: white;
+                    border-radius: 1rem;
+                    overflow: hidden;
+                    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+                    margin-bottom: 1rem;
+                    transition: transform 0.2s, box-shadow 0.2s;
+                }
+                .booking-card:active {
+                    transform: scale(0.98);
+                }
+                .booking-image {
+                    position: relative;
+                    height: 140px;
+                    overflow: hidden;
+                }
+                .booking-image img {
+                    width: 100%;
+                    height: 100%;
+                    object-fit: cover;
+                }
+                .booking-status-overlay {
+                    position: absolute;
+                    top: 0.75rem;
+                    left: 0.75rem;
+                    display: flex;
+                    gap: 0.5rem;
+                }
+                .days-badge {
+                    position: absolute;
+                    top: 0.75rem;
+                    right: 0.75rem;
+                    background: rgba(0,0,0,0.7);
+                    color: white;
+                    padding: 0.25rem 0.75rem;
+                    border-radius: 1rem;
+                    font-size: 0.75rem;
+                    font-weight: 600;
+                }
+                .booking-content {
+                    padding: 1rem;
+                }
+                .booking-hotel-name {
+                    font-size: 1.125rem;
+                    font-weight: 700;
+                    margin-bottom: 0.25rem;
+                    color: var(--color-text-primary);
+                }
+                .booking-room {
+                    font-size: 0.875rem;
+                    color: var(--color-text-secondary);
+                    margin-bottom: 0.75rem;
+                }
+                .booking-dates {
+                    display: flex;
+                    align-items: center;
+                    gap: 0.5rem;
+                    padding: 0.75rem;
+                    background: var(--color-bg-secondary);
+                    border-radius: 0.5rem;
+                    margin-bottom: 0.75rem;
+                }
+                .date-block {
+                    flex: 1;
+                    text-align: center;
+                }
+                .date-label {
+                    font-size: 0.625rem;
+                    text-transform: uppercase;
+                    color: var(--color-text-secondary);
+                    letter-spacing: 0.5px;
+                }
+                .date-value {
+                    font-size: 0.875rem;
+                    font-weight: 600;
+                    color: var(--color-text-primary);
+                }
+                .date-arrow {
+                    color: var(--color-text-secondary);
+                }
+                .booking-footer {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    padding-top: 0.75rem;
+                    border-top: 1px solid var(--color-border);
+                }
+                .booking-id {
+                    font-size: 0.75rem;
+                    color: var(--color-text-secondary);
+                }
+                .booking-id span {
+                    font-weight: 600;
+                    color: var(--color-text-primary);
+                    font-family: monospace;
+                }
+                .booking-price {
+                    font-size: 1.25rem;
+                    font-weight: 700;
+                    color: var(--color-primary);
+                }
+                .booking-actions {
+                    display: flex;
+                    gap: 0.5rem;
+                    padding: 0.75rem 1rem;
+                    background: var(--color-bg-secondary);
+                    border-top: 1px solid var(--color-border);
+                }
+                .booking-actions button {
+                    flex: 1;
+                }
+                .payment-info {
+                    display: flex;
+                    align-items: center;
+                    gap: 0.5rem;
+                    font-size: 0.8125rem;
+                    padding: 0.5rem 0.75rem;
+                    border-radius: 0.5rem;
+                    margin-bottom: 0.75rem;
+                }
+                .empty-state {
+                    text-align: center;
+                    padding: 3rem 1.5rem;
+                }
+                .empty-state-icon {
+                    font-size: 4rem;
+                    margin-bottom: 1rem;
+                }
+                .empty-state h2 {
+                    font-size: 1.25rem;
+                    font-weight: 600;
+                    margin-bottom: 0.5rem;
+                    color: var(--color-text-primary);
+                }
+                .empty-state p {
+                    color: var(--color-text-secondary);
+                    margin-bottom: 1.5rem;
+                }
+                .past-booking-card {
+                    opacity: 0.7;
+                }
+                .past-booking-card .booking-image {
+                    height: 100px;
+                    filter: grayscale(50%);
+                }
+            `}</style>
+
+            <header className="bookings-header">
+                <h1>My Bookings</h1>
             </header>
 
+            {/* Tabs */}
+            <div className="bookings-tabs">
+                <button
+                    className={`tab-btn ${activeTab === "upcoming" ? "active" : ""}`}
+                    onClick={() => setActiveTab("upcoming")}
+                >
+                    Upcoming
+                    <span className="tab-count">{upcomingBookings.length}</span>
+                </button>
+                <button
+                    className={`tab-btn ${activeTab === "past" ? "active" : ""}`}
+                    onClick={() => setActiveTab("past")}
+                >
+                    Past
+                    <span className="tab-count">{pastBookings.length}</span>
+                </button>
+            </div>
+
             <main className="page-content">
-                {bookings.length === 0 ? (
-                    <div
-                        style={{
-                            textAlign: "center",
-                            padding: "3rem 1rem",
-                            color: "var(--color-text-secondary)",
-                        }}
-                    >
-                        <div style={{ fontSize: "3rem", marginBottom: "1rem" }}>🏨</div>
-                        <h2 style={{ marginBottom: "0.5rem", color: "var(--color-text-primary)" }}>
-                            No bookings yet
+                {displayedBookings.length === 0 ? (
+                    <div className="empty-state">
+                        <div className="empty-state-icon">
+                            {activeTab === "upcoming" ? "🏨" : "📋"}
+                        </div>
+                        <h2>
+                            {activeTab === "upcoming" ? "No upcoming bookings" : "No past bookings"}
                         </h2>
-                        <p style={{ marginBottom: "1.5rem" }}>
-                            Start exploring hotels and make your first booking!
+                        <p>
+                            {activeTab === "upcoming"
+                                ? "Start exploring hotels and make your first booking!"
+                                : "Your completed and cancelled bookings will appear here."}
                         </p>
-                        <a href="/" className="btn btn-primary">
-                            Search Hotels
-                        </a>
+                        {activeTab === "upcoming" && (
+                            <Link href="/" className="btn btn-primary">
+                                Search Hotels
+                            </Link>
+                        )}
                     </div>
                 ) : (
-                    <>
-                        {/* Upcoming Bookings */}
-                        {upcomingBookings.length > 0 && (
-                            <section style={{ marginBottom: "2rem" }}>
-                                <h2 className="section-title" style={{ marginBottom: "1rem" }}>
-                                    Upcoming
-                                </h2>
-                                <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-                                    {upcomingBookings.map((booking) => (
-                                        <div key={booking.id} className="card" style={{ overflow: "hidden" }}>
-                                            <div style={{ display: "flex", gap: "1rem" }}>
-                                                <img
-                                                    src={booking.hotelImage || "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=400&h=300&fit=crop"}
-                                                    alt={booking.hotelName || "Hotel"}
-                                                    style={{
-                                                        width: "100px",
-                                                        height: "100px",
-                                                        objectFit: "cover",
-                                                    }}
-                                                />
-                                                <div style={{ flex: 1, padding: "0.75rem 0.75rem 0.75rem 0" }}>
-                                                    <div
-                                                        style={{
-                                                            display: "flex",
-                                                            justifyContent: "space-between",
-                                                            alignItems: "start",
-                                                            marginBottom: "0.25rem",
-                                                        }}
-                                                    >
-                                                        <h3 style={{ fontWeight: 600, fontSize: "1rem" }}>
-                                                            {booking.hotelName || "Unknown Hotel"}
-                                                        </h3>
-                                                        <span className={`badge ${statusConfig[booking.status].className}`}>
-                                                            {statusConfig[booking.status].label}
-                                                        </span>
-                                                    </div>
-                                                    <p
-                                                        style={{
-                                                            fontSize: "0.875rem",
-                                                            color: "var(--color-text-secondary)",
-                                                            marginBottom: "0.5rem",
-                                                        }}
-                                                    >
-                                                        {booking.roomName || "Room"}
-                                                    </p>
-                                                    <p
-                                                        style={{
-                                                            fontSize: "0.875rem",
-                                                            color: "var(--color-text-secondary)",
-                                                        }}
-                                                    >
-                                                        {formatDate(booking.checkIn)} → {formatDate(booking.checkOut)}
-                                                    </p>
-                                                </div>
+                    <div>
+                        {displayedBookings.map((booking) => {
+                            const daysUntil = getDaysUntilCheckIn(booking.checkIn);
+                            const isPast = activeTab === "past";
+
+                            return (
+                                <div
+                                    key={booking.id}
+                                    className={`booking-card ${isPast ? "past-booking-card" : ""}`}
+                                >
+                                    {/* Image Section */}
+                                    <div className="booking-image">
+                                        <img
+                                            src={booking.hotelImage || "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=400&h=300&fit=crop"}
+                                            alt={booking.hotelName || "Hotel"}
+                                        />
+                                        <div className="booking-status-overlay">
+                                            <span className={`badge ${statusConfig[booking.status].className}`}>
+                                                {statusConfig[booking.status].icon} {statusConfig[booking.status].label}
+                                            </span>
+                                        </div>
+                                        {!isPast && daysUntil >= 0 && (
+                                            <div className="days-badge">
+                                                {daysUntil === 0
+                                                    ? "Today!"
+                                                    : daysUntil === 1
+                                                        ? "Tomorrow"
+                                                        : `${daysUntil} days`}
                                             </div>
+                                        )}
+                                    </div>
+
+                                    {/* Content */}
+                                    <div className="booking-content">
+                                        <h3 className="booking-hotel-name">
+                                            {booking.hotelName || "Unknown Hotel"}
+                                        </h3>
+                                        <p className="booking-room">
+                                            {booking.roomName || "Room"} • {booking.hotelLocation || "Location"}
+                                        </p>
+
+                                        {/* Payment Info */}
+                                        {!isPast && (
                                             <div
+                                                className="payment-info"
                                                 style={{
-                                                    display: "flex",
-                                                    justifyContent: "space-between",
-                                                    alignItems: "center",
-                                                    padding: "0.75rem 1rem",
-                                                    borderTop: "1px solid var(--color-border)",
-                                                    background: "var(--color-bg-secondary)",
+                                                    background: `${paymentStatusConfig[booking.paymentStatus].color}15`,
+                                                    color: paymentStatusConfig[booking.paymentStatus].color,
                                                 }}
                                             >
-                                                <div>
-                                                    <span style={{ fontSize: "0.75rem", color: "var(--color-text-secondary)" }}>
-                                                        Booking ID:
-                                                    </span>{" "}
-                                                    <span style={{ fontWeight: 600 }}>{booking.id.slice(0, 8).toUpperCase()}</span>
-                                                </div>
-                                                <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                                                    {booking.status !== "CHECKED_IN" && (
-                                                        <button
-                                                            onClick={() => setCancellingBooking(booking)}
-                                                            className="btn"
-                                                            style={{
-                                                                fontSize: "0.75rem",
-                                                                padding: "0.25rem 0.75rem",
-                                                                background: "transparent",
-                                                                color: "var(--color-error)",
-                                                                border: "1px solid var(--color-error)",
-                                                            }}
-                                                        >
-                                                            Cancel
-                                                        </button>
-                                                    )}
-                                                    <button
-                                                        onClick={() => setSelectedBookingId(selectedBookingId === booking.id ? null : booking.id)}
-                                                        className="btn btn-outline"
-                                                        style={{ fontSize: "0.75rem", padding: "0.25rem 0.75rem" }}
-                                                    >
-                                                        {selectedBookingId === booking.id ? "Hide QR" : "📱 QR"}
-                                                    </button>
-                                                    <div style={{ fontWeight: 700, color: "var(--color-primary)" }}>
-                                                        ৳{Number(booking.totalAmount).toLocaleString()}
-                                                    </div>
-                                                </div>
+                                                <span>
+                                                    {booking.paymentStatus === "PAY_AT_HOTEL" ? "💵" :
+                                                        booking.paymentStatus === "PAID" ? "✅" : "⏳"}
+                                                </span>
+                                                <span style={{ fontWeight: 500 }}>
+                                                    {paymentStatusConfig[booking.paymentStatus].label}
+                                                </span>
+                                                {booking.bookingFeeStatus === "PAID" && booking.paymentStatus === "PAY_AT_HOTEL" && (
+                                                    <span style={{ marginLeft: "auto", fontSize: "0.75rem" }}>
+                                                        20% advance paid
+                                                    </span>
+                                                )}
                                             </div>
-                                            {/* QR Code Section */}
-                                            {selectedBookingId === booking.id && (
-                                                <div
-                                                    style={{
-                                                        padding: "1.5rem",
-                                                        background: "linear-gradient(135deg, rgba(29, 53, 87, 0.05) 0%, rgba(42, 157, 143, 0.05) 100%)",
-                                                        borderTop: "1px solid var(--color-border)",
+                                        )}
+
+                                        {/* Dates */}
+                                        <div className="booking-dates">
+                                            <div className="date-block">
+                                                <div className="date-label">Check-in</div>
+                                                <div className="date-value">{formatDate(booking.checkIn)}</div>
+                                            </div>
+                                            <div className="date-arrow">→</div>
+                                            <div className="date-block">
+                                                <div className="date-label">Check-out</div>
+                                                <div className="date-value">{formatDate(booking.checkOut)}</div>
+                                            </div>
+                                        </div>
+
+                                        {/* Footer */}
+                                        <div className="booking-footer">
+                                            <div className="booking-id">
+                                                ID: <span>{booking.id.slice(0, 8).toUpperCase()}</span>
+                                            </div>
+                                            <div className="booking-price">
+                                                ৳{Number(booking.totalAmount).toLocaleString()}
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Actions */}
+                                    {!isPast && (
+                                        <div className="booking-actions">
+                                            {booking.status === "PENDING" && (
+                                                <button
+                                                    className="btn btn-primary"
+                                                    onClick={() => {
+                                                        // Redirect to payment
+                                                        window.location.href = `/booking/payment?bookingId=${booking.id}`;
                                                     }}
                                                 >
-                                                    <BookingQRCode bookingId={booking.id} size={160} />
-                                                </div>
+                                                    Complete Payment
+                                                </button>
+                                            )}
+                                            {(booking.status === "CONFIRMED" || booking.status === "PENDING") && (
+                                                <button
+                                                    className="btn btn-outline"
+                                                    onClick={() => setSelectedBookingId(
+                                                        selectedBookingId === booking.id ? null : booking.id
+                                                    )}
+                                                >
+                                                    {selectedBookingId === booking.id ? "Hide QR" : "📱 Show QR"}
+                                                </button>
+                                            )}
+                                            {booking.status !== "CHECKED_IN" && (
+                                                <button
+                                                    onClick={() => setCancellingBooking(booking)}
+                                                    className="btn"
+                                                    style={{
+                                                        background: "transparent",
+                                                        color: "var(--color-error)",
+                                                        border: "1px solid var(--color-error)",
+                                                    }}
+                                                >
+                                                    Cancel
+                                                </button>
                                             )}
                                         </div>
-                                    ))}
-                                </div>
-                            </section>
-                        )}
+                                    )}
 
-                        {/* Past Bookings */}
-                        {pastBookings.length > 0 && (
-                            <section>
-                                <h2 className="section-title" style={{ marginBottom: "1rem" }}>
-                                    Past Bookings
-                                </h2>
-                                <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-                                    {pastBookings.map((booking) => (
+                                    {/* QR Code Section */}
+                                    {selectedBookingId === booking.id && (
                                         <div
-                                            key={booking.id}
-                                            className="card"
-                                            style={{ opacity: 0.7, overflow: "hidden" }}
+                                            style={{
+                                                padding: "1.5rem",
+                                                background: "linear-gradient(135deg, rgba(29, 53, 87, 0.05) 0%, rgba(42, 157, 143, 0.05) 100%)",
+                                                borderTop: "1px solid var(--color-border)",
+                                            }}
                                         >
-                                            <div style={{ display: "flex", gap: "1rem" }}>
-                                                <img
-                                                    src={booking.hotelImage || "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=400&h=300&fit=crop"}
-                                                    alt={booking.hotelName || "Hotel"}
-                                                    style={{
-                                                        width: "80px",
-                                                        height: "80px",
-                                                        objectFit: "cover",
-                                                        filter: "grayscale(50%)",
-                                                    }}
-                                                />
-                                                <div style={{ flex: 1, padding: "0.5rem 0.75rem 0.5rem 0" }}>
-                                                    <h3 style={{ fontWeight: 600, fontSize: "0.9375rem" }}>
-                                                        {booking.hotelName || "Unknown Hotel"}
-                                                    </h3>
-                                                    <p
-                                                        style={{
-                                                            fontSize: "0.875rem",
-                                                            color: "var(--color-text-secondary)",
-                                                        }}
-                                                    >
-                                                        {formatDate(booking.checkIn)} → {formatDate(booking.checkOut)}
-                                                    </p>
-                                                    <p
-                                                        style={{
-                                                            fontSize: "0.875rem",
-                                                            color: "var(--color-text-muted)",
-                                                        }}
-                                                    >
-                                                        {statusConfig[booking.status].label}
-                                                    </p>
-                                                </div>
-                                            </div>
+                                            <BookingQRCode bookingId={booking.id} size={180} />
+                                            <p style={{
+                                                textAlign: "center",
+                                                fontSize: "0.8125rem",
+                                                color: "var(--color-text-secondary)",
+                                                marginTop: "0.75rem",
+                                            }}>
+                                                Show this QR code at the hotel for check-in
+                                            </p>
                                         </div>
-                                    ))}
+                                    )}
                                 </div>
-                            </section>
-                        )}
-                    </>
+                            );
+                        })}
+                    </div>
                 )}
             </main>
 
