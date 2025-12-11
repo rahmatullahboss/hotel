@@ -309,11 +309,13 @@ body {
 
 /* Standard page content - accounts for bottom nav on mobile */
 .page-content {
+  padding: 1rem;
   padding-bottom: 90px;
 }
 
 /* Pages with book-now-bar need extra padding on mobile */
 .page-with-book-bar {
+  padding: 1rem;
   padding-bottom: 160px;
 }
 

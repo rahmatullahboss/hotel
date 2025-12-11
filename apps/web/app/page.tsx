@@ -16,7 +16,7 @@ export default async function HomePage() {
       </section>
 
       {/* Main Content */}
-      <main className="container page-content" style={{ paddingLeft: "1rem", paddingRight: "1rem", marginTop: "-2rem" }}>
+      <main className="container page-content" style={{ marginTop: "-2rem" }}>
         {/* Search Form */}
         <SearchForm />
 

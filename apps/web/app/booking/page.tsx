@@ -169,7 +169,7 @@ function BookingContent() {
 
     return (
         <>
-            <main className="page-content" style={{ paddingLeft: "1rem", paddingRight: "1rem" }}>
+            <main className="page-content">
                 <div className="container" style={{ maxWidth: 600 }}>
                     {/* Progress Steps */}
                     <div
