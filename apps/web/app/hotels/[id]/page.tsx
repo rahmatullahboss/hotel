@@ -347,17 +347,16 @@ export default function HotelDetailPage() {
                 <div
                     style={{
                         position: "fixed",
-                        bottom: 0,
+                        bottom: "70px", // Above bottom nav
                         left: 0,
                         right: 0,
                         background: "white",
                         padding: "1rem",
-                        paddingBottom: "calc(1rem + env(safe-area-inset-bottom))",
                         borderTop: "1px solid var(--color-border)",
                         display: "flex",
                         justifyContent: "space-between",
                         alignItems: "center",
-                        zIndex: 100,
+                        zIndex: 90,
                     }}
                 >
                     <div>
@@ -374,6 +373,8 @@ export default function HotelDetailPage() {
                     </button>
                 </div>
             )}
+
+            <BottomNav />
         </>
     );
 }
