@@ -520,7 +520,15 @@ export default async function DashboardPage() {
                   </div>
 
                   {/* Action Buttons */}
-                  <div style={{ display: "flex", gap: "0.5rem" }}>
+                  <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
+                    {/* Collect Payment Button - show when payment is pending */}
+                    {booking.paymentStatus !== "PAID" && booking.remainingAmount > 0 && (
+                      <CollectPaymentButton
+                        bookingId={booking.id}
+                        hotelId={hotel.id}
+                        remainingAmount={booking.remainingAmount}
+                      />
+                    )}
                     <ExtendStayButton
                       bookingId={booking.id}
                       hotelId={hotel.id}
@@ -604,14 +612,25 @@ export default async function DashboardPage() {
                     )}
                   </div>
 
-                  {/* Checkout Button */}
-                  <a
-                    href={`/scanner?bookingId=${booking.id}`}
-                    className="btn btn-primary"
-                    style={{ fontSize: "0.875rem", padding: "0.75rem 1rem", width: "100%", textAlign: "center" }}
-                  >
-                    Check Out →
-                  </a>
+                  {/* Action Buttons */}
+                  <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
+                    {/* Collect Payment Button - show when payment is pending */}
+                    {booking.paymentStatus !== "PAID" && booking.remainingAmount > 0 && (
+                      <CollectPaymentButton
+                        bookingId={booking.id}
+                        hotelId={hotel.id}
+                        remainingAmount={booking.remainingAmount}
+                      />
+                    )}
+                    {/* Checkout Button */}
+                    <a
+                      href={`/scanner?bookingId=${booking.id}`}
+                      className="btn btn-primary"
+                      style={{ fontSize: "0.75rem", padding: "0.5rem 1rem", flex: 1, textAlign: "center" }}
+                    >
+                      Check Out →
+                    </a>
+                  </div>
                 </div>
               ))}
             </div>
@@ -711,13 +730,13 @@ export default async function DashboardPage() {
           </h2>
           <HotelCheckInQR hotelId={hotel.id} hotelName={hotel.name} />
         </section>
-      </main>
+      </main >
 
       {/* Scanner FAB */}
-      <ScannerFAB />
+      < ScannerFAB />
 
       {/* Bottom Navigation */}
-      <BottomNav />
+      < BottomNav />
     </>
   );
 }
