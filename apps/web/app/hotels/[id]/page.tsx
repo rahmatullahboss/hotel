@@ -2,18 +2,10 @@
 
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { BottomNav } from "../../components";
-import { getHotelById, getAvailableRooms } from "../../actions/hotels";
+import { BottomNav, RoomCard, RoomDetailModal } from "../../components";
+import { getHotelById, getAvailableRooms, RoomWithDetails } from "../../actions/hotels";
 
-interface Room {
-    id: string;
-    name: string;
-    type: string;
-    basePrice: string;
-    maxGuests: number;
-    isAvailable?: boolean;
-    unavailableReason?: string;
-}
+interface Room extends RoomWithDetails { }
 
 interface HotelDetail {
     id: string;
@@ -25,7 +17,6 @@ interface HotelDetail {
     reviewCount: number;
     images: string[];
     amenities: string[];
-    rooms: Room[];
     payAtHotelEnabled: boolean;
 }
 
@@ -39,6 +30,7 @@ export default function HotelDetailPage() {
     const [loading, setLoading] = useState(true);
     const [selectedRoom, setSelectedRoom] = useState<Room | null>(null);
     const [currentImage, setCurrentImage] = useState(0);
+    const [detailRoom, setDetailRoom] = useState<Room | null>(null);
 
     // Default dates: today and tomorrow
     const today = new Date().toISOString().split("T")[0];
@@ -55,7 +47,6 @@ export default function HotelDetailPage() {
                 setHotel({
                     ...data,
                     images: data.images || [data.coverImage || "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800"],
-                    rooms: data.rooms || [],
                 });
                 // Don't set rooms here - let the availability effect handle it
             }
@@ -85,8 +76,11 @@ export default function HotelDetailPage() {
 
     const handleBookNow = () => {
         if (!hotel || !selectedRoom || !checkIn || !checkOut) return;
+        // Include room photo in URL params for booking page preview
+        const roomPhoto = selectedRoom.photos && selectedRoom.photos.length > 0 ? selectedRoom.photos[0] : "";
+        const roomPhotoParam = roomPhoto ? `&roomPhoto=${encodeURIComponent(roomPhoto)}` : "";
         router.push(
-            `/booking?hotelId=${hotel.id}&roomId=${selectedRoom.id}&hotel=${encodeURIComponent(hotel.name)}&room=${encodeURIComponent(selectedRoom.name)}&price=${selectedRoom.basePrice}&checkIn=${checkIn}&checkOut=${checkOut}`
+            `/booking?hotelId=${hotel.id}&roomId=${selectedRoom.id}&hotel=${encodeURIComponent(hotel.name)}&room=${encodeURIComponent(selectedRoom.name)}&price=${selectedRoom.basePrice}&checkIn=${checkIn}&checkOut=${checkOut}${roomPhotoParam}`
         );
     };
 
@@ -297,77 +291,39 @@ export default function HotelDetailPage() {
                     </div>
                 </div>
 
-                {/* Room Selection */}
-                <div className="card" style={{ padding: "1rem", marginBottom: "1rem" }}>
-                    <h2 style={{ fontSize: "1rem", fontWeight: 600, marginBottom: "0.75rem" }}>
-                        Select Room
+                {/* Room Selection with Photos */}
+                <div style={{ marginBottom: "1rem" }}>
+                    <h2 style={{ fontSize: "1.125rem", fontWeight: 600, marginBottom: "1rem" }}>
+                        Available Rooms
                     </h2>
                     {rooms.length > 0 ? (
-                        <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
-                            {rooms.map((room) => {
-                                const isUnavailable = room.isAvailable === false;
-                                const isSelected = selectedRoom?.id === room.id;
-
-                                return (
-                                    <button
-                                        key={room.id}
-                                        onClick={() => !isUnavailable && setSelectedRoom(room)}
-                                        disabled={isUnavailable}
-                                        style={{
-                                            display: "flex",
-                                            justifyContent: "space-between",
-                                            alignItems: "center",
-                                            padding: "1rem",
-                                            border: isUnavailable
-                                                ? "2px solid var(--color-error)"
-                                                : isSelected
-                                                    ? "2px solid var(--color-primary)"
-                                                    : "2px solid var(--color-border)",
-                                            borderRadius: "0.75rem",
-                                            background: isUnavailable ? "#fff5f5" : "white",
-                                            cursor: isUnavailable ? "not-allowed" : "pointer",
-                                            transition: "border-color 0.2s ease",
-                                            opacity: isUnavailable ? 0.7 : 1,
-                                        }}
-                                    >
-                                        <div style={{ textAlign: "left" }}>
-                                            <div style={{ fontWeight: 600, display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                                                {room.name}
-                                                {isUnavailable && (
-                                                    <span style={{
-                                                        background: "var(--color-error)",
-                                                        color: "white",
-                                                        fontSize: "0.625rem",
-                                                        padding: "0.125rem 0.5rem",
-                                                        borderRadius: "4px",
-                                                        fontWeight: 600,
-                                                    }}>
-                                                        BOOKED
-                                                    </span>
-                                                )}
-                                            </div>
-                                            <div style={{ fontSize: "0.875rem", color: "var(--color-text-secondary)" }}>
-                                                {isUnavailable ? (
-                                                    <span style={{ color: "var(--color-error)" }}>
-                                                        {room.unavailableReason || "Not available for these dates"}
-                                                    </span>
-                                                ) : (
-                                                    `Up to ${room.maxGuests} guests`
-                                                )}
-                                            </div>
-                                        </div>
-                                        <div className="hotel-price" style={{ opacity: isUnavailable ? 0.5 : 1 }}>
-                                            ৳{Number(room.basePrice).toLocaleString()}
-                                            <span className="hotel-price-label">/night</span>
-                                        </div>
-                                    </button>
-                                );
-                            })}
+                        <div className="room-cards-grid">
+                            {rooms.map((room) => (
+                                <RoomCard
+                                    key={room.id}
+                                    room={room}
+                                    isSelected={selectedRoom?.id === room.id}
+                                    onSelect={() => setSelectedRoom(room)}
+                                    onViewDetails={() => setDetailRoom(room)}
+                                />
+                            ))}
                         </div>
                     ) : (
-                        <p style={{ color: "var(--color-text-secondary)" }}>No rooms available at the moment.</p>
+                        <div className="card" style={{ padding: "2rem", textAlign: "center" }}>
+                            <p style={{ color: "var(--color-text-secondary)" }}>No rooms available at the moment.</p>
+                        </div>
                     )}
                 </div>
+
+                {/* Room Detail Modal */}
+                {detailRoom && (
+                    <RoomDetailModal
+                        room={detailRoom}
+                        isOpen={!!detailRoom}
+                        onClose={() => setDetailRoom(null)}
+                        onSelectRoom={() => setSelectedRoom(detailRoom)}
+                    />
+                )}
 
                 {/* Policies */}
                 <div className="card" style={{ padding: "1rem" }}>

@@ -170,22 +170,30 @@ export async function getFeaturedHotels(limit = 4): Promise<HotelWithPrice[]> {
 }
 
 /**
- * Get available rooms for a hotel on specific dates
- * Returns room with availability status
+ * Room data with availability and full details for display
  */
-export async function getAvailableRooms(
-    hotelId: string,
-    checkIn: string,
-    checkOut: string
-): Promise<{
+export interface RoomWithDetails {
     id: string;
     name: string;
     type: string;
     basePrice: string;
     maxGuests: number;
+    description: string | null;
+    photos: string[];
+    amenities: string[];
     isAvailable: boolean;
     unavailableReason?: string;
-}[]> {
+}
+
+/**
+ * Get available rooms for a hotel on specific dates
+ * Returns room with availability status and full details (photos, amenities, description)
+ */
+export async function getAvailableRooms(
+    hotelId: string,
+    checkIn: string,
+    checkOut: string
+): Promise<RoomWithDetails[]> {
     try {
         // Import bookings for availability check
         const { bookings } = await import("@repo/db/schema");
@@ -220,6 +228,9 @@ export async function getAvailableRooms(
                     type: room.type,
                     basePrice: room.basePrice,
                     maxGuests: room.maxGuests,
+                    description: room.description,
+                    photos: room.photos ?? [],
+                    amenities: room.amenities ?? [],
                     isAvailable: !existingBooking,
                     unavailableReason: existingBooking
                         ? `Booked ${formatDate(existingBooking.checkIn)} - ${formatDate(existingBooking.checkOut)}`

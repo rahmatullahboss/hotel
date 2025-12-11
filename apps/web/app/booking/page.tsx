@@ -30,6 +30,7 @@ function BookingContent() {
     const price = Number(searchParams.get("price")) || 0;
     const checkIn = searchParams.get("checkIn") || "";
     const checkOut = searchParams.get("checkOut") || "";
+    const roomPhoto = searchParams.get("roomPhoto") || "";
 
     // Calculate nights and amounts
     const nights = checkIn && checkOut
@@ -270,24 +271,38 @@ function BookingContent() {
                         ))}
                     </div>
 
-                    {/* Booking Summary Card */}
-                    <div className="card" style={{ padding: "1rem", marginBottom: "1rem" }}>
-                        <h3 style={{ fontWeight: 600, marginBottom: "0.5rem" }}>{hotelName}</h3>
-                        <p style={{ color: "var(--color-text-secondary)", fontSize: "0.875rem" }}>
-                            {roomName}
-                        </p>
-                        <div
-                            style={{
-                                display: "flex",
-                                justifyContent: "space-between",
-                                marginTop: "0.75rem",
-                                paddingTop: "0.75rem",
-                                borderTop: "1px solid var(--color-border)",
-                                fontSize: "0.875rem",
-                            }}
-                        >
-                            <span>{checkIn} → {checkOut}</span>
-                            <span>{nights} night{nights > 1 ? "s" : ""}</span>
+                    {/* Booking Summary Card with Room Photo */}
+                    <div className="card" style={{ overflow: "hidden", marginBottom: "1rem" }}>
+                        {/* Room Photo */}
+                        <div style={{ position: "relative", height: "140px", overflow: "hidden" }}>
+                            <img
+                                src={roomPhoto || "https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=800&h=400&fit=crop"}
+                                alt={roomName}
+                                style={{
+                                    width: "100%",
+                                    height: "100%",
+                                    objectFit: "cover",
+                                }}
+                            />
+                        </div>
+                        <div style={{ padding: "1rem" }}>
+                            <h3 style={{ fontWeight: 600, marginBottom: "0.25rem" }}>{hotelName}</h3>
+                            <p style={{ color: "var(--color-text-secondary)", fontSize: "0.875rem" }}>
+                                {roomName}
+                            </p>
+                            <div
+                                style={{
+                                    display: "flex",
+                                    justifyContent: "space-between",
+                                    marginTop: "0.75rem",
+                                    paddingTop: "0.75rem",
+                                    borderTop: "1px solid var(--color-border)",
+                                    fontSize: "0.875rem",
+                                }}
+                            >
+                                <span>{checkIn} → {checkOut}</span>
+                                <span>{nights} night{nights > 1 ? "s" : ""}</span>
+                            </div>
                         </div>
                     </div>
 
