@@ -181,3 +181,145 @@ export async function updateRoomPrice(
         return { success: false, error: "Failed to update price" };
     }
 }
+
+export interface NewRoomInput {
+    hotelId: string;
+    roomNumber: string;
+    name: string;
+    type: "SINGLE" | "DOUBLE" | "SUITE" | "DORMITORY";
+    basePrice: number;
+    maxGuests: number;
+    description?: string;
+    amenities?: string[];
+}
+
+/**
+ * Add a new room to the hotel
+ */
+export async function addRoom(
+    input: NewRoomInput
+): Promise<{ success: boolean; roomId?: string; error?: string }> {
+    try {
+        // Check if room number already exists for this hotel
+        const existingRoom = await db.query.rooms.findFirst({
+            where: and(
+                eq(rooms.hotelId, input.hotelId),
+                eq(rooms.roomNumber, input.roomNumber)
+            ),
+        });
+
+        if (existingRoom) {
+            return { success: false, error: "Room number already exists" };
+        }
+
+        const [newRoom] = await db
+            .insert(rooms)
+            .values({
+                hotelId: input.hotelId,
+                roomNumber: input.roomNumber,
+                name: input.name,
+                type: input.type,
+                basePrice: input.basePrice.toString(),
+                maxGuests: input.maxGuests,
+                description: input.description,
+                amenities: input.amenities || [],
+            })
+            .returning({ id: rooms.id });
+
+        revalidatePath("/inventory");
+        revalidatePath("/");
+        return { success: true, roomId: newRoom?.id };
+    } catch (error) {
+        console.error("Error adding room:", error);
+        return { success: false, error: "Failed to add room" };
+    }
+}
+
+/**
+ * Request room removal (admin must approve)
+ * Sets a removal request flag on the room
+ */
+export async function requestRoomRemoval(
+    roomId: string,
+    reason?: string
+): Promise<{ success: boolean; error?: string }> {
+    try {
+        // We'll use the room's description field temporarily to store removal request
+        // In a full implementation, you'd have a separate requests table
+        const room = await db.query.rooms.findFirst({
+            where: eq(rooms.id, roomId),
+        });
+
+        if (!room) {
+            return { success: false, error: "Room not found" };
+        }
+
+        // Mark room with removal request by prefixing description
+        const removalNote = `[REMOVAL_REQUESTED: ${reason || "No reason provided"}] `;
+        const newDescription = room.description?.startsWith("[REMOVAL_REQUESTED")
+            ? room.description
+            : removalNote + (room.description || "");
+
+        await db
+            .update(rooms)
+            .set({
+                description: newDescription,
+            })
+            .where(eq(rooms.id, roomId));
+
+        revalidatePath("/inventory");
+        return { success: true };
+    } catch (error) {
+        console.error("Error requesting room removal:", error);
+        return { success: false, error: "Failed to request room removal" };
+    }
+}
+
+/**
+ * Cancel room removal request
+ */
+export async function cancelRoomRemovalRequest(
+    roomId: string
+): Promise<{ success: boolean; error?: string }> {
+    try {
+        const room = await db.query.rooms.findFirst({
+            where: eq(rooms.id, roomId),
+        });
+
+        if (!room) {
+            return { success: false, error: "Room not found" };
+        }
+
+        // Remove the removal request prefix from description
+        const newDescription = room.description?.replace(/^\[REMOVAL_REQUESTED:.*?\]\s*/, "") || "";
+
+        await db
+            .update(rooms)
+            .set({ description: newDescription })
+            .where(eq(rooms.id, roomId));
+
+        revalidatePath("/inventory");
+        return { success: true };
+    } catch (error) {
+        console.error("Error canceling room removal request:", error);
+        return { success: false, error: "Failed to cancel request" };
+    }
+}
+
+
+/**
+ * Get all rooms including inactive ones for management
+ */
+export async function getAllHotelRooms(hotelId: string) {
+    try {
+        const hotelRooms = await db.query.rooms.findMany({
+            where: eq(rooms.hotelId, hotelId),
+            orderBy: rooms.roomNumber,
+        });
+
+        return hotelRooms;
+    } catch (error) {
+        console.error("Error fetching all hotel rooms:", error);
+        return [];
+    }
+}

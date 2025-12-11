@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "@repo/db";
-import { hotels, users } from "@repo/db/schema";
+import { hotels, users, rooms } from "@repo/db/schema";
 import { eq, desc } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
@@ -109,5 +109,91 @@ export async function toggleHotelVerification(hotelId: string, isVerified: boole
     } catch (error) {
         console.error("Error updating hotel status:", error);
         return { success: false, error: "Failed to update status" };
+    }
+}
+
+/**
+ * Get all rooms with removal requests across all hotels
+ */
+export async function getRoomsWithRemovalRequests() {
+    try {
+        const allRooms = await db.query.rooms.findMany({
+            with: {
+                hotel: true,
+            },
+        });
+
+        // Filter rooms with removal requests
+        const roomsWithRequests = allRooms.filter(room =>
+            room.description?.startsWith("[REMOVAL_REQUESTED")
+        );
+
+        return roomsWithRequests;
+    } catch (error) {
+        console.error("Error fetching rooms with removal requests:", error);
+        return [];
+    }
+}
+
+/**
+ * Approve room removal - deactivates the room
+ */
+export async function approveRoomRemoval(roomId: string) {
+    try {
+        const room = await db.query.rooms.findFirst({
+            where: eq(rooms.id, roomId),
+        });
+
+        if (!room) {
+            return { success: false, error: "Room not found" };
+        }
+
+        // Remove the removal request prefix and set isActive to false
+        const cleanDescription = room.description?.replace(/^\[REMOVAL_REQUESTED:.*?\]\s*/, "") || "";
+
+        await db
+            .update(rooms)
+            .set({
+                isActive: false,
+                description: cleanDescription,
+            })
+            .where(eq(rooms.id, roomId));
+
+        revalidatePath("/hotels");
+        revalidatePath("/rooms");
+        return { success: true };
+    } catch (error) {
+        console.error("Error approving room removal:", error);
+        return { success: false, error: "Failed to approve removal" };
+    }
+}
+
+/**
+ * Reject room removal request - keeps the room active and removes the request
+ */
+export async function rejectRoomRemoval(roomId: string) {
+    try {
+        const room = await db.query.rooms.findFirst({
+            where: eq(rooms.id, roomId),
+        });
+
+        if (!room) {
+            return { success: false, error: "Room not found" };
+        }
+
+        // Just remove the removal request prefix
+        const cleanDescription = room.description?.replace(/^\[REMOVAL_REQUESTED:.*?\]\s*/, "") || "";
+
+        await db
+            .update(rooms)
+            .set({ description: cleanDescription })
+            .where(eq(rooms.id, roomId));
+
+        revalidatePath("/hotels");
+        revalidatePath("/rooms");
+        return { success: true };
+    } catch (error) {
+        console.error("Error rejecting room removal:", error);
+        return { success: false, error: "Failed to reject removal" };
     }
 }
