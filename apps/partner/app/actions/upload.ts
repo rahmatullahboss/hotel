@@ -23,10 +23,10 @@ export async function uploadRoomPhoto(
             return { success: false, error: "Only image files allowed" };
         }
 
-        // Validate file size (max 10MB before compression)
-        const maxSize = 10 * 1024 * 1024;
+        // Validate file size (max 50MB before compression)
+        const maxSize = 50 * 1024 * 1024;
         if (file.size > maxSize) {
-            return { success: false, error: "File too large. Max 10MB" };
+            return { success: false, error: "File too large. Max 50MB" };
         }
 
         // Optimize image (resize + convert to WebP)

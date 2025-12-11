@@ -16,9 +16,9 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: "Only image files allowed" }, { status: 400 });
         }
 
-        // Limit size to 10MB before compression
-        if (file.size > 10 * 1024 * 1024) {
-            return NextResponse.json({ error: "File too large (max 10MB)" }, { status: 400 });
+        // Limit size to 50MB before compression
+        if (file.size > 50 * 1024 * 1024) {
+            return NextResponse.json({ error: "File too large (max 50MB)" }, { status: 400 });
         }
 
         // Optimize image (resize to 1280px max for ID photos + convert to WebP)
