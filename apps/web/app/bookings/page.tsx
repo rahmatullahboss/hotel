@@ -233,10 +233,31 @@ export default function BookingsPage() {
                                                     </span>{" "}
                                                     <span style={{ fontWeight: 600 }}>{booking.id.slice(0, 8).toUpperCase()}</span>
                                                 </div>
-                                                <div style={{ fontWeight: 700, color: "var(--color-primary)" }}>
-                                                    ৳{Number(booking.totalAmount).toLocaleString()}
+                                                <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+                                                    <button
+                                                        onClick={() => setSelectedBookingId(selectedBookingId === booking.id ? null : booking.id)}
+                                                        className="btn btn-outline"
+                                                        style={{ fontSize: "0.75rem", padding: "0.25rem 0.75rem" }}
+                                                    >
+                                                        {selectedBookingId === booking.id ? "Hide QR" : "📱 QR Code"}
+                                                    </button>
+                                                    <div style={{ fontWeight: 700, color: "var(--color-primary)" }}>
+                                                        ৳{Number(booking.totalAmount).toLocaleString()}
+                                                    </div>
                                                 </div>
                                             </div>
+                                            {/* QR Code Section */}
+                                            {selectedBookingId === booking.id && (
+                                                <div
+                                                    style={{
+                                                        padding: "1.5rem",
+                                                        background: "linear-gradient(135deg, rgba(29, 53, 87, 0.05) 0%, rgba(42, 157, 143, 0.05) 100%)",
+                                                        borderTop: "1px solid var(--color-border)",
+                                                    }}
+                                                >
+                                                    <BookingQRCode bookingId={booking.id} size={160} />
+                                                </div>
+                                            )}
                                         </div>
                                     ))}
                                 </div>
