@@ -3,6 +3,8 @@ import { getPartnerHotel } from "../actions/dashboard";
 import { getEarningsData } from "../actions/earnings";
 import { BottomNav, ScannerFAB } from "../components";
 
+export const dynamic = 'force-dynamic';
+
 export default async function EarningsPage() {
     const hotel = await getPartnerHotel();
 

@@ -4,6 +4,8 @@ import { getAllHotelRooms } from "../../actions/inventory";
 import { BottomNav } from "../../components";
 import RoomsManagementClient from "./RoomsManagementClient";
 
+export const dynamic = 'force-dynamic';
+
 export default async function RoomsManagementPage() {
     const hotel = await getPartnerHotel();
 

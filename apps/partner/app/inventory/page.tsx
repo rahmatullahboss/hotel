@@ -4,6 +4,8 @@ import { getPartnerHotel } from "../actions/dashboard";
 import { getHotelRooms } from "../actions/inventory";
 import { BottomNav, ScannerFAB, RoomGrid } from "../components";
 
+export const dynamic = 'force-dynamic';
+
 export default async function InventoryPage() {
     const hotel = await getPartnerHotel();
 
