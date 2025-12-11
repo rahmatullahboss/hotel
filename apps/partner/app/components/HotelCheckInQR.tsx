@@ -21,7 +21,7 @@ export function HotelCheckInQR({ hotelId, hotelName }: HotelCheckInQRProps) {
         });
 
         QRCode.toDataURL(qrData, {
-            width: 300,
+            width: 400,
             margin: 2,
             color: {
                 dark: "#264653",
@@ -59,12 +59,12 @@ export function HotelCheckInQR({ hotelId, hotelName }: HotelCheckInQRProps) {
                     display: inline-block;
                 }
                 .qr-image {
-                    width: 120px;
-                    height: 120px;
+                    width: 200px;
+                    height: 200px;
                 }
                 .qr-image.expanded {
-                    width: 250px;
-                    height: 250px;
+                    width: 280px;
+                    height: 280px;
                 }
                 .qr-instructions {
                     margin-top: 1rem;
