@@ -347,7 +347,7 @@ export default function HotelDetailPage() {
                 <div
                     style={{
                         position: "fixed",
-                        bottom: "80px", // Above bottom nav
+                        bottom: "70px", // Above bottom nav
                         left: 0,
                         right: 0,
                         background: "white",
