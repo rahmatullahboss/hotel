@@ -27,12 +27,18 @@ export interface BookingResult {
 }
 
 /**
- * Calculate booking fee (10% of total, minimum ৳50)
- * This is a local helper, not exported as a server action
+ * Calculate booking fee based on payment method
+ * - Pay at Hotel: 20% advance (platform's guaranteed revenue)
+ * - Other methods: 10% booking fee (minimum ৳50)
  */
-function calculateBookingFee(totalAmount: number): number {
+function calculateBookingFee(totalAmount: number, paymentMethod: string): number {
+    if (paymentMethod === "PAY_AT_HOTEL") {
+        // 20% advance for Pay at Hotel
+        return Math.round(totalAmount * 0.20);
+    }
+    // 10% for other methods, minimum ৳50
     const percentageFee = Math.round(totalAmount * 0.10);
-    return Math.max(percentageFee, 50); // Minimum ৳50
+    return Math.max(percentageFee, 50);
 }
 
 /**
@@ -63,38 +69,46 @@ export async function createBooking(input: CreateBookingInput): Promise<BookingR
             return { success: false, error: "Room not found" };
         }
 
-        // Calculate commission (12%) and booking fee (10% min ৳50)
+        // Calculate commission (12%) and booking fee (20% for Pay at Hotel, 10% for others)
         const commissionAmount = Math.round(totalAmount * 0.12);
         const netAmount = totalAmount - commissionAmount;
-        const bookingFee = calculateBookingFee(totalAmount);
+        const bookingFee = calculateBookingFee(totalAmount, paymentMethod);
 
-        // Handle wallet deduction for booking fee
+        // ALL bookings now require advance payment via wallet
         let bookingFeeStatus: "PENDING" | "PAID" | "WAIVED" = "PENDING";
 
-        if (useWalletForFee && userId) {
-            const wallet = await db.query.wallets.findFirst({
-                where: eq(wallets.userId, userId),
-            });
-
-            if (wallet && Number(wallet.balance) >= bookingFee) {
-                // Deduct from wallet
-                await db
-                    .update(wallets)
-                    .set({
-                        balance: (Number(wallet.balance) - bookingFee).toString(),
-                        updatedAt: new Date(),
-                    })
-                    .where(eq(wallets.id, wallet.id));
-
-                bookingFeeStatus = "PAID";
-            } else {
-                return {
-                    success: false,
-                    error: `Insufficient wallet balance. Need ৳${bookingFee} for booking fee.`,
-                    bookingFee,
-                };
-            }
+        // Check wallet balance (required for all payment methods)
+        if (!userId) {
+            return {
+                success: false,
+                error: "User must be logged in to make a booking.",
+                bookingFee,
+            };
         }
+
+        const wallet = await db.query.wallets.findFirst({
+            where: eq(wallets.userId, userId),
+        });
+
+        if (!wallet || Number(wallet.balance) < bookingFee) {
+            const feeLabel = paymentMethod === "PAY_AT_HOTEL" ? "advance payment (20%)" : "booking fee";
+            return {
+                success: false,
+                error: `Insufficient wallet balance. Need ৳${bookingFee} as ${feeLabel}.`,
+                bookingFee,
+            };
+        }
+
+        // Deduct from wallet
+        await db
+            .update(wallets)
+            .set({
+                balance: (Number(wallet.balance) - bookingFee).toString(),
+                updatedAt: new Date(),
+            })
+            .where(eq(wallets.id, wallet.id));
+
+        bookingFeeStatus = "PAID";
 
         // Calculate number of nights
         const checkInDate = new Date(checkIn);
@@ -245,14 +259,9 @@ export async function cancelBooking(
         let refundAmount = 0;
         const bookingFee = Number(booking.bookingFee) || 0;
 
-        // Determine if this is a late cancellation based on payment type
-        if (booking.paymentStatus === "PAY_AT_HOTEL") {
-            // Pay at Hotel: Late if within 2 hours of check-in
-            isLateCancellation = hoursUntilCheckIn < 2;
-        } else if (booking.bookingFeeStatus === "PAID" && bookingFee > 0) {
-            // Partial Payment: Late if within 24 hours of check-in
-            isLateCancellation = hoursUntilCheckIn < 24;
-        }
+        // All bookings now have advance payment
+        // Late cancellation: within 24 hours of check-in
+        isLateCancellation = hoursUntilCheckIn < 24;
 
         // Handle refund for partial payment bookings
         if (booking.bookingFeeStatus === "PAID" && bookingFee > 0) {
@@ -285,30 +294,7 @@ export async function cancelBooking(
                     });
                 }
             }
-            // If late, token money is forfeited (no refund)
-        }
-
-        // Handle trust score for Pay at Hotel late cancellations
-        if (booking.paymentStatus === "PAY_AT_HOTEL" && isLateCancellation) {
-            const user = await db.query.users.findFirst({
-                where: eq(users.id, userId),
-            });
-
-            if (user) {
-                const newTrustScore = Math.max(0, (user.trustScore || 100) - 10);
-                const newLateCancellations = (user.lateCancellationCount || 0) + 1;
-                const payAtHotelAllowed = newLateCancellations < 3;
-
-                await db
-                    .update(users)
-                    .set({
-                        trustScore: newTrustScore,
-                        lateCancellationCount: newLateCancellations,
-                        payAtHotelAllowed,
-                        updatedAt: new Date(),
-                    })
-                    .where(eq(users.id, userId));
-            }
+            // If late, advance payment is forfeited (no refund)
         }
 
         // Update booking status
@@ -356,34 +342,17 @@ export async function getCancellationInfo(bookingId: string, userId: string) {
         const hoursUntilCheckIn = (checkInDate.getTime() - now.getTime()) / (1000 * 60 * 60);
         const bookingFee = Number(booking.bookingFee) || 0;
 
-        if (booking.paymentStatus === "PAY_AT_HOTEL") {
-            const isLate = hoursUntilCheckIn < 2;
-            return {
-                type: "PAY_AT_HOTEL" as const,
-                isLate,
-                hoursRemaining: Math.max(0, hoursUntilCheckIn),
-                penalty: isLate ? "Trust score will decrease" : null,
-                refund: 0,
-            };
-        }
-
-        if (booking.bookingFeeStatus === "PAID" && bookingFee > 0) {
-            const isLate = hoursUntilCheckIn < 24;
-            return {
-                type: "PARTIAL_PAYMENT" as const,
-                isLate,
-                hoursRemaining: Math.max(0, hoursUntilCheckIn),
-                penalty: isLate ? `৳${bookingFee} booking fee will be forfeited` : null,
-                refund: isLate ? 0 : bookingFee,
-            };
-        }
+        // All bookings now require advance payment
+        // Late cancellation: within 24 hours of check-in
+        const isLate = hoursUntilCheckIn < 24;
+        const advanceLabel = booking.paymentStatus === "PAY_AT_HOTEL" ? "advance payment" : "booking fee";
 
         return {
-            type: "OTHER" as const,
-            isLate: false,
-            hoursRemaining: hoursUntilCheckIn,
-            penalty: null,
-            refund: 0,
+            type: "ADVANCE_PAYMENT" as const,
+            isLate,
+            hoursRemaining: Math.max(0, hoursUntilCheckIn),
+            penalty: isLate ? `৳${bookingFee} ${advanceLabel} will be forfeited` : null,
+            refund: isLate ? 0 : bookingFee,
         };
     } catch (error) {
         console.error("Error getting cancellation info:", error);

@@ -23,7 +23,7 @@ export function CancelBookingModal({
     const [reason, setReason] = useState("");
     const [error, setError] = useState<string | null>(null);
     const [policyInfo, setPolicyInfo] = useState<{
-        type: "PAY_AT_HOTEL" | "PARTIAL_PAYMENT" | "OTHER";
+        type: "ADVANCE_PAYMENT";
         isLate: boolean;
         hoursRemaining: number;
         penalty: string | null;

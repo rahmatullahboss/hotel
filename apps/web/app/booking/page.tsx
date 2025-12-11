@@ -10,11 +10,11 @@ import { BookingQRCode, BottomNav } from "../components";
 
 type PaymentMethod = "BKASH" | "NAGAD" | "CARD" | "PAY_AT_HOTEL";
 
-const paymentMethods: { id: PaymentMethod; name: string; icon: string }[] = [
-    { id: "PAY_AT_HOTEL", name: "Pay at Hotel", icon: "🏨" },
-    { id: "BKASH", name: "bKash", icon: "📱" },
-    { id: "NAGAD", name: "Nagad", icon: "📱" },
-    { id: "CARD", name: "Credit/Debit Card", icon: "💳" },
+const paymentMethods: { id: PaymentMethod; name: string; icon: string; advancePercent: number }[] = [
+    { id: "PAY_AT_HOTEL", name: "Pay at Hotel", icon: "🏨", advancePercent: 20 },
+    { id: "BKASH", name: "bKash", icon: "📱", advancePercent: 10 },
+    { id: "NAGAD", name: "Nagad", icon: "📱", advancePercent: 10 },
+    { id: "CARD", name: "Credit/Debit Card", icon: "💳", advancePercent: 10 },
 ];
 
 function BookingContent() {
@@ -31,7 +31,7 @@ function BookingContent() {
     const checkIn = searchParams.get("checkIn") || "";
     const checkOut = searchParams.get("checkOut") || "";
 
-    // Calculate nights
+    // Calculate nights and amounts
     const nights = checkIn && checkOut
         ? Math.ceil((new Date(checkOut).getTime() - new Date(checkIn).getTime()) / (1000 * 60 * 60 * 24))
         : 1;
@@ -45,6 +45,13 @@ function BookingContent() {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [bookingId, setBookingId] = useState("");
     const [error, setError] = useState("");
+
+    // Get current payment method's advance requirement (after paymentMethod state is declared)
+    const currentMethod = paymentMethods.find(m => m.id === paymentMethod);
+    const advancePercent = currentMethod?.advancePercent || 10;
+    const advanceAmount = paymentMethod === "PAY_AT_HOTEL"
+        ? Math.round(totalAmount * 0.20)
+        : Math.max(Math.round(totalAmount * 0.10), 50);
 
     // Pre-fill form with session data and profile (including phone)
     useEffect(() => {
@@ -340,15 +347,12 @@ function BookingContent() {
                                                 style={{ width: 20, height: 20 }}
                                             />
                                             <span style={{ fontSize: "1.5rem" }}>{method.icon}</span>
-                                            <span style={{ fontWeight: 500 }}>{method.name}</span>
-                                            {method.id === "PAY_AT_HOTEL" && (
-                                                <span
-                                                    className="badge badge-success"
-                                                    style={{ marginLeft: "auto", fontSize: "0.7rem" }}
-                                                >
-                                                    No Advance
-                                                </span>
-                                            )}
+                                            <div style={{ flex: 1 }}>
+                                                <span style={{ fontWeight: 500 }}>{method.name}</span>
+                                                <div style={{ fontSize: "0.75rem", color: "var(--color-text-secondary)" }}>
+                                                    {method.advancePercent}% advance required
+                                                </div>
+                                            </div>
                                         </label>
                                     ))}
                                 </div>
@@ -368,16 +372,35 @@ function BookingContent() {
                                     style={{
                                         display: "flex",
                                         justifyContent: "space-between",
-                                        fontWeight: 700,
-                                        fontSize: "1.125rem",
                                         paddingTop: "0.75rem",
                                         borderTop: "1px solid var(--color-border)",
+                                        marginBottom: "0.5rem",
                                     }}
                                 >
-                                    <span>Total</span>
-                                    <span style={{ color: "var(--color-primary)" }}>
+                                    <span style={{ fontWeight: 600 }}>Total</span>
+                                    <span style={{ fontWeight: 600 }}>
                                         ৳{totalAmount.toLocaleString()}
                                     </span>
+                                </div>
+                                <div
+                                    style={{
+                                        display: "flex",
+                                        justifyContent: "space-between",
+                                        padding: "0.75rem",
+                                        background: "rgba(29, 53, 87, 0.05)",
+                                        borderRadius: "0.5rem",
+                                        fontWeight: 700,
+                                    }}
+                                >
+                                    <span style={{ color: "var(--color-primary)" }}>
+                                        {paymentMethod === "PAY_AT_HOTEL" ? "Pay Now (20%)" : "Booking Fee"}
+                                    </span>
+                                    <span style={{ color: "var(--color-primary)" }}>
+                                        ৳{advanceAmount.toLocaleString()}
+                                    </span>
+                                </div>
+                                <div style={{ fontSize: "0.75rem", color: "var(--color-text-secondary)", marginTop: "0.5rem", textAlign: "center" }}>
+                                    Deducted from your wallet balance
                                 </div>
                             </div>
 
