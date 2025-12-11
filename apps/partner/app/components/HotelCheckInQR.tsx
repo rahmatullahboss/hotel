@@ -126,8 +126,8 @@ export function HotelCheckInQR({ hotelId, hotelName }: HotelCheckInQRProps) {
             `}</style>
 
             <div className="qr-card">
-                <div className="qr-title">📱 Guest Self Check-in QR</div>
-                <div className="qr-subtitle">Guests can scan this to check-in</div>
+                <div className="qr-title">📱 Guest Check-in / Check-out QR</div>
+                <div className="qr-subtitle">Guests scan this to check-in or check-out</div>
 
                 {qrCodeUrl && (
                     <div className="qr-container">
@@ -140,7 +140,7 @@ export function HotelCheckInQR({ hotelId, hotelName }: HotelCheckInQRProps) {
                 )}
 
                 <div className="qr-instructions">
-                    Display this QR code at reception for guests to scan
+                    Display this QR code at reception for guests to check-in & check-out
                 </div>
 
                 <button className="expand-btn" onClick={() => setIsExpanded(true)}>
@@ -152,13 +152,13 @@ export function HotelCheckInQR({ hotelId, hotelName }: HotelCheckInQRProps) {
             {isExpanded && (
                 <div className="modal-overlay" onClick={() => setIsExpanded(false)}>
                     <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-                        <div className="modal-title">Self Check-in QR Code</div>
+                        <div className="modal-title">Guest Check-in / Check-out QR</div>
                         <div className="modal-subtitle">{hotelName}</div>
 
                         {qrCodeUrl && (
                             <img
                                 src={qrCodeUrl}
-                                alt="Hotel Check-in QR Code"
+                                alt="Hotel QR Code"
                                 style={{ width: "250px", height: "250px" }}
                             />
                         )}
@@ -168,7 +168,7 @@ export function HotelCheckInQR({ hotelId, hotelName }: HotelCheckInQRProps) {
                             color: "var(--color-text-secondary)",
                             marginTop: "1rem",
                         }}>
-                            Guests scan this QR code with the RoomBooker app to check-in instantly
+                            Guests scan this QR code to check-in on arrival and check-out when leaving
                         </p>
 
                         <button className="close-btn" onClick={() => setIsExpanded(false)}>
