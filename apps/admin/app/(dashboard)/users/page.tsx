@@ -1,89 +1,60 @@
-import { getAdminUsers, updateUserRole } from "@/actions/users";
+import { Suspense } from "react";
+import { getUserStats, getUsersWithDetails } from "@/actions/users";
+import { UsersPageClient } from "./UsersPageClient";
 
-export default async function UsersPage() {
-    const users = await getAdminUsers();
+export const dynamic = 'force-dynamic';
+
+interface PageProps {
+    searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}
+
+export default async function UsersPage({ searchParams }: PageProps) {
+    const params = await searchParams;
+    const search = typeof params.search === "string" ? params.search : "";
+    const role = typeof params.role === "string" ? params.role : "";
+    const page = typeof params.page === "string" ? parseInt(params.page) : 1;
+
+    const [stats, usersData] = await Promise.all([
+        getUserStats(),
+        getUsersWithDetails({ search, role, page, limit: 10 }),
+    ]);
 
     return (
         <div>
             <div className="page-header">
-                <h1 className="page-title">Manage Users</h1>
-                <p className="page-subtitle">{users.length} users total</p>
-            </div>
-
-            <div className="card" style={{ overflow: "hidden" }}>
-                <span className="scroll-hint">← Scroll to see more →</span>
-                <div className="table-container">
-                    <table className="data-table">
-                        <thead>
-                            <tr>
-                                <th>User</th>
-                                <th>Contact</th>
-                                <th>Role</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {users.length === 0 ? (
-                                <tr>
-                                    <td colSpan={3} className="table-empty">
-                                        No users found.
-                                    </td>
-                                </tr>
-                            ) : (
-                                users.map((user) => (
-                                    <tr key={user.id}>
-                                        <td>
-                                            <div className="table-cell-flex">
-                                                {user.image ? (
-                                                    <img
-                                                        src={user.image}
-                                                        alt=""
-                                                        className="header-avatar"
-                                                    />
-                                                ) : (
-                                                    <div className="header-avatar-placeholder">
-                                                        {(user.name || user.email)?.[0]?.toUpperCase()}
-                                                    </div>
-                                                )}
-                                                <span className="table-cell-primary">
-                                                    {user.name || "Unknown"}
-                                                </span>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div className="table-cell-primary">{user.email}</div>
-                                            <div className="table-cell-secondary">{user.phone}</div>
-                                        </td>
-                                        <td>
-                                            <form
-                                                action={async (formData) => {
-                                                    "use server";
-                                                    const role = formData.get("role") as string;
-                                                    await updateUserRole(user.id, role);
-                                                }}
-                                                className="form-inline"
-                                            >
-                                                <select
-                                                    name="role"
-                                                    defaultValue={user.role || "TRAVELER"}
-                                                    className="form-select"
-                                                >
-                                                    <option value="TRAVELER">Traveler</option>
-                                                    <option value="HOTEL_OWNER">Hotel Owner</option>
-                                                    <option value="PARTNER">Partner</option>
-                                                    <option value="ADMIN">Admin</option>
-                                                </select>
-                                                <button type="submit" className="btn btn-sm btn-outline">
-                                                    Update
-                                                </button>
-                                            </form>
-                                        </td>
-                                    </tr>
-                                ))
-                            )}
-                        </tbody>
-                    </table>
+                <div>
+                    <h1 className="page-title">Manage Users</h1>
+                    <p className="page-subtitle">{stats.total} users total • {stats.newThisMonth} new this month</p>
                 </div>
             </div>
+
+            {/* Stats Cards */}
+            <div className="stats-grid" style={{ marginBottom: "1.5rem" }}>
+                <div className="card stat-card">
+                    <div className="stat-label">Total Users</div>
+                    <div className="stat-value">{stats.total}</div>
+                </div>
+                <div className="card stat-card">
+                    <div className="stat-label">Travelers</div>
+                    <div className="stat-value">{stats.travelers}</div>
+                    <div className="stat-subtext">Regular customers</div>
+                </div>
+                <div className="card stat-card">
+                    <div className="stat-label">Hotel Owners</div>
+                    <div className="stat-value">{stats.hotelOwners}</div>
+                    <div className="stat-subtext">Pending approval</div>
+                </div>
+                <div className="card stat-card">
+                    <div className="stat-label">Partners</div>
+                    <div className="stat-value">{stats.partners}</div>
+                    <div className="stat-subtext">Active hotels</div>
+                </div>
+            </div>
+
+            {/* Users Table with Search/Filter/Pagination */}
+            <Suspense fallback={<div className="card" style={{ padding: "2rem", textAlign: "center" }}>Loading users...</div>}>
+                <UsersPageClient initialData={usersData} />
+            </Suspense>
         </div>
     );
 }
