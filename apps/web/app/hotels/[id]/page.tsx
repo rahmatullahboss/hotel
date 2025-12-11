@@ -11,6 +11,8 @@ interface Room {
     type: string;
     basePrice: string;
     maxGuests: number;
+    isAvailable?: boolean;
+    unavailableReason?: string;
 }
 
 interface HotelDetail {
@@ -55,16 +57,31 @@ export default function HotelDetailPage() {
                     images: data.images || [data.coverImage || "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800"],
                     rooms: data.rooms || [],
                 });
-                setRooms(data.rooms || []);
-                const firstRoom = data.rooms?.[0];
-                if (firstRoom) {
-                    setSelectedRoom(firstRoom);
-                }
+                // Don't set rooms here - let the availability effect handle it
             }
             setLoading(false);
         }
         fetchHotel();
     }, [hotelId]);
+
+    // Fetch available rooms when dates change
+    useEffect(() => {
+        async function fetchAvailability() {
+            if (!hotelId || !checkIn || !checkOut) return;
+
+            const availableRooms = await getAvailableRooms(hotelId, checkIn, checkOut);
+            setRooms(availableRooms);
+
+            // Auto-select first available room
+            const firstAvailable = availableRooms.find((r) => r.isAvailable !== false);
+            if (firstAvailable) {
+                setSelectedRoom(firstAvailable);
+            } else {
+                setSelectedRoom(null);
+            }
+        }
+        fetchAvailability();
+    }, [hotelId, checkIn, checkOut]);
 
     const handleBookNow = () => {
         if (!hotel || !selectedRoom || !checkIn || !checkOut) return;
@@ -287,36 +304,65 @@ export default function HotelDetailPage() {
                     </h2>
                     {rooms.length > 0 ? (
                         <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
-                            {rooms.map((room) => (
-                                <button
-                                    key={room.id}
-                                    onClick={() => setSelectedRoom(room)}
-                                    style={{
-                                        display: "flex",
-                                        justifyContent: "space-between",
-                                        alignItems: "center",
-                                        padding: "1rem",
-                                        border: selectedRoom?.id === room.id
-                                            ? "2px solid var(--color-primary)"
-                                            : "2px solid var(--color-border)",
-                                        borderRadius: "0.75rem",
-                                        background: "white",
-                                        cursor: "pointer",
-                                        transition: "border-color 0.2s ease",
-                                    }}
-                                >
-                                    <div style={{ textAlign: "left" }}>
-                                        <div style={{ fontWeight: 600 }}>{room.name}</div>
-                                        <div style={{ fontSize: "0.875rem", color: "var(--color-text-secondary)" }}>
-                                            Up to {room.maxGuests} guests
+                            {rooms.map((room) => {
+                                const isUnavailable = room.isAvailable === false;
+                                const isSelected = selectedRoom?.id === room.id;
+
+                                return (
+                                    <button
+                                        key={room.id}
+                                        onClick={() => !isUnavailable && setSelectedRoom(room)}
+                                        disabled={isUnavailable}
+                                        style={{
+                                            display: "flex",
+                                            justifyContent: "space-between",
+                                            alignItems: "center",
+                                            padding: "1rem",
+                                            border: isUnavailable
+                                                ? "2px solid var(--color-error)"
+                                                : isSelected
+                                                    ? "2px solid var(--color-primary)"
+                                                    : "2px solid var(--color-border)",
+                                            borderRadius: "0.75rem",
+                                            background: isUnavailable ? "#fff5f5" : "white",
+                                            cursor: isUnavailable ? "not-allowed" : "pointer",
+                                            transition: "border-color 0.2s ease",
+                                            opacity: isUnavailable ? 0.7 : 1,
+                                        }}
+                                    >
+                                        <div style={{ textAlign: "left" }}>
+                                            <div style={{ fontWeight: 600, display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                                                {room.name}
+                                                {isUnavailable && (
+                                                    <span style={{
+                                                        background: "var(--color-error)",
+                                                        color: "white",
+                                                        fontSize: "0.625rem",
+                                                        padding: "0.125rem 0.5rem",
+                                                        borderRadius: "4px",
+                                                        fontWeight: 600,
+                                                    }}>
+                                                        BOOKED
+                                                    </span>
+                                                )}
+                                            </div>
+                                            <div style={{ fontSize: "0.875rem", color: "var(--color-text-secondary)" }}>
+                                                {isUnavailable ? (
+                                                    <span style={{ color: "var(--color-error)" }}>
+                                                        {room.unavailableReason || "Not available for these dates"}
+                                                    </span>
+                                                ) : (
+                                                    `Up to ${room.maxGuests} guests`
+                                                )}
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div className="hotel-price">
-                                        ৳{Number(room.basePrice).toLocaleString()}
-                                        <span className="hotel-price-label">/night</span>
-                                    </div>
-                                </button>
-                            ))}
+                                        <div className="hotel-price" style={{ opacity: isUnavailable ? 0.5 : 1 }}>
+                                            ৳{Number(room.basePrice).toLocaleString()}
+                                            <span className="hotel-price-label">/night</span>
+                                        </div>
+                                    </button>
+                                );
+                            })}
                         </div>
                     ) : (
                         <p style={{ color: "var(--color-text-secondary)" }}>No rooms available at the moment.</p>

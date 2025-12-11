@@ -171,21 +171,60 @@ export async function getFeaturedHotels(limit = 4): Promise<HotelWithPrice[]> {
 
 /**
  * Get available rooms for a hotel on specific dates
+ * Returns room with availability status
  */
 export async function getAvailableRooms(
     hotelId: string,
     checkIn: string,
     checkOut: string
-) {
+): Promise<{
+    id: string;
+    name: string;
+    type: string;
+    basePrice: string;
+    maxGuests: number;
+    isAvailable: boolean;
+    unavailableReason?: string;
+}[]> {
     try {
+        // Import bookings for availability check
+        const { bookings } = await import("@repo/db/schema");
+        const { ne, lte, gte, and: drizzleAnd } = await import("drizzle-orm");
+
         // Get all active rooms for the hotel
         const hotelRooms = await db.query.rooms.findMany({
             where: and(eq(rooms.hotelId, hotelId), eq(rooms.isActive, true)),
         });
 
-        // For a simple implementation, return all rooms
-        // A full implementation would check roomInventory for blocking
-        return hotelRooms;
+        // Check each room for booking conflicts
+        const roomsWithAvailability = await Promise.all(
+            hotelRooms.map(async (room) => {
+                // Check for overlapping bookings (not cancelled)
+                const existingBooking = await db.query.bookings.findFirst({
+                    where: drizzleAnd(
+                        eq(bookings.roomId, room.id),
+                        ne(bookings.status, "CANCELLED"),
+                        // Date overlap: checkIn < existingCheckOut AND checkOut > existingCheckIn
+                        lte(bookings.checkIn, checkOut),
+                        gte(bookings.checkOut, checkIn)
+                    ),
+                });
+
+                return {
+                    id: room.id,
+                    name: room.name,
+                    type: room.type,
+                    basePrice: room.basePrice,
+                    maxGuests: room.maxGuests,
+                    isAvailable: !existingBooking,
+                    unavailableReason: existingBooking
+                        ? `Booked ${existingBooking.checkIn} - ${existingBooking.checkOut}`
+                        : undefined,
+                };
+            })
+        );
+
+        return roomsWithAvailability;
     } catch (error) {
         console.error("Error fetching available rooms:", error);
         return [];
