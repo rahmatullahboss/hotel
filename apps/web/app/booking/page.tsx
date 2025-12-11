@@ -12,9 +12,9 @@ type PaymentMethod = "BKASH" | "NAGAD" | "CARD" | "PAY_AT_HOTEL";
 
 const paymentMethods: { id: PaymentMethod; name: string; icon: string; advancePercent: number }[] = [
     { id: "PAY_AT_HOTEL", name: "Pay at Hotel", icon: "🏨", advancePercent: 20 },
-    { id: "BKASH", name: "bKash", icon: "📱", advancePercent: 10 },
-    { id: "NAGAD", name: "Nagad", icon: "📱", advancePercent: 10 },
-    { id: "CARD", name: "Credit/Debit Card", icon: "💳", advancePercent: 10 },
+    { id: "BKASH", name: "bKash", icon: "📱", advancePercent: 100 },
+    { id: "NAGAD", name: "Nagad", icon: "📱", advancePercent: 100 },
+    { id: "CARD", name: "Credit/Debit Card", icon: "💳", advancePercent: 100 },
 ];
 
 function BookingContent() {
@@ -48,10 +48,10 @@ function BookingContent() {
 
     // Get current payment method's advance requirement (after paymentMethod state is declared)
     const currentMethod = paymentMethods.find(m => m.id === paymentMethod);
-    const advancePercent = currentMethod?.advancePercent || 10;
+    const advancePercent = currentMethod?.advancePercent || 100;
     const advanceAmount = paymentMethod === "PAY_AT_HOTEL"
-        ? Math.round(totalAmount * 0.20)
-        : Math.max(Math.round(totalAmount * 0.10), 50);
+        ? Math.round(totalAmount * 0.20)  // 20% for Pay at Hotel
+        : totalAmount;  // Full payment for online methods
 
     // Pre-fill form with session data and profile (including phone)
     useEffect(() => {
@@ -132,9 +132,14 @@ function BookingContent() {
                 if (result.success && result.bookingId) {
                     setBookingId(result.bookingId);
 
-                    // Handle different payment methods
-                    if (paymentMethod === "BKASH") {
-                        // Initiate bKash payment
+                    // Handle payment based on method
+                    if (paymentMethod === "PAY_AT_HOTEL") {
+                        // Check if advance was paid from wallet or needs bKash
+                        // If bookingFeeStatus is PENDING, redirect to bKash for 20% advance
+                        // For now, go to confirmation - they paid via wallet or will pay via bKash
+                        setStep(3);
+                    } else if (paymentMethod === "BKASH") {
+                        // Full payment via bKash
                         try {
                             const paymentResponse = await fetch("/api/payment/initiate", {
                                 method: "POST",
@@ -144,23 +149,19 @@ function BookingContent() {
                             const paymentData = await paymentResponse.json();
 
                             if (paymentData.success && paymentData.redirectUrl) {
-                                // Redirect to bKash
                                 window.location.href = paymentData.redirectUrl;
                                 return;
                             } else {
                                 setError(paymentData.error || "Failed to initiate payment. Please try again.");
-                                setStep(3); // Show confirmation anyway - they can pay later
+                                setStep(3);
                             }
                         } catch (paymentErr) {
-                            setError("Payment service unavailable. Your booking is saved - you can pay at the hotel.");
+                            setError("Payment service unavailable. Your booking is saved.");
                             setStep(3);
                         }
                     } else if (paymentMethod === "NAGAD" || paymentMethod === "CARD") {
                         // TODO: Implement Nagad and Card payments
-                        setError("This payment method is coming soon. Your booking is saved - you can pay at the hotel.");
-                        setStep(3);
-                    } else {
-                        // PAY_AT_HOTEL - go straight to confirmation
+                        setError("This payment method is coming soon.");
                         setStep(3);
                     }
                 } else {
@@ -349,9 +350,11 @@ function BookingContent() {
                                             <span style={{ fontSize: "1.5rem" }}>{method.icon}</span>
                                             <div style={{ flex: 1 }}>
                                                 <span style={{ fontWeight: 500 }}>{method.name}</span>
-                                                <div style={{ fontSize: "0.75rem", color: "var(--color-text-secondary)" }}>
-                                                    {method.advancePercent}% advance required
-                                                </div>
+                                                {method.id === "PAY_AT_HOTEL" && (
+                                                    <div style={{ fontSize: "0.75rem", color: "var(--color-text-secondary)" }}>
+                                                        20% advance required
+                                                    </div>
+                                                )}
                                             </div>
                                         </label>
                                     ))}
@@ -374,34 +377,41 @@ function BookingContent() {
                                         justifyContent: "space-between",
                                         paddingTop: "0.75rem",
                                         borderTop: "1px solid var(--color-border)",
-                                        marginBottom: "0.5rem",
+                                        fontWeight: 700,
+                                        fontSize: "1.125rem",
                                     }}
                                 >
-                                    <span style={{ fontWeight: 600 }}>Total</span>
-                                    <span style={{ fontWeight: 600 }}>
+                                    <span>Total</span>
+                                    <span style={{ color: "var(--color-primary)" }}>
                                         ৳{totalAmount.toLocaleString()}
                                     </span>
                                 </div>
-                                <div
-                                    style={{
-                                        display: "flex",
-                                        justifyContent: "space-between",
-                                        padding: "0.75rem",
-                                        background: "rgba(29, 53, 87, 0.05)",
-                                        borderRadius: "0.5rem",
-                                        fontWeight: 700,
-                                    }}
-                                >
-                                    <span style={{ color: "var(--color-primary)" }}>
-                                        {paymentMethod === "PAY_AT_HOTEL" ? "Pay Now (20%)" : "Booking Fee"}
-                                    </span>
-                                    <span style={{ color: "var(--color-primary)" }}>
-                                        ৳{advanceAmount.toLocaleString()}
-                                    </span>
-                                </div>
-                                <div style={{ fontSize: "0.75rem", color: "var(--color-text-secondary)", marginTop: "0.5rem", textAlign: "center" }}>
-                                    Deducted from your wallet balance
-                                </div>
+                                {/* Show advance payment info only for Pay at Hotel */}
+                                {paymentMethod === "PAY_AT_HOTEL" && (
+                                    <>
+                                        <div
+                                            style={{
+                                                display: "flex",
+                                                justifyContent: "space-between",
+                                                padding: "0.75rem",
+                                                marginTop: "0.75rem",
+                                                background: "rgba(42, 157, 143, 0.1)",
+                                                borderRadius: "0.5rem",
+                                                fontWeight: 600,
+                                            }}
+                                        >
+                                            <span style={{ color: "var(--color-success)" }}>
+                                                Pay Now (20%)
+                                            </span>
+                                            <span style={{ color: "var(--color-success)" }}>
+                                                ৳{advanceAmount.toLocaleString()}
+                                            </span>
+                                        </div>
+                                        <div style={{ fontSize: "0.75rem", color: "var(--color-text-secondary)", marginTop: "0.5rem", textAlign: "center" }}>
+                                            Pay remaining ৳{(totalAmount - advanceAmount).toLocaleString()} at hotel
+                                        </div>
+                                    </>
+                                )}
                             </div>
 
                             <div style={{ display: "flex", gap: "1rem" }}>

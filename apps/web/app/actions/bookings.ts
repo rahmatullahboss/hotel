@@ -27,18 +27,17 @@ export interface BookingResult {
 }
 
 /**
- * Calculate booking fee based on payment method
+ * Calculate advance/booking fee based on payment method
  * - Pay at Hotel: 20% advance (platform's guaranteed revenue)
- * - Other methods: 10% booking fee (minimum ৳50)
+ * - Online payments (bKash, Nagad, Card): 100% full payment
  */
 function calculateBookingFee(totalAmount: number, paymentMethod: string): number {
     if (paymentMethod === "PAY_AT_HOTEL") {
         // 20% advance for Pay at Hotel
         return Math.round(totalAmount * 0.20);
     }
-    // 10% for other methods, minimum ৳50
-    const percentageFee = Math.round(totalAmount * 0.10);
-    return Math.max(percentageFee, 50);
+    // Full payment for online methods
+    return totalAmount;
 }
 
 /**
@@ -69,15 +68,14 @@ export async function createBooking(input: CreateBookingInput): Promise<BookingR
             return { success: false, error: "Room not found" };
         }
 
-        // Calculate commission (12%) and booking fee (20% for Pay at Hotel, 10% for others)
+        // Calculate commission (12%) and advance payment
         const commissionAmount = Math.round(totalAmount * 0.12);
         const netAmount = totalAmount - commissionAmount;
         const bookingFee = calculateBookingFee(totalAmount, paymentMethod);
 
-        // ALL bookings now require advance payment via wallet
         let bookingFeeStatus: "PENDING" | "PAID" | "WAIVED" = "PENDING";
 
-        // Check wallet balance (required for all payment methods)
+        // Check if user is logged in
         if (!userId) {
             return {
                 success: false,
@@ -86,29 +84,31 @@ export async function createBooking(input: CreateBookingInput): Promise<BookingR
             };
         }
 
-        const wallet = await db.query.wallets.findFirst({
-            where: eq(wallets.userId, userId),
-        });
+        // For Pay at Hotel: Try wallet first, if not enough, require digital payment
+        if (paymentMethod === "PAY_AT_HOTEL") {
+            const wallet = await db.query.wallets.findFirst({
+                where: eq(wallets.userId, userId),
+            });
 
-        if (!wallet || Number(wallet.balance) < bookingFee) {
-            const feeLabel = paymentMethod === "PAY_AT_HOTEL" ? "advance payment (20%)" : "booking fee";
-            return {
-                success: false,
-                error: `Insufficient wallet balance. Need ৳${bookingFee} as ${feeLabel}.`,
-                bookingFee,
-            };
+            if (wallet && Number(wallet.balance) >= bookingFee) {
+                // Deduct 20% advance from wallet
+                await db
+                    .update(wallets)
+                    .set({
+                        balance: (Number(wallet.balance) - bookingFee).toString(),
+                        updatedAt: new Date(),
+                    })
+                    .where(eq(wallets.id, wallet.id));
+
+                bookingFeeStatus = "PAID";
+            } else {
+                // Wallet insufficient - will need to pay via bKash
+                // Create booking with PENDING status, payment will be handled separately
+                bookingFeeStatus = "PENDING";
+            }
         }
-
-        // Deduct from wallet
-        await db
-            .update(wallets)
-            .set({
-                balance: (Number(wallet.balance) - bookingFee).toString(),
-                updatedAt: new Date(),
-            })
-            .where(eq(wallets.id, wallet.id));
-
-        bookingFeeStatus = "PAID";
+        // For online payments (bKash, Nagad, Card): Full payment handled by payment gateway
+        // No wallet deduction needed here - bookingFeeStatus stays PENDING until payment confirmed
 
         // Calculate number of nights
         const checkInDate = new Date(checkIn);
