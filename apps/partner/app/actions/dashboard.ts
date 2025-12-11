@@ -363,6 +363,59 @@ export async function getCurrentlyStaying(hotelId: string): Promise<BookingSumma
 }
 
 /**
+ * Get today's expected check-outs (guests who are checked in and should leave today)
+ */
+export async function getTodaysCheckOuts(hotelId: string): Promise<BookingSummary[]> {
+    try {
+        const today = new Date().toISOString().split("T")[0]!;
+
+        const result = await db
+            .select({
+                id: bookings.id,
+                guestName: bookings.guestName,
+                guestPhone: bookings.guestPhone,
+                roomNumber: rooms.roomNumber,
+                roomName: rooms.name,
+                checkIn: bookings.checkIn,
+                checkOut: bookings.checkOut,
+                status: bookings.status,
+                totalAmount: bookings.totalAmount,
+                bookingFee: bookings.bookingFee,
+                paymentStatus: bookings.paymentStatus,
+                paymentMethod: bookings.paymentMethod,
+            })
+            .from(bookings)
+            .leftJoin(rooms, eq(rooms.id, bookings.roomId))
+            .where(
+                and(
+                    eq(bookings.hotelId, hotelId),
+                    eq(bookings.checkOut, today),
+                    eq(bookings.status, "CHECKED_IN")
+                )
+            )
+            .orderBy(bookings.createdAt);
+
+        return result.map((b) => {
+            const totalAmount = Number(b.totalAmount) || 0;
+            const advancePaid = Number(b.bookingFee) || 0;
+            return {
+                ...b,
+                roomNumber: b.roomNumber ?? "",
+                roomName: b.roomName ?? "",
+                totalAmount,
+                advancePaid,
+                remainingAmount: totalAmount - advancePaid,
+                paymentStatus: b.paymentStatus ?? "PENDING",
+                paymentMethod: b.paymentMethod,
+            };
+        });
+    } catch (error) {
+        console.error("Error fetching today's check-outs:", error);
+        return [];
+    }
+}
+
+/**
  * Confirm a booking
  */
 export async function confirmBooking(
@@ -596,6 +649,132 @@ export async function checkOutGuest(
     } catch (error) {
         console.error("Error checking out:", error);
         return { success: false, error: "Failed to check out" };
+    }
+}
+
+/**
+ * Extend a guest's stay by adding more nights
+ */
+export async function extendStay(
+    bookingId: string,
+    hotelId: string,
+    additionalNights: number = 1
+): Promise<{ success: boolean; error?: string; newCheckOut?: string; additionalAmount?: number }> {
+    try {
+        const session = await auth();
+        const booking = await db.query.bookings.findFirst({
+            where: and(eq(bookings.id, bookingId), eq(bookings.hotelId, hotelId)),
+            with: { room: true },
+        });
+
+        if (!booking) {
+            return { success: false, error: "Booking not found" };
+        }
+
+        if (booking.status !== "CHECKED_IN") {
+            return { success: false, error: "Guest must be checked in to extend stay" };
+        }
+
+        // Calculate new checkout date
+        const currentCheckOut = new Date(booking.checkOut);
+        const newCheckOut = new Date(currentCheckOut);
+        newCheckOut.setDate(newCheckOut.getDate() + additionalNights);
+        const newCheckOutStr = newCheckOut.toISOString().split("T")[0]!;
+
+        // Check if room is available for extended dates
+        const conflictingBooking = await db.query.bookings.findFirst({
+            where: and(
+                eq(bookings.roomId, booking.roomId),
+                sql`${bookings.id} != ${bookingId}`,
+                lte(bookings.checkIn, newCheckOutStr),
+                gte(bookings.checkOut, booking.checkOut),
+                sql`${bookings.status} NOT IN ('CANCELLED', 'CHECKED_OUT')`
+            ),
+        });
+
+        if (conflictingBooking) {
+            return {
+                success: false,
+                error: "Room is not available for the extended dates. There is another booking."
+            };
+        }
+
+        // Calculate additional amount
+        const pricePerNight = booking.room?.basePrice
+            ? Number(booking.room.basePrice)
+            : Number(booking.totalAmount) / (booking.numberOfNights || 1);
+        const additionalAmount = pricePerNight * additionalNights;
+        const newTotal = Number(booking.totalAmount) + additionalAmount;
+        const newNumberOfNights = (booking.numberOfNights || 1) + additionalNights;
+
+        // Update booking
+        await db
+            .update(bookings)
+            .set({
+                checkOut: newCheckOutStr,
+                totalAmount: newTotal.toFixed(2),
+                numberOfNights: newNumberOfNights,
+                paymentStatus: "PENDING", // Reset to pending since extra payment is due
+                updatedAt: new Date(),
+            })
+            .where(eq(bookings.id, bookingId));
+
+        // Add room inventory for extended dates
+        const dates: string[] = [];
+        const current = new Date(currentCheckOut);
+        while (current < newCheckOut) {
+            dates.push(current.toISOString().split("T")[0]!);
+            current.setDate(current.getDate() + 1);
+        }
+
+        for (const date of dates) {
+            const existing = await db.query.roomInventory.findFirst({
+                where: and(
+                    eq(roomInventory.roomId, booking.roomId),
+                    eq(roomInventory.date, date)
+                ),
+            });
+
+            if (existing) {
+                await db
+                    .update(roomInventory)
+                    .set({ status: "OCCUPIED", updatedAt: new Date() })
+                    .where(eq(roomInventory.id, existing.id));
+            } else {
+                await db.insert(roomInventory).values({
+                    roomId: booking.roomId,
+                    date,
+                    status: "OCCUPIED",
+                });
+            }
+        }
+
+        // Log activity
+        await db.insert(activityLog).values({
+            type: "BOOKING_CONFIRMED", // Using BOOKING_CONFIRMED as closest match for extended stay
+            actorId: session?.user?.id,
+            hotelId: hotelId,
+            bookingId: bookingId,
+            description: `Extended stay for ${booking.guestName} by ${additionalNights} night(s)`,
+            metadata: {
+                guestName: booking.guestName,
+                previousCheckOut: booking.checkOut,
+                newCheckOut: newCheckOutStr,
+                additionalNights,
+                additionalAmount,
+            },
+        });
+
+        revalidatePath("/");
+        revalidatePath("/inventory");
+        return {
+            success: true,
+            newCheckOut: newCheckOutStr,
+            additionalAmount,
+        };
+    } catch (error) {
+        console.error("Error extending stay:", error);
+        return { success: false, error: "Failed to extend stay" };
     }
 }
 

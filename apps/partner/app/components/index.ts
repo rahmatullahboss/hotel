@@ -6,3 +6,5 @@ export { RoomGrid } from "./RoomGrid";
 export { QRScanner } from "./QRScanner";
 export { HotelCheckInQR } from "./HotelCheckInQR";
 export { CollectPaymentButton } from "./CollectPaymentButton";
+export { CheckOutButton } from "./CheckOutButton";
+export { ExtendStayButton } from "./ExtendStayButton";
