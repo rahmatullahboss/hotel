@@ -194,6 +194,13 @@ export const bookings = pgTable("bookings", {
     totalAmount: decimal("totalAmount", { precision: 10, scale: 2 }).notNull(),
     commissionAmount: decimal("commissionAmount", { precision: 10, scale: 2 }).notNull(),
     netAmount: decimal("netAmount", { precision: 10, scale: 2 }).notNull(),
+
+    // Booking Fee (Advance Payment) - Platform's guaranteed commission
+    bookingFee: decimal("bookingFee", { precision: 10, scale: 2 }).default("0"),
+    bookingFeeStatus: text("bookingFeeStatus", {
+        enum: ["PENDING", "PAID", "WAIVED"],
+    }).default("PENDING"),
+
     paymentMethod: text("paymentMethod"),
     paymentReference: text("paymentReference"),
     notes: text("notes"),
@@ -320,6 +327,131 @@ export const activityLogRelations = relations(activityLog, ({ one }) => ({
     }),
 }));
 
+// ====================
+// WALLETS (Customer wallet for easy payments)
+// ====================
+
+export const wallets = pgTable("wallets", {
+    id: text("id")
+        .primaryKey()
+        .$defaultFn(() => crypto.randomUUID()),
+    userId: text("userId")
+        .notNull()
+        .unique()
+        .references(() => users.id, { onDelete: "cascade" }),
+    balance: decimal("balance", { precision: 10, scale: 2 }).default("0").notNull(),
+    createdAt: timestamp("createdAt", { mode: "date" }).defaultNow().notNull(),
+    updatedAt: timestamp("updatedAt", { mode: "date" }).defaultNow().notNull(),
+});
+
+export const walletsRelations = relations(wallets, ({ one, many }) => ({
+    user: one(users, {
+        fields: [wallets.userId],
+        references: [users.id],
+    }),
+    transactions: many(walletTransactions),
+}));
+
+// ====================
+// WALLET TRANSACTIONS
+// ====================
+
+export type WalletTransactionType = "CREDIT" | "DEBIT";
+export type WalletTransactionReason =
+    | "TOP_UP"           // User added money
+    | "BOOKING_FEE"      // Deducted for booking
+    | "REFUND"           // Refunded amount
+    | "REWARD"           // Loyalty reward
+    | "CASHBACK";        // Promotional cashback
+
+export const walletTransactions = pgTable("walletTransactions", {
+    id: text("id")
+        .primaryKey()
+        .$defaultFn(() => crypto.randomUUID()),
+    walletId: text("walletId")
+        .notNull()
+        .references(() => wallets.id, { onDelete: "cascade" }),
+    type: text("type", { enum: ["CREDIT", "DEBIT"] }).notNull(),
+    amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
+    reason: text("reason", {
+        enum: ["TOP_UP", "BOOKING_FEE", "REFUND", "REWARD", "CASHBACK"],
+    }).notNull(),
+    bookingId: text("bookingId").references(() => bookings.id, { onDelete: "set null" }),
+    description: text("description"),
+    createdAt: timestamp("createdAt", { mode: "date" }).defaultNow().notNull(),
+});
+
+export const walletTransactionsRelations = relations(walletTransactions, ({ one }) => ({
+    wallet: one(wallets, {
+        fields: [walletTransactions.walletId],
+        references: [wallets.id],
+    }),
+    booking: one(bookings, {
+        fields: [walletTransactions.bookingId],
+        references: [bookings.id],
+    }),
+}));
+
+// ====================
+// LOYALTY POINTS
+// ====================
+
+export type LoyaltyTier = "BRONZE" | "SILVER" | "GOLD" | "PLATINUM";
+
+export const loyaltyPoints = pgTable("loyaltyPoints", {
+    id: text("id")
+        .primaryKey()
+        .$defaultFn(() => crypto.randomUUID()),
+    userId: text("userId")
+        .notNull()
+        .unique()
+        .references(() => users.id, { onDelete: "cascade" }),
+    points: integer("points").default(0).notNull(),
+    lifetimePoints: integer("lifetimePoints").default(0).notNull(), // Total earned ever
+    tier: text("tier", { enum: ["BRONZE", "SILVER", "GOLD", "PLATINUM"] })
+        .default("BRONZE")
+        .notNull(),
+    createdAt: timestamp("createdAt", { mode: "date" }).defaultNow().notNull(),
+    updatedAt: timestamp("updatedAt", { mode: "date" }).defaultNow().notNull(),
+});
+
+export const loyaltyPointsRelations = relations(loyaltyPoints, ({ one }) => ({
+    user: one(users, {
+        fields: [loyaltyPoints.userId],
+        references: [users.id],
+    }),
+}));
+
+// ====================
+// HOTEL METRICS (For tracking suspicious activity)
+// ====================
+
+export const hotelMetrics = pgTable("hotelMetrics", {
+    id: text("id")
+        .primaryKey()
+        .$defaultFn(() => crypto.randomUUID()),
+    hotelId: text("hotelId")
+        .notNull()
+        .unique()
+        .references(() => hotels.id, { onDelete: "cascade" }),
+    totalBookings: integer("totalBookings").default(0).notNull(),
+    totalCancellations: integer("totalCancellations").default(0).notNull(),
+    totalWalkIns: integer("totalWalkIns").default(0).notNull(),
+    cancellationRate: decimal("cancellationRate", { precision: 5, scale: 2 }).default("0"),
+    redFlags: integer("redFlags").default(0).notNull(),
+    lastRedFlagDate: timestamp("lastRedFlagDate", { mode: "date" }),
+    searchRankPenalty: integer("searchRankPenalty").default(0).notNull(), // Lower rank by this amount
+    createdAt: timestamp("createdAt", { mode: "date" }).defaultNow().notNull(),
+    updatedAt: timestamp("updatedAt", { mode: "date" }).defaultNow().notNull(),
+});
+
+export const hotelMetricsRelations = relations(hotelMetrics, ({ one }) => ({
+    hotel: one(hotels, {
+        fields: [hotelMetrics.hotelId],
+        references: [hotels.id],
+    }),
+}));
+
 // Type exports
 export type Hotel = typeof hotels.$inferSelect;
 export type NewHotel = typeof hotels.$inferInsert;
@@ -333,3 +465,11 @@ export type Promotion = typeof promotions.$inferSelect;
 export type NewPromotion = typeof promotions.$inferInsert;
 export type ActivityLog = typeof activityLog.$inferSelect;
 export type NewActivityLog = typeof activityLog.$inferInsert;
+export type Wallet = typeof wallets.$inferSelect;
+export type NewWallet = typeof wallets.$inferInsert;
+export type WalletTransaction = typeof walletTransactions.$inferSelect;
+export type NewWalletTransaction = typeof walletTransactions.$inferInsert;
+export type LoyaltyPoints = typeof loyaltyPoints.$inferSelect;
+export type NewLoyaltyPoints = typeof loyaltyPoints.$inferInsert;
+export type HotelMetrics = typeof hotelMetrics.$inferSelect;
+export type NewHotelMetrics = typeof hotelMetrics.$inferInsert;
