@@ -78,7 +78,7 @@ export default async function EarningsPage() {
                                 Platform Commission
                             </div>
                             <div style={{ fontSize: "0.875rem", color: "var(--color-text-secondary)" }}>
-                                {hotel.status === "ACTIVE" ? "12%" : "20%"} of total bookings
+                                20% of total bookings
                             </div>
                         </div>
                         <div
