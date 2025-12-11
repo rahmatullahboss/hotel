@@ -97,7 +97,7 @@ export default async function SettingsPage() {
                                 fontSize: "0.75rem",
                             }}
                         >
-                            {hotel.commissionRate}% Commission
+                            20% Commission
                         </span>
                     </div>
                 </div>

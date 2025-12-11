@@ -324,7 +324,7 @@ export function ProfileForm({ hotel }: ProfileFormProps) {
                                     color: "var(--color-primary)",
                                 }}
                             >
-                                {hotel.commissionRate}%
+                                20%
                             </div>
                         </div>
                     </div>
