@@ -1,8 +1,8 @@
 "use server";
 
 import { db } from "@repo/db";
-import { rooms, roomInventory } from "@repo/db/schema";
-import { eq, and, gte, lte } from "drizzle-orm";
+import { rooms, roomInventory, bookings } from "@repo/db/schema";
+import { eq, and, gte, lte, or } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
 export interface RoomStatus {
@@ -39,13 +39,36 @@ export async function getHotelRooms(hotelId: string): Promise<RoomStatus[]> {
                 )
             ) : [];
 
+        // Also get any checked-in bookings for these rooms (for dates that include today)
+        // This handles cases where inventory wasn't updated during check-in
+        const checkedInBookings = roomIds.length > 0 ? await db
+            .select({
+                roomId: bookings.roomId,
+            })
+            .from(bookings)
+            .where(
+                and(
+                    eq(bookings.hotelId, hotelId),
+                    eq(bookings.status, "CHECKED_IN"),
+                    lte(bookings.checkIn, today),
+                    gte(bookings.checkOut, today)
+                )
+            ) : [];
+
+        const checkedInRoomIds = new Set(checkedInBookings.map((b) => b.roomId));
+
         // Map rooms with their status
         return hotelRooms.map((room) => {
             const inventory = todayInventory.find((inv) => inv.roomId === room.id);
             let status: RoomStatus["status"] = "AVAILABLE";
 
-            if (inventory) {
-                status = inventory.status as RoomStatus["status"];
+            // Priority: BLOCKED inventory > CHECKED_IN booking > OCCUPIED inventory > AVAILABLE
+            if (inventory?.status === "BLOCKED") {
+                status = "BLOCKED";
+            } else if (checkedInRoomIds.has(room.id)) {
+                status = "OCCUPIED";
+            } else if (inventory?.status === "OCCUPIED") {
+                status = "OCCUPIED";
             }
 
             return {

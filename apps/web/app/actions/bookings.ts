@@ -2,7 +2,7 @@
 
 import { db } from "@repo/db";
 import { bookings, rooms, hotels, users, wallets, walletTransactions } from "@repo/db/schema";
-import { eq, desc } from "drizzle-orm";
+import { eq, desc, and, gte, lte, ne } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
 export interface CreateBookingInput {
@@ -68,6 +68,29 @@ export async function createBooking(input: CreateBookingInput): Promise<BookingR
 
         if (!room) {
             return { success: false, error: "Room not found" };
+        }
+
+        // CRITICAL: Check if room is already booked for these dates
+        // A room is unavailable if there's an existing booking that:
+        // - Is for the same room
+        // - Is not cancelled
+        // - Has overlapping dates (checkIn < existingCheckOut AND checkOut > existingCheckIn)
+        const existingBooking = await db.query.bookings.findFirst({
+            where: and(
+                eq(bookings.roomId, roomId),
+                ne(bookings.status, "CANCELLED"),
+                // Date overlap check: new checkIn is before existing checkOut
+                // AND new checkOut is after existing checkIn
+                lte(bookings.checkIn, checkOut),
+                gte(bookings.checkOut, checkIn)
+            ),
+        });
+
+        if (existingBooking) {
+            return {
+                success: false,
+                error: `This room is already booked from ${existingBooking.checkIn} to ${existingBooking.checkOut}. Please select different dates or another room.`,
+            };
         }
 
         // Calculate commission (20%) and advance payment

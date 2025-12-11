@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { getPartnerHotel, getDashboardStats, getUpcomingBookings, getTodaysCheckIns, getCurrentlyStaying } from "./actions/dashboard";
-import { BottomNav, ScannerFAB, StatCard, LogoutButton, HotelCheckInQR } from "./components";
+import { BottomNav, ScannerFAB, StatCard, LogoutButton, HotelCheckInQR, CollectPaymentButton } from "./components";
 import { auth } from "../auth";
 import Link from "next/link";
 
@@ -233,7 +233,27 @@ export default async function DashboardPage() {
             {hotel.name}, {hotel.city}
           </p>
         </div>
-        <LogoutButton />
+        <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+          <Link
+            href="/settings"
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              width: "40px",
+              height: "40px",
+              borderRadius: "50%",
+              background: "var(--color-bg-secondary)",
+              color: "var(--color-text-secondary)",
+              fontSize: "1.25rem",
+              textDecoration: "none",
+            }}
+            title="Settings"
+          >
+            ⚙️
+          </Link>
+          <LogoutButton />
+        </div>
       </header>
 
       <main style={{ padding: "1rem" }}>
@@ -400,6 +420,14 @@ export default async function DashboardPage() {
 
                   {/* Action Buttons */}
                   <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
+                    {/* Collect Payment Button - show for confirmed bookings with payment due */}
+                    {booking.status === "CONFIRMED" && booking.remainingAmount > 0 && booking.paymentStatus !== "PAID" && (
+                      <CollectPaymentButton
+                        bookingId={booking.id}
+                        hotelId={hotel.id}
+                        remainingAmount={booking.remainingAmount}
+                      />
+                    )}
                     {booking.status === "CONFIRMED" && (
                       <a
                         href={`/scanner?bookingId=${booking.id}`}
