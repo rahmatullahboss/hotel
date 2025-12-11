@@ -1,0 +1,20 @@
+name: Cancel Expired Bookings
+
+on:
+  schedule:
+    # Run every 5 minutes
+    - cron: '*/5 * * * *'
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  cancel-expired:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Cancel expired bookings
+        run: |
+          curl -X GET "${{ secrets.WEB_APP_URL }}/api/cron/expire-bookings" \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            -H "Content-Type: application/json"
+        env:
+          WEB_APP_URL: ${{ secrets.WEB_APP_URL }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
