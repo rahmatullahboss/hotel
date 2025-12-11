@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { getPartnerHotel, getDashboardStats, getUpcomingBookings } from "./actions/dashboard";
+import { getPartnerHotel, getDashboardStats, getUpcomingBookings, getTodaysCheckIns } from "./actions/dashboard";
 import { BottomNav, ScannerFAB, StatCard, LogoutButton } from "./components";
 import { auth } from "../auth";
 import Link from "next/link";
@@ -294,8 +294,93 @@ export default async function DashboardPage() {
           />
         </div>
 
+        {/* Today's Check-ins - Action List */}
+        <section style={{ marginBottom: "1.5rem" }}>
+          <h2
+            style={{
+              fontSize: "1.125rem",
+              fontWeight: 600,
+              marginBottom: "1rem",
+              color: "var(--color-text-primary)",
+              display: "flex",
+              alignItems: "center",
+              gap: "0.5rem",
+            }}
+          >
+            📋 Today&apos;s Check-ins
+          </h2>
 
-        {/* Upcoming Bookings */}
+          <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+            {todaysCheckIns.length === 0 ? (
+              <div
+                className="card"
+                style={{
+                  padding: "1.5rem",
+                  textAlign: "center",
+                  color: "var(--color-text-secondary)",
+                  background: "linear-gradient(135deg, rgba(42, 157, 143, 0.05) 0%, rgba(29, 53, 87, 0.05) 100%)",
+                }}
+              >
+                <div style={{ fontSize: "2rem", marginBottom: "0.5rem" }}>✓</div>
+                No check-ins scheduled for today
+              </div>
+            ) : (
+              todaysCheckIns.map((booking) => (
+                <div
+                  key={booking.id}
+                  className="card"
+                  style={{
+                    padding: "1rem",
+                    borderLeft: `4px solid ${booking.status === "CHECKED_IN"
+                        ? "var(--color-success)"
+                        : booking.status === "CONFIRMED"
+                          ? "var(--color-primary)"
+                          : "var(--color-warning)"
+                      }`,
+                  }}
+                >
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontWeight: 600, marginBottom: "0.25rem" }}>
+                        {booking.guestName}
+                      </div>
+                      <div style={{ fontSize: "0.875rem", color: "var(--color-text-secondary)" }}>
+                        Room {booking.roomNumber} • ৳{booking.totalAmount.toLocaleString()}
+                      </div>
+                    </div>
+                    <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "0.5rem" }}>
+                      <span
+                        className={`badge ${booking.status === "CHECKED_IN"
+                            ? "badge-success"
+                            : booking.status === "CONFIRMED"
+                              ? "badge-primary"
+                              : "badge-warning"
+                          }`}
+                        style={{ fontSize: "0.75rem" }}
+                      >
+                        {booking.status === "CHECKED_IN"
+                          ? "✓ Checked In"
+                          : booking.status === "CONFIRMED"
+                            ? "Ready"
+                            : "Pending"}
+                      </span>
+                      {booking.status === "CONFIRMED" && (
+                        <a
+                          href={`/scanner?bookingId=${booking.id}`}
+                          className="btn btn-accent"
+                          style={{ fontSize: "0.75rem", padding: "0.25rem 0.75rem" }}
+                        >
+                          Check In →
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </section>
+
         <section>
           <h2
             style={{

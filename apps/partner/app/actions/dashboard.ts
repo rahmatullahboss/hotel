@@ -245,216 +245,217 @@ export async function getUpcomingBookings(hotelId: string, limit = 5): Promise<B
         console.error("Error fetching upcoming bookings:", error);
         return [];
     }
+}
 
-    /**
-     * Get today's expected check-ins with status
-     */
-    export async function getTodaysCheckIns(hotelId: string): Promise<BookingSummary[]> {
-        try {
-            const today = new Date().toISOString().split("T")[0]!;
+/**
+ * Get today's expected check-ins with status
+ */
+export async function getTodaysCheckIns(hotelId: string): Promise<BookingSummary[]> {
+    try {
+        const today = new Date().toISOString().split("T")[0]!;
 
-            const result = await db
-                .select({
-                    id: bookings.id,
-                    guestName: bookings.guestName,
-                    guestPhone: bookings.guestPhone,
-                    roomNumber: rooms.roomNumber,
-                    roomName: rooms.name,
-                    checkIn: bookings.checkIn,
-                    checkOut: bookings.checkOut,
-                    status: bookings.status,
-                    totalAmount: bookings.totalAmount,
-                })
-                .from(bookings)
-                .leftJoin(rooms, eq(rooms.id, bookings.roomId))
-                .where(and(eq(bookings.hotelId, hotelId), eq(bookings.checkIn, today)))
-                .orderBy(bookings.createdAt);
+        const result = await db
+            .select({
+                id: bookings.id,
+                guestName: bookings.guestName,
+                guestPhone: bookings.guestPhone,
+                roomNumber: rooms.roomNumber,
+                roomName: rooms.name,
+                checkIn: bookings.checkIn,
+                checkOut: bookings.checkOut,
+                status: bookings.status,
+                totalAmount: bookings.totalAmount,
+            })
+            .from(bookings)
+            .leftJoin(rooms, eq(rooms.id, bookings.roomId))
+            .where(and(eq(bookings.hotelId, hotelId), eq(bookings.checkIn, today)))
+            .orderBy(bookings.createdAt);
 
-            return result.map((b) => ({
-                ...b,
-                roomNumber: b.roomNumber ?? "",
-                roomName: b.roomName ?? "",
-                totalAmount: Number(b.totalAmount) || 0,
-            }));
-        } catch (error) {
-            console.error("Error fetching today's check-ins:", error);
-            return [];
-        }
+        return result.map((b) => ({
+            ...b,
+            roomNumber: b.roomNumber ?? "",
+            roomName: b.roomName ?? "",
+            totalAmount: Number(b.totalAmount) || 0,
+        }));
+    } catch (error) {
+        console.error("Error fetching today's check-ins:", error);
+        return [];
     }
+}
 
-    /**
-     * Confirm a booking
-     */
-    export async function confirmBooking(
-        bookingId: string,
-        hotelId: string
-    ): Promise<{ success: boolean; error?: string }> {
-        try {
-            const booking = await db.query.bookings.findFirst({
-                where: and(eq(bookings.id, bookingId), eq(bookings.hotelId, hotelId)),
+/**
+ * Confirm a booking
+ */
+export async function confirmBooking(
+    bookingId: string,
+    hotelId: string
+): Promise<{ success: boolean; error?: string }> {
+    try {
+        const booking = await db.query.bookings.findFirst({
+            where: and(eq(bookings.id, bookingId), eq(bookings.hotelId, hotelId)),
+        });
+
+        if (!booking) {
+            return { success: false, error: "Booking not found" };
+        }
+
+        await db
+            .update(bookings)
+            .set({ status: "CONFIRMED" })
+            .where(eq(bookings.id, bookingId));
+
+        revalidatePath("/");
+        return { success: true };
+    } catch (error) {
+        console.error("Error confirming booking:", error);
+        return { success: false, error: "Failed to confirm booking" };
+    }
+}
+
+/**
+ * Check in a guest
+ */
+export async function checkInGuest(
+    bookingId: string,
+    hotelId: string
+): Promise<{ success: boolean; error?: string }> {
+    try {
+        const session = await auth();
+        const booking = await db.query.bookings.findFirst({
+            where: and(eq(bookings.id, bookingId), eq(bookings.hotelId, hotelId)),
+        });
+
+        if (!booking) {
+            return { success: false, error: "Booking not found" };
+        }
+
+        if (booking.status !== "CONFIRMED") {
+            return { success: false, error: "Booking must be confirmed first" };
+        }
+
+        // Update booking status
+        await db
+            .update(bookings)
+            .set({
+                status: "CHECKED_IN",
+                updatedAt: new Date(),
+            })
+            .where(eq(bookings.id, bookingId));
+
+        // Log activity
+        await db.insert(activityLog).values({
+            type: "CHECK_IN",
+            actorId: session?.user?.id,
+            hotelId: hotelId,
+            bookingId: bookingId,
+            description: `Guest ${booking.guestName} checked in`,
+            metadata: {
+                guestName: booking.guestName,
+                roomId: booking.roomId,
+                checkInDate: booking.checkIn,
+            },
+        });
+
+        revalidatePath("/");
+        revalidatePath("/scanner");
+        return { success: true };
+    } catch (error) {
+        console.error("Error checking in:", error);
+        return { success: false, error: "Failed to check in" };
+    }
+}
+
+/**
+ * Check out a guest
+ */
+export async function checkOutGuest(
+    bookingId: string,
+    hotelId: string
+): Promise<{ success: boolean; error?: string }> {
+    try {
+        const session = await auth();
+        const booking = await db.query.bookings.findFirst({
+            where: and(eq(bookings.id, bookingId), eq(bookings.hotelId, hotelId)),
+        });
+
+        if (!booking) {
+            return { success: false, error: "Booking not found" };
+        }
+
+        if (booking.status !== "CHECKED_IN") {
+            return { success: false, error: "Guest must be checked in first" };
+        }
+
+        // Update booking status
+        await db
+            .update(bookings)
+            .set({
+                status: "CHECKED_OUT",
+                updatedAt: new Date(),
+            })
+            .where(eq(bookings.id, bookingId));
+
+        // Award loyalty points to customer if they have an account
+        // 1 point per ৳10 spent + bonus 50 points for platform booking
+        let pointsAwarded = 0;
+        if (booking.userId) {
+            const basePoints = Math.floor(Number(booking.totalAmount) / 10);
+            const bonusPoints = booking.bookingSource === "PLATFORM" ? 50 : 0;
+            pointsAwarded = basePoints + bonusPoints;
+
+            // Get or create loyalty record
+            let loyalty = await db.query.loyaltyPoints.findFirst({
+                where: eq(loyaltyPoints.userId, booking.userId),
             });
 
-            if (!booking) {
-                return { success: false, error: "Booking not found" };
+            if (!loyalty) {
+                const [newLoyalty] = await db
+                    .insert(loyaltyPoints)
+                    .values({ userId: booking.userId })
+                    .returning();
+                loyalty = newLoyalty!;
             }
+
+            // Calculate new points and tier
+            const newPoints = (loyalty?.points || 0) + pointsAwarded;
+            const newLifetime = (loyalty?.lifetimePoints || 0) + pointsAwarded;
+
+            let newTier: "BRONZE" | "SILVER" | "GOLD" | "PLATINUM" = "BRONZE";
+            if (newLifetime >= 10000) newTier = "PLATINUM";
+            else if (newLifetime >= 5000) newTier = "GOLD";
+            else if (newLifetime >= 1000) newTier = "SILVER";
 
             await db
-                .update(bookings)
-                .set({ status: "CONFIRMED" })
-                .where(eq(bookings.id, bookingId));
-
-            revalidatePath("/");
-            return { success: true };
-        } catch (error) {
-            console.error("Error confirming booking:", error);
-            return { success: false, error: "Failed to confirm booking" };
-        }
-    }
-
-    /**
-     * Check in a guest
-     */
-    export async function checkInGuest(
-        bookingId: string,
-        hotelId: string
-    ): Promise<{ success: boolean; error?: string }> {
-        try {
-            const session = await auth();
-            const booking = await db.query.bookings.findFirst({
-                where: and(eq(bookings.id, bookingId), eq(bookings.hotelId, hotelId)),
-            });
-
-            if (!booking) {
-                return { success: false, error: "Booking not found" };
-            }
-
-            if (booking.status !== "CONFIRMED") {
-                return { success: false, error: "Booking must be confirmed first" };
-            }
-
-            // Update booking status
-            await db
-                .update(bookings)
+                .update(loyaltyPoints)
                 .set({
-                    status: "CHECKED_IN",
+                    points: newPoints,
+                    lifetimePoints: newLifetime,
+                    tier: newTier,
                     updatedAt: new Date(),
                 })
-                .where(eq(bookings.id, bookingId));
-
-            // Log activity
-            await db.insert(activityLog).values({
-                type: "CHECK_IN",
-                actorId: session?.user?.id,
-                hotelId: hotelId,
-                bookingId: bookingId,
-                description: `Guest ${booking.guestName} checked in`,
-                metadata: {
-                    guestName: booking.guestName,
-                    roomId: booking.roomId,
-                    checkInDate: booking.checkIn,
-                },
-            });
-
-            revalidatePath("/");
-            revalidatePath("/scanner");
-            return { success: true };
-        } catch (error) {
-            console.error("Error checking in:", error);
-            return { success: false, error: "Failed to check in" };
+                .where(eq(loyaltyPoints.userId, booking.userId));
         }
+
+        // Log activity
+        await db.insert(activityLog).values({
+            type: "CHECK_OUT",
+            actorId: session?.user?.id,
+            hotelId: hotelId,
+            bookingId: bookingId,
+            description: `Guest ${booking.guestName} checked out`,
+            metadata: {
+                guestName: booking.guestName,
+                roomId: booking.roomId,
+                checkOutDate: booking.checkOut,
+                totalAmount: Number(booking.totalAmount),
+                pointsAwarded,
+            },
+        });
+
+        revalidatePath("/");
+        return { success: true };
+    } catch (error) {
+        console.error("Error checking out:", error);
+        return { success: false, error: "Failed to check out" };
     }
-
-    /**
-     * Check out a guest
-     */
-    export async function checkOutGuest(
-        bookingId: string,
-        hotelId: string
-    ): Promise<{ success: boolean; error?: string }> {
-        try {
-            const session = await auth();
-            const booking = await db.query.bookings.findFirst({
-                where: and(eq(bookings.id, bookingId), eq(bookings.hotelId, hotelId)),
-            });
-
-            if (!booking) {
-                return { success: false, error: "Booking not found" };
-            }
-
-            if (booking.status !== "CHECKED_IN") {
-                return { success: false, error: "Guest must be checked in first" };
-            }
-
-            // Update booking status
-            await db
-                .update(bookings)
-                .set({
-                    status: "CHECKED_OUT",
-                    updatedAt: new Date(),
-                })
-                .where(eq(bookings.id, bookingId));
-
-            // Award loyalty points to customer if they have an account
-            // 1 point per ৳10 spent + bonus 50 points for platform booking
-            let pointsAwarded = 0;
-            if (booking.userId) {
-                const basePoints = Math.floor(Number(booking.totalAmount) / 10);
-                const bonusPoints = booking.bookingSource === "PLATFORM" ? 50 : 0;
-                pointsAwarded = basePoints + bonusPoints;
-
-                // Get or create loyalty record
-                let loyalty = await db.query.loyaltyPoints.findFirst({
-                    where: eq(loyaltyPoints.userId, booking.userId),
-                });
-
-                if (!loyalty) {
-                    const [newLoyalty] = await db
-                        .insert(loyaltyPoints)
-                        .values({ userId: booking.userId })
-                        .returning();
-                    loyalty = newLoyalty!;
-                }
-
-                // Calculate new points and tier
-                const newPoints = (loyalty?.points || 0) + pointsAwarded;
-                const newLifetime = (loyalty?.lifetimePoints || 0) + pointsAwarded;
-
-                let newTier: "BRONZE" | "SILVER" | "GOLD" | "PLATINUM" = "BRONZE";
-                if (newLifetime >= 10000) newTier = "PLATINUM";
-                else if (newLifetime >= 5000) newTier = "GOLD";
-                else if (newLifetime >= 1000) newTier = "SILVER";
-
-                await db
-                    .update(loyaltyPoints)
-                    .set({
-                        points: newPoints,
-                        lifetimePoints: newLifetime,
-                        tier: newTier,
-                        updatedAt: new Date(),
-                    })
-                    .where(eq(loyaltyPoints.userId, booking.userId));
-            }
-
-            // Log activity
-            await db.insert(activityLog).values({
-                type: "CHECK_OUT",
-                actorId: session?.user?.id,
-                hotelId: hotelId,
-                bookingId: bookingId,
-                description: `Guest ${booking.guestName} checked out`,
-                metadata: {
-                    guestName: booking.guestName,
-                    roomId: booking.roomId,
-                    checkOutDate: booking.checkOut,
-                    totalAmount: Number(booking.totalAmount),
-                    pointsAwarded,
-                },
-            });
-
-            revalidatePath("/");
-            return { success: true };
-        } catch (error) {
-            console.error("Error checking out:", error);
-            return { success: false, error: "Failed to check out" };
-        }
-    }
+}
