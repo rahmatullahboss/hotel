@@ -3,7 +3,7 @@
 import { useState, useTransition, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { BottomNav, QRScanner } from "../components";
-import { findBookingById, checkInGuest, checkOutGuest, getPartnerHotel } from "../actions/dashboard";
+import { findBookingById, checkInGuest, checkOutGuest, getPartnerHotel, collectRemainingPayment } from "../actions/dashboard";
 
 interface BookingResult {
     id: string;
@@ -16,6 +16,10 @@ interface BookingResult {
     status: string;
     totalAmount: number;
     paymentStatus?: string;
+    paymentMethod?: string;
+    advancePaid?: number;
+    remainingAmount?: number;
+    bookingFeeStatus?: string;
     numberOfNights?: number;
 }
 
@@ -147,6 +151,32 @@ export default function ScannerPage() {
                 setResult({
                     success: false,
                     message: response.error || "Failed to check out guest",
+                    booking: result.booking,
+                });
+            }
+        });
+    };
+
+    const handleCollectPayment = async () => {
+        if (!result?.booking || !hotelId) return;
+
+        startTransition(async () => {
+            const response = await collectRemainingPayment(result.booking!.id, hotelId);
+
+            if (response.success) {
+                // Refresh booking data to show updated payment status
+                const refreshed = await findBookingById(result.booking!.id, hotelId);
+                if (refreshed.success && refreshed.booking) {
+                    setResult({
+                        success: true,
+                        message: `৳${response.amountCollected?.toLocaleString()} collected successfully!`,
+                        booking: refreshed.booking as BookingResult,
+                    });
+                }
+            } else {
+                setResult({
+                    success: false,
+                    message: response.error || "Failed to collect payment",
                     booking: result.booking,
                 });
             }
@@ -340,25 +370,105 @@ export default function ScannerPage() {
                                         </div>
                                     </div>
 
-                                    {/* Amount */}
+                                    {/* Payment Info */}
                                     <div
                                         style={{
-                                            display: "flex",
-                                            justifyContent: "space-between",
-                                            alignItems: "center",
                                             padding: "0.75rem 0",
                                             borderTop: "1px solid var(--color-border)",
                                         }}
                                     >
-                                        <span style={{ color: "var(--color-text-secondary)" }}>Total Amount</span>
-                                        <span style={{ fontWeight: 700, fontSize: "1.125rem" }}>
-                                            ৳{result.booking.totalAmount.toLocaleString()}
-                                        </span>
+                                        {/* Show payment breakdown for Pay at Hotel */}
+                                        {result.booking.paymentMethod === "PAY_AT_HOTEL" && result.booking.bookingFeeStatus === "PAID" ? (
+                                            <>
+                                                <div
+                                                    style={{
+                                                        display: "flex",
+                                                        justifyContent: "space-between",
+                                                        alignItems: "center",
+                                                        marginBottom: "0.5rem",
+                                                    }}
+                                                >
+                                                    <span style={{ fontSize: "0.875rem", color: "var(--color-text-secondary)" }}>
+                                                        ✅ Advance Paid
+                                                    </span>
+                                                    <span style={{ fontWeight: 600, color: "var(--color-success)" }}>
+                                                        ৳{(result.booking.advancePaid || 0).toLocaleString()}
+                                                    </span>
+                                                </div>
+                                                <div
+                                                    style={{
+                                                        display: "flex",
+                                                        justifyContent: "space-between",
+                                                        alignItems: "center",
+                                                        padding: "0.75rem",
+                                                        background: result.booking.paymentStatus === "PAID"
+                                                            ? "rgba(42, 157, 143, 0.1)"
+                                                            : "rgba(230, 57, 70, 0.1)",
+                                                        borderRadius: "0.5rem",
+                                                    }}
+                                                >
+                                                    <span style={{
+                                                        fontWeight: 600,
+                                                        color: result.booking.paymentStatus === "PAID"
+                                                            ? "var(--color-success)"
+                                                            : "var(--color-primary)"
+                                                    }}>
+                                                        {result.booking.paymentStatus === "PAID"
+                                                            ? "✅ Fully Paid"
+                                                            : "💵 Collect at Hotel"}
+                                                    </span>
+                                                    <span style={{
+                                                        fontSize: "1.125rem",
+                                                        fontWeight: 700,
+                                                        color: result.booking.paymentStatus === "PAID"
+                                                            ? "var(--color-success)"
+                                                            : "var(--color-primary)"
+                                                    }}>
+                                                        ৳{(result.booking.remainingAmount || 0).toLocaleString()}
+                                                    </span>
+                                                </div>
+                                            </>
+                                        ) : (
+                                            <div
+                                                style={{
+                                                    display: "flex",
+                                                    justifyContent: "space-between",
+                                                    alignItems: "center",
+                                                }}
+                                            >
+                                                <span style={{ color: "var(--color-text-secondary)" }}>
+                                                    Total Amount
+                                                </span>
+                                                <span style={{ fontWeight: 700, fontSize: "1.125rem" }}>
+                                                    ৳{result.booking.totalAmount.toLocaleString()}
+                                                </span>
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
 
                                 {/* Action Buttons */}
                                 <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+                                    {/* Collect Payment Button - Show when payment is pending for Pay at Hotel */}
+                                    {result.booking.paymentMethod === "PAY_AT_HOTEL" &&
+                                        result.booking.paymentStatus !== "PAID" &&
+                                        result.booking.remainingAmount && result.booking.remainingAmount > 0 && (
+                                            <button
+                                                className="btn"
+                                                style={{
+                                                    width: "100%",
+                                                    padding: "1rem",
+                                                    background: "linear-gradient(135deg, #2a9d8f 0%, #264653 100%)",
+                                                    color: "white",
+                                                    fontWeight: 600,
+                                                }}
+                                                onClick={handleCollectPayment}
+                                                disabled={isPending}
+                                            >
+                                                {isPending ? "Processing..." : `💵 Collect ৳${result.booking.remainingAmount.toLocaleString()}`}
+                                            </button>
+                                        )}
+
                                     {result.booking.status === "CONFIRMED" && (
                                         <button
                                             className="btn btn-accent"

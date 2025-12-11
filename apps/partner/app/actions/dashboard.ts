@@ -56,6 +56,9 @@ export async function findBookingById(bookingId: string, hotelId: string) {
             return { success: false, error: "Booking not found" };
         }
 
+        const totalAmount = Number(booking.totalAmount);
+        const advancePaid = Number(booking.bookingFee || 0);
+
         return {
             success: true,
             booking: {
@@ -67,7 +70,12 @@ export async function findBookingById(bookingId: string, hotelId: string) {
                 checkIn: booking.checkIn,
                 checkOut: booking.checkOut,
                 status: booking.status,
-                totalAmount: Number(booking.totalAmount),
+                totalAmount,
+                paymentStatus: booking.paymentStatus,
+                paymentMethod: booking.paymentMethod,
+                advancePaid,
+                remainingAmount: totalAmount - advancePaid,
+                bookingFeeStatus: booking.bookingFeeStatus,
             },
         };
     } catch (error) {
