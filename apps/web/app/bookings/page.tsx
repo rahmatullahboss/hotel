@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { getUserBookings } from "../actions/bookings";
-import { BottomNav } from "../components";
+import { BottomNav, BookingQRCode } from "../components";
 
 type BookingStatus = "PENDING" | "CONFIRMED" | "CHECKED_IN" | "CHECKED_OUT" | "CANCELLED";
 type PaymentStatus = "PENDING" | "PAID" | "PAY_AT_HOTEL" | "REFUNDED";
@@ -33,6 +33,7 @@ export default function BookingsPage() {
     const { data: session } = useSession();
     const [bookings, setBookings] = useState<Booking[]>([]);
     const [loading, setLoading] = useState(true);
+    const [selectedBookingId, setSelectedBookingId] = useState<string | null>(null);
 
     useEffect(() => {
         async function fetchBookings() {
@@ -140,7 +141,7 @@ export default function BookingsPage() {
                 <h1 style={{ fontSize: "1.5rem", fontWeight: 700 }}>My Bookings</h1>
             </header>
 
-            <main style={{ padding: "1rem" }}>
+            <main style={{ padding: "1rem", paddingBottom: "100px" }}>
                 {bookings.length === 0 ? (
                     <div
                         style={{

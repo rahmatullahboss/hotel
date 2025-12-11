@@ -168,7 +168,7 @@ function BookingContent() {
     };
 
     return (
-        <main style={{ padding: "1rem" }}>
+        <main style={{ padding: "1rem", paddingBottom: "100px" }}>
             <div className="container" style={{ maxWidth: 600 }}>
                 {/* Progress Steps */}
                 <div
