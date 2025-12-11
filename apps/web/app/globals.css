@@ -316,6 +316,7 @@ main.page-content {
 /* Pages with book-now-bar need extra padding on mobile */
 main.page-with-book-bar {
   padding: 1rem;
+  padding-top: 1rem;
   padding-bottom: 170px;
 }
 
