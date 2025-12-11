@@ -348,108 +348,127 @@ export default async function DashboardPage() {
                 No check-ins scheduled for today
               </div>
             ) : (
-              todaysCheckIns.map((booking) => (
-                <div
-                  key={booking.id}
-                  className="card"
-                  style={{
-                    padding: "1rem",
-                    borderLeft: `4px solid ${booking.status === "CHECKED_IN"
-                      ? "var(--color-success)"
-                      : booking.status === "CONFIRMED"
-                        ? "var(--color-primary)"
-                        : "var(--color-warning)"
-                      }`,
-                  }}
-                >
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "0.75rem" }}>
-                    <div style={{ flex: 1 }}>
-                      <div style={{ fontWeight: 600, marginBottom: "0.25rem" }}>
-                        {booking.guestName}
+              todaysCheckIns.map((booking) => {
+                const nights = Math.ceil((new Date(booking.checkOut).getTime() - new Date(booking.checkIn).getTime()) / (1000 * 60 * 60 * 24));
+                return (
+                  <div
+                    key={booking.id}
+                    className="card"
+                    style={{
+                      padding: "1rem",
+                      borderLeft: `4px solid ${booking.status === "CHECKED_IN"
+                        ? "var(--color-success)"
+                        : booking.status === "CONFIRMED"
+                          ? "var(--color-primary)"
+                          : "var(--color-warning)"
+                        }`,
+                    }}
+                  >
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "0.75rem" }}>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ fontWeight: 600, marginBottom: "0.25rem" }}>
+                          {booking.guestName}
+                        </div>
+                        <div style={{ fontSize: "0.875rem", color: "var(--color-text-secondary)" }}>
+                          📞 {booking.guestPhone}
+                        </div>
                       </div>
-                      <div style={{ fontSize: "0.875rem", color: "var(--color-text-secondary)" }}>
-                        Room {booking.roomNumber}
-                      </div>
+                      <span
+                        className={`badge ${booking.status === "CHECKED_IN"
+                          ? "badge-success"
+                          : booking.status === "CONFIRMED"
+                            ? "badge-primary"
+                            : "badge-warning"
+                          }`}
+                        style={{ fontSize: "0.75rem" }}
+                      >
+                        {booking.status === "CHECKED_IN"
+                          ? "✓ Checked In"
+                          : booking.status === "CONFIRMED"
+                            ? "Ready"
+                            : "Pending"}
+                      </span>
                     </div>
-                    <span
-                      className={`badge ${booking.status === "CHECKED_IN"
-                        ? "badge-success"
-                        : booking.status === "CONFIRMED"
-                          ? "badge-primary"
-                          : "badge-warning"
-                        }`}
-                      style={{ fontSize: "0.75rem" }}
-                    >
-                      {booking.status === "CHECKED_IN"
-                        ? "✓ Checked In"
-                        : booking.status === "CONFIRMED"
-                          ? "Ready"
-                          : "Pending"}
-                    </span>
-                  </div>
 
-                  {/* Payment Breakdown */}
-                  <div style={{
-                    background: "var(--color-bg-secondary)",
-                    padding: "0.75rem",
-                    borderRadius: "0.5rem",
-                    marginBottom: "0.75rem",
-                    fontSize: "0.875rem"
-                  }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.25rem" }}>
-                      <span style={{ color: "var(--color-text-secondary)" }}>Total Bill</span>
-                      <span style={{ fontWeight: 600 }}>৳{booking.totalAmount.toLocaleString()}</span>
+                    {/* Room & Stay Details */}
+                    <div style={{
+                      background: "var(--color-bg-tertiary)",
+                      padding: "0.5rem 0.75rem",
+                      borderRadius: "0.375rem",
+                      marginBottom: "0.75rem",
+                      fontSize: "0.8125rem",
+                      display: "flex",
+                      justifyContent: "space-between",
+                      flexWrap: "wrap",
+                      gap: "0.5rem"
+                    }}>
+                      <span>🚪 <strong>{booking.roomNumber}</strong> - {booking.roomName}</span>
+                      <span>🌙 {nights} night{nights > 1 ? "s" : ""} → {booking.checkOut}</span>
                     </div>
-                    {booking.advancePaid > 0 && (
+
+                    {/* Payment Breakdown */}
+                    <div style={{
+                      background: "var(--color-bg-secondary)",
+                      padding: "0.75rem",
+                      borderRadius: "0.5rem",
+                      marginBottom: "0.75rem",
+                      fontSize: "0.875rem"
+                    }}>
                       <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.25rem" }}>
-                        <span style={{ color: "var(--color-success)" }}>✓ Advance Paid</span>
-                        <span style={{ color: "var(--color-success)" }}>৳{booking.advancePaid.toLocaleString()}</span>
+                        <span style={{ color: "var(--color-text-secondary)" }}>Total Bill</span>
+                        <span style={{ fontWeight: 600 }}>৳{booking.totalAmount.toLocaleString()}</span>
                       </div>
-                    )}
-                    {booking.remainingAmount > 0 && booking.paymentStatus !== "PAID" && (
-                      <div style={{ display: "flex", justifyContent: "space-between", padding: "0.5rem 0", borderTop: "1px dashed var(--color-border)" }}>
-                        <span style={{ fontWeight: 600, color: "var(--color-primary)" }}>💵 Collect</span>
-                        <span style={{ fontWeight: 700, color: "var(--color-primary)" }}>৳{booking.remainingAmount.toLocaleString()}</span>
-                      </div>
-                    )}
-                    {booking.paymentStatus === "PAID" && (
-                      <div style={{ display: "flex", justifyContent: "space-between", padding: "0.5rem 0", borderTop: "1px dashed var(--color-border)" }}>
-                        <span style={{ fontWeight: 600, color: "var(--color-success)" }}>✅ Fully Paid</span>
-                      </div>
-                    )}
-                  </div>
+                      {booking.advancePaid > 0 && (
+                        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.25rem" }}>
+                          <span style={{ color: "var(--color-success)" }}>✓ Advance Paid</span>
+                          <span style={{ color: "var(--color-success)" }}>৳{booking.advancePaid.toLocaleString()}</span>
+                        </div>
+                      )}
+                      {booking.remainingAmount > 0 && booking.paymentStatus !== "PAID" && (
+                        <div style={{ display: "flex", justifyContent: "space-between", padding: "0.5rem 0", borderTop: "1px dashed var(--color-border)" }}>
+                          <span style={{ fontWeight: 600, color: "var(--color-primary)" }}>💵 Collect</span>
+                          <span style={{ fontWeight: 700, color: "var(--color-primary)" }}>৳{booking.remainingAmount.toLocaleString()}</span>
+                        </div>
+                      )}
+                      {booking.paymentStatus === "PAID" && (
+                        <div style={{ display: "flex", justifyContent: "space-between", padding: "0.5rem 0", borderTop: "1px dashed var(--color-border)" }}>
+                          <span style={{ fontWeight: 600, color: "var(--color-success)" }}>✅ Fully Paid</span>
+                        </div>
+                      )}
+                    </div>
 
-                  {/* Action Buttons */}
-                  <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
-                    {/* Collect Payment Button - show for confirmed bookings with payment due */}
-                    {booking.status === "CONFIRMED" && booking.remainingAmount > 0 && booking.paymentStatus !== "PAID" && (
-                      <CollectPaymentButton
-                        bookingId={booking.id}
-                        hotelId={hotel.id}
-                        remainingAmount={booking.remainingAmount}
-                      />
-                    )}
-                    {booking.status === "CONFIRMED" && (
-                      <a
-                        href={`/scanner?bookingId=${booking.id}`}
-                        className="btn btn-accent"
-                        style={{ fontSize: "0.75rem", padding: "0.5rem 1rem", flex: 1 }}
-                      >
-                        Check In →
-                      </a>
-                    )}
-                    {booking.status === "CHECKED_IN" && (
-                      <a
-                        href={`/scanner?bookingId=${booking.id}`}
-                        className="btn btn-primary"
-                        style={{ fontSize: "0.75rem", padding: "0.5rem 1rem", flex: 1 }}
-                      >
-                        Check Out →
-                      </a>
-                    )}
+                    {/* Action Buttons */}
+                    <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
+                      {/* Collect Payment Button - show for confirmed bookings with payment due */}
+                      {booking.status === "CONFIRMED" && booking.remainingAmount > 0 && booking.paymentStatus !== "PAID" && (
+                        <CollectPaymentButton
+                          bookingId={booking.id}
+                          hotelId={hotel.id}
+                          remainingAmount={booking.remainingAmount}
+                        />
+                      )}
+                      {booking.status === "CONFIRMED" && (
+                        <a
+                          href={`/scanner?bookingId=${booking.id}`}
+                          className="btn btn-accent"
+                          style={{ fontSize: "0.75rem", padding: "0.5rem 1rem", flex: 1 }}
+                        >
+                          Check In →
+                        </a>
+                      )}
+                      {booking.status === "CHECKED_IN" && (
+                        <a
+                          href={`/scanner?bookingId=${booking.id}`}
+                          className="btn btn-primary"
+                          style={{ fontSize: "0.75rem", padding: "0.5rem 1rem", flex: 1 }}
+                        >
+                          Check Out →
+                        </a>
+                      )}
+                    </div>
                   </div>
-                </div>
-              ))
+                );
+              })
             )}
           </div>
         </section>
@@ -565,74 +584,104 @@ export default async function DashboardPage() {
             </h2>
 
             <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
-              {currentlyStaying.map((booking) => (
-                <div
-                  key={booking.id}
-                  className="card"
-                  style={{
-                    padding: "1rem",
-                    borderLeft: "4px solid var(--color-success)",
-                  }}
-                >
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "0.75rem" }}>
-                    <div style={{ flex: 1 }}>
-                      <div style={{ fontWeight: 600, marginBottom: "0.25rem" }}>
-                        {booking.guestName}
+              {currentlyStaying.map((booking) => {
+                const checkInDate = new Date(booking.checkIn);
+                const checkOutDate = new Date(booking.checkOut);
+                const today = new Date();
+                const nights = Math.ceil((checkOutDate.getTime() - checkInDate.getTime()) / (1000 * 60 * 60 * 24));
+                const daysRemaining = Math.ceil((checkOutDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+                const nightsStayed = Math.floor((today.getTime() - checkInDate.getTime()) / (1000 * 60 * 60 * 24));
+
+                return (
+                  <div
+                    key={booking.id}
+                    className="card"
+                    style={{
+                      padding: "1rem",
+                      borderLeft: `4px solid ${daysRemaining <= 0 ? "var(--color-warning)" : "var(--color-success)"}`,
+                    }}
+                  >
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "0.75rem" }}>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ fontWeight: 600, marginBottom: "0.25rem" }}>
+                          {booking.guestName}
+                        </div>
+                        <div style={{ fontSize: "0.875rem", color: "var(--color-text-secondary)" }}>
+                          📞 {booking.guestPhone}
+                        </div>
                       </div>
-                      <div style={{ fontSize: "0.875rem", color: "var(--color-text-secondary)" }}>
-                        Room {booking.roomNumber} • Check-out: {booking.checkOut}
+                      <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "0.25rem" }}>
+                        <span className={`badge ${daysRemaining <= 0 ? "badge-warning" : "badge-success"}`} style={{ fontSize: "0.75rem" }}>
+                          {daysRemaining <= 0 ? "⚠️ Checkout Due" : `Day ${nightsStayed + 1} of ${nights}`}
+                        </span>
+                        <span style={{ fontSize: "0.75rem", color: "var(--color-text-muted)" }}>
+                          {daysRemaining <= 0 ? "Today" : daysRemaining === 1 ? "Leaves tomorrow" : `${daysRemaining} days left`}
+                        </span>
                       </div>
                     </div>
-                    <span className="badge badge-success" style={{ fontSize: "0.75rem" }}>
-                      Staying
-                    </span>
-                  </div>
 
-                  {/* Payment Status */}
-                  <div style={{
-                    background: "var(--color-bg-secondary)",
-                    padding: "0.75rem",
-                    borderRadius: "0.5rem",
-                    marginBottom: "0.75rem",
-                    fontSize: "0.875rem"
-                  }}>
-                    <div style={{ display: "flex", justifyContent: "space-between" }}>
-                      <span style={{ color: "var(--color-text-secondary)" }}>Total Bill</span>
-                      <span style={{ fontWeight: 600 }}>৳{booking.totalAmount.toLocaleString()}</span>
+                    {/* Room & Stay Details */}
+                    <div style={{
+                      background: "var(--color-bg-tertiary)",
+                      padding: "0.5rem 0.75rem",
+                      borderRadius: "0.375rem",
+                      marginBottom: "0.75rem",
+                      fontSize: "0.8125rem",
+                      display: "flex",
+                      justifyContent: "space-between",
+                      flexWrap: "wrap",
+                      gap: "0.5rem"
+                    }}>
+                      <span>🚪 <strong>{booking.roomNumber}</strong> - {booking.roomName}</span>
+                      <span>📅 {booking.checkIn} → {booking.checkOut}</span>
                     </div>
-                    {booking.paymentStatus === "PAID" ? (
-                      <div style={{ color: "var(--color-success)", fontWeight: 600, marginTop: "0.25rem" }}>
-                        ✅ Fully Paid
-                      </div>
-                    ) : booking.remainingAmount > 0 && (
-                      <div style={{ display: "flex", justifyContent: "space-between", marginTop: "0.25rem", padding: "0.5rem 0", borderTop: "1px dashed var(--color-border)" }}>
-                        <span style={{ fontWeight: 600, color: "var(--color-warning)" }}>⚠️ Due</span>
-                        <span style={{ fontWeight: 700, color: "var(--color-warning)" }}>৳{booking.remainingAmount.toLocaleString()}</span>
-                      </div>
-                    )}
-                  </div>
 
-                  {/* Action Buttons */}
-                  <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
-                    {/* Collect Payment Button - show when payment is pending */}
-                    {booking.paymentStatus !== "PAID" && booking.remainingAmount > 0 && (
-                      <CollectPaymentButton
-                        bookingId={booking.id}
-                        hotelId={hotel.id}
-                        remainingAmount={booking.remainingAmount}
-                      />
-                    )}
-                    {/* Checkout Button */}
-                    <a
-                      href={`/scanner?bookingId=${booking.id}`}
-                      className="btn btn-primary"
-                      style={{ fontSize: "0.75rem", padding: "0.5rem 1rem", flex: 1, textAlign: "center" }}
-                    >
-                      Check Out →
-                    </a>
+                    {/* Payment Status */}
+                    <div style={{
+                      background: "var(--color-bg-secondary)",
+                      padding: "0.75rem",
+                      borderRadius: "0.5rem",
+                      marginBottom: "0.75rem",
+                      fontSize: "0.875rem"
+                    }}>
+                      <div style={{ display: "flex", justifyContent: "space-between" }}>
+                        <span style={{ color: "var(--color-text-secondary)" }}>Total Bill</span>
+                        <span style={{ fontWeight: 600 }}>৳{booking.totalAmount.toLocaleString()}</span>
+                      </div>
+                      {booking.paymentStatus === "PAID" ? (
+                        <div style={{ color: "var(--color-success)", fontWeight: 600, marginTop: "0.25rem" }}>
+                          ✅ Fully Paid
+                        </div>
+                      ) : booking.remainingAmount > 0 && (
+                        <div style={{ display: "flex", justifyContent: "space-between", marginTop: "0.25rem", padding: "0.5rem 0", borderTop: "1px dashed var(--color-border)" }}>
+                          <span style={{ fontWeight: 600, color: "var(--color-warning)" }}>⚠️ Due</span>
+                          <span style={{ fontWeight: 700, color: "var(--color-warning)" }}>৳{booking.remainingAmount.toLocaleString()}</span>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Action Buttons */}
+                    <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
+                      {/* Collect Payment Button - show when payment is pending */}
+                      {booking.paymentStatus !== "PAID" && booking.remainingAmount > 0 && (
+                        <CollectPaymentButton
+                          bookingId={booking.id}
+                          hotelId={hotel.id}
+                          remainingAmount={booking.remainingAmount}
+                        />
+                      )}
+                      {/* Checkout Button */}
+                      <a
+                        href={`/scanner?bookingId=${booking.id}`}
+                        className="btn btn-primary"
+                        style={{ fontSize: "0.75rem", padding: "0.5rem 1rem", flex: 1, textAlign: "center" }}
+                      >
+                        Check Out →
+                      </a>
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </section>
         )}
