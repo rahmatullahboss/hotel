@@ -126,7 +126,7 @@ function HotelsContent() {
                 </div>
             </header>
 
-            <main className="container" style={{ padding: "1rem" }}>
+            <main className="container page-content" style={{ paddingLeft: "1rem", paddingRight: "1rem" }}>
                 {loading ? (
                     <div style={{ textAlign: "center", padding: "3rem" }}>
                         <div className="skeleton" style={{ width: 100, height: 24, margin: "0 auto" }} />

@@ -141,7 +141,7 @@ export default function BookingsPage() {
                 <h1 style={{ fontSize: "1.5rem", fontWeight: 700 }}>My Bookings</h1>
             </header>
 
-            <main style={{ padding: "1rem" }}>
+            <main className="page-content" style={{ paddingLeft: "1rem", paddingRight: "1rem" }}>
                 {bookings.length === 0 ? (
                     <div
                         style={{

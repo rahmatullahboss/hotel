@@ -38,7 +38,7 @@ export default async function WalletPage() {
                 </p>
             </header>
 
-            <main style={{ padding: "1rem", maxWidth: "600px", margin: "0 auto" }}>
+            <main className="page-content" style={{ paddingLeft: "1rem", paddingRight: "1rem", maxWidth: "600px", margin: "0 auto" }}>
                 {/* Wallet Balance Card */}
                 <WalletCard balance={Number(wallet?.balance || 0)} />
 

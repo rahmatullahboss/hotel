@@ -176,7 +176,7 @@ export default function HotelDetailPage() {
                 )}
             </div>
 
-            <main className="page-with-book-bar" style={{ padding: "1rem" }}>
+            <main className="page-with-book-bar" style={{ paddingLeft: "1rem", paddingRight: "1rem" }}>
                 {/* Hotel Info */}
                 <div style={{ marginBottom: "1.5rem" }}>
                     <h1 style={{ fontSize: "1.5rem", fontWeight: 700, marginBottom: "0.5rem" }}>
