@@ -1,5 +1,3 @@
-"use server";
-
 // Cancellation reasons for analytics and customer feedback
 export const CANCELLATION_REASONS = [
     { value: "PLAN_CHANGED", label: "Plan Changed", labelBn: "পরিকল্পনা পরিবর্তন" },
@@ -11,10 +9,3 @@ export const CANCELLATION_REASONS = [
 ] as const;
 
 export type CancellationReason = typeof CANCELLATION_REASONS[number]["value"];
-
-/**
- * Get cancellation reasons for UI dropdown
- */
-export async function getCancellationReasons() {
-    return CANCELLATION_REASONS;
-}
