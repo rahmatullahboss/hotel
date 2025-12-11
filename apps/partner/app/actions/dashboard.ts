@@ -126,13 +126,23 @@ export async function getDashboardStats(hotelId: string): Promise<DashboardStats
         const checkIns = await db
             .select({ count: sql<number>`count(*)` })
             .from(bookings)
-            .where(and(eq(bookings.hotelId, hotelId), eq(bookings.checkIn, today)));
+            .where(and(
+                eq(bookings.hotelId, hotelId),
+                eq(bookings.checkIn, today),
+                ne(bookings.status, "CANCELLED"),
+                ne(bookings.status, "PENDING")
+            ));
 
         // Today's check-outs
         const checkOuts = await db
             .select({ count: sql<number>`count(*)` })
             .from(bookings)
-            .where(and(eq(bookings.hotelId, hotelId), eq(bookings.checkOut, today)));
+            .where(and(
+                eq(bookings.hotelId, hotelId),
+                eq(bookings.checkOut, today),
+                ne(bookings.status, "CANCELLED"),
+                ne(bookings.status, "PENDING")
+            ));
 
         // Pending bookings
         const pending = await db

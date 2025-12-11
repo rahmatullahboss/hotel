@@ -2,7 +2,7 @@
 
 import { db } from "@repo/db";
 import { hotels, bookings, users, rooms } from "@repo/db/schema";
-import { eq, sql, count, sum, and, gte, lte, desc } from "drizzle-orm";
+import { eq, sql, count, sum, and, gte, lte, desc, ne } from "drizzle-orm";
 
 export interface AdminStats {
     totalRevenue: number;
@@ -18,6 +18,7 @@ export interface AdminStats {
     platformCommission: number;
     averageBookingValue: number;
     totalRooms: number;
+    totalCancellations: number;
 }
 
 export interface RecentActivity {
@@ -70,20 +71,31 @@ export async function getAdminStats(): Promise<AdminStats> {
             .where(eq(hotels.status, "SUSPENDED"));
         const suspendedHotels = suspendedHotelsResult[0]?.count || 0;
 
-        // Get total bookings count
+        // Get total bookings count (excluding cancelled)
         const bookingsResult = await db
             .select({ count: count() })
-            .from(bookings);
+            .from(bookings)
+            .where(ne(bookings.status, "CANCELLED"));
         const totalBookings = bookingsResult[0]?.count || 0;
 
-        // Get today's stats
+        // Get total cancellations
+        const cancellationsResult = await db
+            .select({ count: count() })
+            .from(bookings)
+            .where(eq(bookings.status, "CANCELLED"));
+        const totalCancellations = cancellationsResult[0]?.count || 0;
+
+        // Get today's stats (excluding cancelled)
         const todayStats = await db
             .select({
                 count: count(),
                 revenue: sum(bookings.totalAmount),
             })
             .from(bookings)
-            .where(eq(bookings.checkIn, today));
+            .where(and(
+                eq(bookings.checkIn, today),
+                ne(bookings.status, "CANCELLED")
+            ));
         const todayBookings = todayStats[0]?.count || 0;
         const todayRevenue = Number(todayStats[0]?.revenue) || 0;
 
@@ -133,6 +145,7 @@ export async function getAdminStats(): Promise<AdminStats> {
             platformCommission,
             averageBookingValue,
             totalRooms,
+            totalCancellations,
         };
     } catch (error) {
         console.error("Error fetching admin stats:", error);
@@ -150,6 +163,7 @@ export async function getAdminStats(): Promise<AdminStats> {
             platformCommission: 0,
             averageBookingValue: 0,
             totalRooms: 0,
+            totalCancellations: 0,
         };
     }
 }

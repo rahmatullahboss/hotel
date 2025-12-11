@@ -148,7 +148,15 @@ export default async function DashboardPage() {
                     <div className="card stat-card">
                         <div className="stat-label">Total Bookings</div>
                         <div className="stat-value">{stats.totalBookings}</div>
-                        <div className="stat-subtext">All time</div>
+                        <div className="stat-subtext">Excluding cancelled</div>
+                    </div>
+
+                    <div className="card stat-card">
+                        <div className="stat-label">Total Cancellations</div>
+                        <div className="stat-value" style={{ color: "var(--color-error)" }}>
+                            {stats.totalCancellations}
+                        </div>
+                        <div className="stat-subtext">Auto-expired & cancelled</div>
                     </div>
 
                     <div className="card stat-card">
