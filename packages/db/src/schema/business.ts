@@ -195,6 +195,105 @@ export const bookingsRelations = relations(bookings, ({ one }) => ({
     }),
 }));
 
+// ====================
+// PROMOTIONS
+// ====================
+
+// Promotion Type Enum
+export type PromotionType = "PERCENTAGE" | "FIXED";
+
+export const promotions = pgTable("promotions", {
+    id: text("id")
+        .primaryKey()
+        .$defaultFn(() => crypto.randomUUID()),
+    code: text("code").notNull().unique(),
+    name: text("name").notNull(),
+    description: text("description"),
+    type: text("type", { enum: ["PERCENTAGE", "FIXED"] })
+        .notNull()
+        .default("PERCENTAGE"),
+    value: decimal("value", { precision: 10, scale: 2 }).notNull(), // % or fixed amount
+    hotelId: text("hotelId").references(() => hotels.id, { onDelete: "cascade" }), // null = platform-wide
+    minBookingAmount: decimal("minBookingAmount", { precision: 10, scale: 2 }),
+    maxDiscountAmount: decimal("maxDiscountAmount", { precision: 10, scale: 2 }),
+    maxUses: integer("maxUses"), // null = unlimited
+    currentUses: integer("currentUses").default(0).notNull(),
+    validFrom: date("validFrom", { mode: "string" }),
+    validTo: date("validTo", { mode: "string" }),
+    isActive: boolean("isActive").default(true).notNull(),
+    createdAt: timestamp("createdAt", { mode: "date" }).defaultNow().notNull(),
+    updatedAt: timestamp("updatedAt", { mode: "date" }).defaultNow().notNull(),
+});
+
+export const promotionsRelations = relations(promotions, ({ one }) => ({
+    hotel: one(hotels, {
+        fields: [promotions.hotelId],
+        references: [hotels.id],
+    }),
+}));
+
+// ====================
+// ACTIVITY LOG
+// ====================
+
+// Activity Type Enum
+export type ActivityType =
+    | "BOOKING_CREATED"
+    | "BOOKING_CONFIRMED"
+    | "BOOKING_CANCELLED"
+    | "CHECK_IN"
+    | "CHECK_OUT"
+    | "PAYMENT_RECEIVED"
+    | "HOTEL_REGISTERED"
+    | "HOTEL_APPROVED"
+    | "HOTEL_SUSPENDED"
+    | "PRICE_UPDATED"
+    | "ROOM_BLOCKED"
+    | "ROOM_UNBLOCKED";
+
+export const activityLog = pgTable("activityLog", {
+    id: text("id")
+        .primaryKey()
+        .$defaultFn(() => crypto.randomUUID()),
+    type: text("type", {
+        enum: [
+            "BOOKING_CREATED",
+            "BOOKING_CONFIRMED",
+            "BOOKING_CANCELLED",
+            "CHECK_IN",
+            "CHECK_OUT",
+            "PAYMENT_RECEIVED",
+            "HOTEL_REGISTERED",
+            "HOTEL_APPROVED",
+            "HOTEL_SUSPENDED",
+            "PRICE_UPDATED",
+            "ROOM_BLOCKED",
+            "ROOM_UNBLOCKED",
+        ],
+    }).notNull(),
+    actorId: text("actorId").references(() => users.id, { onDelete: "set null" }), // Who performed the action
+    hotelId: text("hotelId").references(() => hotels.id, { onDelete: "cascade" }),
+    bookingId: text("bookingId").references(() => bookings.id, { onDelete: "cascade" }),
+    description: text("description").notNull(),
+    metadata: jsonb("metadata").$type<Record<string, unknown>>(),
+    createdAt: timestamp("createdAt", { mode: "date" }).defaultNow().notNull(),
+});
+
+export const activityLogRelations = relations(activityLog, ({ one }) => ({
+    actor: one(users, {
+        fields: [activityLog.actorId],
+        references: [users.id],
+    }),
+    hotel: one(hotels, {
+        fields: [activityLog.hotelId],
+        references: [hotels.id],
+    }),
+    booking: one(bookings, {
+        fields: [activityLog.bookingId],
+        references: [bookings.id],
+    }),
+}));
+
 // Type exports
 export type Hotel = typeof hotels.$inferSelect;
 export type NewHotel = typeof hotels.$inferInsert;
@@ -204,4 +303,7 @@ export type RoomInventory = typeof roomInventory.$inferSelect;
 export type NewRoomInventory = typeof roomInventory.$inferInsert;
 export type Booking = typeof bookings.$inferSelect;
 export type NewBooking = typeof bookings.$inferInsert;
-
+export type Promotion = typeof promotions.$inferSelect;
+export type NewPromotion = typeof promotions.$inferInsert;
+export type ActivityLog = typeof activityLog.$inferSelect;
+export type NewActivityLog = typeof activityLog.$inferInsert;

@@ -7,8 +7,9 @@ const menuItems = [
     { name: "Dashboard", href: "/", icon: "📊" },
     { name: "Hotels", href: "/hotels", icon: "🏨" },
     { name: "Rooms", href: "/rooms", icon: "🛏️" },
-    { name: "Users", href: "/users", icon: "👥" },
     { name: "Bookings", href: "/bookings", icon: "📅" },
+    { name: "Promotions", href: "/promotions", icon: "🎁" },
+    { name: "Users", href: "/users", icon: "👥" },
     { name: "Settings", href: "/settings", icon: "⚙️" },
 ];
 
