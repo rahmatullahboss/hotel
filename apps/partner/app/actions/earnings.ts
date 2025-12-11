@@ -9,6 +9,9 @@ export interface EarningsData {
     totalCommission: number;
     netEarnings: number;
     totalBookings: number;
+    commissionOwed: number; // Commission owed for pay-at-hotel bookings
+    walkInRevenue: number; // Revenue from walk-ins (no commission)
+    platformRevenue: number; // Revenue from platform bookings
     transactions: Transaction[];
 }
 
@@ -21,6 +24,8 @@ export interface Transaction {
     net: number;
     status: string;
     paymentStatus: string;
+    bookingSource: string;
+    commissionStatus: string;
 }
 
 /**
@@ -61,6 +66,8 @@ export async function getEarningsData(
                 netAmount: bookings.netAmount,
                 status: bookings.status,
                 paymentStatus: bookings.paymentStatus,
+                bookingSource: bookings.bookingSource,
+                commissionStatus: bookings.commissionStatus,
             })
             .from(bookings)
             .where(
@@ -75,6 +82,9 @@ export async function getEarningsData(
         let totalRevenue = 0;
         let totalCommission = 0;
         let netEarnings = 0;
+        let commissionOwed = 0;
+        let walkInRevenue = 0;
+        let platformRevenue = 0;
 
         const transactions: Transaction[] = periodBookings.map((b) => {
             const amount = Number(b.totalAmount) || 0;
@@ -86,6 +96,18 @@ export async function getEarningsData(
                 totalRevenue += amount;
                 totalCommission += commission;
                 netEarnings += net;
+
+                // Track revenue by source
+                if (b.bookingSource === "WALK_IN") {
+                    walkInRevenue += amount;
+                } else {
+                    platformRevenue += amount;
+
+                    // Track commission owed for pay-at-hotel platform bookings
+                    if (b.paymentStatus === "PAY_AT_HOTEL" && b.commissionStatus === "PENDING") {
+                        commissionOwed += commission;
+                    }
+                }
             }
 
             return {
@@ -97,6 +119,8 @@ export async function getEarningsData(
                 net,
                 status: b.status,
                 paymentStatus: b.paymentStatus,
+                bookingSource: b.bookingSource,
+                commissionStatus: b.commissionStatus,
             };
         });
 
@@ -105,6 +129,9 @@ export async function getEarningsData(
             totalCommission,
             netEarnings,
             totalBookings: transactions.length,
+            commissionOwed,
+            walkInRevenue,
+            platformRevenue,
             transactions,
         };
     } catch (error) {
@@ -114,6 +141,9 @@ export async function getEarningsData(
             totalCommission: 0,
             netEarnings: 0,
             totalBookings: 0,
+            commissionOwed: 0,
+            walkInRevenue: 0,
+            platformRevenue: 0,
             transactions: [],
         };
     }

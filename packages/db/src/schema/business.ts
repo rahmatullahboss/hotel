@@ -140,6 +140,12 @@ export const roomInventoryRelations = relations(roomInventory, ({ one }) => ({
 // BOOKINGS
 // ====================
 
+// Booking Source Enum - tracks where booking originated
+export type BookingSource = "PLATFORM" | "WALK_IN";
+
+// Commission Status Enum - tracks commission collection
+export type CommissionStatus = "PENDING" | "PAID" | "WAIVED" | "NOT_APPLICABLE";
+
 export const bookings = pgTable("bookings", {
     id: text("id")
         .primaryKey()
@@ -159,6 +165,14 @@ export const bookings = pgTable("bookings", {
     guestName: text("guestName").notNull(),
     guestPhone: text("guestPhone").notNull(),
     guestEmail: text("guestEmail"),
+
+    // Booking source - platform bookings have commission, walk-ins don't
+    bookingSource: text("bookingSource", {
+        enum: ["PLATFORM", "WALK_IN"],
+    })
+        .default("PLATFORM")
+        .notNull(),
+
     status: text("status", {
         enum: ["PENDING", "CONFIRMED", "CHECKED_IN", "CHECKED_OUT", "CANCELLED"],
     })
@@ -169,6 +183,14 @@ export const bookings = pgTable("bookings", {
     })
         .default("PENDING")
         .notNull(),
+
+    // Commission tracking
+    commissionStatus: text("commissionStatus", {
+        enum: ["PENDING", "PAID", "WAIVED", "NOT_APPLICABLE"],
+    })
+        .default("PENDING")
+        .notNull(),
+
     totalAmount: decimal("totalAmount", { precision: 10, scale: 2 }).notNull(),
     commissionAmount: decimal("commissionAmount", { precision: 10, scale: 2 }).notNull(),
     netAmount: decimal("netAmount", { precision: 10, scale: 2 }).notNull(),
