@@ -42,14 +42,14 @@ export default function CheckInPage() {
             } catch {
                 setResult({
                     success: false,
-                    message: "Invalid QR code. Please scan the hotel check-in QR code.",
+                    message: "Invalid QR code format. Please scan the hotel check-in QR code.",
                 });
                 setProcessing(false);
                 return;
             }
 
             // Verify it's a hotel check-in QR
-            if (qrData.type !== "HOTEL_CHECKIN" || !qrData.hotelId) {
+            if (!qrData || qrData.type !== "HOTEL_CHECKIN" || !qrData.hotelId) {
                 setResult({
                     success: false,
                     message: "This is not a hotel check-in QR code. Please scan the correct QR code at the hotel reception.",
@@ -86,11 +86,13 @@ export default function CheckInPage() {
             console.error("Check-in error:", error);
             setResult({
                 success: false,
-                message: "Something went wrong. Please try again.",
+                message: error instanceof Error
+                    ? `Error: ${error.message}`
+                    : "Something went wrong. Please try again.",
             });
+        } finally {
+            setProcessing(false);
         }
-
-        setProcessing(false);
     };
 
     const formatDate = (dateStr: string) => {
