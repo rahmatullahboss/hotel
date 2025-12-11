@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "@repo/db";
-import { bookings, rooms, hotels, users } from "@repo/db/schema";
+import { bookings, rooms, hotels, users, wallets, walletTransactions } from "@repo/db/schema";
 import { eq, desc } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
@@ -16,16 +16,27 @@ export interface CreateBookingInput {
     paymentMethod: "BKASH" | "NAGAD" | "CARD" | "PAY_AT_HOTEL";
     totalAmount: number;
     userId?: string;
+    useWalletForFee?: boolean; // Use wallet balance for booking fee
 }
 
 export interface BookingResult {
     success: boolean;
     bookingId?: string;
     error?: string;
+    bookingFee?: number; // Return fee amount for display
 }
 
 /**
- * Create a new booking
+ * Calculate booking fee (10% of total, minimum ৳50)
+ * This is a local helper, not exported as a server action
+ */
+function calculateBookingFee(totalAmount: number): number {
+    const percentageFee = Math.round(totalAmount * 0.10);
+    return Math.max(percentageFee, 50); // Minimum ৳50
+}
+
+/**
+ * Create a new booking with booking fee
  */
 export async function createBooking(input: CreateBookingInput): Promise<BookingResult> {
     try {
@@ -40,6 +51,7 @@ export async function createBooking(input: CreateBookingInput): Promise<BookingR
             paymentMethod,
             totalAmount,
             userId,
+            useWalletForFee,
         } = input;
 
         // Get room details for commission calculation
@@ -51,9 +63,38 @@ export async function createBooking(input: CreateBookingInput): Promise<BookingR
             return { success: false, error: "Room not found" };
         }
 
-        // Calculate commission (12%)
+        // Calculate commission (12%) and booking fee (10% min ৳50)
         const commissionAmount = Math.round(totalAmount * 0.12);
         const netAmount = totalAmount - commissionAmount;
+        const bookingFee = calculateBookingFee(totalAmount);
+
+        // Handle wallet deduction for booking fee
+        let bookingFeeStatus: "PENDING" | "PAID" | "WAIVED" = "PENDING";
+
+        if (useWalletForFee && userId) {
+            const wallet = await db.query.wallets.findFirst({
+                where: eq(wallets.userId, userId),
+            });
+
+            if (wallet && Number(wallet.balance) >= bookingFee) {
+                // Deduct from wallet
+                await db
+                    .update(wallets)
+                    .set({
+                        balance: (Number(wallet.balance) - bookingFee).toString(),
+                        updatedAt: new Date(),
+                    })
+                    .where(eq(wallets.id, wallet.id));
+
+                bookingFeeStatus = "PAID";
+            } else {
+                return {
+                    success: false,
+                    error: `Insufficient wallet balance. Need ৳${bookingFee} for booking fee.`,
+                    bookingFee,
+                };
+            }
+        }
 
         // Calculate number of nights
         const checkInDate = new Date(checkIn);
@@ -74,10 +115,30 @@ export async function createBooking(input: CreateBookingInput): Promise<BookingR
             totalAmount: totalAmount.toString(),
             commissionAmount: commissionAmount.toString(),
             netAmount: netAmount.toString(),
+            bookingFee: bookingFee.toString(),
+            bookingFeeStatus,
             paymentMethod,
             paymentStatus: paymentMethod === "PAY_AT_HOTEL" ? "PAY_AT_HOTEL" : "PENDING",
             status: "PENDING",
         }).returning();
+
+        // Record wallet transaction if fee was paid
+        if (bookingFeeStatus === "PAID" && userId) {
+            const wallet = await db.query.wallets.findFirst({
+                where: eq(wallets.userId, userId),
+            });
+
+            if (wallet && booking) {
+                await db.insert(walletTransactions).values({
+                    walletId: wallet.id,
+                    type: "DEBIT",
+                    amount: bookingFee.toString(),
+                    reason: "BOOKING_FEE",
+                    bookingId: booking.id,
+                    description: `Booking fee for ${guestName}`,
+                });
+            }
+        }
 
         // Save phone to user profile if user is logged in and phone not saved
         if (userId && guestPhone) {
@@ -93,8 +154,9 @@ export async function createBooking(input: CreateBookingInput): Promise<BookingR
         }
 
         revalidatePath("/bookings");
+        revalidatePath("/wallet");
 
-        return { success: true, bookingId: booking?.id };
+        return { success: true, bookingId: booking?.id, bookingFee };
     } catch (error) {
         console.error("Error creating booking:", error);
         return { success: false, error: "Failed to create booking" };
