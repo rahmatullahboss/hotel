@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { getPartnerHotel, getDashboardStats, getUpcomingBookings } from "./actions/dashboard";
-import { BottomNav, ScannerFAB, StatCard } from "./components";
+import { BottomNav, ScannerFAB, StatCard, LogoutButton } from "./components";
 import { auth } from "../auth";
 import Link from "next/link";
 
@@ -72,6 +72,9 @@ export default async function DashboardPage() {
           color: "var(--color-text-secondary)"
         }}>
           Signed in as: <strong style={{ color: "var(--color-text-primary)" }}>{session.user.email}</strong>
+        </div>
+        <div style={{ marginTop: "1rem" }}>
+          <LogoutButton />
         </div>
       </main>
     );
@@ -221,11 +224,14 @@ export default async function DashboardPage() {
   return (
     <>
       {/* Header */}
-      <header className="page-header">
-        <h1 className="page-title">Vibe Manager</h1>
-        <p style={{ color: "var(--color-text-secondary)", fontSize: "0.875rem" }}>
-          {hotel.name}, {hotel.city}
-        </p>
+      <header className="page-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+        <div>
+          <h1 className="page-title">Vibe Manager</h1>
+          <p style={{ color: "var(--color-text-secondary)", fontSize: "0.875rem" }}>
+            {hotel.name}, {hotel.city}
+          </p>
+        </div>
+        <LogoutButton />
       </header>
 
       <main style={{ padding: "1rem" }}>
