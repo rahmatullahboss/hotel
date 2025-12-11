@@ -106,6 +106,10 @@ export interface BookingSummary {
     checkOut: string;
     status: string;
     totalAmount: number;
+    advancePaid: number;
+    remainingAmount: number;
+    paymentStatus: string;
+    paymentMethod: string | null;
 }
 
 /**
@@ -236,6 +240,9 @@ export async function getUpcomingBookings(hotelId: string, limit = 5): Promise<B
                 checkOut: bookings.checkOut,
                 status: bookings.status,
                 totalAmount: bookings.totalAmount,
+                bookingFee: bookings.bookingFee,
+                paymentStatus: bookings.paymentStatus,
+                paymentMethod: bookings.paymentMethod,
             })
             .from(bookings)
             .leftJoin(rooms, eq(rooms.id, bookings.roomId))
@@ -243,12 +250,20 @@ export async function getUpcomingBookings(hotelId: string, limit = 5): Promise<B
             .orderBy(bookings.checkIn)
             .limit(limit);
 
-        return result.map((b) => ({
-            ...b,
-            roomNumber: b.roomNumber ?? "",
-            roomName: b.roomName ?? "",
-            totalAmount: Number(b.totalAmount) || 0,
-        }));
+        return result.map((b) => {
+            const totalAmount = Number(b.totalAmount) || 0;
+            const advancePaid = Number(b.bookingFee) || 0;
+            return {
+                ...b,
+                roomNumber: b.roomNumber ?? "",
+                roomName: b.roomName ?? "",
+                totalAmount,
+                advancePaid,
+                remainingAmount: totalAmount - advancePaid,
+                paymentStatus: b.paymentStatus ?? "PENDING",
+                paymentMethod: b.paymentMethod,
+            };
+        });
     } catch (error) {
         console.error("Error fetching upcoming bookings:", error);
         return [];
@@ -273,20 +288,76 @@ export async function getTodaysCheckIns(hotelId: string): Promise<BookingSummary
                 checkOut: bookings.checkOut,
                 status: bookings.status,
                 totalAmount: bookings.totalAmount,
+                bookingFee: bookings.bookingFee,
+                paymentStatus: bookings.paymentStatus,
+                paymentMethod: bookings.paymentMethod,
             })
             .from(bookings)
             .leftJoin(rooms, eq(rooms.id, bookings.roomId))
             .where(and(eq(bookings.hotelId, hotelId), eq(bookings.checkIn, today)))
             .orderBy(bookings.createdAt);
 
-        return result.map((b) => ({
-            ...b,
-            roomNumber: b.roomNumber ?? "",
-            roomName: b.roomName ?? "",
-            totalAmount: Number(b.totalAmount) || 0,
-        }));
+        return result.map((b) => {
+            const totalAmount = Number(b.totalAmount) || 0;
+            const advancePaid = Number(b.bookingFee) || 0;
+            return {
+                ...b,
+                roomNumber: b.roomNumber ?? "",
+                roomName: b.roomName ?? "",
+                totalAmount,
+                advancePaid,
+                remainingAmount: totalAmount - advancePaid,
+                paymentStatus: b.paymentStatus ?? "PENDING",
+                paymentMethod: b.paymentMethod,
+            };
+        });
     } catch (error) {
         console.error("Error fetching today's check-ins:", error);
+        return [];
+    }
+}
+
+/**
+ * Get currently staying guests (checked in, not yet checked out)
+ */
+export async function getCurrentlyStaying(hotelId: string): Promise<BookingSummary[]> {
+    try {
+        const result = await db
+            .select({
+                id: bookings.id,
+                guestName: bookings.guestName,
+                guestPhone: bookings.guestPhone,
+                roomNumber: rooms.roomNumber,
+                roomName: rooms.name,
+                checkIn: bookings.checkIn,
+                checkOut: bookings.checkOut,
+                status: bookings.status,
+                totalAmount: bookings.totalAmount,
+                bookingFee: bookings.bookingFee,
+                paymentStatus: bookings.paymentStatus,
+                paymentMethod: bookings.paymentMethod,
+            })
+            .from(bookings)
+            .leftJoin(rooms, eq(rooms.id, bookings.roomId))
+            .where(and(eq(bookings.hotelId, hotelId), eq(bookings.status, "CHECKED_IN")))
+            .orderBy(bookings.checkOut);
+
+        return result.map((b) => {
+            const totalAmount = Number(b.totalAmount) || 0;
+            const advancePaid = Number(b.bookingFee) || 0;
+            return {
+                ...b,
+                roomNumber: b.roomNumber ?? "",
+                roomName: b.roomName ?? "",
+                totalAmount,
+                advancePaid,
+                remainingAmount: totalAmount - advancePaid,
+                paymentStatus: b.paymentStatus ?? "PENDING",
+                paymentMethod: b.paymentMethod,
+            };
+        });
+    } catch (error) {
+        console.error("Error fetching currently staying guests:", error);
         return [];
     }
 }

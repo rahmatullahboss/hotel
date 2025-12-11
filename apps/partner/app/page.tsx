@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { getPartnerHotel, getDashboardStats, getUpcomingBookings, getTodaysCheckIns } from "./actions/dashboard";
+import { getPartnerHotel, getDashboardStats, getUpcomingBookings, getTodaysCheckIns, getCurrentlyStaying } from "./actions/dashboard";
 import { BottomNav, ScannerFAB, StatCard, LogoutButton, HotelCheckInQR } from "./components";
 import { auth } from "../auth";
 import Link from "next/link";
@@ -216,10 +216,11 @@ export default async function DashboardPage() {
   }
 
   // State 4: Hotel is ACTIVE - Show full dashboard
-  const [stats, upcomingBookings, todaysCheckIns] = await Promise.all([
+  const [stats, upcomingBookings, todaysCheckIns, currentlyStaying] = await Promise.all([
     getDashboardStats(hotel.id),
     getUpcomingBookings(hotel.id, 5),
     getTodaysCheckIns(hotel.id),
+    getCurrentlyStaying(hotel.id),
   ]);
 
   return (
@@ -340,47 +341,168 @@ export default async function DashboardPage() {
                       }`,
                   }}
                 >
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "0.75rem" }}>
                     <div style={{ flex: 1 }}>
                       <div style={{ fontWeight: 600, marginBottom: "0.25rem" }}>
                         {booking.guestName}
                       </div>
                       <div style={{ fontSize: "0.875rem", color: "var(--color-text-secondary)" }}>
-                        Room {booking.roomNumber} • ৳{booking.totalAmount.toLocaleString()}
+                        Room {booking.roomNumber}
                       </div>
                     </div>
-                    <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "0.5rem" }}>
-                      <span
-                        className={`badge ${booking.status === "CHECKED_IN"
-                          ? "badge-success"
-                          : booking.status === "CONFIRMED"
-                            ? "badge-primary"
-                            : "badge-warning"
-                          }`}
-                        style={{ fontSize: "0.75rem" }}
-                      >
-                        {booking.status === "CHECKED_IN"
-                          ? "✓ Checked In"
-                          : booking.status === "CONFIRMED"
-                            ? "Ready"
-                            : "Pending"}
-                      </span>
-                      {booking.status === "CONFIRMED" && (
-                        <a
-                          href={`/scanner?bookingId=${booking.id}`}
-                          className="btn btn-accent"
-                          style={{ fontSize: "0.75rem", padding: "0.25rem 0.75rem" }}
-                        >
-                          Check In →
-                        </a>
-                      )}
+                    <span
+                      className={`badge ${booking.status === "CHECKED_IN"
+                        ? "badge-success"
+                        : booking.status === "CONFIRMED"
+                          ? "badge-primary"
+                          : "badge-warning"
+                        }`}
+                      style={{ fontSize: "0.75rem" }}
+                    >
+                      {booking.status === "CHECKED_IN"
+                        ? "✓ Checked In"
+                        : booking.status === "CONFIRMED"
+                          ? "Ready"
+                          : "Pending"}
+                    </span>
+                  </div>
+
+                  {/* Payment Breakdown */}
+                  <div style={{
+                    background: "var(--color-bg-secondary)",
+                    padding: "0.75rem",
+                    borderRadius: "0.5rem",
+                    marginBottom: "0.75rem",
+                    fontSize: "0.875rem"
+                  }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.25rem" }}>
+                      <span style={{ color: "var(--color-text-secondary)" }}>Total Bill</span>
+                      <span style={{ fontWeight: 600 }}>৳{booking.totalAmount.toLocaleString()}</span>
                     </div>
+                    {booking.advancePaid > 0 && (
+                      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.25rem" }}>
+                        <span style={{ color: "var(--color-success)" }}>✓ Advance Paid</span>
+                        <span style={{ color: "var(--color-success)" }}>৳{booking.advancePaid.toLocaleString()}</span>
+                      </div>
+                    )}
+                    {booking.remainingAmount > 0 && booking.paymentStatus !== "PAID" && (
+                      <div style={{ display: "flex", justifyContent: "space-between", padding: "0.5rem 0", borderTop: "1px dashed var(--color-border)" }}>
+                        <span style={{ fontWeight: 600, color: "var(--color-primary)" }}>💵 Collect</span>
+                        <span style={{ fontWeight: 700, color: "var(--color-primary)" }}>৳{booking.remainingAmount.toLocaleString()}</span>
+                      </div>
+                    )}
+                    {booking.paymentStatus === "PAID" && (
+                      <div style={{ display: "flex", justifyContent: "space-between", padding: "0.5rem 0", borderTop: "1px dashed var(--color-border)" }}>
+                        <span style={{ fontWeight: 600, color: "var(--color-success)" }}>✅ Fully Paid</span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Action Buttons */}
+                  <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
+                    {booking.status === "CONFIRMED" && (
+                      <a
+                        href={`/scanner?bookingId=${booking.id}`}
+                        className="btn btn-accent"
+                        style={{ fontSize: "0.75rem", padding: "0.5rem 1rem", flex: 1 }}
+                      >
+                        Check In →
+                      </a>
+                    )}
+                    {booking.status === "CHECKED_IN" && (
+                      <a
+                        href={`/scanner?bookingId=${booking.id}`}
+                        className="btn btn-primary"
+                        style={{ fontSize: "0.75rem", padding: "0.5rem 1rem", flex: 1 }}
+                      >
+                        Check Out →
+                      </a>
+                    )}
                   </div>
                 </div>
               ))
             )}
           </div>
         </section>
+
+        {/* Currently Staying - Guests who need to check out */}
+        {currentlyStaying.length > 0 && (
+          <section style={{ marginBottom: "1.5rem" }}>
+            <h2
+              style={{
+                fontSize: "1.125rem",
+                fontWeight: 600,
+                marginBottom: "1rem",
+                color: "var(--color-text-primary)",
+                display: "flex",
+                alignItems: "center",
+                gap: "0.5rem",
+              }}
+            >
+              🏨 Currently Staying ({currentlyStaying.length})
+            </h2>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+              {currentlyStaying.map((booking) => (
+                <div
+                  key={booking.id}
+                  className="card"
+                  style={{
+                    padding: "1rem",
+                    borderLeft: "4px solid var(--color-success)",
+                  }}
+                >
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "0.75rem" }}>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontWeight: 600, marginBottom: "0.25rem" }}>
+                        {booking.guestName}
+                      </div>
+                      <div style={{ fontSize: "0.875rem", color: "var(--color-text-secondary)" }}>
+                        Room {booking.roomNumber} • Check-out: {booking.checkOut}
+                      </div>
+                    </div>
+                    <span className="badge badge-success" style={{ fontSize: "0.75rem" }}>
+                      Staying
+                    </span>
+                  </div>
+
+                  {/* Payment Status */}
+                  <div style={{
+                    background: "var(--color-bg-secondary)",
+                    padding: "0.75rem",
+                    borderRadius: "0.5rem",
+                    marginBottom: "0.75rem",
+                    fontSize: "0.875rem"
+                  }}>
+                    <div style={{ display: "flex", justifyContent: "space-between" }}>
+                      <span style={{ color: "var(--color-text-secondary)" }}>Total Bill</span>
+                      <span style={{ fontWeight: 600 }}>৳{booking.totalAmount.toLocaleString()}</span>
+                    </div>
+                    {booking.paymentStatus === "PAID" ? (
+                      <div style={{ color: "var(--color-success)", fontWeight: 600, marginTop: "0.25rem" }}>
+                        ✅ Fully Paid
+                      </div>
+                    ) : booking.remainingAmount > 0 && (
+                      <div style={{ display: "flex", justifyContent: "space-between", marginTop: "0.25rem", padding: "0.5rem 0", borderTop: "1px dashed var(--color-border)" }}>
+                        <span style={{ fontWeight: 600, color: "var(--color-warning)" }}>⚠️ Due</span>
+                        <span style={{ fontWeight: 700, color: "var(--color-warning)" }}>৳{booking.remainingAmount.toLocaleString()}</span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Checkout Button */}
+                  <a
+                    href={`/scanner?bookingId=${booking.id}`}
+                    className="btn btn-primary"
+                    style={{ fontSize: "0.875rem", padding: "0.75rem 1rem", width: "100%", textAlign: "center" }}
+                  >
+                    Check Out →
+                  </a>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
 
         <section>
           <h2
