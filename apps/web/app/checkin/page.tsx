@@ -350,13 +350,34 @@ export default function CheckInPage() {
 // Inline QR Scanner Component using html5-qrcode
 function QRScannerComponent({ onScan }: { onScan: (data: string) => void }) {
     const [error, setError] = useState<string | null>(null);
+    const [errorType, setErrorType] = useState<"permission" | "https" | "general">("general");
 
     useEffect(() => {
         let html5QrCode: import("html5-qrcode").Html5Qrcode | null = null;
+        let mounted = true;
 
         const startScanner = async () => {
+            // Check if we're on HTTPS (required for camera on mobile)
+            if (typeof window !== "undefined" &&
+                window.location.protocol !== "https:" &&
+                window.location.hostname !== "localhost") {
+                setError("Camera requires a secure connection (HTTPS). Please access this page via HTTPS.");
+                setErrorType("https");
+                return;
+            }
+
+            // Check if camera is supported
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                setError("Camera is not supported on this browser. Please use a modern browser like Chrome or Safari.");
+                setErrorType("general");
+                return;
+            }
+
             try {
                 const { Html5Qrcode } = await import("html5-qrcode");
+
+                if (!mounted) return;
+
                 html5QrCode = new Html5Qrcode("qr-reader-customer");
 
                 await html5QrCode.start(
@@ -371,15 +392,31 @@ function QRScannerComponent({ onScan }: { onScan: (data: string) => void }) {
                     },
                     () => { } // Ignore errors during scanning
                 );
-            } catch (err) {
+            } catch (err: unknown) {
                 console.error("Scanner error:", err);
-                setError("Could not access camera. Please allow camera permission.");
+
+                const errorMessage = err instanceof Error ? err.message : String(err);
+
+                if (errorMessage.includes("Permission") || errorMessage.includes("NotAllowedError")) {
+                    setError("Camera permission denied. Please allow camera access and try again.");
+                    setErrorType("permission");
+                } else if (errorMessage.includes("NotFoundError") || errorMessage.includes("no camera")) {
+                    setError("No camera found. Please make sure your device has a camera.");
+                    setErrorType("general");
+                } else if (errorMessage.includes("NotReadableError") || errorMessage.includes("streaming")) {
+                    setError("Camera is being used by another application. Please close other apps using the camera.");
+                    setErrorType("general");
+                } else {
+                    setError("Could not start camera. Please check permissions and try again.");
+                    setErrorType("permission");
+                }
             }
         };
 
         startScanner();
 
         return () => {
+            mounted = false;
             html5QrCode?.stop().catch(() => { });
         };
     }, [onScan]);
@@ -390,10 +427,17 @@ function QRScannerComponent({ onScan }: { onScan: (data: string) => void }) {
                 padding: "2rem",
                 textAlign: "center",
                 color: "white",
-                maxWidth: "300px",
+                maxWidth: "320px",
             }}>
-                <div style={{ fontSize: "3rem", marginBottom: "1rem" }}>📷</div>
-                <p>{error}</p>
+                <div style={{ fontSize: "3rem", marginBottom: "1rem" }}>
+                    {errorType === "https" ? "🔒" : errorType === "permission" ? "📷" : "⚠️"}
+                </div>
+                <p style={{ marginBottom: "1rem", lineHeight: 1.5 }}>{error}</p>
+                {errorType === "permission" && (
+                    <p style={{ fontSize: "0.8125rem", opacity: 0.8 }}>
+                        Go to your browser settings → Site Settings → Camera → Allow
+                    </p>
+                )}
             </div>
         );
     }
