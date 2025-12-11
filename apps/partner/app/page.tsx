@@ -216,9 +216,10 @@ export default async function DashboardPage() {
   }
 
   // State 4: Hotel is ACTIVE - Show full dashboard
-  const [stats, upcomingBookings] = await Promise.all([
+  const [stats, upcomingBookings, todaysCheckIns] = await Promise.all([
     getDashboardStats(hotel.id),
     getUpcomingBookings(hotel.id, 5),
+    getTodaysCheckIns(hotel.id),
   ]);
 
   return (
@@ -332,10 +333,10 @@ export default async function DashboardPage() {
                   style={{
                     padding: "1rem",
                     borderLeft: `4px solid ${booking.status === "CHECKED_IN"
-                        ? "var(--color-success)"
-                        : booking.status === "CONFIRMED"
-                          ? "var(--color-primary)"
-                          : "var(--color-warning)"
+                      ? "var(--color-success)"
+                      : booking.status === "CONFIRMED"
+                        ? "var(--color-primary)"
+                        : "var(--color-warning)"
                       }`,
                   }}
                 >
@@ -351,10 +352,10 @@ export default async function DashboardPage() {
                     <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "0.5rem" }}>
                       <span
                         className={`badge ${booking.status === "CHECKED_IN"
-                            ? "badge-success"
-                            : booking.status === "CONFIRMED"
-                              ? "badge-primary"
-                              : "badge-warning"
+                          ? "badge-success"
+                          : booking.status === "CONFIRMED"
+                            ? "badge-primary"
+                            : "badge-warning"
                           }`}
                         style={{ fontSize: "0.75rem" }}
                       >
