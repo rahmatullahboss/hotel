@@ -82,6 +82,10 @@ export interface DashboardStats {
     occupancyRate: number;
     monthlyRevenue: number;
     pendingBookings: number;
+    averageRoomRate: number; // ARR - Average Room Rate
+    totalRooms: number;
+    occupiedRooms: number;
+    confirmedBookingsToday: number;
 }
 
 export interface BookingSummary {
@@ -124,9 +128,25 @@ export async function getDashboardStats(hotelId: string): Promise<DashboardStats
             .from(bookings)
             .where(and(eq(bookings.hotelId, hotelId), eq(bookings.status, "PENDING")));
 
-        // Monthly revenue
-        const revenue = await db
-            .select({ total: sql<string>`COALESCE(SUM(${bookings.netAmount}), '0')` })
+        // Confirmed bookings today (for check-in)
+        const confirmedToday = await db
+            .select({ count: sql<number>`count(*)` })
+            .from(bookings)
+            .where(
+                and(
+                    eq(bookings.hotelId, hotelId),
+                    eq(bookings.checkIn, today),
+                    eq(bookings.status, "CONFIRMED")
+                )
+            );
+
+        // Monthly revenue and booking count for ARR calculation
+        const revenueStats = await db
+            .select({
+                total: sql<string>`COALESCE(SUM(${bookings.netAmount}), '0')`,
+                count: sql<number>`count(*)`,
+                avgPerNight: sql<string>`COALESCE(AVG(${bookings.totalAmount} / NULLIF(${bookings.numberOfNights}, 0)), '0')`,
+            })
             .from(bookings)
             .where(
                 and(
@@ -159,12 +179,19 @@ export async function getDashboardStats(hotelId: string): Promise<DashboardStats
         const occupiedCount = Number(occupiedRooms[0]?.count) || 0;
         const occupancyRate = Math.round((occupiedCount / totalRoomCount) * 100);
 
+        // Calculate ARR (Average Room Rate) from actual bookings
+        const averageRoomRate = Math.round(Number(revenueStats[0]?.avgPerNight) || 0);
+
         return {
             todayCheckIns: Number(checkIns[0]?.count) || 0,
             todayCheckOuts: Number(checkOuts[0]?.count) || 0,
             occupancyRate,
-            monthlyRevenue: Number(revenue[0]?.total) || 0,
+            monthlyRevenue: Number(revenueStats[0]?.total) || 0,
             pendingBookings: Number(pending[0]?.count) || 0,
+            averageRoomRate,
+            totalRooms: totalRoomCount,
+            occupiedRooms: occupiedCount,
+            confirmedBookingsToday: Number(confirmedToday[0]?.count) || 0,
         };
     } catch (error) {
         console.error("Error fetching dashboard stats:", error);
@@ -174,9 +201,14 @@ export async function getDashboardStats(hotelId: string): Promise<DashboardStats
             occupancyRate: 0,
             monthlyRevenue: 0,
             pendingBookings: 0,
+            averageRoomRate: 0,
+            totalRooms: 0,
+            occupiedRooms: 0,
+            confirmedBookingsToday: 0,
         };
     }
 }
+
 
 /**
  * Get upcoming bookings for a hotel

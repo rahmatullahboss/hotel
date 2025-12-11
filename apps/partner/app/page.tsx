@@ -229,7 +229,46 @@ export default async function DashboardPage() {
       </header>
 
       <main style={{ padding: "1rem" }}>
-        {/* Stats Grid */}
+        {/* Stats Grid - Row 1: Revenue & ARR */}
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(2, 1fr)",
+            gap: "1rem",
+            marginBottom: "1rem",
+          }}
+        >
+          <StatCard
+            value={`৳${stats.monthlyRevenue.toLocaleString()}`}
+            label="Monthly Revenue"
+            trend={stats.monthlyRevenue > 0 ? { value: 12, isPositive: true } : undefined}
+          />
+          <StatCard
+            value={`৳${stats.averageRoomRate.toLocaleString()}`}
+            label="Avg Room Rate (ARR)"
+          />
+        </div>
+
+        {/* Stats Grid - Row 2: Check-ins/outs */}
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(2, 1fr)",
+            gap: "1rem",
+            marginBottom: "1rem",
+          }}
+        >
+          <StatCard
+            value={stats.todayCheckIns}
+            label="Today's Check-ins"
+          />
+          <StatCard
+            value={stats.todayCheckOuts}
+            label="Today's Check-outs"
+          />
+        </div>
+
+        {/* Stats Grid - Row 3: Occupancy & Pending */}
         <div
           style={{
             display: "grid",
@@ -239,23 +278,16 @@ export default async function DashboardPage() {
           }}
         >
           <StatCard
-            value={stats.todayCheckIns}
-            label="Today's Check-ins"
-          />
-          <StatCard
-            value={`৳${stats.monthlyRevenue.toLocaleString()}`}
-            label="Monthly Revenue"
-            trend={stats.monthlyRevenue > 0 ? { value: 12, isPositive: true } : undefined}
+            value={`${stats.occupancyRate}%`}
+            label="Occupancy Rate"
+            trend={stats.occupancyRate > 50 ? { value: stats.occupancyRate, isPositive: true } : { value: stats.occupancyRate, isPositive: false }}
           />
           <StatCard
             value={stats.pendingBookings}
             label="Pending Bookings"
           />
-          <StatCard
-            value={`${stats.occupancyRate}%`}
-            label="Occupancy Rate"
-          />
         </div>
+
 
         {/* Upcoming Bookings */}
         <section>
