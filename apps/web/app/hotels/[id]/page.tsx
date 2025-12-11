@@ -347,11 +347,12 @@ export default function HotelDetailPage() {
                 <div
                     style={{
                         position: "fixed",
-                        bottom: "70px", // Above bottom nav
+                        bottom: "80px", // Above bottom nav
                         left: 0,
                         right: 0,
                         background: "white",
                         padding: "1rem",
+                        boxShadow: "0 -4px 12px rgba(0, 0, 0, 0.1)",
                         borderTop: "1px solid var(--color-border)",
                         display: "flex",
                         justifyContent: "space-between",
