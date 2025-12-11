@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { getPartnerHotel, getDashboardStats, getUpcomingBookings, getTodaysCheckIns } from "./actions/dashboard";
-import { BottomNav, ScannerFAB, StatCard, LogoutButton } from "./components";
+import { BottomNav, ScannerFAB, StatCard, LogoutButton, HotelCheckInQR } from "./components";
 import { auth } from "../auth";
 import Link from "next/link";
 
@@ -459,6 +459,21 @@ export default async function DashboardPage() {
               Check-in Guest
             </a>
           </div>
+        </section>
+
+        {/* Guest Self Check-in QR */}
+        <section style={{ marginTop: "1.5rem" }}>
+          <h2
+            style={{
+              fontSize: "1.125rem",
+              fontWeight: 600,
+              marginBottom: "1rem",
+              color: "var(--color-text-primary)",
+            }}
+          >
+            Guest Self Check-in
+          </h2>
+          <HotelCheckInQR hotelId={hotel.id} hotelName={hotel.name} />
         </section>
       </main>
 

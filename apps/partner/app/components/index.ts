@@ -4,3 +4,4 @@ export { StatCard } from "./StatCard";
 export { LogoutButton } from "./LogoutButton";
 export { RoomGrid } from "./RoomGrid";
 export { QRScanner } from "./QRScanner";
+export { HotelCheckInQR } from "./HotelCheckInQR";

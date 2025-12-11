@@ -1,0 +1,126 @@
+"use server";
+
+import { db } from "@repo/db";
+import { bookings, hotels } from "@repo/db/schema";
+import { eq, and, gte, lte } from "drizzle-orm";
+import { revalidatePath } from "next/cache";
+
+/**
+ * Customer self check-in by scanning hotel QR code
+ * Finds the customer's confirmed booking for today and checks them in
+ */
+export async function customerSelfCheckIn(
+    hotelId: string,
+    userId: string
+): Promise<{
+    success: boolean;
+    error?: string;
+    booking?: {
+        id: string;
+        hotelName: string;
+        roomName: string;
+        checkIn: string;
+        checkOut: string;
+    };
+}> {
+    try {
+        const today = new Date().toISOString().split("T")[0]!;
+
+        // Verify hotel exists
+        const hotel = await db.query.hotels.findFirst({
+            where: eq(hotels.id, hotelId),
+        });
+
+        if (!hotel) {
+            return { success: false, error: "Hotel not found" };
+        }
+
+        // Find user's confirmed booking for today at this hotel
+        const booking = await db.query.bookings.findFirst({
+            where: and(
+                eq(bookings.hotelId, hotelId),
+                eq(bookings.userId, userId),
+                eq(bookings.status, "CONFIRMED"),
+                lte(bookings.checkIn, today),
+                gte(bookings.checkOut, today)
+            ),
+            with: {
+                room: true,
+            },
+        });
+
+        if (!booking) {
+            return {
+                success: false,
+                error: "No confirmed booking found for today at this hotel. Please check your booking details."
+            };
+        }
+
+        // Check if already checked in
+        if (booking.status === "CHECKED_IN") {
+            return { success: false, error: "You are already checked in" };
+        }
+
+        // Update booking status to CHECKED_IN
+        await db
+            .update(bookings)
+            .set({
+                status: "CHECKED_IN",
+                updatedAt: new Date(),
+            })
+            .where(eq(bookings.id, booking.id));
+
+        revalidatePath("/bookings");
+
+        return {
+            success: true,
+            booking: {
+                id: booking.id,
+                hotelName: hotel.name,
+                roomName: booking.room?.name || "Room",
+                checkIn: booking.checkIn,
+                checkOut: booking.checkOut,
+            },
+        };
+    } catch (error) {
+        console.error("Error during self check-in:", error);
+        return { success: false, error: "Failed to check in. Please try again." };
+    }
+}
+
+/**
+ * Get hotel check-in QR data
+ * This QR code will be displayed at the hotel for guests to scan
+ */
+export async function getHotelCheckInQR(hotelId: string): Promise<{
+    success: boolean;
+    qrData?: string;
+    hotelName?: string;
+    error?: string;
+}> {
+    try {
+        const hotel = await db.query.hotels.findFirst({
+            where: eq(hotels.id, hotelId),
+        });
+
+        if (!hotel) {
+            return { success: false, error: "Hotel not found" };
+        }
+
+        // QR data contains hotel ID and action type
+        const qrData = JSON.stringify({
+            type: "HOTEL_CHECKIN",
+            hotelId: hotel.id,
+            hotelName: hotel.name,
+        });
+
+        return {
+            success: true,
+            qrData,
+            hotelName: hotel.name,
+        };
+    } catch (error) {
+        console.error("Error generating hotel QR:", error);
+        return { success: false, error: "Failed to generate QR code" };
+    }
+}
