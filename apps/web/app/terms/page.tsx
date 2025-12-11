@@ -130,8 +130,10 @@ export default function TermsPage() {
                         <p style={{ color: "var(--color-text-secondary)", lineHeight: 1.7 }}>
                             If you have any questions about these Terms, please contact us at:
                         </p>
-                        <p style={{ color: "var(--color-primary)", marginTop: "0.5rem" }}>
-                            support@vibehotels.com
+                        <p style={{ marginTop: "0.5rem" }}>
+                            <a href="mailto:rahmatullahzisan@gmail.com" style={{ color: "var(--color-primary)" }}>
+                                rahmatullahzisan@gmail.com
+                            </a>
                         </p>
                     </section>
                 </div>

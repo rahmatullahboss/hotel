@@ -170,7 +170,18 @@ export default function PrivacyPage() {
                             If you have any questions about this Privacy Policy or our data practices, please contact us:
                         </p>
                         <div style={{ marginTop: "1rem", color: "var(--color-text-secondary)" }}>
-                            <p><strong>Email:</strong> <span style={{ color: "var(--color-primary)" }}>privacy@vibehotels.com</span></p>
+                            <p>
+                                <strong>Email:</strong>{" "}
+                                <a href="mailto:rahmatullahzisan@gmail.com" style={{ color: "var(--color-primary)" }}>
+                                    rahmatullahzisan@gmail.com
+                                </a>
+                            </p>
+                            <p style={{ marginTop: "0.5rem" }}>
+                                <strong>Phone:</strong>{" "}
+                                <a href="tel:+8801570260118" style={{ color: "var(--color-primary)" }}>
+                                    01570-260118
+                                </a>
+                            </p>
                             <p style={{ marginTop: "0.5rem" }}><strong>Address:</strong> Dhaka, Bangladesh</p>
                         </div>
                     </section>

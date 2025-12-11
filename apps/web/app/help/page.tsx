@@ -30,29 +30,9 @@ const faqItems = [
     },
 ];
 
-const contactOptions = [
-    {
-        icon: "📧",
-        title: "Email Support",
-        description: "Get help via email",
-        action: "support@vibehotels.com",
-        type: "email",
-    },
-    {
-        icon: "📞",
-        title: "Phone Support",
-        description: "Call us for urgent issues",
-        action: "+880 1XXX-XXXXXX",
-        type: "phone",
-    },
-    {
-        icon: "💬",
-        title: "Live Chat",
-        description: "Chat with our team",
-        action: "Start Chat",
-        type: "chat",
-    },
-];
+const SUPPORT_EMAIL = "rahmatullahzisan@gmail.com";
+const SUPPORT_PHONE = "+8801570260118";
+const SUPPORT_PHONE_DISPLAY = "01570-260118";
 
 export default function HelpPage() {
     return (
@@ -73,45 +53,127 @@ export default function HelpPage() {
                         Contact Us
                     </h2>
                     <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
-                        {contactOptions.map((option) => (
+                        {/* Email Support */}
+                        <a
+                            href={`mailto:${SUPPORT_EMAIL}?subject=Help%20Request%20-%20Vibe%20Hotels`}
+                            className="card"
+                            style={{
+                                padding: "1rem",
+                                display: "flex",
+                                alignItems: "center",
+                                gap: "1rem",
+                                textDecoration: "none",
+                                color: "inherit",
+                            }}
+                        >
                             <div
-                                key={option.title}
-                                className="card"
                                 style={{
-                                    padding: "1rem",
+                                    width: 48,
+                                    height: 48,
+                                    borderRadius: "0.75rem",
+                                    background: "var(--color-bg-secondary)",
                                     display: "flex",
                                     alignItems: "center",
-                                    gap: "1rem",
-                                    cursor: "pointer",
+                                    justifyContent: "center",
+                                    fontSize: "1.5rem",
                                 }}
                             >
-                                <div
-                                    style={{
-                                        width: 48,
-                                        height: 48,
-                                        borderRadius: "0.75rem",
-                                        background: "var(--color-bg-secondary)",
-                                        display: "flex",
-                                        alignItems: "center",
-                                        justifyContent: "center",
-                                        fontSize: "1.5rem",
-                                    }}
-                                >
-                                    {option.icon}
-                                </div>
-                                <div style={{ flex: 1 }}>
-                                    <h3 style={{ fontWeight: 600, marginBottom: "0.25rem" }}>
-                                        {option.title}
-                                    </h3>
-                                    <p style={{ fontSize: "0.875rem", color: "var(--color-text-secondary)" }}>
-                                        {option.description}
-                                    </p>
-                                </div>
-                                <span style={{ color: "var(--color-primary)", fontWeight: 500 }}>
-                                    {option.type === "email" ? "→" : option.type === "phone" ? "📱" : "💬"}
-                                </span>
+                                📧
                             </div>
-                        ))}
+                            <div style={{ flex: 1 }}>
+                                <h3 style={{ fontWeight: 600, marginBottom: "0.25rem" }}>
+                                    Email Support
+                                </h3>
+                                <p style={{ fontSize: "0.875rem", color: "var(--color-text-secondary)" }}>
+                                    {SUPPORT_EMAIL}
+                                </p>
+                            </div>
+                            <span style={{ color: "var(--color-primary)", fontWeight: 500 }}>
+                                →
+                            </span>
+                        </a>
+
+                        {/* Phone Support */}
+                        <a
+                            href={`tel:${SUPPORT_PHONE}`}
+                            className="card"
+                            style={{
+                                padding: "1rem",
+                                display: "flex",
+                                alignItems: "center",
+                                gap: "1rem",
+                                textDecoration: "none",
+                                color: "inherit",
+                            }}
+                        >
+                            <div
+                                style={{
+                                    width: 48,
+                                    height: 48,
+                                    borderRadius: "0.75rem",
+                                    background: "var(--color-bg-secondary)",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    fontSize: "1.5rem",
+                                }}
+                            >
+                                📞
+                            </div>
+                            <div style={{ flex: 1 }}>
+                                <h3 style={{ fontWeight: 600, marginBottom: "0.25rem" }}>
+                                    Phone Support
+                                </h3>
+                                <p style={{ fontSize: "0.875rem", color: "var(--color-text-secondary)" }}>
+                                    {SUPPORT_PHONE_DISPLAY}
+                                </p>
+                            </div>
+                            <span style={{ color: "var(--color-primary)", fontWeight: 500 }}>
+                                📱
+                            </span>
+                        </a>
+
+                        {/* WhatsApp Support */}
+                        <a
+                            href={`https://wa.me/8801570260118?text=Hello%2C%20I%20need%20help%20with%20Vibe%20Hotels`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="card"
+                            style={{
+                                padding: "1rem",
+                                display: "flex",
+                                alignItems: "center",
+                                gap: "1rem",
+                                textDecoration: "none",
+                                color: "inherit",
+                            }}
+                        >
+                            <div
+                                style={{
+                                    width: 48,
+                                    height: 48,
+                                    borderRadius: "0.75rem",
+                                    background: "#25D366",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    fontSize: "1.5rem",
+                                }}
+                            >
+                                💬
+                            </div>
+                            <div style={{ flex: 1 }}>
+                                <h3 style={{ fontWeight: 600, marginBottom: "0.25rem" }}>
+                                    WhatsApp
+                                </h3>
+                                <p style={{ fontSize: "0.875rem", color: "var(--color-text-secondary)" }}>
+                                    Chat with us instantly
+                                </p>
+                            </div>
+                            <span style={{ color: "var(--color-primary)", fontWeight: 500 }}>
+                                →
+                            </span>
+                        </a>
                     </div>
                 </section>
 
