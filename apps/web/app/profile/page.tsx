@@ -34,7 +34,7 @@ export default async function ProfilePage() {
 
     return (
         <>
-            <main className="container" style={{ padding: "1rem", paddingTop: "2rem", paddingBottom: "100px" }}>
+            <main className="container" style={{ padding: "1rem", paddingTop: "2rem" }}>
                 {/* Profile Header */}
                 <div className="card" style={{ padding: "1.5rem", marginBottom: "1.5rem" }}>
                     <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
