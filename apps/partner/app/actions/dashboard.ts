@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "@repo/db";
-import { bookings, rooms, hotels, loyaltyPoints } from "@repo/db/schema";
+import { bookings, rooms, hotels, loyaltyPoints, activityLog } from "@repo/db/schema";
 import { eq, and, desc, sql, gte, lte } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { auth } from "../../auth";
@@ -284,6 +284,7 @@ export async function checkInGuest(
     hotelId: string
 ): Promise<{ success: boolean; error?: string }> {
     try {
+        const session = await auth();
         const booking = await db.query.bookings.findFirst({
             where: and(eq(bookings.id, bookingId), eq(bookings.hotelId, hotelId)),
         });
@@ -296,10 +297,28 @@ export async function checkInGuest(
             return { success: false, error: "Booking must be confirmed first" };
         }
 
+        // Update booking status
         await db
             .update(bookings)
-            .set({ status: "CHECKED_IN" })
+            .set({
+                status: "CHECKED_IN",
+                updatedAt: new Date(),
+            })
             .where(eq(bookings.id, bookingId));
+
+        // Log activity
+        await db.insert(activityLog).values({
+            type: "CHECK_IN",
+            actorId: session?.user?.id,
+            hotelId: hotelId,
+            bookingId: bookingId,
+            description: `Guest ${booking.guestName} checked in`,
+            metadata: {
+                guestName: booking.guestName,
+                roomId: booking.roomId,
+                checkInDate: booking.checkIn,
+            },
+        });
 
         revalidatePath("/");
         revalidatePath("/scanner");
@@ -318,6 +337,7 @@ export async function checkOutGuest(
     hotelId: string
 ): Promise<{ success: boolean; error?: string }> {
     try {
+        const session = await auth();
         const booking = await db.query.bookings.findFirst({
             where: and(eq(bookings.id, bookingId), eq(bookings.hotelId, hotelId)),
         });
@@ -330,17 +350,22 @@ export async function checkOutGuest(
             return { success: false, error: "Guest must be checked in first" };
         }
 
+        // Update booking status
         await db
             .update(bookings)
-            .set({ status: "CHECKED_OUT" })
+            .set({
+                status: "CHECKED_OUT",
+                updatedAt: new Date(),
+            })
             .where(eq(bookings.id, bookingId));
 
         // Award loyalty points to customer if they have an account
         // 1 point per ৳10 spent + bonus 50 points for platform booking
+        let pointsAwarded = 0;
         if (booking.userId) {
             const basePoints = Math.floor(Number(booking.totalAmount) / 10);
             const bonusPoints = booking.bookingSource === "PLATFORM" ? 50 : 0;
-            const pointsToAward = basePoints + bonusPoints;
+            pointsAwarded = basePoints + bonusPoints;
 
             // Get or create loyalty record
             let loyalty = await db.query.loyaltyPoints.findFirst({
@@ -356,8 +381,8 @@ export async function checkOutGuest(
             }
 
             // Calculate new points and tier
-            const newPoints = (loyalty?.points || 0) + pointsToAward;
-            const newLifetime = (loyalty?.lifetimePoints || 0) + pointsToAward;
+            const newPoints = (loyalty?.points || 0) + pointsAwarded;
+            const newLifetime = (loyalty?.lifetimePoints || 0) + pointsAwarded;
 
             let newTier: "BRONZE" | "SILVER" | "GOLD" | "PLATINUM" = "BRONZE";
             if (newLifetime >= 10000) newTier = "PLATINUM";
@@ -374,6 +399,22 @@ export async function checkOutGuest(
                 })
                 .where(eq(loyaltyPoints.userId, booking.userId));
         }
+
+        // Log activity
+        await db.insert(activityLog).values({
+            type: "CHECK_OUT",
+            actorId: session?.user?.id,
+            hotelId: hotelId,
+            bookingId: bookingId,
+            description: `Guest ${booking.guestName} checked out`,
+            metadata: {
+                guestName: booking.guestName,
+                roomId: booking.roomId,
+                checkOutDate: booking.checkOut,
+                totalAmount: Number(booking.totalAmount),
+                pointsAwarded,
+            },
+        });
 
         revalidatePath("/");
         return { success: true };

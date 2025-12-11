@@ -101,8 +101,12 @@ export async function createBooking(input: CreateBookingInput): Promise<BookingR
         const checkOutDate = new Date(checkOut);
         const nights = Math.ceil((checkOutDate.getTime() - checkInDate.getTime()) / (1000 * 60 * 60 * 24));
 
-        // Create booking
+        // Create booking with QR code
+        const bookingId = crypto.randomUUID();
+        const qrCodeData = JSON.stringify({ bookingId, hotelId, roomId });
+
         const [booking] = await db.insert(bookings).values({
+            id: bookingId,
             hotelId,
             roomId,
             userId: userId ?? undefined,
@@ -120,6 +124,7 @@ export async function createBooking(input: CreateBookingInput): Promise<BookingR
             paymentMethod,
             paymentStatus: paymentMethod === "PAY_AT_HOTEL" ? "PAY_AT_HOTEL" : "PENDING",
             status: "PENDING",
+            qrCode: qrCodeData,
         }).returning();
 
         // Record wallet transaction if fee was paid

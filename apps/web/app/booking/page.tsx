@@ -6,6 +6,7 @@ import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { createBooking } from "../actions/bookings";
 import { getUserProfile } from "../actions/profile";
+import { BookingQRCode } from "../components";
 
 type PaymentMethod = "BKASH" | "NAGAD" | "CARD" | "PAY_AT_HOTEL";
 
@@ -423,6 +424,11 @@ function BookingContent() {
                         <p style={{ color: "var(--color-text-secondary)", marginBottom: "1.5rem" }}>
                             Your booking has been successfully created.
                         </p>
+
+                        {/* QR Code for check-in */}
+                        <div style={{ marginBottom: "1.5rem" }}>
+                            <BookingQRCode bookingId={bookingId} size={180} />
+                        </div>
 
                         <div
                             style={{

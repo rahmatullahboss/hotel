@@ -2,8 +2,8 @@
 
 import { useState, useTransition, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { BottomNav } from "../components";
-import { findBookingById, checkInGuest, getPartnerHotel } from "../actions/dashboard";
+import { BottomNav, QRScanner } from "../components";
+import { findBookingById, checkInGuest, checkOutGuest, getPartnerHotel } from "../actions/dashboard";
 
 interface BookingResult {
     id: string;
@@ -15,6 +15,8 @@ interface BookingResult {
     checkOut: string;
     status: string;
     totalAmount: number;
+    paymentStatus?: string;
+    numberOfNights?: number;
 }
 
 export default function ScannerPage() {
@@ -28,7 +30,7 @@ export default function ScannerPage() {
         message: string;
         booking?: BookingResult;
     } | null>(null);
-    const [checkInDone, setCheckInDone] = useState(false);
+    const [actionDone, setActionDone] = useState(false);
 
     // Get hotel ID on mount
     useEffect(() => {
@@ -41,20 +43,41 @@ export default function ScannerPage() {
         });
     }, [router]);
 
-    const handleManualSearch = async (e: React.FormEvent) => {
-        e.preventDefault();
+    const handleQRScan = (decodedText: string) => {
+        setIsScanning(false);
 
-        if (!bookingId.trim() || !hotelId) return;
+        // Try to extract booking ID from QR code
+        // QR code format: JSON with bookingId, or just the booking ID string
+        let extractedBookingId = decodedText;
+
+        try {
+            const parsed = JSON.parse(decodedText);
+            if (parsed.bookingId) {
+                extractedBookingId = parsed.bookingId;
+            }
+        } catch {
+            // Not JSON, use as-is (might be just the booking ID)
+        }
+
+        setBookingId(extractedBookingId);
+        // Automatically search for the booking
+        handleSearch(extractedBookingId);
+    };
+
+    const handleSearch = async (searchId?: string) => {
+        const idToSearch = searchId || bookingId.trim();
+        if (!idToSearch || !hotelId) return;
 
         startTransition(async () => {
-            const response = await findBookingById(bookingId.trim(), hotelId);
+            const response = await findBookingById(idToSearch, hotelId);
 
             if (response.success && response.booking) {
                 setResult({
                     success: true,
-                    message: "Guest found! Ready to check in.",
-                    booking: response.booking,
+                    message: "Booking found!",
+                    booking: response.booking as BookingResult,
                 });
+                setActionDone(false);
             } else {
                 setResult({
                     success: false,
@@ -64,14 +87,30 @@ export default function ScannerPage() {
         });
     };
 
+    const handleManualSearch = async (e: React.FormEvent) => {
+        e.preventDefault();
+        handleSearch();
+    };
+
     const handleCheckIn = async () => {
         if (!result?.booking || !hotelId) return;
+
+        // Validate check-in date
+        const today = new Date().toISOString().split("T")[0]!;
+        if (result.booking.checkIn > today) {
+            setResult({
+                ...result,
+                success: false,
+                message: `Check-in is not available yet. Scheduled for ${result.booking.checkIn}`,
+            });
+            return;
+        }
 
         startTransition(async () => {
             const response = await checkInGuest(result.booking!.id, hotelId);
 
             if (response.success) {
-                setCheckInDone(true);
+                setActionDone(true);
                 setResult({
                     success: true,
                     message: "✓ Guest checked in successfully!",
@@ -89,180 +128,344 @@ export default function ScannerPage() {
         });
     };
 
+    const handleCheckOut = async () => {
+        if (!result?.booking || !hotelId) return;
+
+        startTransition(async () => {
+            const response = await checkOutGuest(result.booking!.id, hotelId);
+
+            if (response.success) {
+                setActionDone(true);
+                setResult({
+                    success: true,
+                    message: "✓ Guest checked out successfully! Loyalty points awarded.",
+                });
+                setTimeout(() => {
+                    router.push("/");
+                }, 2000);
+            } else {
+                setResult({
+                    success: false,
+                    message: response.error || "Failed to check out guest",
+                    booking: result.booking,
+                });
+            }
+        });
+    };
+
+    const resetSearch = () => {
+        setResult(null);
+        setBookingId("");
+        setActionDone(false);
+    };
+
+    const formatDate = (dateStr: string) => {
+        return new Date(dateStr).toLocaleDateString("en-US", {
+            weekday: "short",
+            month: "short",
+            day: "numeric",
+        });
+    };
+
+    const getStatusBadge = (status: string) => {
+        const styles: Record<string, { class: string; label: string }> = {
+            PENDING: { class: "badge-warning", label: "Pending" },
+            CONFIRMED: { class: "badge-success", label: "Ready for Check-in" },
+            CHECKED_IN: { class: "badge-primary", label: "Currently Staying" },
+            CHECKED_OUT: { class: "badge-secondary", label: "Completed" },
+            CANCELLED: { class: "badge-error", label: "Cancelled" },
+        };
+        return styles[status] || { class: "badge-secondary", label: status };
+    };
+
     return (
         <>
+            {/* QR Scanner Modal */}
+            {isScanning && (
+                <QRScanner
+                    onScanSuccess={handleQRScan}
+                    onScanError={(err) => {
+                        setResult({
+                            success: false,
+                            message: `Camera error: ${err}`,
+                        });
+                    }}
+                    onClose={() => setIsScanning(false)}
+                />
+            )}
+
             {/* Header */}
             <header className="page-header">
-                <h1 className="page-title">Check-in Guest</h1>
+                <h1 className="page-title">Guest Check-in / Check-out</h1>
                 <p style={{ color: "var(--color-text-secondary)", fontSize: "0.875rem" }}>
                     Scan QR code or enter booking ID
                 </p>
             </header>
 
             <main style={{ padding: "1rem" }}>
-                {/* Camera Scanner Area */}
-                <div
-                    className="card"
-                    style={{
-                        aspectRatio: "1",
-                        maxWidth: "320px",
-                        margin: "0 auto 1.5rem",
-                        display: "flex",
-                        flexDirection: "column",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        backgroundColor: isScanning ? "#000" : "var(--color-bg-secondary)",
-                    }}
-                >
-                    {isScanning ? (
-                        <div style={{ color: "white", textAlign: "center" }}>
-                            <div style={{ fontSize: "3rem", marginBottom: "1rem" }}>📷</div>
-                            <p>Point camera at QR code</p>
-                            <button
-                                className="btn btn-outline"
-                                style={{ marginTop: "1rem", color: "white", borderColor: "white" }}
-                                onClick={() => setIsScanning(false)}
-                            >
-                                Cancel
-                            </button>
-                        </div>
-                    ) : (
-                        <>
-                            <div style={{ fontSize: "4rem", marginBottom: "1rem" }}>📲</div>
-                            <button
-                                className="btn btn-primary"
-                                onClick={() => setIsScanning(true)}
-                            >
-                                Start QR Scanner
-                            </button>
-                        </>
-                    )}
-                </div>
-
-                {/* Divider */}
-                <div
-                    style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "1rem",
-                        marginBottom: "1.5rem",
-                    }}
-                >
-                    <div
-                        style={{ flex: 1, height: "1px", backgroundColor: "var(--color-border)" }}
-                    />
-                    <span style={{ color: "var(--color-text-muted)", fontSize: "0.875rem" }}>
-                        or
-                    </span>
-                    <div
-                        style={{ flex: 1, height: "1px", backgroundColor: "var(--color-border)" }}
-                    />
-                </div>
-
-                {/* Manual Entry */}
-                <form onSubmit={handleManualSearch}>
-                    <label
-                        htmlFor="bookingId"
-                        style={{
-                            display: "block",
-                            fontWeight: 600,
-                            marginBottom: "0.5rem",
-                        }}
-                    >
-                        Enter Booking ID
-                    </label>
-                    <div style={{ display: "flex", gap: "0.75rem" }}>
-                        <input
-                            id="bookingId"
-                            type="text"
-                            value={bookingId}
-                            onChange={(e) => setBookingId(e.target.value)}
-                            placeholder="Enter booking ID or UUID"
+                {!result ? (
+                    <>
+                        {/* Scan QR Button */}
+                        <div
+                            className="card"
                             style={{
-                                flex: 1,
-                                padding: "0.75rem 1rem",
-                                fontSize: "1rem",
-                                border: "2px solid var(--color-border)",
-                                borderRadius: "0.5rem",
-                                outline: "none",
+                                padding: "2rem",
+                                textAlign: "center",
+                                marginBottom: "1.5rem",
+                                background: "linear-gradient(135deg, var(--color-primary) 0%, var(--color-accent) 100%)",
+                                color: "white",
                             }}
-                        />
-                        <button
-                            type="submit"
-                            className="btn btn-primary"
-                            disabled={isPending || !hotelId}
                         >
-                            {isPending ? "..." : "Search"}
-                        </button>
-                    </div>
-                </form>
-
-                {/* Result Card */}
-                {result && (
-                    <div
-                        className="card"
-                        style={{
-                            marginTop: "1.5rem",
-                            padding: "1.5rem",
-                            borderColor: result.success
-                                ? "var(--color-success)"
-                                : "var(--color-error)",
-                        }}
-                    >
-                        {result.booking && !checkInDone ? (
-                            <>
-                                <div
-                                    style={{
-                                        display: "flex",
-                                        justifyContent: "space-between",
-                                        alignItems: "center",
-                                        marginBottom: "1rem",
-                                    }}
-                                >
-                                    <div>
-                                        <div style={{ fontWeight: 700, fontSize: "1.25rem" }}>
-                                            {result.booking.guestName}
-                                        </div>
-                                        <div style={{ color: "var(--color-text-secondary)" }}>
-                                            Room {result.booking.roomNumber} • {result.booking.roomName}
-                                        </div>
-                                        <div style={{ fontSize: "0.875rem", color: "var(--color-text-muted)", marginTop: "0.5rem" }}>
-                                            Check-in: {result.booking.checkIn} • Check-out: {result.booking.checkOut}
-                                        </div>
-                                    </div>
-                                    <span className={`badge ${result.booking.status === "CONFIRMED" ? "badge-success" : "badge-warning"}`}>
-                                        {result.booking.status}
-                                    </span>
-                                </div>
-                                {result.booking.status === "CONFIRMED" ? (
-                                    <button
-                                        className="btn btn-accent"
-                                        style={{ width: "100%" }}
-                                        onClick={handleCheckIn}
-                                        disabled={isPending}
-                                    >
-                                        {isPending ? "Processing..." : "✓ Check In Guest"}
-                                    </button>
-                                ) : result.booking.status === "CHECKED_IN" ? (
-                                    <div style={{ textAlign: "center", color: "var(--color-success)", fontWeight: 600 }}>
-                                        Guest is already checked in
-                                    </div>
-                                ) : (
-                                    <div style={{ textAlign: "center", color: "var(--color-warning)", fontWeight: 600 }}>
-                                        Booking must be confirmed before check-in
-                                    </div>
-                                )}
-                            </>
-                        ) : (
-                            <div
+                            <div style={{ fontSize: "3rem", marginBottom: "1rem" }}>📱</div>
+                            <h3 style={{ fontWeight: 600, marginBottom: "0.5rem" }}>Quick Scan</h3>
+                            <p style={{ opacity: 0.9, marginBottom: "1rem", fontSize: "0.875rem" }}>
+                                Scan guest&apos;s booking QR code
+                            </p>
+                            <button
+                                className="btn"
+                                onClick={() => setIsScanning(true)}
+                                disabled={!hotelId}
                                 style={{
-                                    textAlign: "center",
-                                    color: result.success ? "var(--color-success)" : "var(--color-error)",
-                                    fontSize: "1.25rem",
+                                    backgroundColor: "white",
+                                    color: "var(--color-primary)",
                                     fontWeight: 600,
                                 }}
                             >
-                                {result.message}
+                                📷 Open Scanner
+                            </button>
+                        </div>
+
+                        {/* Divider */}
+                        <div
+                            style={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: "1rem",
+                                marginBottom: "1.5rem",
+                            }}
+                        >
+                            <div style={{ flex: 1, height: "1px", backgroundColor: "var(--color-border)" }} />
+                            <span style={{ color: "var(--color-text-muted)", fontSize: "0.875rem" }}>
+                                or enter manually
+                            </span>
+                            <div style={{ flex: 1, height: "1px", backgroundColor: "var(--color-border)" }} />
+                        </div>
+
+                        {/* Manual Entry */}
+                        <form onSubmit={handleManualSearch}>
+                            <label
+                                htmlFor="bookingId"
+                                style={{
+                                    display: "block",
+                                    fontWeight: 600,
+                                    marginBottom: "0.5rem",
+                                }}
+                            >
+                                Booking ID
+                            </label>
+                            <div style={{ display: "flex", gap: "0.75rem" }}>
+                                <input
+                                    id="bookingId"
+                                    type="text"
+                                    value={bookingId}
+                                    onChange={(e) => setBookingId(e.target.value)}
+                                    placeholder="Enter booking ID"
+                                    style={{
+                                        flex: 1,
+                                        padding: "0.75rem 1rem",
+                                        fontSize: "1rem",
+                                        border: "2px solid var(--color-border)",
+                                        borderRadius: "0.5rem",
+                                        outline: "none",
+                                    }}
+                                />
+                                <button
+                                    type="submit"
+                                    className="btn btn-primary"
+                                    disabled={isPending || !hotelId || !bookingId.trim()}
+                                >
+                                    {isPending ? "..." : "Search"}
+                                </button>
+                            </div>
+                        </form>
+                    </>
+                ) : (
+                    /* Result Card */
+                    <div
+                        className="card"
+                        style={{
+                            padding: "1.5rem",
+                            borderLeft: `4px solid ${result.success ? "var(--color-success)" : "var(--color-error)"}`,
+                        }}
+                    >
+                        {result.booking && !actionDone ? (
+                            <>
+                                {/* Guest Info */}
+                                <div style={{ marginBottom: "1.5rem" }}>
+                                    <div
+                                        style={{
+                                            display: "flex",
+                                            justifyContent: "space-between",
+                                            alignItems: "flex-start",
+                                            marginBottom: "1rem",
+                                        }}
+                                    >
+                                        <div>
+                                            <div style={{ fontWeight: 700, fontSize: "1.25rem" }}>
+                                                {result.booking.guestName}
+                                            </div>
+                                            <div style={{ color: "var(--color-text-secondary)", fontSize: "0.875rem" }}>
+                                                📞 {result.booking.guestPhone}
+                                            </div>
+                                        </div>
+                                        <span className={`badge ${getStatusBadge(result.booking.status).class}`}>
+                                            {getStatusBadge(result.booking.status).label}
+                                        </span>
+                                    </div>
+
+                                    {/* Room Info */}
+                                    <div
+                                        style={{
+                                            background: "var(--color-bg-secondary)",
+                                            padding: "1rem",
+                                            borderRadius: "0.5rem",
+                                            marginBottom: "1rem",
+                                        }}
+                                    >
+                                        <div style={{ fontWeight: 600, marginBottom: "0.5rem" }}>
+                                            🏨 Room {result.booking.roomNumber} - {result.booking.roomName}
+                                        </div>
+                                        <div style={{ fontSize: "0.875rem", color: "var(--color-text-secondary)" }}>
+                                            📅 {formatDate(result.booking.checkIn)} → {formatDate(result.booking.checkOut)}
+                                        </div>
+                                    </div>
+
+                                    {/* Amount */}
+                                    <div
+                                        style={{
+                                            display: "flex",
+                                            justifyContent: "space-between",
+                                            alignItems: "center",
+                                            padding: "0.75rem 0",
+                                            borderTop: "1px solid var(--color-border)",
+                                        }}
+                                    >
+                                        <span style={{ color: "var(--color-text-secondary)" }}>Total Amount</span>
+                                        <span style={{ fontWeight: 700, fontSize: "1.125rem" }}>
+                                            ৳{result.booking.totalAmount.toLocaleString()}
+                                        </span>
+                                    </div>
+                                </div>
+
+                                {/* Action Buttons */}
+                                <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+                                    {result.booking.status === "CONFIRMED" && (
+                                        <button
+                                            className="btn btn-accent"
+                                            style={{ width: "100%", padding: "1rem" }}
+                                            onClick={handleCheckIn}
+                                            disabled={isPending}
+                                        >
+                                            {isPending ? "Processing..." : "✓ Check In Guest"}
+                                        </button>
+                                    )}
+
+                                    {result.booking.status === "CHECKED_IN" && (
+                                        <button
+                                            className="btn btn-primary"
+                                            style={{ width: "100%", padding: "1rem" }}
+                                            onClick={handleCheckOut}
+                                            disabled={isPending}
+                                        >
+                                            {isPending ? "Processing..." : "✓ Check Out Guest"}
+                                        </button>
+                                    )}
+
+                                    {result.booking.status === "PENDING" && (
+                                        <div
+                                            style={{
+                                                textAlign: "center",
+                                                padding: "1rem",
+                                                backgroundColor: "rgba(233, 196, 106, 0.1)",
+                                                borderRadius: "0.5rem",
+                                                color: "var(--color-warning)",
+                                            }}
+                                        >
+                                            ⚠️ Booking is pending confirmation
+                                        </div>
+                                    )}
+
+                                    {result.booking.status === "CHECKED_OUT" && (
+                                        <div
+                                            style={{
+                                                textAlign: "center",
+                                                padding: "1rem",
+                                                backgroundColor: "rgba(42, 157, 143, 0.1)",
+                                                borderRadius: "0.5rem",
+                                                color: "var(--color-success)",
+                                            }}
+                                        >
+                                            ✓ Guest has already checked out
+                                        </div>
+                                    )}
+
+                                    {result.booking.status === "CANCELLED" && (
+                                        <div
+                                            style={{
+                                                textAlign: "center",
+                                                padding: "1rem",
+                                                backgroundColor: "rgba(208, 0, 0, 0.1)",
+                                                borderRadius: "0.5rem",
+                                                color: "var(--color-error)",
+                                            }}
+                                        >
+                                            ✕ This booking was cancelled
+                                        </div>
+                                    )}
+
+                                    <button
+                                        className="btn btn-outline"
+                                        style={{ width: "100%" }}
+                                        onClick={resetSearch}
+                                    >
+                                        Search Another
+                                    </button>
+                                </div>
+                            </>
+                        ) : (
+                            /* Success/Error Message */
+                            <div
+                                style={{
+                                    textAlign: "center",
+                                    padding: "1.5rem 0",
+                                }}
+                            >
+                                <div
+                                    style={{
+                                        fontSize: "3rem",
+                                        marginBottom: "1rem",
+                                    }}
+                                >
+                                    {result.success ? "✅" : "❌"}
+                                </div>
+                                <div
+                                    style={{
+                                        fontSize: "1.125rem",
+                                        fontWeight: 600,
+                                        color: result.success ? "var(--color-success)" : "var(--color-error)",
+                                        marginBottom: "1rem",
+                                    }}
+                                >
+                                    {result.message}
+                                </div>
+                                {!actionDone && (
+                                    <button
+                                        className="btn btn-primary"
+                                        onClick={resetSearch}
+                                    >
+                                        Try Again
+                                    </button>
+                                )}
                             </div>
                         )}
                     </div>
