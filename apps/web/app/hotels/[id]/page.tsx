@@ -324,7 +324,7 @@ export default function HotelDetailPage() {
                 </div>
 
                 {/* Policies */}
-                <div className="card" style={{ padding: "1rem", marginBottom: "6rem" }}>
+                <div className="card" style={{ padding: "1rem", marginBottom: "160px" }}>
                     <h2 style={{ fontSize: "1rem", fontWeight: 600, marginBottom: "0.75rem" }}>
                         Hotel Policies
                     </h2>
