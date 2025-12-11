@@ -642,6 +642,13 @@ export default function RoomsManagementClient({ hotelId, rooms: initialRooms }: 
                                         </div>
                                     </div>
                                     <div style={{ display: "flex", gap: "0.5rem" }}>
+                                        <button
+                                            onClick={() => setEditingRoom(room)}
+                                            disabled={isPending}
+                                            className="btn btn-sm btn-primary"
+                                        >
+                                            ✏️ Edit
+                                        </button>
                                         {hasRemovalRequest ? (
                                             <button
                                                 onClick={() => handleCancelRequest(room.id)}
@@ -680,6 +687,311 @@ export default function RoomsManagementClient({ hotelId, rooms: initialRooms }: 
                     ← Back to Inventory
                 </Link>
             </main>
+
+            {/* Edit Room Modal */}
+            {editingRoom && (
+                <div
+                    style={{
+                        position: "fixed",
+                        inset: 0,
+                        background: "rgba(0,0,0,0.5)",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        padding: "1rem",
+                        zIndex: 1000,
+                    }}
+                    onClick={() => setEditingRoom(null)}
+                >
+                    <div
+                        className="card"
+                        style={{
+                            width: "100%",
+                            maxWidth: "500px",
+                            maxHeight: "90vh",
+                            overflow: "auto",
+                            padding: "1.5rem",
+                        }}
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
+                            <h2 style={{ fontSize: "1.25rem", fontWeight: 600 }}>
+                                Edit Room #{editingRoom.roomNumber}
+                            </h2>
+                            <button
+                                onClick={() => setEditingRoom(null)}
+                                style={{
+                                    background: "none",
+                                    border: "none",
+                                    fontSize: "1.5rem",
+                                    cursor: "pointer",
+                                    color: "var(--color-text-secondary)",
+                                }}
+                            >
+                                ×
+                            </button>
+                        </div>
+
+                        <form onSubmit={handleEditRoom}>
+                            <div style={{ display: "grid", gap: "1rem", gridTemplateColumns: "1fr 1fr" }}>
+                                {/* Room Number */}
+                                <div>
+                                    <label style={{ display: "block", marginBottom: "0.25rem", fontSize: "0.875rem", fontWeight: 500 }}>
+                                        Room Number *
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={editRoomNumber}
+                                        onChange={(e) => setEditRoomNumber(e.target.value)}
+                                        required
+                                        style={{
+                                            width: "100%",
+                                            padding: "0.5rem 0.75rem",
+                                            border: "1px solid var(--color-border)",
+                                            borderRadius: "0.375rem",
+                                            fontSize: "0.875rem"
+                                        }}
+                                    />
+                                </div>
+
+                                {/* Room Name */}
+                                <div>
+                                    <label style={{ display: "block", marginBottom: "0.25rem", fontSize: "0.875rem", fontWeight: 500 }}>
+                                        Room Name *
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={editRoomName}
+                                        onChange={(e) => setEditRoomName(e.target.value)}
+                                        required
+                                        style={{
+                                            width: "100%",
+                                            padding: "0.5rem 0.75rem",
+                                            border: "1px solid var(--color-border)",
+                                            borderRadius: "0.375rem",
+                                            fontSize: "0.875rem"
+                                        }}
+                                    />
+                                </div>
+
+                                {/* Room Type */}
+                                <div>
+                                    <label style={{ display: "block", marginBottom: "0.25rem", fontSize: "0.875rem", fontWeight: 500 }}>
+                                        Room Type *
+                                    </label>
+                                    <select
+                                        value={editRoomType}
+                                        onChange={(e) => setEditRoomType(e.target.value as NewRoomInput["type"])}
+                                        style={{
+                                            width: "100%",
+                                            padding: "0.5rem 0.75rem",
+                                            border: "1px solid var(--color-border)",
+                                            borderRadius: "0.375rem",
+                                            fontSize: "0.875rem",
+                                            background: "white"
+                                        }}
+                                    >
+                                        {ROOM_TYPES.map((type) => (
+                                            <option key={type.value} value={type.value}>
+                                                {type.label}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+
+                                {/* Base Price */}
+                                <div>
+                                    <label style={{ display: "block", marginBottom: "0.25rem", fontSize: "0.875rem", fontWeight: 500 }}>
+                                        Base Price (BDT) *
+                                    </label>
+                                    <input
+                                        type="number"
+                                        value={editBasePrice}
+                                        onChange={(e) => setEditBasePrice(e.target.value)}
+                                        required
+                                        min="0"
+                                        style={{
+                                            width: "100%",
+                                            padding: "0.5rem 0.75rem",
+                                            border: "1px solid var(--color-border)",
+                                            borderRadius: "0.375rem",
+                                            fontSize: "0.875rem"
+                                        }}
+                                    />
+                                </div>
+
+                                {/* Max Guests */}
+                                <div>
+                                    <label style={{ display: "block", marginBottom: "0.25rem", fontSize: "0.875rem", fontWeight: 500 }}>
+                                        Max Guests
+                                    </label>
+                                    <input
+                                        type="number"
+                                        value={editMaxGuests}
+                                        onChange={(e) => setEditMaxGuests(e.target.value)}
+                                        min="1"
+                                        max="10"
+                                        style={{
+                                            width: "100%",
+                                            padding: "0.5rem 0.75rem",
+                                            border: "1px solid var(--color-border)",
+                                            borderRadius: "0.375rem",
+                                            fontSize: "0.875rem"
+                                        }}
+                                    />
+                                </div>
+                            </div>
+
+                            {/* Description */}
+                            <div style={{ marginTop: "1rem" }}>
+                                <label style={{ display: "block", marginBottom: "0.25rem", fontSize: "0.875rem", fontWeight: 500 }}>
+                                    Description
+                                </label>
+                                <textarea
+                                    value={editDescription}
+                                    onChange={(e) => setEditDescription(e.target.value)}
+                                    rows={2}
+                                    style={{
+                                        width: "100%",
+                                        padding: "0.5rem 0.75rem",
+                                        border: "1px solid var(--color-border)",
+                                        borderRadius: "0.375rem",
+                                        fontSize: "0.875rem",
+                                        resize: "vertical"
+                                    }}
+                                />
+                            </div>
+
+                            {/* Amenities */}
+                            <div style={{ marginTop: "1rem" }}>
+                                <label style={{ display: "block", marginBottom: "0.5rem", fontSize: "0.875rem", fontWeight: 500 }}>
+                                    Amenities
+                                </label>
+                                <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem" }}>
+                                    {ROOM_AMENITIES.map((amenity) => (
+                                        <button
+                                            key={amenity}
+                                            type="button"
+                                            onClick={() => toggleEditAmenity(amenity)}
+                                            style={{
+                                                padding: "0.375rem 0.75rem",
+                                                borderRadius: "9999px",
+                                                fontSize: "0.75rem",
+                                                border: "1px solid",
+                                                cursor: "pointer",
+                                                ...(editAmenities.includes(amenity)
+                                                    ? {
+                                                        background: "var(--color-primary)",
+                                                        color: "white",
+                                                        borderColor: "var(--color-primary)",
+                                                    }
+                                                    : {
+                                                        background: "white",
+                                                        color: "var(--color-text-primary)",
+                                                        borderColor: "var(--color-border)",
+                                                    }),
+                                            }}
+                                        >
+                                            {amenity}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* Photo Upload */}
+                            <div style={{ marginTop: "1rem" }}>
+                                <label style={{ display: "block", marginBottom: "0.5rem", fontSize: "0.875rem", fontWeight: 500 }}>
+                                    Room Photos
+                                </label>
+
+                                <input
+                                    type="file"
+                                    accept="image/jpeg,image/png,image/webp"
+                                    multiple
+                                    onChange={(e) => handleEditPhotoUpload(e.target.files)}
+                                    style={{ marginBottom: "0.5rem" }}
+                                />
+
+                                {/* Photo Preview */}
+                                {editPhotos.length > 0 && (
+                                    <div style={{
+                                        display: "grid",
+                                        gridTemplateColumns: "repeat(auto-fill, minmax(80px, 1fr))",
+                                        gap: "0.5rem",
+                                        marginTop: "0.5rem"
+                                    }}>
+                                        {editPhotos.map((url, index) => (
+                                            <div
+                                                key={url}
+                                                style={{
+                                                    position: "relative",
+                                                    aspectRatio: "1",
+                                                    borderRadius: "0.375rem",
+                                                    overflow: "hidden",
+                                                    border: "1px solid var(--color-border)"
+                                                }}
+                                            >
+                                                <img
+                                                    src={url}
+                                                    alt={`Room photo ${index + 1}`}
+                                                    style={{
+                                                        width: "100%",
+                                                        height: "100%",
+                                                        objectFit: "cover"
+                                                    }}
+                                                />
+                                                <button
+                                                    type="button"
+                                                    onClick={() => removeEditPhoto(url)}
+                                                    style={{
+                                                        position: "absolute",
+                                                        top: "2px",
+                                                        right: "2px",
+                                                        width: "20px",
+                                                        height: "20px",
+                                                        borderRadius: "50%",
+                                                        background: "rgba(0,0,0,0.6)",
+                                                        color: "white",
+                                                        border: "none",
+                                                        cursor: "pointer",
+                                                        fontSize: "12px",
+                                                        display: "flex",
+                                                        alignItems: "center",
+                                                        justifyContent: "center"
+                                                    }}
+                                                >
+                                                    ×
+                                                </button>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Buttons */}
+                            <div style={{ display: "flex", gap: "1rem", marginTop: "1.5rem" }}>
+                                <button
+                                    type="button"
+                                    onClick={() => setEditingRoom(null)}
+                                    className="btn btn-outline"
+                                    style={{ flex: 1 }}
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    type="submit"
+                                    disabled={isPending || uploadingPhoto}
+                                    className="btn btn-primary"
+                                    style={{ flex: 1, opacity: (isPending || uploadingPhoto) ? 0.7 : 1 }}
+                                >
+                                    {isPending ? "Saving..." : "Save Changes"}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
         </>
     );
 }
+
