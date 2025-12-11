@@ -4,6 +4,7 @@ import {
     timestamp,
     primaryKey,
     integer,
+    boolean,
 } from "drizzle-orm/pg-core";
 import type { AdapterAccountType } from "next-auth/adapters";
 
@@ -22,6 +23,12 @@ export const users = pgTable("users", {
     role: text("role", { enum: ["TRAVELER", "HOTEL_OWNER", "PARTNER", "ADMIN"] })
         .default("TRAVELER")
         .notNull(),
+    // Trust score for cancellation policy (0-100, default 100)
+    trustScore: integer("trustScore").default(100).notNull(),
+    // Count of late cancellations (no-show after check-in time)
+    lateCancellationCount: integer("lateCancellationCount").default(0).notNull(),
+    // Whether user can use "Pay at Hotel" option (disabled after 3 late cancellations)
+    payAtHotelAllowed: boolean("payAtHotelAllowed").default(true).notNull(),
     createdAt: timestamp("createdAt", { mode: "date" }).defaultNow().notNull(),
     updatedAt: timestamp("updatedAt", { mode: "date" }).defaultNow().notNull(),
 });

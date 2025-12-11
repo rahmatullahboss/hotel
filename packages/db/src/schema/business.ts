@@ -206,6 +206,11 @@ export const bookings = pgTable("bookings", {
     notes: text("notes"),
     qrCode: text("qrCode"),
 
+    // Cancellation tracking
+    cancellationReason: text("cancellationReason"),
+    cancelledAt: timestamp("cancelledAt", { mode: "date" }),
+    refundAmount: decimal("refundAmount", { precision: 10, scale: 2 }),
+
     // Guest ID photo for security/verification (stored as URL)
     guestIdPhoto: text("guestIdPhoto"),
 

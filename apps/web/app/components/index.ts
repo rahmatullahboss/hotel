@@ -3,3 +3,4 @@ export { TopNav } from "./TopNav";
 export { SearchForm } from "./SearchForm";
 export { HotelCard } from "./HotelCard";
 export { BookingQRCode } from "./BookingQRCode";
+export { CancelBookingModal } from "./CancelBookingModal";

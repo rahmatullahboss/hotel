@@ -201,9 +201,19 @@ export async function getUserBookings(userId: string) {
 }
 
 /**
- * Cancel a booking
+ * Cancel a booking with time-based policy enforcement
+ * 
+ * Pay at Hotel: Free cancellation up to 2 hours before check-in (2PM)
+ *   - Late cancellation: Trust score -10, may lose Pay at Hotel privilege
+ * 
+ * Partial Payment: Free cancellation 24+ hours before check-in → refund to wallet
+ *   - Late cancellation (<24h): Token money forfeited
  */
-export async function cancelBooking(bookingId: string, userId: string): Promise<BookingResult> {
+export async function cancelBooking(
+    bookingId: string,
+    userId: string,
+    reason: string
+): Promise<BookingResult & { refundAmount?: number; isLate?: boolean }> {
     try {
         const booking = await db.query.bookings.findFirst({
             where: eq(bookings.id, bookingId),
@@ -225,16 +235,158 @@ export async function cancelBooking(bookingId: string, userId: string): Promise<
             return { success: false, error: "Cannot cancel completed booking" };
         }
 
+        // Calculate time until check-in (assume 2PM check-in)
+        const checkInDate = new Date(booking.checkIn);
+        checkInDate.setHours(14, 0, 0, 0); // 2PM check-in time
+        const now = new Date();
+        const hoursUntilCheckIn = (checkInDate.getTime() - now.getTime()) / (1000 * 60 * 60);
+
+        let isLateCancellation = false;
+        let refundAmount = 0;
+        const bookingFee = Number(booking.bookingFee) || 0;
+
+        // Determine if this is a late cancellation based on payment type
+        if (booking.paymentStatus === "PAY_AT_HOTEL") {
+            // Pay at Hotel: Late if within 2 hours of check-in
+            isLateCancellation = hoursUntilCheckIn < 2;
+        } else if (booking.bookingFeeStatus === "PAID" && bookingFee > 0) {
+            // Partial Payment: Late if within 24 hours of check-in
+            isLateCancellation = hoursUntilCheckIn < 24;
+        }
+
+        // Handle refund for partial payment bookings
+        if (booking.bookingFeeStatus === "PAID" && bookingFee > 0) {
+            if (!isLateCancellation) {
+                // Refund to wallet
+                refundAmount = bookingFee;
+
+                const wallet = await db.query.wallets.findFirst({
+                    where: eq(wallets.userId, userId),
+                });
+
+                if (wallet) {
+                    // Credit wallet
+                    await db
+                        .update(wallets)
+                        .set({
+                            balance: (Number(wallet.balance) + refundAmount).toString(),
+                            updatedAt: new Date(),
+                        })
+                        .where(eq(wallets.id, wallet.id));
+
+                    // Record refund transaction
+                    await db.insert(walletTransactions).values({
+                        walletId: wallet.id,
+                        type: "CREDIT",
+                        amount: refundAmount.toString(),
+                        reason: "REFUND",
+                        bookingId: booking.id,
+                        description: `Booking cancellation refund`,
+                    });
+                }
+            }
+            // If late, token money is forfeited (no refund)
+        }
+
+        // Handle trust score for Pay at Hotel late cancellations
+        if (booking.paymentStatus === "PAY_AT_HOTEL" && isLateCancellation) {
+            const user = await db.query.users.findFirst({
+                where: eq(users.id, userId),
+            });
+
+            if (user) {
+                const newTrustScore = Math.max(0, (user.trustScore || 100) - 10);
+                const newLateCancellations = (user.lateCancellationCount || 0) + 1;
+                const payAtHotelAllowed = newLateCancellations < 3;
+
+                await db
+                    .update(users)
+                    .set({
+                        trustScore: newTrustScore,
+                        lateCancellationCount: newLateCancellations,
+                        payAtHotelAllowed,
+                        updatedAt: new Date(),
+                    })
+                    .where(eq(users.id, userId));
+            }
+        }
+
+        // Update booking status
         await db
             .update(bookings)
-            .set({ status: "CANCELLED" })
+            .set({
+                status: "CANCELLED",
+                cancellationReason: reason,
+                cancelledAt: new Date(),
+                refundAmount: refundAmount > 0 ? refundAmount.toString() : null,
+            })
             .where(eq(bookings.id, bookingId));
 
         revalidatePath("/bookings");
+        revalidatePath("/wallet");
 
-        return { success: true };
+        return {
+            success: true,
+            refundAmount: refundAmount > 0 ? refundAmount : undefined,
+            isLate: isLateCancellation,
+        };
     } catch (error) {
         console.error("Error cancelling booking:", error);
         return { success: false, error: "Failed to cancel booking" };
+    }
+}
+
+/**
+ * Get cancellation policy info for a booking
+ * Used by UI to show what will happen if user cancels
+ */
+export async function getCancellationInfo(bookingId: string, userId: string) {
+    try {
+        const booking = await db.query.bookings.findFirst({
+            where: eq(bookings.id, bookingId),
+        });
+
+        if (!booking || booking.userId !== userId) {
+            return null;
+        }
+
+        const checkInDate = new Date(booking.checkIn);
+        checkInDate.setHours(14, 0, 0, 0);
+        const now = new Date();
+        const hoursUntilCheckIn = (checkInDate.getTime() - now.getTime()) / (1000 * 60 * 60);
+        const bookingFee = Number(booking.bookingFee) || 0;
+
+        if (booking.paymentStatus === "PAY_AT_HOTEL") {
+            const isLate = hoursUntilCheckIn < 2;
+            return {
+                type: "PAY_AT_HOTEL" as const,
+                isLate,
+                hoursRemaining: Math.max(0, hoursUntilCheckIn),
+                penalty: isLate ? "Trust score will decrease" : null,
+                refund: 0,
+            };
+        }
+
+        if (booking.bookingFeeStatus === "PAID" && bookingFee > 0) {
+            const isLate = hoursUntilCheckIn < 24;
+            return {
+                type: "PARTIAL_PAYMENT" as const,
+                isLate,
+                hoursRemaining: Math.max(0, hoursUntilCheckIn),
+                penalty: isLate ? `৳${bookingFee} booking fee will be forfeited` : null,
+                refund: isLate ? 0 : bookingFee,
+            };
+        }
+
+        return {
+            type: "OTHER" as const,
+            isLate: false,
+            hoursRemaining: hoursUntilCheckIn,
+            penalty: null,
+            refund: 0,
+        };
+    } catch (error) {
+        console.error("Error getting cancellation info:", error);
+        return null;
     }
 }

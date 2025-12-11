@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { getUserBookings } from "../actions/bookings";
-import { BottomNav, BookingQRCode } from "../components";
+import { BottomNav, BookingQRCode, CancelBookingModal } from "../components";
 
 type BookingStatus = "PENDING" | "CONFIRMED" | "CHECKED_IN" | "CHECKED_OUT" | "CANCELLED";
 type PaymentStatus = "PENDING" | "PAID" | "PAY_AT_HOTEL" | "REFUNDED";
@@ -34,22 +34,23 @@ export default function BookingsPage() {
     const [bookings, setBookings] = useState<Booking[]>([]);
     const [loading, setLoading] = useState(true);
     const [selectedBookingId, setSelectedBookingId] = useState<string | null>(null);
+    const [cancellingBooking, setCancellingBooking] = useState<Booking | null>(null);
 
     useEffect(() => {
-        async function fetchBookings() {
-            if (!session?.user?.id) {
-                setLoading(false);
-                return;
-            }
-
-            setLoading(true);
-            const data = await getUserBookings(session.user.id);
-            setBookings(data as Booking[]);
-            setLoading(false);
-        }
-
         fetchBookings();
     }, [session?.user?.id]);
+
+    async function fetchBookings() {
+        if (!session?.user?.id) {
+            setLoading(false);
+            return;
+        }
+
+        setLoading(true);
+        const data = await getUserBookings(session.user.id);
+        setBookings(data as Booking[]);
+        setLoading(false);
+    }
 
     const upcomingBookings = bookings.filter(
         (b) => b.status === "CONFIRMED" || b.status === "PENDING" || b.status === "CHECKED_IN"
@@ -233,13 +234,28 @@ export default function BookingsPage() {
                                                     </span>{" "}
                                                     <span style={{ fontWeight: 600 }}>{booking.id.slice(0, 8).toUpperCase()}</span>
                                                 </div>
-                                                <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+                                                <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                                                    {booking.status !== "CHECKED_IN" && (
+                                                        <button
+                                                            onClick={() => setCancellingBooking(booking)}
+                                                            className="btn"
+                                                            style={{
+                                                                fontSize: "0.75rem",
+                                                                padding: "0.25rem 0.75rem",
+                                                                background: "transparent",
+                                                                color: "var(--color-error)",
+                                                                border: "1px solid var(--color-error)",
+                                                            }}
+                                                        >
+                                                            Cancel
+                                                        </button>
+                                                    )}
                                                     <button
                                                         onClick={() => setSelectedBookingId(selectedBookingId === booking.id ? null : booking.id)}
                                                         className="btn btn-outline"
                                                         style={{ fontSize: "0.75rem", padding: "0.25rem 0.75rem" }}
                                                     >
-                                                        {selectedBookingId === booking.id ? "Hide QR" : "📱 QR Code"}
+                                                        {selectedBookingId === booking.id ? "Hide QR" : "📱 QR"}
                                                     </button>
                                                     <div style={{ fontWeight: 700, color: "var(--color-primary)" }}>
                                                         ৳{Number(booking.totalAmount).toLocaleString()}
@@ -320,6 +336,20 @@ export default function BookingsPage() {
             </main>
 
             <BottomNav />
+
+            {/* Cancel Booking Modal */}
+            {cancellingBooking && session?.user?.id && (
+                <CancelBookingModal
+                    bookingId={cancellingBooking.id}
+                    userId={session.user.id}
+                    hotelName={cancellingBooking.hotelName || "Hotel"}
+                    onClose={() => setCancellingBooking(null)}
+                    onSuccess={() => {
+                        setCancellingBooking(null);
+                        fetchBookings();
+                    }}
+                />
+            )}
         </>
     );
 }
