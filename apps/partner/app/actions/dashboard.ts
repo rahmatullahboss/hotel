@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "@repo/db";
-import { bookings, rooms, hotels, loyaltyPoints, activityLog } from "@repo/db/schema";
+import { bookings, rooms, hotels, loyaltyPoints, activityLog, roomInventory } from "@repo/db/schema";
 import { eq, and, desc, sql, gte, lte } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { auth } from "../../auth";
@@ -350,6 +350,38 @@ export async function checkInGuest(
             })
             .where(eq(bookings.id, bookingId));
 
+        // Mark room inventory as OCCUPIED for all booking dates
+        const checkInDate = new Date(booking.checkIn);
+        const checkOutDate = new Date(booking.checkOut);
+        const dates: string[] = [];
+        const current = new Date(checkInDate);
+        while (current < checkOutDate) {
+            dates.push(current.toISOString().split("T")[0]!);
+            current.setDate(current.getDate() + 1);
+        }
+
+        for (const date of dates) {
+            const existing = await db.query.roomInventory.findFirst({
+                where: and(
+                    eq(roomInventory.roomId, booking.roomId),
+                    eq(roomInventory.date, date)
+                ),
+            });
+
+            if (existing) {
+                await db
+                    .update(roomInventory)
+                    .set({ status: "OCCUPIED", updatedAt: new Date() })
+                    .where(eq(roomInventory.id, existing.id));
+            } else {
+                await db.insert(roomInventory).values({
+                    roomId: booking.roomId,
+                    date,
+                    status: "OCCUPIED",
+                });
+            }
+        }
+
         // Log activity
         await db.insert(activityLog).values({
             type: "CHECK_IN",
@@ -366,6 +398,7 @@ export async function checkInGuest(
 
         revalidatePath("/");
         revalidatePath("/scanner");
+        revalidatePath("/inventory");
         return { success: true };
     } catch (error) {
         console.error("Error checking in:", error);
@@ -402,6 +435,32 @@ export async function checkOutGuest(
                 updatedAt: new Date(),
             })
             .where(eq(bookings.id, bookingId));
+
+        // Mark room inventory as AVAILABLE for all booking dates
+        const checkInDate = new Date(booking.checkIn);
+        const checkOutDate = new Date(booking.checkOut);
+        const dates: string[] = [];
+        const current = new Date(checkInDate);
+        while (current < checkOutDate) {
+            dates.push(current.toISOString().split("T")[0]!);
+            current.setDate(current.getDate() + 1);
+        }
+
+        for (const date of dates) {
+            const existing = await db.query.roomInventory.findFirst({
+                where: and(
+                    eq(roomInventory.roomId, booking.roomId),
+                    eq(roomInventory.date, date)
+                ),
+            });
+
+            if (existing) {
+                await db
+                    .update(roomInventory)
+                    .set({ status: "AVAILABLE", updatedAt: new Date() })
+                    .where(eq(roomInventory.id, existing.id));
+            }
+        }
 
         // Award loyalty points to customer if they have an account
         // 1 point per ৳10 spent + bonus 50 points for platform booking
@@ -461,6 +520,7 @@ export async function checkOutGuest(
         });
 
         revalidatePath("/");
+        revalidatePath("/inventory");
         return { success: true };
     } catch (error) {
         console.error("Error checking out:", error);
