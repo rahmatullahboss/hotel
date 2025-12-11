@@ -258,3 +258,68 @@ export async function getQualityAlerts(): Promise<{
     }
 }
 
+
+/**
+ * Get pending payment bookings for admin monitoring
+ * These are bookings where payment was initiated but not completed
+ */
+export interface PendingPaymentBooking {
+    id: string;
+    guestName: string;
+    guestPhone: string;
+    hotelName: string;
+    hotelId: string;
+    roomName: string | null;
+    checkIn: string;
+    totalAmount: number;
+    bookingFee: number;
+    paymentMethod: string | null;
+    createdAt: Date;
+    expiresAt: Date | null;
+    minutesRemaining: number | null;
+}
+
+export async function getPendingPaymentBookings(limit: number = 20): Promise<PendingPaymentBooking[]> {
+    try {
+        const pendingBookings = await db.query.bookings.findMany({
+            where: and(
+                eq(bookings.status, "PENDING"),
+                eq(bookings.bookingFeeStatus, "PENDING")
+            ),
+            orderBy: [desc(bookings.createdAt)],
+            limit,
+            with: {
+                hotel: true,
+                room: true,
+            },
+        });
+
+        const now = new Date();
+
+        return pendingBookings.map((b) => {
+            const expiresAt = b.expiresAt ? new Date(b.expiresAt) : null;
+            const minutesRemaining = expiresAt
+                ? Math.max(0, Math.round((expiresAt.getTime() - now.getTime()) / 60000))
+                : null;
+
+            return {
+                id: b.id,
+                guestName: b.guestName,
+                guestPhone: b.guestPhone,
+                hotelName: b.hotel?.name || "Unknown Hotel",
+                hotelId: b.hotelId,
+                roomName: b.room?.name || null,
+                checkIn: b.checkIn,
+                totalAmount: Number(b.totalAmount) || 0,
+                bookingFee: Number(b.bookingFee) || 0,
+                paymentMethod: b.paymentMethod,
+                createdAt: b.createdAt,
+                expiresAt,
+                minutesRemaining,
+            };
+        });
+    } catch (error) {
+        console.error("Error fetching pending payment bookings:", error);
+        return [];
+    }
+}

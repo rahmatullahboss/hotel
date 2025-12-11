@@ -2,7 +2,7 @@
 
 import { db } from "@repo/db";
 import { bookings, rooms, hotels, loyaltyPoints, activityLog, roomInventory } from "@repo/db/schema";
-import { eq, and, desc, sql, gte, lte } from "drizzle-orm";
+import { eq, and, desc, sql, gte, lte, ne } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { auth } from "../../auth";
 
@@ -247,7 +247,12 @@ export async function getUpcomingBookings(hotelId: string, limit = 5): Promise<B
             })
             .from(bookings)
             .leftJoin(rooms, eq(rooms.id, bookings.roomId))
-            .where(and(eq(bookings.hotelId, hotelId), gte(bookings.checkIn, today)))
+            .where(and(
+                eq(bookings.hotelId, hotelId),
+                gte(bookings.checkIn, today),
+                ne(bookings.status, "PENDING"), // Hide unpaid bookings from partner
+                ne(bookings.status, "CANCELLED") // Also hide cancelled
+            ))
             .orderBy(bookings.checkIn)
             .limit(limit);
 
@@ -297,7 +302,12 @@ export async function getTodaysCheckIns(hotelId: string): Promise<BookingSummary
             })
             .from(bookings)
             .leftJoin(rooms, eq(rooms.id, bookings.roomId))
-            .where(and(eq(bookings.hotelId, hotelId), eq(bookings.checkIn, today)))
+            .where(and(
+                eq(bookings.hotelId, hotelId),
+                eq(bookings.checkIn, today),
+                ne(bookings.status, "PENDING"), // Hide unpaid bookings from partner
+                ne(bookings.status, "CANCELLED") // Also hide cancelled
+            ))
             .orderBy(bookings.createdAt);
 
         return result.map((b) => {

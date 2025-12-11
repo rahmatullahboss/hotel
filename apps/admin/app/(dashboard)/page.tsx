@@ -1,13 +1,14 @@
-import { getAdminStats, getRecentActivity, getQualityAlerts } from "@/actions/dashboard";
+import { getAdminStats, getRecentActivity, getQualityAlerts, getPendingPaymentBookings } from "@/actions/dashboard";
 import Link from "next/link";
 
 export const dynamic = 'force-dynamic';
 
 export default async function DashboardPage() {
-    const [stats, activities, alerts] = await Promise.all([
+    const [stats, activities, alerts, pendingPayments] = await Promise.all([
         getAdminStats(),
         getRecentActivity(8),
         getQualityAlerts(),
+        getPendingPaymentBookings(10),
     ]);
 
     const formatTimeAgo = (date: Date) => {
@@ -157,6 +158,59 @@ export default async function DashboardPage() {
                     </div>
                 </div>
             </div>
+
+            {/* Pending Payments Section - Monitor incomplete payments */}
+            {pendingPayments.length > 0 && (
+                <div style={{ padding: "0 1.5rem", marginBottom: "1.5rem" }}>
+                    <div className="card" style={{ padding: "1.5rem", borderLeft: "4px solid var(--color-warning)" }}>
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
+                            <h2 style={{ fontSize: "1.125rem", fontWeight: 700, display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                                ⏳ Pending Payments ({pendingPayments.length})
+                            </h2>
+                            <span style={{ fontSize: "0.75rem", color: "var(--color-text-secondary)" }}>
+                                Auto-expires after 20 min
+                            </span>
+                        </div>
+
+                        <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+                            {pendingPayments.map((booking) => (
+                                <div
+                                    key={booking.id}
+                                    style={{
+                                        display: "flex",
+                                        alignItems: "center",
+                                        gap: "1rem",
+                                        padding: "0.75rem",
+                                        background: "var(--color-bg-secondary)",
+                                        borderRadius: "0.5rem",
+                                    }}
+                                >
+                                    <div style={{ flex: 1, minWidth: 0 }}>
+                                        <div style={{ fontWeight: 500, marginBottom: "0.25rem" }}>
+                                            {booking.guestName}
+                                        </div>
+                                        <div style={{ fontSize: "0.875rem", color: "var(--color-text-secondary)" }}>
+                                            {booking.hotelName} • {booking.roomName || "Room"} • {booking.checkIn}
+                                        </div>
+                                    </div>
+                                    <div style={{ textAlign: "right" }}>
+                                        <div style={{ fontWeight: 600, color: "var(--color-warning)" }}>
+                                            ৳{booking.bookingFee.toLocaleString()}
+                                        </div>
+                                        <div style={{ fontSize: "0.75rem", color: booking.minutesRemaining && booking.minutesRemaining <= 5 ? "var(--color-error)" : "var(--color-text-muted)" }}>
+                                            {booking.minutesRemaining !== null
+                                                ? booking.minutesRemaining <= 0
+                                                    ? "Expired"
+                                                    : `${booking.minutesRemaining}m left`
+                                                : "No expiry"}
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* Recent Activity Section */}
             <div style={{ padding: "0 1.5rem" }}>
