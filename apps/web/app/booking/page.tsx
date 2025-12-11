@@ -6,7 +6,7 @@ import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { createBooking } from "../actions/bookings";
 import { getUserProfile } from "../actions/profile";
-import { BookingQRCode } from "../components";
+import { BookingQRCode, BottomNav } from "../components";
 
 type PaymentMethod = "BKASH" | "NAGAD" | "CARD" | "PAY_AT_HOTEL";
 
@@ -168,313 +168,315 @@ function BookingContent() {
     };
 
     return (
-        <main style={{ padding: "1rem", paddingBottom: "100px" }}>
-            <div className="container" style={{ maxWidth: 600 }}>
-                {/* Progress Steps */}
-                <div
-                    style={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        marginBottom: "2rem",
-                        position: "relative",
-                    }}
-                >
-                    <div
-                        style={{
-                            position: "absolute",
-                            top: "50%",
-                            left: "15%",
-                            right: "15%",
-                            height: 2,
-                            background: "var(--color-border)",
-                            transform: "translateY(-50%)",
-                            zIndex: 0,
-                        }}
-                    />
-                    {[1, 2, 3].map((s) => (
-                        <div
-                            key={s}
-                            style={{
-                                display: "flex",
-                                flexDirection: "column",
-                                alignItems: "center",
-                                zIndex: 1,
-                            }}
-                        >
-                            <div
-                                style={{
-                                    width: 32,
-                                    height: 32,
-                                    borderRadius: "50%",
-                                    background: step >= s ? "var(--color-primary)" : "var(--color-border)",
-                                    color: step >= s ? "white" : "var(--color-text-muted)",
-                                    display: "flex",
-                                    alignItems: "center",
-                                    justifyContent: "center",
-                                    fontWeight: 600,
-                                    fontSize: "0.875rem",
-                                }}
-                            >
-                                {step > s ? "✓" : s}
-                            </div>
-                            <span
-                                style={{
-                                    fontSize: "0.75rem",
-                                    marginTop: "0.5rem",
-                                    color: step >= s ? "var(--color-text-primary)" : "var(--color-text-muted)",
-                                }}
-                            >
-                                {s === 1 ? "Details" : s === 2 ? "Payment" : "Confirm"}
-                            </span>
-                        </div>
-                    ))}
-                </div>
-
-                {/* Booking Summary Card */}
-                <div className="card" style={{ padding: "1rem", marginBottom: "1rem" }}>
-                    <h3 style={{ fontWeight: 600, marginBottom: "0.5rem" }}>{hotelName}</h3>
-                    <p style={{ color: "var(--color-text-secondary)", fontSize: "0.875rem" }}>
-                        {roomName}
-                    </p>
+        <>
+            <main style={{ padding: "1rem", paddingBottom: "100px" }}>
+                <div className="container" style={{ maxWidth: 600 }}>
+                    {/* Progress Steps */}
                     <div
                         style={{
                             display: "flex",
                             justifyContent: "space-between",
-                            marginTop: "0.75rem",
-                            paddingTop: "0.75rem",
-                            borderTop: "1px solid var(--color-border)",
-                            fontSize: "0.875rem",
+                            marginBottom: "2rem",
+                            position: "relative",
                         }}
                     >
-                        <span>{checkIn} → {checkOut}</span>
-                        <span>{nights} night{nights > 1 ? "s" : ""}</span>
-                    </div>
-                </div>
-
-                {/* Error Message */}
-                {error && (
-                    <div
-                        style={{
-                            padding: "1rem",
-                            marginBottom: "1rem",
-                            background: "rgba(208, 0, 0, 0.1)",
-                            color: "var(--color-error)",
-                            borderRadius: "0.5rem",
-                        }}
-                    >
-                        {error}
-                    </div>
-                )}
-
-                {/* Step 1: Guest Details */}
-                {step === 1 && (
-                    <form onSubmit={handleSubmit}>
-                        <div className="card" style={{ padding: "1.5rem", marginBottom: "1rem" }}>
-                            <h3 style={{ fontWeight: 600, marginBottom: "1rem" }}>Guest Details</h3>
-                            <div className="form-group">
-                                <label className="form-label">Full Name *</label>
-                                <input
-                                    type="text"
-                                    className="form-input"
-                                    placeholder="As per ID"
-                                    value={guestName}
-                                    onChange={(e) => setGuestName(e.target.value)}
-                                    required
-                                />
-                            </div>
-                            <div className="form-group">
-                                <label className="form-label">Phone Number *</label>
-                                <input
-                                    type="tel"
-                                    className="form-input"
-                                    placeholder="01XXXXXXXXX"
-                                    value={guestPhone}
-                                    onChange={(e) => setGuestPhone(e.target.value)}
-                                    required
-                                />
-                            </div>
-                            <div className="form-group" style={{ marginBottom: 0 }}>
-                                <label className="form-label">Email (Optional)</label>
-                                <input
-                                    type="email"
-                                    className="form-input"
-                                    placeholder="For confirmation"
-                                    value={guestEmail}
-                                    onChange={(e) => setGuestEmail(e.target.value)}
-                                />
-                            </div>
-                        </div>
-                        <button type="submit" className="btn btn-primary btn-block btn-lg">
-                            Continue to Payment
-                        </button>
-                    </form>
-                )}
-
-                {/* Step 2: Payment Method */}
-                {step === 2 && (
-                    <form onSubmit={handleSubmit}>
-                        <div className="card" style={{ padding: "1.5rem", marginBottom: "1rem" }}>
-                            <h3 style={{ fontWeight: 600, marginBottom: "1rem" }}>Select Payment</h3>
-                            <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
-                                {paymentMethods.map((method) => (
-                                    <label
-                                        key={method.id}
-                                        style={{
-                                            display: "flex",
-                                            alignItems: "center",
-                                            gap: "1rem",
-                                            padding: "1rem",
-                                            border: `2px solid ${paymentMethod === method.id ? "var(--color-primary)" : "var(--color-border)"}`,
-                                            borderRadius: "0.75rem",
-                                            cursor: "pointer",
-                                            background: paymentMethod === method.id ? "rgba(230, 57, 70, 0.05)" : "transparent",
-                                        }}
-                                    >
-                                        <input
-                                            type="radio"
-                                            name="paymentMethod"
-                                            value={method.id}
-                                            checked={paymentMethod === method.id}
-                                            onChange={() => setPaymentMethod(method.id)}
-                                            style={{ width: 20, height: 20 }}
-                                        />
-                                        <span style={{ fontSize: "1.5rem" }}>{method.icon}</span>
-                                        <span style={{ fontWeight: 500 }}>{method.name}</span>
-                                        {method.id === "PAY_AT_HOTEL" && (
-                                            <span
-                                                className="badge badge-success"
-                                                style={{ marginLeft: "auto", fontSize: "0.7rem" }}
-                                            >
-                                                No Advance
-                                            </span>
-                                        )}
-                                    </label>
-                                ))}
-                            </div>
-                        </div>
-
-                        {/* Price Summary */}
-                        <div className="card" style={{ padding: "1rem", marginBottom: "1rem" }}>
-                            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.5rem" }}>
-                                <span>Room × {nights} night{nights > 1 ? "s" : ""}</span>
-                                <span>৳{(price * nights).toLocaleString()}</span>
-                            </div>
-                            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.5rem" }}>
-                                <span>Taxes & Fees</span>
-                                <span>Included</span>
-                            </div>
+                        <div
+                            style={{
+                                position: "absolute",
+                                top: "50%",
+                                left: "15%",
+                                right: "15%",
+                                height: 2,
+                                background: "var(--color-border)",
+                                transform: "translateY(-50%)",
+                                zIndex: 0,
+                            }}
+                        />
+                        {[1, 2, 3].map((s) => (
                             <div
+                                key={s}
                                 style={{
                                     display: "flex",
-                                    justifyContent: "space-between",
-                                    fontWeight: 700,
-                                    fontSize: "1.125rem",
-                                    paddingTop: "0.75rem",
-                                    borderTop: "1px solid var(--color-border)",
+                                    flexDirection: "column",
+                                    alignItems: "center",
+                                    zIndex: 1,
                                 }}
                             >
-                                <span>Total</span>
-                                <span style={{ color: "var(--color-primary)" }}>
-                                    ৳{totalAmount.toLocaleString()}
+                                <div
+                                    style={{
+                                        width: 32,
+                                        height: 32,
+                                        borderRadius: "50%",
+                                        background: step >= s ? "var(--color-primary)" : "var(--color-border)",
+                                        color: step >= s ? "white" : "var(--color-text-muted)",
+                                        display: "flex",
+                                        alignItems: "center",
+                                        justifyContent: "center",
+                                        fontWeight: 600,
+                                        fontSize: "0.875rem",
+                                    }}
+                                >
+                                    {step > s ? "✓" : s}
+                                </div>
+                                <span
+                                    style={{
+                                        fontSize: "0.75rem",
+                                        marginTop: "0.5rem",
+                                        color: step >= s ? "var(--color-text-primary)" : "var(--color-text-muted)",
+                                    }}
+                                >
+                                    {s === 1 ? "Details" : s === 2 ? "Payment" : "Confirm"}
                                 </span>
                             </div>
-                        </div>
-
-                        <div style={{ display: "flex", gap: "1rem" }}>
-                            <button
-                                type="button"
-                                className="btn btn-outline"
-                                style={{ flex: 1 }}
-                                onClick={() => setStep(1)}
-                            >
-                                Back
-                            </button>
-                            <button
-                                type="submit"
-                                className="btn btn-primary"
-                                style={{ flex: 2 }}
-                                disabled={isSubmitting}
-                            >
-                                {isSubmitting ? "Processing..." : "Confirm Booking"}
-                            </button>
-                        </div>
-                    </form>
-                )}
-
-                {/* Step 3: Confirmation */}
-                {step === 3 && (
-                    <div className="card" style={{ padding: "2rem", textAlign: "center" }}>
-                        <div
-                            style={{
-                                width: 80,
-                                height: 80,
-                                borderRadius: "50%",
-                                background: "rgba(42, 157, 143, 0.1)",
-                                color: "var(--color-success)",
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "center",
-                                fontSize: "2.5rem",
-                                margin: "0 auto 1rem",
-                            }}
-                        >
-                            ✓
-                        </div>
-                        <h2 style={{ marginBottom: "0.5rem" }}>Booking Confirmed!</h2>
-                        <p style={{ color: "var(--color-text-secondary)", marginBottom: "1.5rem" }}>
-                            Your booking has been successfully created.
-                        </p>
-
-                        {/* QR Code for check-in */}
-                        <div style={{ marginBottom: "1.5rem" }}>
-                            <BookingQRCode bookingId={bookingId} size={180} />
-                        </div>
-
-                        <div
-                            style={{
-                                background: "var(--color-bg-secondary)",
-                                padding: "1rem",
-                                borderRadius: "0.75rem",
-                                marginBottom: "1.5rem",
-                            }}
-                        >
-                            <div style={{ fontSize: "0.875rem", color: "var(--color-text-secondary)" }}>
-                                Booking ID
-                            </div>
-                            <div style={{ fontWeight: 700, fontFamily: "monospace" }}>
-                                {bookingId.slice(0, 8).toUpperCase()}
-                            </div>
-                        </div>
-
-                        <div style={{ textAlign: "left", marginBottom: "1.5rem" }}>
-                            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.5rem" }}>
-                                <span style={{ color: "var(--color-text-secondary)" }}>Hotel</span>
-                                <span style={{ fontWeight: 500 }}>{hotelName}</span>
-                            </div>
-                            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.5rem" }}>
-                                <span style={{ color: "var(--color-text-secondary)" }}>Check-in</span>
-                                <span style={{ fontWeight: 500 }}>{checkIn}</span>
-                            </div>
-                            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.5rem" }}>
-                                <span style={{ color: "var(--color-text-secondary)" }}>Check-out</span>
-                                <span style={{ fontWeight: 500 }}>{checkOut}</span>
-                            </div>
-                            <div style={{ display: "flex", justifyContent: "space-between" }}>
-                                <span style={{ color: "var(--color-text-secondary)" }}>Total</span>
-                                <span style={{ fontWeight: 700, color: "var(--color-primary)" }}>
-                                    ৳{totalAmount.toLocaleString()}
-                                </span>
-                            </div>
-                        </div>
-
-                        <Link href="/bookings" className="btn btn-primary btn-block">
-                            View My Bookings
-                        </Link>
+                        ))}
                     </div>
-                )}
-            </div>
-        </main>
-    );
+
+                    {/* Booking Summary Card */}
+                    <div className="card" style={{ padding: "1rem", marginBottom: "1rem" }}>
+                        <h3 style={{ fontWeight: 600, marginBottom: "0.5rem" }}>{hotelName}</h3>
+                        <p style={{ color: "var(--color-text-secondary)", fontSize: "0.875rem" }}>
+                            {roomName}
+                        </p>
+                        <div
+                            style={{
+                                display: "flex",
+                                justifyContent: "space-between",
+                                marginTop: "0.75rem",
+                                paddingTop: "0.75rem",
+                                borderTop: "1px solid var(--color-border)",
+                                fontSize: "0.875rem",
+                            }}
+                        >
+                            <span>{checkIn} → {checkOut}</span>
+                            <span>{nights} night{nights > 1 ? "s" : ""}</span>
+                        </div>
+                    </div>
+
+                    {/* Error Message */}
+                    {error && (
+                        <div
+                            style={{
+                                padding: "1rem",
+                                marginBottom: "1rem",
+                                background: "rgba(208, 0, 0, 0.1)",
+                                color: "var(--color-error)",
+                                borderRadius: "0.5rem",
+                            }}
+                        >
+                            {error}
+                        </div>
+                    )}
+
+                    {/* Step 1: Guest Details */}
+                    {step === 1 && (
+                        <form onSubmit={handleSubmit}>
+                            <div className="card" style={{ padding: "1.5rem", marginBottom: "1rem" }}>
+                                <h3 style={{ fontWeight: 600, marginBottom: "1rem" }}>Guest Details</h3>
+                                <div className="form-group">
+                                    <label className="form-label">Full Name *</label>
+                                    <input
+                                        type="text"
+                                        className="form-input"
+                                        placeholder="As per ID"
+                                        value={guestName}
+                                        onChange={(e) => setGuestName(e.target.value)}
+                                        required
+                                    />
+                                </div>
+                                <div className="form-group">
+                                    <label className="form-label">Phone Number *</label>
+                                    <input
+                                        type="tel"
+                                        className="form-input"
+                                        placeholder="01XXXXXXXXX"
+                                        value={guestPhone}
+                                        onChange={(e) => setGuestPhone(e.target.value)}
+                                        required
+                                    />
+                                </div>
+                                <div className="form-group" style={{ marginBottom: 0 }}>
+                                    <label className="form-label">Email (Optional)</label>
+                                    <input
+                                        type="email"
+                                        className="form-input"
+                                        placeholder="For confirmation"
+                                        value={guestEmail}
+                                        onChange={(e) => setGuestEmail(e.target.value)}
+                                    />
+                                </div>
+                            </div>
+                            <button type="submit" className="btn btn-primary btn-block btn-lg">
+                                Continue to Payment
+                            </button>
+                        </form>
+                    )}
+
+                    {/* Step 2: Payment Method */}
+                    {step === 2 && (
+                        <form onSubmit={handleSubmit}>
+                            <div className="card" style={{ padding: "1.5rem", marginBottom: "1rem" }}>
+                                <h3 style={{ fontWeight: 600, marginBottom: "1rem" }}>Select Payment</h3>
+                                <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+                                    {paymentMethods.map((method) => (
+                                        <label
+                                            key={method.id}
+                                            style={{
+                                                display: "flex",
+                                                alignItems: "center",
+                                                gap: "1rem",
+                                                padding: "1rem",
+                                                border: `2px solid ${paymentMethod === method.id ? "var(--color-primary)" : "var(--color-border)"}`,
+                                                borderRadius: "0.75rem",
+                                                cursor: "pointer",
+                                                background: paymentMethod === method.id ? "rgba(230, 57, 70, 0.05)" : "transparent",
+                                            }}
+                                        >
+                                            <input
+                                                type="radio"
+                                                name="paymentMethod"
+                                                value={method.id}
+                                                checked={paymentMethod === method.id}
+                                                onChange={() => setPaymentMethod(method.id)}
+                                                style={{ width: 20, height: 20 }}
+                                            />
+                                            <span style={{ fontSize: "1.5rem" }}>{method.icon}</span>
+                                            <span style={{ fontWeight: 500 }}>{method.name}</span>
+                                            {method.id === "PAY_AT_HOTEL" && (
+                                                <span
+                                                    className="badge badge-success"
+                                                    style={{ marginLeft: "auto", fontSize: "0.7rem" }}
+                                                >
+                                                    No Advance
+                                                </span>
+                                            )}
+                                        </label>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* Price Summary */}
+                            <div className="card" style={{ padding: "1rem", marginBottom: "1rem" }}>
+                                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.5rem" }}>
+                                    <span>Room × {nights} night{nights > 1 ? "s" : ""}</span>
+                                    <span>৳{(price * nights).toLocaleString()}</span>
+                                </div>
+                                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.5rem" }}>
+                                    <span>Taxes & Fees</span>
+                                    <span>Included</span>
+                                </div>
+                                <div
+                                    style={{
+                                        display: "flex",
+                                        justifyContent: "space-between",
+                                        fontWeight: 700,
+                                        fontSize: "1.125rem",
+                                        paddingTop: "0.75rem",
+                                        borderTop: "1px solid var(--color-border)",
+                                    }}
+                                >
+                                    <span>Total</span>
+                                    <span style={{ color: "var(--color-primary)" }}>
+                                        ৳{totalAmount.toLocaleString()}
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div style={{ display: "flex", gap: "1rem" }}>
+                                <button
+                                    type="button"
+                                    className="btn btn-outline"
+                                    style={{ flex: 1 }}
+                                    onClick={() => setStep(1)}
+                                >
+                                    Back
+                                </button>
+                                <button
+                                    type="submit"
+                                    className="btn btn-primary"
+                                    style={{ flex: 2 }}
+                                    disabled={isSubmitting}
+                                >
+                                    {isSubmitting ? "Processing..." : "Confirm Booking"}
+                                </button>
+                            </div>
+                        </form>
+                    )}
+
+                    {/* Step 3: Confirmation */}
+                    {step === 3 && (
+                        <div className="card" style={{ padding: "2rem", textAlign: "center" }}>
+                            <div
+                                style={{
+                                    width: 80,
+                                    height: 80,
+                                    borderRadius: "50%",
+                                    background: "rgba(42, 157, 143, 0.1)",
+                                    color: "var(--color-success)",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    fontSize: "2.5rem",
+                                    margin: "0 auto 1rem",
+                                }}
+                            >
+                                ✓
+                            </div>
+                            <h2 style={{ marginBottom: "0.5rem" }}>Booking Confirmed!</h2>
+                            <p style={{ color: "var(--color-text-secondary)", marginBottom: "1.5rem" }}>
+                                Your booking has been successfully created.
+                            </p>
+
+                            {/* QR Code for check-in */}
+                            <div style={{ marginBottom: "1.5rem" }}>
+                                <BookingQRCode bookingId={bookingId} size={180} />
+                            </div>
+
+                            <div
+                                style={{
+                                    background: "var(--color-bg-secondary)",
+                                    padding: "1rem",
+                                    borderRadius: "0.75rem",
+                                    marginBottom: "1.5rem",
+                                }}
+                            >
+                                <div style={{ fontSize: "0.875rem", color: "var(--color-text-secondary)" }}>
+                                    Booking ID
+                                </div>
+                                <div style={{ fontWeight: 700, fontFamily: "monospace" }}>
+                                    {bookingId.slice(0, 8).toUpperCase()}
+                                </div>
+                            </div>
+
+                            <div style={{ textAlign: "left", marginBottom: "1.5rem" }}>
+                                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.5rem" }}>
+                                    <span style={{ color: "var(--color-text-secondary)" }}>Hotel</span>
+                                    <span style={{ fontWeight: 500 }}>{hotelName}</span>
+                                </div>
+                                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.5rem" }}>
+                                    <span style={{ color: "var(--color-text-secondary)" }}>Check-in</span>
+                                    <span style={{ fontWeight: 500 }}>{checkIn}</span>
+                                </div>
+                                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.5rem" }}>
+                                    <span style={{ color: "var(--color-text-secondary)" }}>Check-out</span>
+                                    <span style={{ fontWeight: 500 }}>{checkOut}</span>
+                                </div>
+                                <div style={{ display: "flex", justifyContent: "space-between" }}>
+                                    <span style={{ color: "var(--color-text-secondary)" }}>Total</span>
+                                    <span style={{ fontWeight: 700, color: "var(--color-primary)" }}>
+                                        ৳{totalAmount.toLocaleString()}
+                                    </span>
+                                </div>
+                            </div>
+
+                            <Link href="/bookings" className="btn btn-primary btn-block">
+                                View My Bookings
+                            </Link>
+                        </div>
+                    )}
+                </div>
+            </main>
+            <BottomNav />
+        </>);
 }
 
 export default function BookingPage() {
