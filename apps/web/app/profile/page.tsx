@@ -2,6 +2,7 @@ import { auth, signOut } from "@/auth";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { getUserBookings } from "../actions/bookings";
+import { getWallet, getLoyaltyPoints } from "../actions/wallet";
 import { BottomNav } from "../components";
 
 export default async function ProfilePage() {
@@ -11,13 +12,25 @@ export default async function ProfilePage() {
         redirect("/auth/signin");
     }
 
-    const bookings = await getUserBookings(session.user.id);
+    const [bookings, wallet, loyalty] = await Promise.all([
+        getUserBookings(session.user.id),
+        getWallet(),
+        getLoyaltyPoints(),
+    ]);
+
     const upcomingBookings = bookings.filter(
         (b) => new Date(b.checkIn) >= new Date() && b.status !== "CANCELLED"
     );
     const pastBookings = bookings.filter(
         (b) => new Date(b.checkIn) < new Date() || b.status === "CANCELLED"
     );
+
+    const tierColors = {
+        BRONZE: "#cd7f32",
+        SILVER: "#c0c0c0",
+        GOLD: "#ffd700",
+        PLATINUM: "#e5e4e2",
+    };
 
     return (
         <>
@@ -81,6 +94,54 @@ export default async function ProfilePage() {
                         </form>
                     </div>
                 </div>
+
+                {/* Wallet & Loyalty Card */}
+                <Link
+                    href="/wallet"
+                    style={{ textDecoration: "none" }}
+                >
+                    <div
+                        style={{
+                            background: "linear-gradient(135deg, #1d3557 0%, #457b9d 100%)",
+                            borderRadius: "1rem",
+                            padding: "1.25rem",
+                            marginBottom: "1.5rem",
+                            color: "white",
+                        }}
+                    >
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                            <div>
+                                <div style={{ fontSize: "0.75rem", opacity: 0.8, marginBottom: "0.25rem" }}>Wallet Balance</div>
+                                <div style={{ fontSize: "1.75rem", fontWeight: 700 }}>
+                                    ৳{Number(wallet?.balance || 0).toLocaleString()}
+                                </div>
+                            </div>
+                            <div style={{ textAlign: "right" }}>
+                                <div style={{ fontSize: "0.75rem", opacity: 0.8, marginBottom: "0.25rem" }}>Loyalty Points</div>
+                                <div style={{ fontSize: "1.25rem", fontWeight: 600 }}>
+                                    {(loyalty?.points || 0).toLocaleString()} pts
+                                </div>
+                                <div
+                                    style={{
+                                        display: "inline-block",
+                                        padding: "0.25rem 0.5rem",
+                                        background: tierColors[loyalty?.tier as keyof typeof tierColors || "BRONZE"],
+                                        color: loyalty?.tier === "SILVER" || loyalty?.tier === "PLATINUM" ? "#333" : "white",
+                                        borderRadius: "1rem",
+                                        fontSize: "0.625rem",
+                                        fontWeight: 600,
+                                        marginTop: "0.25rem",
+                                    }}
+                                >
+                                    {loyalty?.tier || "BRONZE"} 🏆
+                                </div>
+                            </div>
+                        </div>
+                        <div style={{ fontSize: "0.75rem", marginTop: "0.75rem", opacity: 0.7 }}>
+                            Tap to manage wallet →
+                        </div>
+                    </div>
+                </Link>
 
                 {/* Quick Stats */}
                 <div

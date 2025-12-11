@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "@repo/db";
-import { bookings, rooms, hotels } from "@repo/db/schema";
+import { bookings, rooms, hotels, loyaltyPoints } from "@repo/db/schema";
 import { eq, and, desc, sql, gte, lte } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { auth } from "../../auth";
@@ -334,6 +334,46 @@ export async function checkOutGuest(
             .update(bookings)
             .set({ status: "CHECKED_OUT" })
             .where(eq(bookings.id, bookingId));
+
+        // Award loyalty points to customer if they have an account
+        // 1 point per ৳10 spent + bonus 50 points for platform booking
+        if (booking.userId) {
+            const basePoints = Math.floor(Number(booking.totalAmount) / 10);
+            const bonusPoints = booking.bookingSource === "PLATFORM" ? 50 : 0;
+            const pointsToAward = basePoints + bonusPoints;
+
+            // Get or create loyalty record
+            let loyalty = await db.query.loyaltyPoints.findFirst({
+                where: eq(loyaltyPoints.userId, booking.userId),
+            });
+
+            if (!loyalty) {
+                const [newLoyalty] = await db
+                    .insert(loyaltyPoints)
+                    .values({ userId: booking.userId })
+                    .returning();
+                loyalty = newLoyalty!;
+            }
+
+            // Calculate new points and tier
+            const newPoints = (loyalty?.points || 0) + pointsToAward;
+            const newLifetime = (loyalty?.lifetimePoints || 0) + pointsToAward;
+
+            let newTier: "BRONZE" | "SILVER" | "GOLD" | "PLATINUM" = "BRONZE";
+            if (newLifetime >= 10000) newTier = "PLATINUM";
+            else if (newLifetime >= 5000) newTier = "GOLD";
+            else if (newLifetime >= 1000) newTier = "SILVER";
+
+            await db
+                .update(loyaltyPoints)
+                .set({
+                    points: newPoints,
+                    lifetimePoints: newLifetime,
+                    tier: newTier,
+                    updatedAt: new Date(),
+                })
+                .where(eq(loyaltyPoints.userId, booking.userId));
+        }
 
         revalidatePath("/");
         return { success: true };
