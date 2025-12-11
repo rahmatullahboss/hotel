@@ -312,11 +312,6 @@ body {
   padding-bottom: 160px !important;
 }
 
-/* Main content padding for bottom nav */
-main {
-  padding-bottom: calc(5rem + env(safe-area-inset-bottom));
-}
-
 /* Rating Stars */
 .rating {
   display: flex;
