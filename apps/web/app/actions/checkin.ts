@@ -35,12 +35,11 @@ export async function customerSelfCheckIn(
             return { success: false, error: "Hotel not found" };
         }
 
-        // Find user's confirmed booking for today at this hotel
-        const booking = await db.query.bookings.findFirst({
+        // Find user's booking for today at this hotel (any status)
+        const anyBooking = await db.query.bookings.findFirst({
             where: and(
                 eq(bookings.hotelId, hotelId),
                 eq(bookings.userId, userId),
-                eq(bookings.status, "CONFIRMED"),
                 lte(bookings.checkIn, today),
                 gte(bookings.checkOut, today)
             ),
@@ -49,17 +48,36 @@ export async function customerSelfCheckIn(
             },
         });
 
-        if (!booking) {
+        if (!anyBooking) {
             return {
                 success: false,
-                error: "No confirmed booking found for today at this hotel. Please check your booking details."
+                error: "No booking found for today at this hotel. Please check your booking details."
             };
         }
 
         // Check if already checked in
-        if (booking.status === "CHECKED_IN") {
-            return { success: false, error: "You are already checked in" };
+        if (anyBooking.status === "CHECKED_IN") {
+            return {
+                success: true,
+                booking: {
+                    id: anyBooking.id,
+                    hotelName: hotel.name,
+                    roomName: anyBooking.room?.name || "Room",
+                    checkIn: anyBooking.checkIn,
+                    checkOut: anyBooking.checkOut,
+                },
+            };
         }
+
+        // Check if booking is confirmed
+        if (anyBooking.status !== "CONFIRMED") {
+            return {
+                success: false,
+                error: `Your booking status is "${anyBooking.status}". Only confirmed bookings can be checked in.`
+            };
+        }
+
+        const booking = anyBooking;
 
         // Update booking status to CHECKED_IN
         await db
