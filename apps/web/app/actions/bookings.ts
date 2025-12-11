@@ -70,8 +70,8 @@ export async function createBooking(input: CreateBookingInput): Promise<BookingR
             return { success: false, error: "Room not found" };
         }
 
-        // Calculate commission (12%) and advance payment
-        const commissionAmount = Math.round(totalAmount * 0.12);
+        // Calculate commission (20%) and advance payment
+        const commissionAmount = Math.round(totalAmount * 0.20);
         const netAmount = totalAmount - commissionAmount;
         const bookingFee = calculateBookingFee(totalAmount, paymentMethod);
 
