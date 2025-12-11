@@ -134,10 +134,33 @@ function BookingContent() {
 
                     // Handle payment based on method
                     if (paymentMethod === "PAY_AT_HOTEL") {
-                        // Check if advance was paid from wallet or needs bKash
-                        // If bookingFeeStatus is PENDING, redirect to bKash for 20% advance
-                        // For now, go to confirmation - they paid via wallet or will pay via bKash
-                        setStep(3);
+                        if (result.requiresPayment) {
+                            // Wallet insufficient - redirect to bKash for 20% advance
+                            try {
+                                const paymentResponse = await fetch("/api/payment/initiate", {
+                                    method: "POST",
+                                    headers: { "Content-Type": "application/json" },
+                                    body: JSON.stringify({
+                                        bookingId: result.bookingId,
+                                        amount: result.advanceAmount, // Only 20% advance
+                                    }),
+                                });
+                                const paymentData = await paymentResponse.json();
+
+                                if (paymentData.success && paymentData.redirectUrl) {
+                                    // Redirect to bKash for 20% advance payment
+                                    window.location.href = paymentData.redirectUrl;
+                                    return;
+                                } else {
+                                    setError("Failed to initiate payment. Please add money to wallet and try again.");
+                                }
+                            } catch (paymentErr) {
+                                setError("Payment service unavailable. Please add money to wallet.");
+                            }
+                        } else {
+                            // Wallet had enough, 20% already paid - confirm booking
+                            setStep(3);
+                        }
                     } else if (paymentMethod === "BKASH") {
                         // Full payment via bKash
                         try {
@@ -153,16 +176,13 @@ function BookingContent() {
                                 return;
                             } else {
                                 setError(paymentData.error || "Failed to initiate payment. Please try again.");
-                                setStep(3);
                             }
                         } catch (paymentErr) {
-                            setError("Payment service unavailable. Your booking is saved.");
-                            setStep(3);
+                            setError("Payment service unavailable.");
                         }
                     } else if (paymentMethod === "NAGAD" || paymentMethod === "CARD") {
                         // TODO: Implement Nagad and Card payments
                         setError("This payment method is coming soon.");
-                        setStep(3);
                     }
                 } else {
                     setError(result.error || "Failed to create booking");

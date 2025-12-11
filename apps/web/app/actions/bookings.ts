@@ -23,7 +23,9 @@ export interface BookingResult {
     success: boolean;
     bookingId?: string;
     error?: string;
-    bookingFee?: number; // Return fee amount for display
+    bookingFee?: number;
+    requiresPayment?: boolean; // True if 20% advance needs to be paid via bKash
+    advanceAmount?: number; // Amount to pay via bKash
 }
 
 /**
@@ -85,6 +87,7 @@ export async function createBooking(input: CreateBookingInput): Promise<BookingR
         }
 
         // For Pay at Hotel: Try wallet first, if not enough, require digital payment
+        let requiresPayment = false;
         if (paymentMethod === "PAY_AT_HOTEL") {
             const wallet = await db.query.wallets.findFirst({
                 where: eq(wallets.userId, userId),
@@ -102,13 +105,12 @@ export async function createBooking(input: CreateBookingInput): Promise<BookingR
 
                 bookingFeeStatus = "PAID";
             } else {
-                // Wallet insufficient - will need to pay via bKash
-                // Create booking with PENDING status, payment will be handled separately
+                // Wallet insufficient - need to pay 20% via bKash
+                requiresPayment = true;
                 bookingFeeStatus = "PENDING";
             }
         }
         // For online payments (bKash, Nagad, Card): Full payment handled by payment gateway
-        // No wallet deduction needed here - bookingFeeStatus stays PENDING until payment confirmed
 
         // Calculate number of nights
         const checkInDate = new Date(checkIn);
@@ -175,7 +177,13 @@ export async function createBooking(input: CreateBookingInput): Promise<BookingR
         revalidatePath("/bookings");
         revalidatePath("/wallet");
 
-        return { success: true, bookingId: booking?.id, bookingFee };
+        return {
+            success: true,
+            bookingId: booking?.id,
+            bookingFee,
+            requiresPayment,
+            advanceAmount: requiresPayment ? bookingFee : undefined,
+        };
     } catch (error) {
         console.error("Error creating booking:", error);
         return { success: false, error: "Failed to create booking" };

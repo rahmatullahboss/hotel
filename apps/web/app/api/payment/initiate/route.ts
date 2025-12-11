@@ -7,7 +7,7 @@ import { createBkashPayment } from "@repo/config/payment";
 export async function POST(request: NextRequest) {
     try {
         const body = await request.json();
-        const { bookingId } = body;
+        const { bookingId, amount } = body; // amount is optional - for partial payment (20% advance)
 
         if (!bookingId) {
             return NextResponse.json(
@@ -32,21 +32,27 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        if (booking.paymentStatus === "PAID") {
+        if (booking.paymentStatus === "PAID" || booking.bookingFeeStatus === "PAID") {
             return NextResponse.json(
-                { success: false, error: "Booking is already paid" },
+                { success: false, error: "Payment already completed" },
                 { status: 400 }
             );
         }
 
+        // Use custom amount (for 20% advance) or full booking amount
+        const paymentAmount = amount || Number(booking.totalAmount);
+        const isAdvancePayment = !!amount && amount < Number(booking.totalAmount);
+
         // Create bKash payment
         const result = await createBkashPayment({
             bookingId: booking.id,
-            totalAmount: Number(booking.totalAmount),
+            totalAmount: paymentAmount,
             customerName: booking.guestName,
             customerEmail: booking.guestEmail || undefined,
             customerPhone: booking.guestPhone,
-            productName: `Hotel Booking - ${booking.hotel?.name || "Hotel"}`,
+            productName: isAdvancePayment
+                ? `Advance Payment - ${booking.hotel?.name || "Hotel"}`
+                : `Hotel Booking - ${booking.hotel?.name || "Hotel"}`,
         });
 
         if (result.success && result.bkashURL) {
