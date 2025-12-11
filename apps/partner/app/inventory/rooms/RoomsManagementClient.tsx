@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { addRoom, requestRoomRemoval, cancelRoomRemovalRequest, type NewRoomInput } from "../../actions/inventory";
+import { uploadRoomPhoto } from "../../actions/upload";
 import Link from "next/link";
 
 const ROOM_TYPES = [
@@ -34,6 +35,7 @@ interface Room {
     maxGuests: number;
     description: string | null;
     isActive: boolean;
+    photos?: string[] | null;
 }
 
 interface RoomsManagementClientProps {
@@ -48,6 +50,9 @@ export default function RoomsManagementClient({ hotelId, rooms: initialRooms }: 
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState<string | null>(null);
     const [selectedAmenities, setSelectedAmenities] = useState<string[]>([]);
+    const [uploadingPhoto, setUploadingPhoto] = useState(false);
+    const [photos, setPhotos] = useState<string[]>([]);
+    const fileInputRef = useRef<HTMLInputElement>(null);
 
     // Form state
     const [roomNumber, setRoomNumber] = useState("");
@@ -56,6 +61,34 @@ export default function RoomsManagementClient({ hotelId, rooms: initialRooms }: 
     const [basePrice, setBasePrice] = useState("");
     const [maxGuests, setMaxGuests] = useState("2");
     const [description, setDescription] = useState("");
+
+    const handlePhotoUpload = async (files: FileList | null) => {
+        if (!files || files.length === 0) return;
+
+        setUploadingPhoto(true);
+        setError(null);
+
+        for (const file of Array.from(files)) {
+            const formData = new FormData();
+            formData.append("file", file);
+
+            const result = await uploadRoomPhoto(formData);
+            if (result.success && result.url) {
+                setPhotos(prev => [...prev, result.url!]);
+            } else {
+                setError(result.error || "Failed to upload photo");
+            }
+        }
+
+        setUploadingPhoto(false);
+        if (fileInputRef.current) {
+            fileInputRef.current.value = "";
+        }
+    };
+
+    const removePhoto = (urlToRemove: string) => {
+        setPhotos(prev => prev.filter(url => url !== urlToRemove));
+    };
 
     const handleAddRoom = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -72,6 +105,7 @@ export default function RoomsManagementClient({ hotelId, rooms: initialRooms }: 
                 maxGuests: parseInt(maxGuests),
                 description: description || undefined,
                 amenities: selectedAmenities,
+                photos: photos,
             });
 
             if (result.success) {
@@ -85,6 +119,7 @@ export default function RoomsManagementClient({ hotelId, rooms: initialRooms }: 
                 setMaxGuests("2");
                 setDescription("");
                 setSelectedAmenities([]);
+                setPhotos([]);
                 router.refresh();
             } else {
                 setError(result.error || "Failed to add room");
@@ -354,18 +389,125 @@ export default function RoomsManagementClient({ hotelId, rooms: initialRooms }: 
                                 </div>
                             </div>
 
+                            {/* Photo Upload */}
+                            <div style={{ marginTop: "1.5rem" }}>
+                                <label style={{ display: "block", marginBottom: "0.5rem", fontSize: "0.875rem", fontWeight: 500 }}>
+                                    Room Photos
+                                </label>
+
+                                {/* Upload Area */}
+                                <div
+                                    onClick={() => fileInputRef.current?.click()}
+                                    onDragOver={(e) => e.preventDefault()}
+                                    onDrop={(e) => {
+                                        e.preventDefault();
+                                        handlePhotoUpload(e.dataTransfer.files);
+                                    }}
+                                    style={{
+                                        border: "2px dashed var(--color-border)",
+                                        borderRadius: "0.5rem",
+                                        padding: "1.5rem",
+                                        textAlign: "center",
+                                        cursor: "pointer",
+                                        transition: "all 0.2s",
+                                        background: uploadingPhoto ? "var(--color-bg-secondary)" : "white",
+                                    }}
+                                >
+                                    <input
+                                        ref={fileInputRef}
+                                        type="file"
+                                        accept="image/jpeg,image/png,image/webp"
+                                        multiple
+                                        onChange={(e) => handlePhotoUpload(e.target.files)}
+                                        style={{ display: "none" }}
+                                    />
+                                    {uploadingPhoto ? (
+                                        <div style={{ color: "var(--color-text-secondary)" }}>
+                                            <span style={{ fontSize: "1.5rem" }}>⏳</span>
+                                            <p style={{ marginTop: "0.5rem", fontSize: "0.875rem" }}>Uploading...</p>
+                                        </div>
+                                    ) : (
+                                        <div style={{ color: "var(--color-text-secondary)" }}>
+                                            <span style={{ fontSize: "2rem" }}>📷</span>
+                                            <p style={{ marginTop: "0.5rem", fontSize: "0.875rem" }}>
+                                                Click or drag photos here
+                                            </p>
+                                            <p style={{ fontSize: "0.75rem", marginTop: "0.25rem" }}>
+                                                JPG, PNG, WebP • Max 5MB each
+                                            </p>
+                                        </div>
+                                    )}
+                                </div>
+
+                                {/* Photo Preview Gallery */}
+                                {photos.length > 0 && (
+                                    <div style={{
+                                        display: "grid",
+                                        gridTemplateColumns: "repeat(auto-fill, minmax(100px, 1fr))",
+                                        gap: "0.75rem",
+                                        marginTop: "1rem"
+                                    }}>
+                                        {photos.map((url, index) => (
+                                            <div
+                                                key={url}
+                                                style={{
+                                                    position: "relative",
+                                                    aspectRatio: "1",
+                                                    borderRadius: "0.5rem",
+                                                    overflow: "hidden",
+                                                    border: "1px solid var(--color-border)"
+                                                }}
+                                            >
+                                                <img
+                                                    src={url}
+                                                    alt={`Room photo ${index + 1}`}
+                                                    style={{
+                                                        width: "100%",
+                                                        height: "100%",
+                                                        objectFit: "cover"
+                                                    }}
+                                                />
+                                                <button
+                                                    type="button"
+                                                    onClick={() => removePhoto(url)}
+                                                    style={{
+                                                        position: "absolute",
+                                                        top: "4px",
+                                                        right: "4px",
+                                                        width: "24px",
+                                                        height: "24px",
+                                                        borderRadius: "50%",
+                                                        background: "rgba(0,0,0,0.6)",
+                                                        color: "white",
+                                                        border: "none",
+                                                        cursor: "pointer",
+                                                        display: "flex",
+                                                        alignItems: "center",
+                                                        justifyContent: "center",
+                                                        fontSize: "14px"
+                                                    }}
+                                                >
+                                                    ×
+                                                </button>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+
                             {/* Submit */}
                             <button
                                 type="submit"
-                                disabled={isPending}
+                                disabled={isPending || uploadingPhoto}
                                 className="btn btn-primary"
-                                style={{ marginTop: "1.5rem", width: "100%", opacity: isPending ? 0.7 : 1 }}
+                                style={{ marginTop: "1.5rem", width: "100%", opacity: (isPending || uploadingPhoto) ? 0.7 : 1 }}
                             >
                                 {isPending ? "Adding..." : "Add Room"}
                             </button>
                         </form>
                     </div>
                 )}
+
 
                 {/* Rooms List */}
                 <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>

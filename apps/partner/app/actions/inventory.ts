@@ -191,6 +191,7 @@ export interface NewRoomInput {
     maxGuests: number;
     description?: string;
     amenities?: string[];
+    photos?: string[];
 }
 
 /**
@@ -223,6 +224,7 @@ export async function addRoom(
                 maxGuests: input.maxGuests,
                 description: input.description,
                 amenities: input.amenities || [],
+                photos: input.photos || [],
             })
             .returning({ id: rooms.id });
 
@@ -234,6 +236,7 @@ export async function addRoom(
         return { success: false, error: "Failed to add room" };
     }
 }
+
 
 /**
  * Request room removal (admin must approve)
