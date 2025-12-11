@@ -1,9 +1,12 @@
 "use server";
 
 import { put, del } from "@vercel/blob";
+import { optimizeImage, getOptimizedFilename } from "../lib/image-optimizer";
 
 /**
- * Upload room photo to Vercel Blob storage
+ * Upload room photo to Vercel Blob storage with automatic optimization
+ * - Compresses and converts to WebP format
+ * - Resizes to max 1920px width
  */
 export async function uploadRoomPhoto(
     formData: FormData
@@ -16,25 +19,29 @@ export async function uploadRoomPhoto(
         }
 
         // Validate file type
-        const validTypes = ["image/jpeg", "image/png", "image/webp"];
-        if (!validTypes.includes(file.type)) {
-            return { success: false, error: "Invalid file type. Use JPG, PNG, or WebP" };
+        if (!file.type.startsWith("image/")) {
+            return { success: false, error: "Only image files allowed" };
         }
 
-        // Validate file size (max 5MB)
-        const maxSize = 5 * 1024 * 1024;
+        // Validate file size (max 10MB before compression)
+        const maxSize = 10 * 1024 * 1024;
         if (file.size > maxSize) {
-            return { success: false, error: "File too large. Max 5MB" };
+            return { success: false, error: "File too large. Max 10MB" };
         }
 
-        // Generate unique filename
-        const timestamp = Date.now();
-        const extension = file.name.split(".").pop();
-        const filename = `rooms/${timestamp}-${Math.random().toString(36).substring(7)}.${extension}`;
+        // Optimize image (resize + convert to WebP)
+        const optimizedBuffer = await optimizeImage(file, {
+            maxWidth: 1920,
+            quality: 80,
+        });
+
+        // Generate filename with .webp extension
+        const filename = getOptimizedFilename(file.name, "rooms");
 
         // Upload to Vercel Blob
-        const blob = await put(filename, file, {
+        const blob = await put(filename, optimizedBuffer, {
             access: "public",
+            contentType: "image/webp",
         });
 
         return { success: true, url: blob.url };
@@ -43,6 +50,7 @@ export async function uploadRoomPhoto(
         return { success: false, error: "Failed to upload photo" };
     }
 }
+
 
 /**
  * Delete a room photo from Vercel Blob storage

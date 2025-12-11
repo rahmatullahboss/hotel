@@ -1,5 +1,6 @@
 import { put } from "@vercel/blob";
 import { NextResponse } from "next/server";
+import { optimizeImage, getOptimizedFilename } from "../../lib/image-optimizer";
 
 export async function POST(request: Request) {
     try {
@@ -15,19 +16,24 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: "Only image files allowed" }, { status: 400 });
         }
 
-        // Limit size to 5MB
-        if (file.size > 5 * 1024 * 1024) {
-            return NextResponse.json({ error: "File too large (max 5MB)" }, { status: 400 });
+        // Limit size to 10MB before compression
+        if (file.size > 10 * 1024 * 1024) {
+            return NextResponse.json({ error: "File too large (max 10MB)" }, { status: 400 });
         }
 
-        // Generate unique filename
-        const timestamp = Date.now();
-        const extension = file.name.split(".").pop() || "jpg";
-        const filename = `guest-ids/${timestamp}.${extension}`;
+        // Optimize image (resize to 1280px max for ID photos + convert to WebP)
+        const optimizedBuffer = await optimizeImage(file, {
+            maxWidth: 1280,
+            quality: 80,
+        });
+
+        // Generate filename with .webp extension
+        const filename = getOptimizedFilename(file.name, "guest-ids");
 
         // Upload to Vercel Blob
-        const blob = await put(filename, file, {
+        const blob = await put(filename, optimizedBuffer, {
             access: "public",
+            contentType: "image/webp",
         });
 
         return NextResponse.json({ url: blob.url });
@@ -36,3 +42,4 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: "Upload failed" }, { status: 500 });
     }
 }
+

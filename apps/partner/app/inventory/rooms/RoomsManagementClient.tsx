@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useTransition, useRef } from "react";
+import { useState, useTransition, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { addRoom, requestRoomRemoval, cancelRoomRemovalRequest, type NewRoomInput } from "../../actions/inventory";
+import { addRoom, requestRoomRemoval, cancelRoomRemovalRequest, updateRoom, type NewRoomInput, type UpdateRoomInput } from "../../actions/inventory";
 import { uploadRoomPhoto } from "../../actions/upload";
 import Link from "next/link";
 
@@ -36,6 +36,7 @@ interface Room {
     description: string | null;
     isActive: boolean;
     photos?: string[] | null;
+    amenities?: string[] | null;
 }
 
 interface RoomsManagementClientProps {
@@ -61,6 +62,31 @@ export default function RoomsManagementClient({ hotelId, rooms: initialRooms }: 
     const [basePrice, setBasePrice] = useState("");
     const [maxGuests, setMaxGuests] = useState("2");
     const [description, setDescription] = useState("");
+
+    // Edit state
+    const [editingRoom, setEditingRoom] = useState<Room | null>(null);
+    const [editRoomNumber, setEditRoomNumber] = useState("");
+    const [editRoomName, setEditRoomName] = useState("");
+    const [editRoomType, setEditRoomType] = useState<NewRoomInput["type"]>("DOUBLE");
+    const [editBasePrice, setEditBasePrice] = useState("");
+    const [editMaxGuests, setEditMaxGuests] = useState("2");
+    const [editDescription, setEditDescription] = useState("");
+    const [editAmenities, setEditAmenities] = useState<string[]>([]);
+    const [editPhotos, setEditPhotos] = useState<string[]>([]);
+
+    // Load edit form when editing room changes
+    useEffect(() => {
+        if (editingRoom) {
+            setEditRoomNumber(editingRoom.roomNumber);
+            setEditRoomName(editingRoom.name);
+            setEditRoomType(editingRoom.type as NewRoomInput["type"]);
+            setEditBasePrice(editingRoom.basePrice);
+            setEditMaxGuests(editingRoom.maxGuests.toString());
+            setEditDescription(editingRoom.description?.replace(/^\[REMOVAL_REQUESTED:.*?\]\s*/, "") || "");
+            setEditAmenities(editingRoom.amenities || []);
+            setEditPhotos(editingRoom.photos || []);
+        }
+    }, [editingRoom]);
 
     const handlePhotoUpload = async (files: FileList | null) => {
         if (!files || files.length === 0) return;
@@ -160,6 +186,68 @@ export default function RoomsManagementClient({ hotelId, rooms: initialRooms }: 
                 ? prev.filter((a) => a !== amenity)
                 : [...prev, amenity]
         );
+    };
+
+    const toggleEditAmenity = (amenity: string) => {
+        setEditAmenities((prev) =>
+            prev.includes(amenity)
+                ? prev.filter((a) => a !== amenity)
+                : [...prev, amenity]
+        );
+    };
+
+    const handleEditRoom = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!editingRoom) return;
+        setError(null);
+        setSuccess(null);
+
+        startTransition(async () => {
+            const result = await updateRoom({
+                roomId: editingRoom.id,
+                roomNumber: editRoomNumber,
+                name: editRoomName,
+                type: editRoomType,
+                basePrice: parseFloat(editBasePrice),
+                maxGuests: parseInt(editMaxGuests),
+                description: editDescription || undefined,
+                amenities: editAmenities,
+                photos: editPhotos,
+            });
+
+            if (result.success) {
+                setSuccess("Room updated successfully!");
+                setEditingRoom(null);
+                router.refresh();
+            } else {
+                setError(result.error || "Failed to update room");
+            }
+        });
+    };
+
+    const handleEditPhotoUpload = async (files: FileList | null) => {
+        if (!files || files.length === 0) return;
+
+        setUploadingPhoto(true);
+        setError(null);
+
+        for (const file of Array.from(files)) {
+            const formData = new FormData();
+            formData.append("file", file);
+
+            const result = await uploadRoomPhoto(formData);
+            if (result.success && result.url) {
+                setEditPhotos(prev => [...prev, result.url!]);
+            } else {
+                setError(result.error || "Failed to upload photo");
+            }
+        }
+
+        setUploadingPhoto(false);
+    };
+
+    const removeEditPhoto = (urlToRemove: string) => {
+        setEditPhotos(prev => prev.filter(url => url !== urlToRemove));
     };
 
     return (

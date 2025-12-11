@@ -237,6 +237,71 @@ export async function addRoom(
     }
 }
 
+export interface UpdateRoomInput {
+    roomId: string;
+    roomNumber?: string;
+    name?: string;
+    type?: "SINGLE" | "DOUBLE" | "SUITE" | "DORMITORY";
+    basePrice?: number;
+    maxGuests?: number;
+    description?: string;
+    amenities?: string[];
+    photos?: string[];
+}
+
+/**
+ * Update an existing room
+ */
+export async function updateRoom(
+    input: UpdateRoomInput
+): Promise<{ success: boolean; error?: string }> {
+    try {
+        const existingRoom = await db.query.rooms.findFirst({
+            where: eq(rooms.id, input.roomId),
+        });
+
+        if (!existingRoom) {
+            return { success: false, error: "Room not found" };
+        }
+
+        // Check if new room number conflicts with another room
+        if (input.roomNumber && input.roomNumber !== existingRoom.roomNumber) {
+            const conflictingRoom = await db.query.rooms.findFirst({
+                where: and(
+                    eq(rooms.hotelId, existingRoom.hotelId),
+                    eq(rooms.roomNumber, input.roomNumber)
+                ),
+            });
+
+            if (conflictingRoom) {
+                return { success: false, error: "Room number already exists" };
+            }
+        }
+
+        await db
+            .update(rooms)
+            .set({
+                ...(input.roomNumber && { roomNumber: input.roomNumber }),
+                ...(input.name && { name: input.name }),
+                ...(input.type && { type: input.type }),
+                ...(input.basePrice !== undefined && { basePrice: input.basePrice.toString() }),
+                ...(input.maxGuests !== undefined && { maxGuests: input.maxGuests }),
+                ...(input.description !== undefined && { description: input.description }),
+                ...(input.amenities && { amenities: input.amenities }),
+                ...(input.photos && { photos: input.photos }),
+                updatedAt: new Date(),
+            })
+            .where(eq(rooms.id, input.roomId));
+
+        revalidatePath("/inventory");
+        revalidatePath("/inventory/rooms");
+        revalidatePath("/");
+        return { success: true };
+    } catch (error) {
+        console.error("Error updating room:", error);
+        return { success: false, error: "Failed to update room" };
+    }
+}
 
 /**
  * Request room removal (admin must approve)
