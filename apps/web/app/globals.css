@@ -308,15 +308,15 @@ body {
 }
 
 /* Standard page content - accounts for bottom nav on mobile */
-.page-content {
+main.page-content {
   padding: 1rem;
-  padding-bottom: 100px !important;
+  padding-bottom: 100px;
 }
 
 /* Pages with book-now-bar need extra padding on mobile */
-.page-with-book-bar {
+main.page-with-book-bar {
   padding: 1rem;
-  padding-bottom: 170px !important;
+  padding-bottom: 170px;
 }
 
 /* Rating Stars */
@@ -450,7 +450,7 @@ body {
   }
 
   /* Standard pages - normal padding on desktop */
-  .page-content {
+  main.page-content {
     padding-bottom: 2rem;
   }
 
@@ -461,7 +461,7 @@ body {
   }
 
   /* Pages with book bar need space for the sticky footer */
-  .page-with-book-bar {
+  main.page-with-book-bar {
     padding-bottom: 100px;
   }
 
