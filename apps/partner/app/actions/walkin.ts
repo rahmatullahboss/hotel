@@ -2,7 +2,7 @@
 
 import { db } from "@repo/db";
 import { bookings, rooms, roomInventory, hotels } from "@repo/db/schema";
-import { eq, and, gte, lte } from "drizzle-orm";
+import { eq, and, gte, lte, or, ne } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { getPartnerHotel } from "./dashboard";
 
@@ -16,12 +16,15 @@ export interface WalkInInput {
     checkOut: string;
     totalAmount: number;
     notes?: string;
+    guestIdPhoto?: string; // ID card photo URL for security
 }
 
 /**
  * Record a walk-in customer
  * Walk-ins have NO commission - they're just tracked for inventory
- * FRAUD PREVENTION: Cannot record walk-in if there's an existing platform booking for the room/dates
+ * FRAUD PREVENTION: 
+ * 1. Cannot record walk-in if room has existing platform booking
+ * 2. Cannot record walk-in if phone number matches a platform booking
  */
 export async function recordWalkIn(
     input: WalkInInput
@@ -41,24 +44,44 @@ export async function recordWalkIn(
             return { success: false, error: "Room not found" };
         }
 
-        // FRAUD PREVENTION: Check if there's an existing platform booking for this room/dates
-        // This prevents hotels from recording walk-ins to avoid paying commission
-        const existingPlatformBooking = await db.query.bookings.findFirst({
+        // FRAUD PREVENTION 1: Check if room has platform booking for these dates
+        const existingRoomBooking = await db.query.bookings.findFirst({
             where: and(
                 eq(bookings.roomId, input.roomId),
                 eq(bookings.bookingSource, "PLATFORM"),
-                // Check for overlapping dates
                 lte(bookings.checkIn, input.checkOut),
                 gte(bookings.checkOut, input.checkIn),
-                // Only consider active bookings (not cancelled)
-                eq(bookings.status, "CONFIRMED"),
+                ne(bookings.status, "CANCELLED"),
             ),
         });
 
-        if (existingPlatformBooking) {
+        if (existingRoomBooking) {
             return {
                 success: false,
                 error: "This room has an existing platform booking for these dates. Please check in the platform booking instead.",
+            };
+        }
+
+        // FRAUD PREVENTION 2: Check if phone number matches any platform booking
+        // This catches when hotel tries to record a platform customer as walk-in
+        const existingPhoneBooking = await db.query.bookings.findFirst({
+            where: and(
+                eq(bookings.hotelId, hotel.id),
+                eq(bookings.guestPhone, input.guestPhone),
+                eq(bookings.bookingSource, "PLATFORM"),
+                lte(bookings.checkIn, input.checkOut),
+                gte(bookings.checkOut, input.checkIn),
+                or(
+                    eq(bookings.status, "CONFIRMED"),
+                    eq(bookings.status, "PENDING")
+                ),
+            ),
+        });
+
+        if (existingPhoneBooking) {
+            return {
+                success: false,
+                error: `This guest (${input.guestPhone}) has an existing platform booking. Please use the Scanner to check them in.`,
             };
         }
 
@@ -90,6 +113,7 @@ export async function recordWalkIn(
                 status: "CHECKED_IN", // Walk-ins are already at the hotel
                 paymentStatus: "PAY_AT_HOTEL",
                 notes: input.notes || "Walk-in guest",
+                guestIdPhoto: input.guestIdPhoto || null, // ID card photo for security
             })
             .returning({ id: bookings.id });
 

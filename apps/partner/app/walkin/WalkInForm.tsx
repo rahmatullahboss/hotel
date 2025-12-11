@@ -6,10 +6,10 @@ import { recordWalkIn } from "../actions/walkin";
 
 interface Room {
     id: string;
-    number: string;  // Changed from roomNumber to match RoomStatus
+    number: string;
     name: string;
     type: string;
-    price: number;  // Changed from basePrice to match RoomStatus
+    price: number;
     status: string;
 }
 
@@ -22,9 +22,38 @@ export function WalkInForm({ rooms }: WalkInFormProps) {
     const [isPending, startTransition] = useTransition();
     const [selectedRoom, setSelectedRoom] = useState<Room | null>(null);
     const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
+    const [idPhotoUrl, setIdPhotoUrl] = useState<string | null>(null);
+    const [uploadingPhoto, setUploadingPhoto] = useState(false);
 
     const today = new Date().toISOString().split("T")[0]!;
     const tomorrow = new Date(Date.now() + 86400000).toISOString().split("T")[0]!;
+
+    const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        setUploadingPhoto(true);
+        try {
+            const formData = new FormData();
+            formData.append("file", file);
+
+            const response = await fetch("/api/upload", {
+                method: "POST",
+                body: formData,
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                setIdPhotoUrl(data.url);
+            } else {
+                setMessage({ type: "error", text: "Failed to upload ID photo" });
+            }
+        } catch {
+            setMessage({ type: "error", text: "Failed to upload ID photo" });
+        } finally {
+            setUploadingPhoto(false);
+        }
+    };
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -43,6 +72,7 @@ export function WalkInForm({ rooms }: WalkInFormProps) {
                 checkOut: formData.get("checkOut") as string,
                 totalAmount: Number(formData.get("totalAmount")),
                 notes: formData.get("notes") as string || undefined,
+                guestIdPhoto: idPhotoUrl || undefined,
             });
 
             if (result.success) {
@@ -240,6 +270,91 @@ export function WalkInForm({ rooms }: WalkInFormProps) {
                         </div>
                     </div>
 
+                    {/* ID Photo Upload */}
+                    <div className="card" style={{ marginBottom: "1rem" }}>
+                        <h3 style={{ fontWeight: 600, marginBottom: "0.75rem" }}>Guest ID Photo</h3>
+                        <p style={{ fontSize: "0.875rem", color: "var(--color-text-secondary)", marginBottom: "1rem" }}>
+                            Upload guest&apos;s ID card for security verification
+                        </p>
+
+                        {idPhotoUrl ? (
+                            <div style={{ position: "relative" }}>
+                                <img
+                                    src={idPhotoUrl}
+                                    alt="Guest ID"
+                                    style={{
+                                        width: "100%",
+                                        maxHeight: "200px",
+                                        objectFit: "cover",
+                                        borderRadius: "0.5rem",
+                                        border: "2px solid var(--color-success)",
+                                    }}
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => setIdPhotoUrl(null)}
+                                    style={{
+                                        position: "absolute",
+                                        top: "0.5rem",
+                                        right: "0.5rem",
+                                        background: "var(--color-error)",
+                                        color: "white",
+                                        border: "none",
+                                        borderRadius: "50%",
+                                        width: "28px",
+                                        height: "28px",
+                                        cursor: "pointer",
+                                        display: "flex",
+                                        alignItems: "center",
+                                        justifyContent: "center",
+                                    }}
+                                >
+                                    ✕
+                                </button>
+                                <div style={{
+                                    fontSize: "0.75rem",
+                                    color: "var(--color-success)",
+                                    marginTop: "0.5rem",
+                                    textAlign: "center",
+                                }}>
+                                    ✓ ID photo uploaded
+                                </div>
+                            </div>
+                        ) : (
+                            <label
+                                style={{
+                                    display: "flex",
+                                    flexDirection: "column",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    padding: "2rem",
+                                    border: "2px dashed var(--color-border)",
+                                    borderRadius: "0.5rem",
+                                    cursor: uploadingPhoto ? "wait" : "pointer",
+                                    backgroundColor: "var(--color-bg-secondary)",
+                                }}
+                            >
+                                <input
+                                    type="file"
+                                    accept="image/*"
+                                    capture="environment"
+                                    onChange={handlePhotoUpload}
+                                    disabled={uploadingPhoto}
+                                    style={{ display: "none" }}
+                                />
+                                <div style={{ fontSize: "2rem", marginBottom: "0.5rem" }}>
+                                    {uploadingPhoto ? "⏳" : "📷"}
+                                </div>
+                                <div style={{ fontWeight: 500 }}>
+                                    {uploadingPhoto ? "Uploading..." : "Tap to take photo or upload"}
+                                </div>
+                                <div style={{ fontSize: "0.75rem", color: "var(--color-text-muted)" }}>
+                                    NID, Passport, or Driving License
+                                </div>
+                            </label>
+                        )}
+                    </div>
+
                     {/* Notes */}
                     <div className="card" style={{ marginBottom: "1.5rem" }}>
                         <label style={{ display: "block", fontWeight: 500, marginBottom: "0.5rem", fontSize: "0.875rem" }}>
@@ -284,7 +399,7 @@ export function WalkInForm({ rooms }: WalkInFormProps) {
                     <button
                         type="submit"
                         className="btn btn-primary"
-                        disabled={isPending}
+                        disabled={isPending || uploadingPhoto}
                         style={{ width: "100%", padding: "1rem" }}
                     >
                         {isPending ? "Recording..." : "Record Walk-in Guest"}

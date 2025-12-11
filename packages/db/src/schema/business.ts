@@ -198,6 +198,10 @@ export const bookings = pgTable("bookings", {
     paymentReference: text("paymentReference"),
     notes: text("notes"),
     qrCode: text("qrCode"),
+
+    // Guest ID photo for security/verification (stored as URL)
+    guestIdPhoto: text("guestIdPhoto"),
+
     createdAt: timestamp("createdAt", { mode: "date" }).defaultNow().notNull(),
     updatedAt: timestamp("updatedAt", { mode: "date" }).defaultNow().notNull(),
 });
