@@ -2,7 +2,7 @@
 
 import { db } from "@repo/db";
 import { bookings, rooms, hotels, users, wallets, walletTransactions } from "@repo/db/schema";
-import { eq, desc, and, gte, lte, ne } from "drizzle-orm";
+import { eq, desc, and, lt, gt, ne } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
 export interface CreateBookingInput {
@@ -74,22 +74,24 @@ export async function createBooking(input: CreateBookingInput): Promise<BookingR
         // A room is unavailable if there's an existing booking that:
         // - Is for the same room
         // - Is not cancelled
-        // - Has overlapping dates (checkIn < existingCheckOut AND checkOut > existingCheckIn)
+        // - Has overlapping dates (strict inequality allows same-day checkout/checkin)
         const existingBooking = await db.query.bookings.findFirst({
             where: and(
                 eq(bookings.roomId, roomId),
                 ne(bookings.status, "CANCELLED"),
-                // Date overlap check: new checkIn is before existing checkOut
-                // AND new checkOut is after existing checkIn
-                lte(bookings.checkIn, checkOut),
-                gte(bookings.checkOut, checkIn)
+                // Date overlap: existing starts before new ends AND existing ends after new starts
+                // Using strict < and > allows back-to-back bookings (checkout 12th, checkin 12th is OK)
+                lt(bookings.checkIn, checkOut),
+                gt(bookings.checkOut, checkIn)
             ),
         });
 
         if (existingBooking) {
+            // Format dates nicely for error message
+            const formatDate = (d: string) => new Date(d).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
             return {
                 success: false,
-                error: `This room is already booked from ${existingBooking.checkIn} to ${existingBooking.checkOut}. Please select different dates or another room.`,
+                error: `This room is booked ${formatDate(existingBooking.checkIn)} - ${formatDate(existingBooking.checkOut)}. Please select different dates.`,
             };
         }
 

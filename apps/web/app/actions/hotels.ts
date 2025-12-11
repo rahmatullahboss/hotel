@@ -189,7 +189,7 @@ export async function getAvailableRooms(
     try {
         // Import bookings for availability check
         const { bookings } = await import("@repo/db/schema");
-        const { ne, lte, gte, and: drizzleAnd } = await import("drizzle-orm");
+        const { ne, lt, gt, and: drizzleAnd } = await import("drizzle-orm");
 
         // Get all active rooms for the hotel
         const hotelRooms = await db.query.rooms.findMany({
@@ -200,15 +200,19 @@ export async function getAvailableRooms(
         const roomsWithAvailability = await Promise.all(
             hotelRooms.map(async (room) => {
                 // Check for overlapping bookings (not cancelled)
+                // Overlap exists when: existingCheckIn < newCheckOut AND existingCheckOut > newCheckIn
+                // This allows back-to-back bookings (checkout 12th, checkin 12th is OK)
                 const existingBooking = await db.query.bookings.findFirst({
                     where: drizzleAnd(
                         eq(bookings.roomId, room.id),
                         ne(bookings.status, "CANCELLED"),
-                        // Date overlap: checkIn < existingCheckOut AND checkOut > existingCheckIn
-                        lte(bookings.checkIn, checkOut),
-                        gte(bookings.checkOut, checkIn)
+                        lt(bookings.checkIn, checkOut),  // existing starts before new ends
+                        gt(bookings.checkOut, checkIn)   // existing ends after new starts
                     ),
                 });
+
+                // Format dates for display
+                const formatDate = (d: string) => new Date(d).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
 
                 return {
                     id: room.id,
@@ -218,7 +222,7 @@ export async function getAvailableRooms(
                     maxGuests: room.maxGuests,
                     isAvailable: !existingBooking,
                     unavailableReason: existingBooking
-                        ? `Booked ${existingBooking.checkIn} - ${existingBooking.checkOut}`
+                        ? `Booked ${formatDate(existingBooking.checkIn)} - ${formatDate(existingBooking.checkOut)}`
                         : undefined,
                 };
             })
