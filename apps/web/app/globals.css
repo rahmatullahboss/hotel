@@ -744,3 +744,51 @@ main.page-with-book-bar {
     display: block;
   }
 }
+
+/* ================================================
+   PAGE HEADER WITH BACK BUTTON
+   ================================================ */
+.page-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  background: white;
+  border-bottom: 1px solid var(--color-border);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+
+.page-header h1 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.back-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--color-bg-secondary);
+  color: var(--color-text-primary);
+  text-decoration: none;
+  transition: background-color 0.2s ease;
+}
+
+.back-button:hover {
+  background: var(--color-border);
+}
+
+@media (min-width: 1024px) {
+  .page-header {
+    padding: 1.5rem 2rem;
+  }
+
+  .page-header h1 {
+    font-size: 1.5rem;
+  }
+}
