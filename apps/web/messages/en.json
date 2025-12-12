@@ -23,7 +23,10 @@
         "comingSoon": "Coming Soon",
         "included": "Included",
         "taxesAndFees": "Taxes & Fees",
-        "room": "Room"
+        "room": "Room",
+        "signInRequired": "Sign In Required",
+        "signInToBook": "Please sign in to view your bookings",
+        "signInToContinue": "Sign In to Continue"
     },
     "nav": {
         "home": "Home",

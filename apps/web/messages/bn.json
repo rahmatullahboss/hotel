@@ -23,7 +23,10 @@
         "comingSoon": "শীঘ্রই আসছে",
         "included": "অন্তর্ভুক্ত",
         "taxesAndFees": "ট্যাক্স ও ফি",
-        "room": "রুম"
+        "room": "রুম",
+        "signInRequired": "সাইন ইন প্রয়োজন",
+        "signInToBook": "আপনার বুকিং দেখতে সাইন ইন করুন",
+        "signInToContinue": "সাইন ইন করুন"
     },
     "nav": {
         "home": "হোম",
