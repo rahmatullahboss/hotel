@@ -1771,7 +1771,7 @@ main.page-with-book-bar {
 /* Desktop Footer Enhancements */
 @media (min-width: 1024px) {
   .site-footer {
-    padding: 3rem 2rem 2rem;
+    padding: 4rem 2rem 1rem;
     margin-top: 1rem;
   }
 
