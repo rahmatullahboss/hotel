@@ -1881,8 +1881,8 @@ main.page-with-book-bar {
 .site-footer {
   background: var(--color-secondary);
   color: white;
-  padding: 2rem 1rem;
-  padding-bottom: calc(2rem + 80px);
+  padding: 1.25rem 1rem;
+  padding-bottom: calc(1.25rem + 80px);
   /* Extra padding for bottom nav on mobile */
   margin-top: 0;
 }
@@ -1893,7 +1893,7 @@ main.page-with-book-bar {
 }
 
 .footer-brand {
-  margin-bottom: 2rem;
+  margin-bottom: 1.25rem;
   text-align: center;
 }
 
