@@ -203,22 +203,28 @@ export default function BookingsPage() {
                     background: white;
                     border-radius: 1rem;
                     overflow: hidden;
-                    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+                    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08), 0 4px 12px rgba(0, 0, 0, 0.05);
                     margin-bottom: 1rem;
-                    transition: transform 0.2s, box-shadow 0.2s;
+                    transition: all 0.3s ease;
+                    border: 1px solid rgba(0, 0, 0, 0.06);
                 }
-                .booking-card:active {
-                    transform: scale(0.98);
+                .booking-card:hover {
+                    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
                 }
                 .booking-image {
                     position: relative;
-                    height: 140px;
+                    height: 180px;
                     overflow: hidden;
+                    background: linear-gradient(135deg, #f0f0f0 0%, #e0e0e0 100%);
                 }
                 .booking-image img {
                     width: 100%;
                     height: 100%;
                     object-fit: cover;
+                    transition: transform 0.5s ease;
+                }
+                .booking-card:hover .booking-image img {
+                    transform: scale(1.03);
                 }
                 .booking-status-overlay {
                     position: absolute;
@@ -227,57 +233,92 @@ export default function BookingsPage() {
                     display: flex;
                     gap: 0.5rem;
                 }
+                .booking-status-overlay .badge {
+                    font-size: 0.75rem;
+                    padding: 0.375rem 0.75rem;
+                    border-radius: 2rem;
+                    font-weight: 600;
+                    backdrop-filter: blur(4px);
+                    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+                }
                 .days-badge {
                     position: absolute;
                     top: 0.75rem;
                     right: 0.75rem;
-                    background: rgba(0, 0, 0, 0.7);
+                    background: linear-gradient(135deg, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.6));
                     color: white;
-                    padding: 0.25rem 0.75rem;
-                    border-radius: 1rem;
+                    padding: 0.375rem 0.875rem;
+                    border-radius: 2rem;
                     font-size: 0.75rem;
                     font-weight: 600;
+                    backdrop-filter: blur(4px);
+                    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+                }
+                .days-badge.today {
+                    background: linear-gradient(135deg, var(--color-success), #10b981);
+                    animation: pulse 2s infinite;
+                }
+                @keyframes pulse {
+                    0%, 100% { transform: scale(1); }
+                    50% { transform: scale(1.05); }
                 }
                 .booking-content {
-                    padding: 1rem;
+                    padding: 1rem 1rem 0.75rem;
+                }
+                .booking-header {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: flex-start;
+                    margin-bottom: 0.75rem;
                 }
                 .booking-hotel-name {
-                    font-size: 1.125rem;
+                    font-size: 1.0625rem;
                     font-weight: 700;
-                    margin-bottom: 0.25rem;
+                    margin-bottom: 0.125rem;
                     color: var(--color-text-primary);
+                    line-height: 1.3;
                 }
                 .booking-room {
-                    font-size: 0.875rem;
+                    font-size: 0.8125rem;
                     color: var(--color-text-secondary);
-                    margin-bottom: 0.75rem;
-                }
-                .booking-dates {
                     display: flex;
                     align-items: center;
-                    gap: 0.5rem;
+                    gap: 0.375rem;
+                }
+                .booking-room-icon {
+                    font-size: 0.875rem;
+                }
+                .booking-dates {
+                    display: grid;
+                    grid-template-columns: 1fr auto 1fr;
+                    align-items: center;
+                    gap: 0.75rem;
                     padding: 0.75rem;
-                    background: var(--color-bg-secondary);
-                    border-radius: 0.5rem;
+                    background: linear-gradient(135deg, var(--color-bg-secondary) 0%, rgba(230, 57, 70, 0.03) 100%);
+                    border-radius: 0.75rem;
                     margin-bottom: 0.75rem;
+                    border: 1px solid rgba(0, 0, 0, 0.04);
                 }
                 .date-block {
-                    flex: 1;
                     text-align: center;
                 }
                 .date-label {
                     font-size: 0.625rem;
                     text-transform: uppercase;
                     color: var(--color-text-secondary);
-                    letter-spacing: 0.5px;
+                    letter-spacing: 0.75px;
+                    font-weight: 500;
+                    margin-bottom: 0.25rem;
                 }
                 .date-value {
-                    font-size: 0.875rem;
+                    font-size: 0.8125rem;
                     font-weight: 600;
                     color: var(--color-text-primary);
                 }
                 .date-arrow {
-                    color: var(--color-text-secondary);
+                    color: var(--color-primary);
+                    font-size: 1rem;
+                    opacity: 0.7;
                 }
                 .booking-footer {
                     display: flex;
@@ -286,42 +327,88 @@ export default function BookingsPage() {
                     padding-top: 0.75rem;
                     border-top: 1px solid var(--color-border);
                 }
+                .booking-meta {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 0.125rem;
+                }
                 .booking-id {
-                    font-size: 0.75rem;
-                    color: var(--color-text-secondary);
+                    font-size: 0.6875rem;
+                    color: var(--color-text-tertiary);
                 }
                 .booking-id span {
                     font-weight: 600;
-                    color: var(--color-text-primary);
-                    font-family: monospace;
+                    color: var(--color-text-secondary);
+                    font-family: 'SF Mono', Monaco, monospace;
+                    letter-spacing: 0.5px;
+                }
+                .booking-nights {
+                    font-size: 0.75rem;
+                    color: var(--color-text-secondary);
+                }
+                .booking-price-block {
+                    text-align: right;
+                }
+                .booking-price-label {
+                    font-size: 0.625rem;
+                    text-transform: uppercase;
+                    color: var(--color-text-secondary);
+                    letter-spacing: 0.5px;
                 }
                 .booking-price {
                     font-size: 1.25rem;
                     font-weight: 700;
                     color: var(--color-primary);
+                    line-height: 1.2;
                 }
                 .booking-actions {
                     display: flex;
                     gap: 0.5rem;
                     padding: 0.75rem 1rem;
-                    background: var(--color-bg-secondary);
+                    background: linear-gradient(to top, var(--color-bg-secondary), white);
                     border-top: 1px solid var(--color-border);
                 }
                 .booking-actions button {
                     flex: 1;
+                    font-size: 0.8125rem;
+                    padding: 0.625rem 0.75rem;
+                    border-radius: 0.5rem;
+                    font-weight: 500;
                 }
                 .payment-info {
                     display: flex;
                     align-items: center;
                     gap: 0.5rem;
                     font-size: 0.8125rem;
-                    padding: 0.5rem 0.75rem;
+                    padding: 0.625rem 0.875rem;
                     border-radius: 0.5rem;
                     margin-bottom: 0.75rem;
+                    border: 1px solid transparent;
+                }
+                .payment-breakdown {
+                    background: var(--color-bg-secondary);
+                    border-radius: 0.75rem;
+                    padding: 0.875rem;
+                    margin-bottom: 0.75rem;
+                    border: 1px solid rgba(0, 0, 0, 0.04);
+                }
+                .payment-row {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    font-size: 0.8125rem;
+                }
+                .payment-row + .payment-row {
+                    margin-top: 0.5rem;
+                    padding-top: 0.5rem;
+                    border-top: 1px dashed var(--color-border);
                 }
                 .empty-state {
                     text-align: center;
                     padding: 3rem 1.5rem;
+                    background: white;
+                    border-radius: 1rem;
+                    border: 1px solid var(--color-border);
                 }
                 .empty-state-icon {
                     font-size: 4rem;
@@ -336,12 +423,22 @@ export default function BookingsPage() {
                 .empty-state p {
                     color: var(--color-text-secondary);
                     margin-bottom: 1.5rem;
+                    max-width: 280px;
+                    margin-left: auto;
+                    margin-right: auto;
+                    line-height: 1.5;
                 }
                 .past-booking-card {
-                    opacity: 0.7;
+                    opacity: 0.75;
                 }
                 .past-booking-card .booking-image {
-                    filter: grayscale(100%);
+                    filter: grayscale(50%);
+                }
+                .past-booking-card:hover {
+                    opacity: 1;
+                }
+                .past-booking-card:hover .booking-image {
+                    filter: grayscale(0%);
                 }
                 
                 /* Desktop enhancements */
