@@ -27,11 +27,17 @@
     },
     "nav": {
         "home": "Home",
-        "hotels": "Hotels",
+        "search": "Search",
         "bookings": "Bookings",
         "wallet": "Wallet",
         "profile": "Profile",
-        "checkIn": "Check-in"
+        "hotels": "Hotels",
+        "signIn": "Sign In",
+        "signUp": "Sign Up",
+        "signOut": "Sign Out",
+        "logIn": "Log In",
+        "myBookings": "My Bookings",
+        "searchHotels": "Search Hotels"
     },
     "home": {
         "heroTitle": "Find Your Perfect Stay",
@@ -58,6 +64,8 @@
         "checkOut": "Check Out",
         "guests": "Guests",
         "guest": "Guest",
+        "minPrice": "Min Price (৳)",
+        "maxPrice": "Max Price (৳)",
         "searchButton": "Search Hotels"
     },
     "hotels": {
@@ -192,38 +200,174 @@
         "pastBookings": "Past Bookings",
         "languageSwitch": "Language / ভাষা"
     },
-    "help": {
-        "title": "Help & Support",
-        "contactUs": "Contact Us",
-        "email": "Email",
-        "phone": "Phone",
-        "faq": "Frequently Asked Questions",
-        "faqs": {
-            "howToBook": {
-                "question": "How do I make a booking?",
-                "answer": "Search for your preferred hotel, select a room, enter your details, and complete the payment. You'll receive confirmation via email and SMS."
-            },
-            "wallet": {
-                "question": "What is the wallet feature?",
-                "answer": "The wallet lets you store money for quick payments. Add funds via bKash and use your balance for booking fees and full payments."
-            },
-            "contactHotel": {
-                "question": "How do I contact a hotel directly?",
-                "answer": "On each hotel's page, you'll find contact information including phone number and address. You can also reach out through our support for any issues."
-            }
-        }
-    },
-    "terms": {
-        "title": "Terms of Service",
-        "lastUpdated": "Last Updated"
-    },
-    "privacy": {
-        "title": "Privacy Policy",
-        "lastUpdated": "Last Updated"
-    },
     "language": {
         "title": "Language",
         "bangla": "বাংলা",
         "english": "English"
+    },
+    "bookings": {
+        "title": "My Bookings",
+        "upcoming": "Upcoming",
+        "past": "Past",
+        "noUpcoming": "No upcoming bookings",
+        "noPast": "No past bookings",
+        "startExploring": "Start exploring hotels and make your first booking!",
+        "pastBookingsDesc": "Your completed and cancelled bookings will appear here.",
+        "searchHotels": "Search Hotels",
+        "pendingPayment": "Pending Payment",
+        "confirmed": "Confirmed",
+        "checkedIn": "Checked In",
+        "completed": "Completed",
+        "cancelled": "Cancelled",
+        "paymentPending": "Payment Pending",
+        "fullyPaid": "Fully Paid",
+        "payAtHotel": "Pay at Hotel",
+        "refunded": "Refunded",
+        "advancePaid": "Advance Paid",
+        "today": "Today!",
+        "tomorrow": "Tomorrow",
+        "days": "{count} days",
+        "completePayment": "Complete Payment",
+        "showQR": "Show QR",
+        "hideQR": "Hide QR",
+        "showQRPrompt": "Show this QR code at the hotel for check-in",
+        "cancelBooking": "Cancel",
+        "cancelModalTitle": "Cancel Booking",
+        "cancelModalDesc": "Are you sure you want to cancel this booking? This action cannot be undone.",
+        "keepBooking": "Keep Booking",
+        "confirmCancel": "Confirm Cancellation"
+    },
+    "checkin": {
+        "title": "Self Check-in",
+        "instruction": "Scan the QR code at the hotel reception",
+        "grantPermission": "Grant Permission",
+        "scanning": "Scanning...",
+        "success": "Check-in Successful! 🎉",
+        "welcome": "Welcome to {hotel}",
+        "room": "Room",
+        "error": "Check-in Failed",
+        "tryAgain": "Try Again",
+        "readyTitle": "Ready to Check-in?",
+        "readyDesc": "Scan the hotel's QR code to check yourself in instantly",
+        "scanButton": "📷 Scan Hotel QR Code",
+        "processing": "Processing...",
+        "howItWorks": "How it works:",
+        "step1": "Go to the hotel reception desk",
+        "step2": "Find the \"Self Check-in\" QR code displayed",
+        "step3": "Tap the button above and scan the QR code",
+        "step4": "You're checked in! Show confirmation to staff if needed",
+        "viewBookings": "View My Bookings",
+        "checkBookings": "Check My Bookings",
+        "modalTitle": "Scan Hotel QR",
+        "modalDesc": "Point your camera at the hotel's check-in QR code",
+        "invalidQR": "Invalid QR code format. Please scan the hotel check-in QR code.",
+        "wrongQR": "This is not a hotel check-in QR code. Please scan the correct QR code at the hotel reception.",
+        "signInRequired": "Please sign in to check-in.",
+        "cameraError": "Camera Error",
+        "cameraPermission": "Camera permission denied. Please allow camera access and try again.",
+        "cameraNotFound": "No camera found. Please make sure your device has a camera.",
+        "cameraInUse": "Camera is being used by another application. Please close other apps using the camera.",
+        "cameraGenericError": "Could not start camera. Please check permissions and try again.",
+        "httpsError": "Camera requires a secure connection (HTTPS). Please access this page via HTTPS.",
+        "notSupported": "Camera is not supported on this browser. Please use a modern browser like Chrome or Safari."
+    },
+    "footer": {
+        "about": "About Us",
+        "contact": "Contact",
+        "legal": "Legal",
+        "rights": "All rights reserved",
+        "description": "Premium hotel booking experience in Bangladesh",
+        "careers": "Careers",
+        "helpCenter": "Help Center",
+        "listProperty": "List Your Property",
+        "partnerLogin": "Partner Login",
+        "tagline": "Find your perfect stay at the best prices. Pay at hotel, book instantly.",
+        "support": "Support",
+        "partners": "For Partners",
+        "copyright": "© {year} Vibe Hotels. All rights reserved."
+    },
+    "auth": {
+        "title": "Sign In",
+        "subtitle": "Sign in to book verified hotels",
+        "continueGoogle": "Continue with Google",
+        "signingIn": "Signing in...",
+        "or": "or",
+        "emailLabel": "Email",
+        "emailPlaceholder": "your@email.com",
+        "signInEmail": "Sign In with Email",
+        "signInPhone": "📱 Sign In with Phone (Coming Soon)",
+        "agreement": "By signing in, you agree to our",
+        "terms": "Terms of Service",
+        "and": "and",
+        "privacy": "Privacy Policy",
+        "agreementSuffix": ""
+    },
+    "bookingQR": {
+        "showQR": "Show this QR code at the hotel for check-in",
+        "bookingId": "Booking ID: {id}"
+    },
+    "cancelModal": {
+        "title": "Cancel Booking",
+        "selectReason": "Please select a reason",
+        "reasonLabel": "Reason for cancellation",
+        "reasonPlaceholder": "Select a reason",
+        "keepBooking": "Keep Booking",
+        "cancelling": "Cancelling...",
+        "confirm": "Cancel Booking",
+        "refundMessage": "✓ ৳{amount} will be refunded to your wallet",
+        "freeCancellation": "✓ Free cancellation",
+        "daysUntil": "{days} days until check-in",
+        "hoursUntil": "{hours} hours until check-in"
+    },
+    "roomDetailModal": {
+        "aboutRoom": "About this room",
+        "roomAmenities": "Room Amenities",
+        "notAvailable": "Not Available",
+        "roomNotAvailable": "Room Not Available",
+        "selectRoom": "Select This Room",
+        "maximumGuests": "Maximum {count} guests"
+    },
+    "roomCard": {
+        "upToGuests": "Up to {count} guests",
+        "perNight": "/night",
+        "moreAmenities": "+{count} more",
+        "viewDetails": "View Details",
+        "booked": "BOOKED"
+    },
+    "roomTypes": {
+        "SINGLE": "Single",
+        "DOUBLE": "Double",
+        "SUITE": "Suite",
+        "DORMITORY": "Dormitory"
+    },
+    "help": {
+        "title": "Help & Support",
+        "contactTitle": "Contact Us",
+        "emailSupport": "Email Support",
+        "phoneSupport": "Phone Support",
+        "whatsapp": "WhatsApp",
+        "chatInstant": "Chat with us instantly",
+        "faqTitle": "Frequently Asked Questions",
+        "legalTitle": "Legal & Policies",
+        "faq1_q": "How do I make a booking?",
+        "faq1_a": "Search for hotels by location and dates, select your preferred room, fill in guest details, and complete the payment. You'll receive a confirmation email and can view your booking in the 'Bookings' section.",
+        "faq2_q": "How can I cancel my booking?",
+        "faq2_a": "Go to 'My Bookings', select the booking you want to cancel, and tap 'Cancel Booking'. Cancellation policies vary by hotel - please check the hotel's terms before booking.",
+        "faq3_q": "What payment methods are accepted?",
+        "faq3_a": "We accept bKash mobile payments and wallet balance. You can add money to your wallet for faster checkout on future bookings.",
+        "faq4_q": "How do I earn loyalty points?",
+        "faq4_a": "Earn points on every booking! You get 1 point per ৳10 spent, plus bonus points for QR code check-ins. Points can be redeemed for discounts on future bookings.",
+        "faq5_q": "What is the wallet feature?",
+        "faq5_a": "The wallet lets you store money for quick payments. Add funds via bKash and use your balance for booking fees and full payments. It's faster and more convenient!",
+        "faq6_q": "How do I contact a hotel directly?",
+        "faq6_a": "On each hotel's page, you'll find contact information including phone number and address. You can also reach out through our support for any issues."
+    },
+    "terms": {
+        "title": "Terms of Service",
+        "lastUpdated": "Last updated: December 2024"
+    },
+    "privacy": {
+        "title": "Privacy Policy",
+        "lastUpdated": "Last updated: December 2024"
     }
 }

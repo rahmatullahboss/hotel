@@ -431,11 +431,11 @@ export default function HotelDetailPage() {
                             {/* Only show strikethrough when it's a DISCOUNT */}
                             {isDiscount && (
                                 <div style={{ fontSize: "0.625rem", color: "var(--color-text-muted)", textDecoration: "line-through" }}>
-                                    ৳{basePrice.toLocaleString()}/night
+                                    ৳{basePrice.toLocaleString()}/{tCommon("night")}
                                 </div>
                             )}
                             <div style={{ fontSize: "0.75rem", color: "var(--color-text-secondary)" }}>
-                                {selectedRoom.name} • {nights} night{nights > 1 ? 's' : ''} = ৳{total.toLocaleString()}
+                                {selectedRoom.name} • {nights} {tCommon(nights > 1 ? "nights" : "night")} = ৳{total.toLocaleString()}
                             </div>
                         </div>
                         <button className="btn btn-primary btn-lg" onClick={handleBookNow}>

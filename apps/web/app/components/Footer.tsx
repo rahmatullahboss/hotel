@@ -1,22 +1,24 @@
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 
 export function Footer() {
+    const t = useTranslations("footer");
     const currentYear = new Date().getFullYear();
 
     const footerLinks = {
         company: [
-            { label: "About Us", href: "/about" },
-            { label: "Contact", href: "/contact" },
-            { label: "Careers", href: "/careers" },
+            { label: t("about"), href: "/about" },
+            { label: t("contact"), href: "/contact" },
+            { label: t("careers"), href: "/careers" },
         ],
         support: [
-            { label: "Help Center", href: "/help" },
-            { label: "Terms of Service", href: "/terms" },
-            { label: "Privacy Policy", href: "/privacy" },
+            { label: t("helpCenter"), href: "/help" },
+            { label: t("terms"), href: "/terms" },
+            { label: t("privacy"), href: "/privacy" },
         ],
         partners: [
-            { label: "List Your Property", href: "/partner" },
-            { label: "Partner Login", href: "/partner/auth/signin" },
+            { label: t("listProperty"), href: "/partner" },
+            { label: t("partnerLogin"), href: "/partner/auth/signin" },
         ],
     };
 
@@ -30,14 +32,14 @@ export function Footer() {
                         <span className="logo-text">Vibe Hotels</span>
                     </Link>
                     <p className="footer-tagline">
-                        Find your perfect stay at the best prices. Pay at hotel, book instantly.
+                        {t("tagline")}
                     </p>
                 </div>
 
                 {/* Links Grid */}
                 <div className="footer-links-grid">
                     <div className="footer-links-column">
-                        <h4 className="footer-column-title">Company</h4>
+                        <h4 className="footer-column-title">{t("about")}</h4>
                         <ul className="footer-links-list">
                             {footerLinks.company.map((link) => (
                                 <li key={link.href}>
@@ -50,7 +52,7 @@ export function Footer() {
                     </div>
 
                     <div className="footer-links-column">
-                        <h4 className="footer-column-title">Support</h4>
+                        <h4 className="footer-column-title">{t("support")}</h4>
                         <ul className="footer-links-list">
                             {footerLinks.support.map((link) => (
                                 <li key={link.href}>
@@ -63,7 +65,7 @@ export function Footer() {
                     </div>
 
                     <div className="footer-links-column">
-                        <h4 className="footer-column-title">For Partners</h4>
+                        <h4 className="footer-column-title">{t("partners")}</h4>
                         <ul className="footer-links-list">
                             {footerLinks.partners.map((link) => (
                                 <li key={link.href}>
@@ -79,7 +81,7 @@ export function Footer() {
                 {/* Bottom Bar */}
                 <div className="footer-bottom">
                     <p className="footer-copyright">
-                        © {currentYear} Vibe Hotels. All rights reserved.
+                        {t("copyright", { year: currentYear })}
                     </p>
                     <div className="footer-social">
                         <a href="#" className="social-link" aria-label="Facebook">📘</a>

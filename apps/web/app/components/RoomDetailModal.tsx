@@ -65,6 +65,7 @@ const roomTypeInfo: Record<string, { label: string; color: string; icon: string 
 };
 
 export default function RoomDetailModal({ room, isOpen, onClose, onSelectRoom }: RoomDetailModalProps) {
+    const t = useTranslations("roomDetailModal");
     const [currentPhoto, setCurrentPhoto] = useState(0);
 
     // Handle escape key to close
@@ -187,7 +188,7 @@ export default function RoomDetailModal({ room, isOpen, onClose, onSelectRoom }:
                     {/* Description */}
                     {room.description && (
                         <div className="room-modal-section">
-                            <h3>About this room</h3>
+                            <h3>{t("aboutRoom")}</h3>
                             <p>{room.description}</p>
                         </div>
                     )}
@@ -195,7 +196,7 @@ export default function RoomDetailModal({ room, isOpen, onClose, onSelectRoom }:
                     {/* Amenities */}
                     {room.amenities.length > 0 && (
                         <div className="room-modal-section">
-                            <h3>Room Amenities</h3>
+                            <h3>{t("roomAmenities")}</h3>
                             <div className="room-modal-amenities">
                                 {room.amenities.map((amenity) => (
                                     <div key={amenity} className="room-modal-amenity">
@@ -214,7 +215,7 @@ export default function RoomDetailModal({ room, isOpen, onClose, onSelectRoom }:
                         <div className="room-modal-unavailable">
                             <span>🚫</span>
                             <div>
-                                <strong>Not Available</strong>
+                                <strong>{t("notAvailable")}</strong>
                                 {room.unavailableReason && <p>{room.unavailableReason}</p>}
                             </div>
                         </div>
@@ -229,7 +230,7 @@ export default function RoomDetailModal({ room, isOpen, onClose, onSelectRoom }:
                         }}
                         disabled={isUnavailable}
                     >
-                        {isUnavailable ? "Room Not Available" : "Select This Room"}
+                        {isUnavailable ? t("roomNotAvailable") : t("selectRoom")}
                     </button>
                 </div>
             </div>

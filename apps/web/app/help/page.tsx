@@ -2,39 +2,25 @@
 
 import Link from "next/link";
 import { BottomNav } from "../components";
-
-const faqItems = [
-    {
-        question: "How do I make a booking?",
-        answer: "Search for hotels by location and dates, select your preferred room, fill in guest details, and complete the payment. You'll receive a confirmation email and can view your booking in the 'Bookings' section.",
-    },
-    {
-        question: "How can I cancel my booking?",
-        answer: "Go to 'My Bookings', select the booking you want to cancel, and tap 'Cancel Booking'. Cancellation policies vary by hotel - please check the hotel's terms before booking.",
-    },
-    {
-        question: "What payment methods are accepted?",
-        answer: "We accept bKash mobile payments and wallet balance. You can add money to your wallet for faster checkout on future bookings.",
-    },
-    {
-        question: "How do I earn loyalty points?",
-        answer: "Earn points on every booking! You get 1 point per ৳10 spent, plus bonus points for QR code check-ins. Points can be redeemed for discounts on future bookings.",
-    },
-    {
-        question: "What is the wallet feature?",
-        answer: "The wallet lets you store money for quick payments. Add funds via bKash and use your balance for booking fees and full payments. It's faster and more convenient!",
-    },
-    {
-        question: "How do I contact a hotel directly?",
-        answer: "On each hotel's page, you'll find contact information including phone number and address. You can also reach out through our support for any issues.",
-    },
-];
+import { useTranslations } from "next-intl";
 
 const SUPPORT_EMAIL = "rahmatullahzisan@gmail.com";
 const SUPPORT_PHONE = "+8801570260118";
 const SUPPORT_PHONE_DISPLAY = "01570-260118";
 
 export default function HelpPage() {
+    const t = useTranslations("help");
+    const tFooter = useTranslations("footer");
+
+    const faqItems = [
+        { question: t("faq1_q"), answer: t("faq1_a") },
+        { question: t("faq2_q"), answer: t("faq2_a") },
+        { question: t("faq3_q"), answer: t("faq3_a") },
+        { question: t("faq4_q"), answer: t("faq4_a") },
+        { question: t("faq5_q"), answer: t("faq5_a") },
+        { question: t("faq6_q"), answer: t("faq6_a") },
+    ];
+
     return (
         <>
             <header className="page-header">
@@ -43,14 +29,14 @@ export default function HelpPage() {
                         <path d="M19 12H5M12 19l-7-7 7-7" />
                     </svg>
                 </Link>
-                <h1>Help & Support</h1>
+                <h1>{t("title")}</h1>
             </header>
 
             <main className="container page-content">
                 {/* Contact Options */}
                 <section style={{ marginBottom: "2rem" }}>
                     <h2 className="section-title" style={{ marginBottom: "1rem" }}>
-                        Contact Us
+                        {t("contactTitle")}
                     </h2>
                     <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
                         {/* Email Support */}
@@ -82,7 +68,7 @@ export default function HelpPage() {
                             </div>
                             <div style={{ flex: 1 }}>
                                 <h3 style={{ fontWeight: 600, marginBottom: "0.25rem" }}>
-                                    Email Support
+                                    {t("emailSupport")}
                                 </h3>
                                 <p style={{ fontSize: "0.875rem", color: "var(--color-text-secondary)" }}>
                                     {SUPPORT_EMAIL}
@@ -122,7 +108,7 @@ export default function HelpPage() {
                             </div>
                             <div style={{ flex: 1 }}>
                                 <h3 style={{ fontWeight: 600, marginBottom: "0.25rem" }}>
-                                    Phone Support
+                                    {t("phoneSupport")}
                                 </h3>
                                 <p style={{ fontSize: "0.875rem", color: "var(--color-text-secondary)" }}>
                                     {SUPPORT_PHONE_DISPLAY}
@@ -164,10 +150,10 @@ export default function HelpPage() {
                             </div>
                             <div style={{ flex: 1 }}>
                                 <h3 style={{ fontWeight: 600, marginBottom: "0.25rem" }}>
-                                    WhatsApp
+                                    {t("whatsapp")}
                                 </h3>
                                 <p style={{ fontSize: "0.875rem", color: "var(--color-text-secondary)" }}>
-                                    Chat with us instantly
+                                    {t("chatInstant")}
                                 </p>
                             </div>
                             <span style={{ color: "var(--color-primary)", fontWeight: 500 }}>
@@ -180,7 +166,7 @@ export default function HelpPage() {
                 {/* FAQ Section */}
                 <section style={{ marginBottom: "2rem" }}>
                     <h2 className="section-title" style={{ marginBottom: "1rem" }}>
-                        Frequently Asked Questions
+                        {t("faqTitle")}
                     </h2>
                     <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
                         {faqItems.map((item, index) => (
@@ -222,7 +208,7 @@ export default function HelpPage() {
                 {/* Quick Links */}
                 <section>
                     <h2 className="section-title" style={{ marginBottom: "1rem" }}>
-                        Legal & Policies
+                        {t("legalTitle")}
                     </h2>
                     <div className="card" style={{ padding: 0 }}>
                         <Link
@@ -237,7 +223,7 @@ export default function HelpPage() {
                                 borderBottom: "1px solid var(--color-border)",
                             }}
                         >
-                            <span>Terms of Service</span>
+                            <span>{tFooter("terms")}</span>
                             <span>→</span>
                         </Link>
                         <Link
@@ -251,7 +237,7 @@ export default function HelpPage() {
                                 textDecoration: "none",
                             }}
                         >
-                            <span>Privacy Policy</span>
+                            <span>{tFooter("privacy")}</span>
                             <span>→</span>
                         </Link>
                     </div>

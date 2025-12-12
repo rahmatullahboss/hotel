@@ -11,11 +11,11 @@ import { BookingQRCode, BottomNav } from "../components";
 
 type PaymentMethod = "BKASH" | "NAGAD" | "CARD" | "PAY_AT_HOTEL";
 
-const paymentMethods: { id: PaymentMethod; name: string; icon: string; advancePercent: number }[] = [
-    { id: "PAY_AT_HOTEL", name: "Pay at Hotel", icon: "🏨", advancePercent: 20 },
-    { id: "BKASH", name: "bKash", icon: "📱", advancePercent: 100 },
-    { id: "NAGAD", name: "Nagad", icon: "📱", advancePercent: 100 },
-    { id: "CARD", name: "Credit/Debit Card", icon: "💳", advancePercent: 100 },
+const paymentMethods: { id: PaymentMethod; nameKey: string; icon: string; advancePercent: number }[] = [
+    { id: "PAY_AT_HOTEL", nameKey: "payAtHotel", icon: "🏨", advancePercent: 20 },
+    { id: "BKASH", nameKey: "bKash", icon: "📱", advancePercent: 100 },
+    { id: "NAGAD", nameKey: "nagad", icon: "📱", advancePercent: 100 },
+    { id: "CARD", nameKey: "creditDebitCard", icon: "💳", advancePercent: 100 },
 ];
 
 function BookingContent() {
@@ -304,7 +304,7 @@ function BookingContent() {
                                 }}
                             >
                                 <span>{checkIn} → {checkOut}</span>
-                                <span>{nights} night{nights > 1 ? "s" : ""}</span>
+                                <span>{nights} {tCommon(nights > 1 ? "nights" : "night")}</span>
                             </div>
                         </div>
                     </div>
@@ -398,7 +398,7 @@ function BookingContent() {
                                             />
                                             <span style={{ fontSize: "1.5rem" }}>{method.icon}</span>
                                             <div style={{ flex: 1 }}>
-                                                <span style={{ fontWeight: 500 }}>{method.name}</span>
+                                                <span style={{ fontWeight: 500 }}>{t(method.nameKey)}</span>
                                                 {method.id === "PAY_AT_HOTEL" && (
                                                     <div style={{ fontSize: "0.75rem", color: "var(--color-text-secondary)" }}>
                                                         {t("advanceRequired")}
@@ -576,7 +576,7 @@ function BookingContent() {
                                         style={{ width: 20, height: 20 }}
                                     />
                                     <span style={{ fontSize: "1.5rem" }}>📱</span>
-                                    <span style={{ fontWeight: 500 }}>bKash</span>
+                                    <span style={{ fontWeight: 500 }}>{t("bKash")}</span>
                                 </label>
                                 <label
                                     style={{
@@ -598,7 +598,7 @@ function BookingContent() {
                                         style={{ width: 20, height: 20 }}
                                     />
                                     <span style={{ fontSize: "1.5rem" }}>📱</span>
-                                    <span style={{ fontWeight: 500 }}>Nagad</span>
+                                    <span style={{ fontWeight: 500 }}>{t("nagad")}</span>
                                     <span style={{ marginLeft: "auto", fontSize: "0.75rem", color: "var(--color-text-secondary)" }}>
                                         {tCommon("comingSoon")}
                                     </span>

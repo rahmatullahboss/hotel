@@ -4,6 +4,7 @@ import { signIn } from "next-auth/react";
 import { useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { BottomNav } from "../../components";
 
 function SignInContent() {
@@ -12,6 +13,8 @@ function SignInContent() {
 
     const [email, setEmail] = useState("");
     const [isLoading, setIsLoading] = useState(false);
+
+    const t = useTranslations("auth");
 
     const handleGoogleSignIn = async () => {
         setIsLoading(true);
@@ -37,7 +40,7 @@ function SignInContent() {
                             </h1>
                         </Link>
                         <p style={{ color: "var(--color-text-secondary)" }}>
-                            Sign in to book verified hotels
+                            {t("subtitle")}
                         </p>
                     </div>
 
@@ -74,7 +77,7 @@ function SignInContent() {
                                     d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
                                 />
                             </svg>
-                            {isLoading ? "Signing in..." : "Continue with Google"}
+                            {isLoading ? t("signingIn") : t("continueGoogle")}
                         </button>
 
                         <div
@@ -87,18 +90,18 @@ function SignInContent() {
                             }}
                         >
                             <div style={{ flex: 1, height: "1px", background: "var(--color-border)" }} />
-                            <span style={{ fontSize: "0.875rem" }}>or</span>
+                            <span style={{ fontSize: "0.875rem" }}>{t("or")}</span>
                             <div style={{ flex: 1, height: "1px", background: "var(--color-border)" }} />
                         </div>
 
                         {/* Dev Sign In - show always for testing */}
                         <form onSubmit={handleDevSignIn}>
                             <div className="form-group">
-                                <label className="form-label">Email</label>
+                                <label className="form-label">{t("emailLabel")}</label>
                                 <input
                                     type="email"
                                     className="form-input"
-                                    placeholder="your@email.com"
+                                    placeholder={t("emailPlaceholder")}
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
                                 />
@@ -108,7 +111,7 @@ function SignInContent() {
                                 disabled={isLoading || !email}
                                 className="btn btn-primary btn-block"
                             >
-                                {isLoading ? "Signing in..." : "Sign In with Email"}
+                                {isLoading ? t("signingIn") : t("signInEmail")}
                             </button>
                         </form>
 
@@ -119,7 +122,7 @@ function SignInContent() {
                                 disabled
                                 style={{ opacity: 0.6 }}
                             >
-                                📱 Sign In with Phone (Coming Soon)
+                                {t("signInPhone")}
                             </button>
                         </div>
                     </div>
@@ -134,14 +137,15 @@ function SignInContent() {
                             lineHeight: 1.5,
                         }}
                     >
-                        By signing in, you agree to our{" "}
+                        {t("agreement")}{" "}
                         <Link href="/terms" style={{ color: "var(--color-primary)" }}>
-                            Terms of Service
+                            {t("terms")}
                         </Link>{" "}
-                        and{" "}
+                        {t("and")}{" "}
                         <Link href="/privacy" style={{ color: "var(--color-primary)" }}>
-                            Privacy Policy
+                            {t("privacy")}
                         </Link>
+                        {t("agreementSuffix")}
                     </p>
                 </div>
             </main>

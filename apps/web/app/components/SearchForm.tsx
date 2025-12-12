@@ -141,7 +141,7 @@ export function SearchForm({ compact = false }: SearchFormProps) {
 
                 <div className="form-group">
                     <label htmlFor="priceMin" className="form-label">
-                        Min Price (৳)
+                        {t("minPrice")}
                     </label>
                     <input
                         id="priceMin"
@@ -156,7 +156,7 @@ export function SearchForm({ compact = false }: SearchFormProps) {
 
                 <div className="form-group">
                     <label htmlFor="priceMax" className="form-label">
-                        Max Price (৳)
+                        {t("maxPrice")}
                     </label>
                     <input
                         id="priceMax"

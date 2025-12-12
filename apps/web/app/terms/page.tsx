@@ -1,7 +1,10 @@
 import Link from "next/link";
 import { BottomNav } from "../components";
+import { useTranslations } from "next-intl";
 
 export default function TermsPage() {
+    const t = useTranslations("terms");
+
     return (
         <>
             <header className="page-header">
@@ -10,13 +13,13 @@ export default function TermsPage() {
                         <path d="M19 12H5M12 19l-7-7 7-7" />
                     </svg>
                 </Link>
-                <h1>Terms of Service</h1>
+                <h1>{t("title")}</h1>
             </header>
 
             <main className="container page-content">
                 <div className="card" style={{ padding: "1.5rem" }}>
                     <p style={{ color: "var(--color-text-secondary)", marginBottom: "1.5rem" }}>
-                        Last updated: December 2024
+                        {t("lastUpdated")}
                     </p>
 
                     <section style={{ marginBottom: "2rem" }}>

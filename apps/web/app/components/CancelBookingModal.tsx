@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition, useEffect } from "react";
+import { useTranslations } from "next-intl";
 import { cancelBooking, getCancellationInfo } from "../actions/bookings";
 import { CANCELLATION_REASONS } from "../actions/cancel-reasons";
 
@@ -19,6 +20,7 @@ export function CancelBookingModal({
     onClose,
     onSuccess,
 }: CancelBookingModalProps) {
+    const t = useTranslations("cancelModal");
     const [isPending, startTransition] = useTransition();
     const [reason, setReason] = useState("");
     const [error, setError] = useState<string | null>(null);
@@ -36,7 +38,7 @@ export function CancelBookingModal({
 
     const handleCancel = () => {
         if (!reason) {
-            setError("Please select a reason");
+            setError(t("selectReason"));
             return;
         }
 
@@ -74,7 +76,7 @@ export function CancelBookingModal({
                 onClick={(e) => e.stopPropagation()}
             >
                 <h2 style={{ marginBottom: "0.5rem", fontSize: "1.25rem" }}>
-                    Cancel Booking
+                    {t("title")}
                 </h2>
                 <p style={{ color: "var(--color-text-secondary)", marginBottom: "1rem" }}>
                     {hotelName}
@@ -94,7 +96,7 @@ export function CancelBookingModal({
                     >
                         {policyInfo.refund > 0 ? (
                             <div style={{ color: "#2a9d8f", fontWeight: 500 }}>
-                                ✓ ৳{policyInfo.refund} will be refunded to your wallet
+                                {t("refundMessage", { amount: policyInfo.refund })}
                             </div>
                         ) : policyInfo.penalty ? (
                             <div style={{ color: "#e76f51", fontWeight: 500 }}>
@@ -102,7 +104,7 @@ export function CancelBookingModal({
                             </div>
                         ) : (
                             <div style={{ color: "#2a9d8f", fontWeight: 500 }}>
-                                ✓ Free cancellation
+                                {t("freeCancellation")}
                             </div>
                         )}
                         <div style={{
@@ -111,8 +113,8 @@ export function CancelBookingModal({
                             marginTop: "0.25rem"
                         }}>
                             {policyInfo.hoursRemaining > 24
-                                ? `${Math.floor(policyInfo.hoursRemaining / 24)} days until check-in`
-                                : `${Math.round(policyInfo.hoursRemaining)} hours until check-in`
+                                ? t("daysUntil", { days: Math.floor(policyInfo.hoursRemaining / 24) })
+                                : t("hoursUntil", { hours: Math.round(policyInfo.hoursRemaining) })
                             }
                         </div>
                     </div>
@@ -126,7 +128,7 @@ export function CancelBookingModal({
                         fontWeight: 500
                     }}
                 >
-                    Reason for cancellation
+                    {t("reasonLabel")}
                 </label>
                 <select
                     value={reason}
@@ -143,7 +145,7 @@ export function CancelBookingModal({
                         fontSize: "1rem",
                     }}
                 >
-                    <option value="">Select a reason</option>
+                    <option value="">{t("reasonPlaceholder")}</option>
                     {CANCELLATION_REASONS.map((r) => (
                         <option key={r.value} value={r.value}>
                             {r.label}
@@ -165,7 +167,7 @@ export function CancelBookingModal({
                         style={{ flex: 1 }}
                         disabled={isPending}
                     >
-                        Keep Booking
+                        {t("keepBooking")}
                     </button>
                     <button
                         onClick={handleCancel}
@@ -177,7 +179,7 @@ export function CancelBookingModal({
                         }}
                         disabled={isPending || !reason}
                     >
-                        {isPending ? "Cancelling..." : "Cancel Booking"}
+                        {isPending ? t("cancelling") : t("confirm")}
                     </button>
                 </div>
             </div>

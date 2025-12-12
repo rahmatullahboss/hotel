@@ -1,6 +1,7 @@
 "use client";
 
 import { QRCodeSVG } from "qrcode.react";
+import { useTranslations } from "next-intl";
 
 interface BookingQRCodeProps {
     bookingId: string;
@@ -13,6 +14,7 @@ export function BookingQRCode({
     size = 200,
     includeInstructions = true,
 }: BookingQRCodeProps) {
+    const t = useTranslations("bookingQR");
     // Generate QR code data
     const qrData = JSON.stringify({ bookingId });
 
@@ -54,10 +56,10 @@ export function BookingQRCode({
                     }}
                 >
                     <p style={{ marginBottom: "0.25rem" }}>
-                        Show this QR code at the hotel for check-in
+                        {t("showQR")}
                     </p>
                     <p style={{ fontSize: "0.75rem", color: "var(--color-text-muted)" }}>
-                        Booking ID: {bookingId.slice(0, 8)}...
+                        {t("bookingId", { id: bookingId.slice(0, 8) + "..." })}
                     </p>
                 </div>
             )}

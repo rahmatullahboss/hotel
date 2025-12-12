@@ -28,7 +28,7 @@ export function TopNav() {
                     href="/hotels"
                     className={`top-nav-link ${pathname.startsWith("/hotels") ? "active" : ""}`}
                 >
-                    Hotels
+                    {t("hotels")}
                 </Link>
                 <Link
                     href="/bookings"
@@ -93,7 +93,7 @@ export function TopNav() {
                             className="btn btn-outline"
                             style={{ padding: "0.5rem 1rem" }}
                         >
-                            Sign Out
+                            {t("signOut")}
                         </button>
                     </>
                 ) : (
@@ -103,14 +103,14 @@ export function TopNav() {
                             className="btn btn-outline"
                             style={{ padding: "0.5rem 1rem" }}
                         >
-                            Log In
+                            {t("logIn")}
                         </Link>
                         <Link
                             href="/auth/signin"
                             className="btn btn-primary"
                             style={{ padding: "0.5rem 1rem" }}
                         >
-                            Sign Up
+                            {t("signUp")}
                         </Link>
                     </>
                 )}

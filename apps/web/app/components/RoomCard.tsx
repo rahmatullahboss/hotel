@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 
 interface RoomCardProps {
     room: {
@@ -65,6 +66,8 @@ const roomTypeBadges: Record<string, { label: string; color: string }> = {
 };
 
 export default function RoomCard({ room, isSelected, onSelect, onViewDetails }: RoomCardProps) {
+    const t = useTranslations("roomCard");
+    const tTypes = useTranslations("roomTypes");
     const [currentPhoto, setCurrentPhoto] = useState(0);
 
     const photos = room.photos.length > 0
@@ -72,7 +75,9 @@ export default function RoomCard({ room, isSelected, onSelect, onViewDetails }: 
         : ["https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=800&h=600&fit=crop"];
 
     const isUnavailable = room.isAvailable === false;
-    const badge = roomTypeBadges[room.type] || { label: room.type, color: "#6b7280" };
+    const badgeColor = roomTypeBadges[room.type]?.color || "#6b7280";
+    // @ts-ignore
+    const badgeLabel = tTypes.has(room.type) ? tTypes(room.type) : room.type;
 
     // Get top 3 amenities to show
     const displayAmenities = room.amenities.slice(0, 3);
@@ -116,15 +121,15 @@ export default function RoomCard({ room, isSelected, onSelect, onViewDetails }: 
                 {/* Room Type Badge */}
                 <span
                     className="room-type-badge"
-                    style={{ backgroundColor: badge.color }}
+                    style={{ backgroundColor: badgeColor }}
                 >
-                    {badge.label}
+                    {badgeLabel}
                 </span>
 
                 {/* Unavailable Overlay */}
                 {isUnavailable && (
                     <div className="room-unavailable-overlay">
-                        <span className="room-unavailable-badge">BOOKED</span>
+                        <span className="room-unavailable-badge">{t("booked")}</span>
                     </div>
                 )}
             </div>
@@ -138,12 +143,12 @@ export default function RoomCard({ room, isSelected, onSelect, onViewDetails }: 
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="14" height="14">
                                 <path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" />
                             </svg>
-                            Up to {room.maxGuests} guest{room.maxGuests > 1 ? "s" : ""}
+                            {t("upToGuests", { count: room.maxGuests })}
                         </div>
                     </div>
                     <div className="room-card-price">
                         <span className="room-price-amount">৳{displayPrice.toLocaleString()}</span>
-                        <span className="room-price-label">/night</span>
+                        <span className="room-price-label">{t("perNight")}</span>
                         {showOriginalPrice && (
                             <div style={{ fontSize: "0.625rem", color: "var(--color-text-muted)", textDecoration: "line-through" }}>
                                 ৳{basePrice.toLocaleString()}
@@ -161,7 +166,7 @@ export default function RoomCard({ room, isSelected, onSelect, onViewDetails }: 
                             </span>
                         ))}
                         {remainingCount > 0 && (
-                            <span className="room-amenity-more">+{remainingCount} more</span>
+                            <span className="room-amenity-more">{t("moreAmenities", { count: remainingCount })}</span>
                         )}
                     </div>
                 )}
@@ -181,7 +186,7 @@ export default function RoomCard({ room, isSelected, onSelect, onViewDetails }: 
                         onViewDetails();
                     }}
                 >
-                    View Details
+                    {t("viewDetails")}
                 </button>
             </div>
         </div>

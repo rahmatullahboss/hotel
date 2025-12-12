@@ -96,14 +96,14 @@ export function BottomNav() {
     const navItems = [
         { href: "/", labelKey: "home", Icon: SearchIcon },
         { href: "/checkin", labelKey: "checkIn", Icon: CheckInIcon },
-        { href: "/checkout", label: "Check-out", Icon: CheckOutIcon },
+        { href: "/checkout", labelKey: "checkOut", Icon: CheckOutIcon },
         { href: "/bookings", labelKey: "bookings", Icon: BookingsIcon },
         { href: "/profile", labelKey: "profile", Icon: ProfileIcon },
     ];
 
     return (
         <nav className="bottom-nav">
-            {navItems.map(({ href, labelKey, label, Icon }) => {
+            {navItems.map(({ href, labelKey, Icon }) => {
                 const isActive = pathname === href ||
                     (href === "/" && pathname.startsWith("/hotels"));
                 return (
@@ -113,7 +113,7 @@ export function BottomNav() {
                         className={`nav-item ${isActive ? "active" : ""}`}
                     >
                         <Icon active={isActive} />
-                        <span>{labelKey ? t(labelKey) : label}</span>
+                        <span>{t(labelKey)}</span>
                     </Link>
                 );
             })}

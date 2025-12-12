@@ -4,10 +4,12 @@ import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { BottomNav } from "../components";
 import { customerSelfCheckIn } from "../actions/checkin";
 
 export default function CheckInPage() {
+    const t = useTranslations("checkin");
     const { data: session, status } = useSession();
     const router = useRouter();
     const [isScanning, setIsScanning] = useState(false);
@@ -42,7 +44,7 @@ export default function CheckInPage() {
             } catch {
                 setResult({
                     success: false,
-                    message: "Invalid QR code format. Please scan the hotel check-in QR code.",
+                    message: t("invalidQR"),
                 });
                 setProcessing(false);
                 return;
@@ -52,7 +54,7 @@ export default function CheckInPage() {
             if (!qrData || qrData.type !== "HOTEL_CHECKIN" || !qrData.hotelId) {
                 setResult({
                     success: false,
-                    message: "This is not a hotel check-in QR code. Please scan the correct QR code at the hotel reception.",
+                    message: t("wrongQR"),
                 });
                 setProcessing(false);
                 return;
@@ -62,7 +64,7 @@ export default function CheckInPage() {
             if (!session?.user?.id) {
                 setResult({
                     success: false,
-                    message: "Please sign in to check-in.",
+                    message: t("signInRequired"),
                 });
                 setProcessing(false);
                 return;
@@ -73,13 +75,13 @@ export default function CheckInPage() {
             if (response.success && response.booking) {
                 setResult({
                     success: true,
-                    message: "Check-in successful! 🎉",
+                    message: t("success"),
                     booking: response.booking,
                 });
             } else {
                 setResult({
                     success: false,
-                    message: response.error || "Check-in failed. Please try again.",
+                    message: response.error || t("error"),
                 });
             }
         } catch (error) {
@@ -88,7 +90,7 @@ export default function CheckInPage() {
                 success: false,
                 message: error instanceof Error
                     ? `Error: ${error.message}`
-                    : "Something went wrong. Please try again.",
+                    : t("errorGeneric"),
             });
         } finally {
             setProcessing(false);
@@ -218,8 +220,8 @@ export default function CheckInPage() {
             `}</style>
 
             <header className="checkin-header">
-                <h1>📱 Self Check-in</h1>
-                <p>Scan the QR code at hotel reception</p>
+                <h1>📱 {t("title")}</h1>
+                <p>{t("instruction")}</p>
             </header>
 
             <main className="page-content">
@@ -227,30 +229,30 @@ export default function CheckInPage() {
                     <>
                         <div className="scan-card">
                             <div className="scan-icon">🏨</div>
-                            <h2 style={{ marginBottom: "0.5rem" }}>Ready to Check-in?</h2>
+                            <h2 style={{ marginBottom: "0.5rem" }}>{t("readyTitle")}</h2>
                             <p style={{
                                 color: "var(--color-text-secondary)",
                                 marginBottom: "1.5rem",
                                 fontSize: "0.9375rem",
                             }}>
-                                Scan the hotel&apos;s QR code to check yourself in instantly
+                                {t("readyDesc")}
                             </p>
                             <button
                                 className="scan-btn"
                                 onClick={() => setIsScanning(true)}
                                 disabled={processing}
                             >
-                                {processing ? "Processing..." : "📷 Scan Hotel QR Code"}
+                                {processing ? t("processing") : t("scanButton")}
                             </button>
                         </div>
 
                         <div className="instructions">
-                            <h3>How it works:</h3>
+                            <h3>{t("howItWorks")}</h3>
                             <ol>
-                                <li>Go to the hotel reception desk</li>
-                                <li>Find the &quot;Self Check-in&quot; QR code displayed</li>
-                                <li>Tap the button above and scan the QR code</li>
-                                <li>You&apos;re checked in! Show confirmation to staff if needed</li>
+                                <li>{t("step1")}</li>
+                                <li>{t("step2")}</li>
+                                <li>{t("step3")}</li>
+                                <li>{t("step4")}</li>
                             </ol>
                         </div>
                     </>
@@ -277,7 +279,7 @@ export default function CheckInPage() {
                         <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem", marginTop: "1.5rem" }}>
                             {result.success ? (
                                 <Link href="/bookings" className="btn btn-primary" style={{ width: "100%", padding: "1rem" }}>
-                                    View My Bookings
+                                    {t("viewBookings")}
                                 </Link>
                             ) : (
                                 <>
@@ -288,14 +290,14 @@ export default function CheckInPage() {
                                             setIsScanning(true);
                                         }}
                                     >
-                                        Try Again
+                                        {t("tryAgain")}
                                     </button>
                                     <Link
                                         href="/bookings"
                                         className="btn btn-outline"
                                         style={{ width: "100%", padding: "0.75rem" }}
                                     >
-                                        Check My Bookings
+                                        {t("checkBookings")}
                                     </Link>
                                 </>
                             )}
@@ -321,7 +323,7 @@ export default function CheckInPage() {
                         alignItems: "center",
                         color: "white",
                     }}>
-                        <h2 style={{ margin: 0, fontSize: "1.125rem" }}>Scan Hotel QR</h2>
+                        <h2 style={{ margin: 0, fontSize: "1.125rem" }}>{t("modalTitle")}</h2>
                         <button
                             onClick={() => setIsScanning(false)}
                             style={{
@@ -339,7 +341,7 @@ export default function CheckInPage() {
                         <QRScannerComponent onScan={handleScan} />
                     </div>
                     <div style={{ padding: "1rem", textAlign: "center", color: "white" }}>
-                        <p style={{ opacity: 0.8 }}>Point your camera at the hotel&apos;s check-in QR code</p>
+                        <p style={{ opacity: 0.8 }}>{t("modalDesc")}</p>
                     </div>
                 </div>
             )}
@@ -351,6 +353,7 @@ export default function CheckInPage() {
 
 // Inline QR Scanner Component using html5-qrcode
 function QRScannerComponent({ onScan }: { onScan: (data: string) => void }) {
+    const t = useTranslations("checkin");
     const [error, setError] = useState<string | null>(null);
     const [errorType, setErrorType] = useState<"permission" | "https" | "general">("general");
 
@@ -363,14 +366,14 @@ function QRScannerComponent({ onScan }: { onScan: (data: string) => void }) {
             if (typeof window !== "undefined" &&
                 window.location.protocol !== "https:" &&
                 window.location.hostname !== "localhost") {
-                setError("Camera requires a secure connection (HTTPS). Please access this page via HTTPS.");
+                setError(t("httpsError"));
                 setErrorType("https");
                 return;
             }
 
             // Check if camera is supported
             if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-                setError("Camera is not supported on this browser. Please use a modern browser like Chrome or Safari.");
+                setError(t("notSupported"));
                 setErrorType("general");
                 return;
             }
@@ -400,16 +403,16 @@ function QRScannerComponent({ onScan }: { onScan: (data: string) => void }) {
                 const errorMessage = err instanceof Error ? err.message : String(err);
 
                 if (errorMessage.includes("Permission") || errorMessage.includes("NotAllowedError")) {
-                    setError("Camera permission denied. Please allow camera access and try again.");
+                    setError(t("cameraPermission"));
                     setErrorType("permission");
                 } else if (errorMessage.includes("NotFoundError") || errorMessage.includes("no camera")) {
-                    setError("No camera found. Please make sure your device has a camera.");
+                    setError(t("cameraNotFound"));
                     setErrorType("general");
                 } else if (errorMessage.includes("NotReadableError") || errorMessage.includes("streaming")) {
-                    setError("Camera is being used by another application. Please close other apps using the camera.");
+                    setError(t("cameraInUse"));
                     setErrorType("general");
                 } else {
-                    setError("Could not start camera. Please check permissions and try again.");
+                    setError(t("cameraGenericError"));
                     setErrorType("permission");
                 }
             }

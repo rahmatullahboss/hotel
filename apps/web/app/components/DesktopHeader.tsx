@@ -4,16 +4,18 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { LanguageSwitcher } from "./LanguageSwitcher";
+import { useTranslations } from "next-intl";
 
 export function DesktopHeader() {
     const pathname = usePathname();
     const { data: session } = useSession();
+    const t = useTranslations("nav");
 
     const navLinks = [
-        { href: "/", label: "Home", icon: "🏠" },
-        { href: "/hotels", label: "Search Hotels", icon: "🔍" },
-        { href: "/bookings", label: "My Bookings", icon: "📋" },
-        { href: "/wallet", label: "Wallet", icon: "💰" },
+        { href: "/", label: t("home"), icon: "🏠" },
+        { href: "/hotels", label: t("searchHotels"), icon: "🔍" },
+        { href: "/bookings", label: t("myBookings"), icon: "📋" },
+        { href: "/wallet", label: t("wallet"), icon: "💰" },
     ];
 
     return (
@@ -33,6 +35,7 @@ export function DesktopHeader() {
                             href={link.href}
                             className={`desktop-nav-link ${pathname === link.href ? "active" : ""}`}
                         >
+                            <span style={{ marginRight: "0.5rem" }}>{link.icon}</span>
                             {link.label}
                         </Link>
                     ))}
@@ -46,11 +49,11 @@ export function DesktopHeader() {
                             <span className="user-avatar">
                                 {session.user?.name?.charAt(0) || "U"}
                             </span>
-                            <span className="user-name">{session.user?.name || "Profile"}</span>
+                            <span className="user-name">{session.user?.name || t("profile")}</span>
                         </Link>
                     ) : (
                         <Link href="/auth/signin" className="btn btn-primary desktop-signin-btn">
-                            Sign In
+                            {t("signIn")}
                         </Link>
                     )}
                 </div>
