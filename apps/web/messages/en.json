@@ -237,7 +237,9 @@
         "cancelModalTitle": "Cancel Booking",
         "cancelModalDesc": "Are you sure you want to cancel this booking? This action cannot be undone.",
         "keepBooking": "Keep Booking",
-        "confirmCancel": "Confirm Cancellation"
+        "confirmCancel": "Confirm Cancellation",
+        "checkInDate": "Check-in",
+        "checkOutDate": "Check-out"
     },
     "checkin": {
         "title": "Self Check-in",

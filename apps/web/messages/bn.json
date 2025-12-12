@@ -237,7 +237,9 @@
         "cancelModalTitle": "বুকিং বাতিল করুন",
         "cancelModalDesc": "আপনি কি নিশ্চিত যে আপনি এই বুকিংটি বাতিল করতে চান? এটি আর ফিরিয়ে আনা যাবে না।",
         "keepBooking": "বুকিং রাখুন",
-        "confirmCancel": "বাতিল নিশ্চিত করুন"
+        "confirmCancel": "বাতিল নিশ্চিত করুন",
+        "checkInDate": "চেক-ইন",
+        "checkOutDate": "চেক-আউট"
     },
     "checkin": {
         "title": "সেলফ চেক-ইন",
