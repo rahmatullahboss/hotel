@@ -355,7 +355,8 @@ export default function BookingsPage() {
                     }
                     .booking-card {
                         display: grid;
-                        grid-template-columns: 300px 1fr;
+                        grid-template-columns: 280px 1fr;
+                        grid-template-rows: auto;
                         margin-bottom: 0;
                         border: 1px solid var(--color-border);
                         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -369,6 +370,7 @@ export default function BookingsPage() {
                         transform: translateY(-2px);
                     }
                     .booking-image {
+                        grid-row: 1 / -1;
                         height: 100%;
                         min-height: 220px;
                     }
@@ -380,20 +382,20 @@ export default function BookingsPage() {
                     }
                     .booking-content {
                         padding: 1.5rem;
-                        display: flex;
-                        flex-direction: column;
+                        grid-column: 2;
                     }
                     .booking-hotel-name {
                         font-size: 1.25rem;
-                    }
-                    .booking-footer {
-                        margin-top: auto;
                     }
                     .booking-price {
                         font-size: 1.5rem;
                     }
                     .booking-actions {
-                        border-radius: 0 0 1rem 0;
+                        grid-column: 2;
+                        border-radius: 0;
+                    }
+                    .booking-qr-section {
+                        grid-column: 2;
                     }
                     .empty-state {
                         padding: 4rem 2rem;
@@ -618,6 +620,7 @@ export default function BookingsPage() {
                                     {/* QR Code Section */}
                                     {selectedBookingId === booking.id && (
                                         <div
+                                            className="booking-qr-section"
                                             style={{
                                                 padding: "1.5rem",
                                                 background: "linear-gradient(135deg, rgba(29, 53, 87, 0.05) 0%, rgba(42, 157, 143, 0.05) 100%)",
