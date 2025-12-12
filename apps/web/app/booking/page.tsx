@@ -3,6 +3,7 @@
 import { Suspense, useState, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
+import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { createBooking } from "../actions/bookings";
 import { getUserProfile } from "../actions/profile";
@@ -21,6 +22,8 @@ function BookingContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const { data: session, status } = useSession();
+    const t = useTranslations("booking");
+    const tCommon = useTranslations("common");
 
     // Get params from URL
     const hotelId = searchParams.get("hotelId") || "";
@@ -87,15 +90,15 @@ function BookingContent() {
             <main style={{ padding: "2rem", textAlign: "center" }}>
                 <div className="card" style={{ padding: "2rem", maxWidth: 400, margin: "0 auto" }}>
                     <div style={{ fontSize: "3rem", marginBottom: "1rem" }}>🔒</div>
-                    <h2 style={{ marginBottom: "0.5rem" }}>Sign In Required</h2>
+                    <h2 style={{ marginBottom: "0.5rem" }}>{t("signInRequired")}</h2>
                     <p style={{ color: "var(--color-text-secondary)", marginBottom: "1.5rem" }}>
-                        Please sign in to complete your booking
+                        {t("signInToBook")}
                     </p>
                     <Link
                         href={`/auth/signin?callbackUrl=${encodeURIComponent(window.location.href)}`}
                         className="btn btn-primary btn-block"
                     >
-                        Sign In to Continue
+                        {t("signInToContinue")}
                     </Link>
                 </div>
             </main>
@@ -108,7 +111,7 @@ function BookingContent() {
 
         if (step === 1) {
             if (!guestName || !guestPhone) {
-                setError("Please fill in all required fields");
+                setError(t("fillRequired"));
                 return;
             }
             setStep(2);
@@ -159,20 +162,20 @@ function BookingContent() {
                                 window.location.href = paymentData.redirectUrl;
                                 return;
                             } else {
-                                setError(paymentData.error || "Failed to initiate payment. Please try again.");
+                                setError(paymentData.error || t("failedToInitiate"));
                             }
                         } catch (paymentErr) {
-                            setError("Payment service unavailable.");
+                            setError(t("paymentServiceUnavailable"));
                         }
                     } else if (paymentMethod === "NAGAD" || paymentMethod === "CARD") {
                         // TODO: Implement Nagad and Card payments
-                        setError("This payment method is coming soon.");
+                        setError(t("paymentComingSoon"));
                     }
                 } else {
-                    setError(result.error || "Failed to create booking");
+                    setError(result.error || t("failedToCreate"));
                 }
             } catch (err) {
-                setError("An error occurred. Please try again.");
+                setError(t("errorOccurred"));
             } finally {
                 setIsSubmitting(false);
             }
@@ -198,10 +201,10 @@ function BookingContent() {
             if (paymentData.success && paymentData.redirectUrl) {
                 window.location.href = paymentData.redirectUrl;
             } else {
-                setError(paymentData.error || "Failed to initiate payment. Please try again.");
+                setError(paymentData.error || t("failedToInitiate"));
             }
         } catch (err) {
-            setError("Payment service unavailable. Please try again.");
+            setError(t("paymentServiceUnavailable"));
         } finally {
             setIsSubmitting(false);
         }
@@ -265,7 +268,7 @@ function BookingContent() {
                                         color: step >= s ? "var(--color-text-primary)" : "var(--color-text-muted)",
                                     }}
                                 >
-                                    {s === 1 ? "Details" : s === 2 ? "Payment" : "Confirm"}
+                                    {s === 1 ? t("details") : s === 2 ? t("payment") : t("confirmStep")}
                                 </span>
                             </div>
                         ))}
@@ -325,20 +328,20 @@ function BookingContent() {
                     {step === 1 && (
                         <form onSubmit={handleSubmit}>
                             <div className="card" style={{ padding: "1.5rem", marginBottom: "1rem" }}>
-                                <h3 style={{ fontWeight: 600, marginBottom: "1rem" }}>Guest Details</h3>
+                                <h3 style={{ fontWeight: 600, marginBottom: "1rem" }}>{t("guestDetails")}</h3>
                                 <div className="form-group">
-                                    <label className="form-label">Full Name *</label>
+                                    <label className="form-label">{t("guestName")} *</label>
                                     <input
                                         type="text"
                                         className="form-input"
-                                        placeholder="As per ID"
+                                        placeholder={t("asPerID")}
                                         value={guestName}
                                         onChange={(e) => setGuestName(e.target.value)}
                                         required
                                     />
                                 </div>
                                 <div className="form-group">
-                                    <label className="form-label">Phone Number *</label>
+                                    <label className="form-label">{t("guestPhone")} *</label>
                                     <input
                                         type="tel"
                                         className="form-input"
@@ -349,18 +352,18 @@ function BookingContent() {
                                     />
                                 </div>
                                 <div className="form-group" style={{ marginBottom: 0 }}>
-                                    <label className="form-label">Email (Optional)</label>
+                                    <label className="form-label">{t("guestEmail")}</label>
                                     <input
                                         type="email"
                                         className="form-input"
-                                        placeholder="For confirmation"
+                                        placeholder={t("forConfirmation")}
                                         value={guestEmail}
                                         onChange={(e) => setGuestEmail(e.target.value)}
                                     />
                                 </div>
                             </div>
                             <button type="submit" className="btn btn-primary btn-block btn-lg">
-                                Continue to Payment
+                                {t("continueToPayment")}
                             </button>
                         </form>
                     )}
@@ -369,7 +372,7 @@ function BookingContent() {
                     {step === 2 && (
                         <form onSubmit={handleSubmit}>
                             <div className="card" style={{ padding: "1.5rem", marginBottom: "1rem" }}>
-                                <h3 style={{ fontWeight: 600, marginBottom: "1rem" }}>Select Payment</h3>
+                                <h3 style={{ fontWeight: 600, marginBottom: "1rem" }}>{t("selectPayment")}</h3>
                                 <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
                                     {paymentMethods.map((method) => (
                                         <label
@@ -398,7 +401,7 @@ function BookingContent() {
                                                 <span style={{ fontWeight: 500 }}>{method.name}</span>
                                                 {method.id === "PAY_AT_HOTEL" && (
                                                     <div style={{ fontSize: "0.75rem", color: "var(--color-text-secondary)" }}>
-                                                        20% advance required
+                                                        {t("advanceRequired")}
                                                     </div>
                                                 )}
                                             </div>
@@ -410,12 +413,12 @@ function BookingContent() {
                             {/* Price Summary */}
                             <div className="card" style={{ padding: "1rem", marginBottom: "1rem" }}>
                                 <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.5rem" }}>
-                                    <span>Room × {nights} night{nights > 1 ? "s" : ""}</span>
+                                    <span>{tCommon("room")} × {nights} {tCommon(nights > 1 ? "nights" : "night")}</span>
                                     <span>৳{(price * nights).toLocaleString()}</span>
                                 </div>
                                 <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.5rem" }}>
-                                    <span>Taxes & Fees</span>
-                                    <span>Included</span>
+                                    <span>{tCommon("taxesAndFees")}</span>
+                                    <span>{tCommon("included")}</span>
                                 </div>
                                 <div
                                     style={{
@@ -427,7 +430,7 @@ function BookingContent() {
                                         fontSize: "1.125rem",
                                     }}
                                 >
-                                    <span>Total</span>
+                                    <span>{t("total")}</span>
                                     <span style={{ color: "var(--color-primary)" }}>
                                         ৳{totalAmount.toLocaleString()}
                                     </span>
@@ -447,14 +450,14 @@ function BookingContent() {
                                             }}
                                         >
                                             <span style={{ color: "var(--color-success)" }}>
-                                                Pay Now (20%)
+                                                {t("payNow20")}
                                             </span>
                                             <span style={{ color: "var(--color-success)" }}>
                                                 ৳{advanceAmount.toLocaleString()}
                                             </span>
                                         </div>
                                         <div style={{ fontSize: "0.75rem", color: "var(--color-text-secondary)", marginTop: "0.5rem", textAlign: "center" }}>
-                                            Pay remaining ৳{(totalAmount - advanceAmount).toLocaleString()} at hotel
+                                            {t("payRemainingAtHotel", { amount: `৳${(totalAmount - advanceAmount).toLocaleString()}` })}
                                         </div>
                                     </>
                                 )}
@@ -467,7 +470,7 @@ function BookingContent() {
                                     style={{ flex: 1 }}
                                     onClick={() => setStep(1)}
                                 >
-                                    Back
+                                    {tCommon("back")}
                                 </button>
                                 <button
                                     type="submit"
@@ -475,7 +478,7 @@ function BookingContent() {
                                     style={{ flex: 2 }}
                                     disabled={isSubmitting}
                                 >
-                                    {isSubmitting ? "Processing..." : "Confirm Booking"}
+                                    {isSubmitting ? tCommon("processing") : t("confirmBooking")}
                                 </button>
                             </div>
                         </form>
@@ -507,10 +510,10 @@ function BookingContent() {
                                     💳
                                 </div>
                                 <h3 style={{ fontWeight: 600, marginBottom: "0.5rem" }}>
-                                    Pay 20% Advance
+                                    {t("pay20Advance")}
                                 </h3>
                                 <p style={{ color: "var(--color-text-secondary)", fontSize: "0.875rem" }}>
-                                    Your wallet balance is insufficient. Please pay ৳{pendingAdvanceAmount.toLocaleString()} to confirm your booking.
+                                    {t("walletInsufficient", { amount: `৳${pendingAdvanceAmount.toLocaleString()}` })}
                                 </p>
                             </div>
 
@@ -526,9 +529,9 @@ function BookingContent() {
                                     fontSize: "0.875rem",
                                 }}
                             >
-                                <strong>⏱️ Room held for 20 minutes</strong>
+                                <strong>⏱️ {t("roomHeld")}</strong>
                                 <div style={{ color: "var(--color-text-secondary)", marginTop: "0.25rem" }}>
-                                    Complete payment to confirm booking
+                                    {t("completePaymentToConfirm")}
                                 </div>
                             </div>
 
@@ -544,7 +547,7 @@ function BookingContent() {
                                     fontWeight: 600,
                                 }}
                             >
-                                <span>Amount to Pay</span>
+                                <span>{t("amountToPay")}</span>
                                 <span style={{ color: "var(--color-success)", fontSize: "1.25rem" }}>
                                     ৳{pendingAdvanceAmount.toLocaleString()}
                                 </span>
@@ -597,7 +600,7 @@ function BookingContent() {
                                     <span style={{ fontSize: "1.5rem" }}>📱</span>
                                     <span style={{ fontWeight: 500 }}>Nagad</span>
                                     <span style={{ marginLeft: "auto", fontSize: "0.75rem", color: "var(--color-text-secondary)" }}>
-                                        Coming Soon
+                                        {tCommon("comingSoon")}
                                     </span>
                                 </label>
                             </div>
@@ -622,7 +625,7 @@ function BookingContent() {
                                 onClick={handleAdvancePayment}
                                 disabled={isSubmitting || advancePaymentMethod === "NAGAD"}
                             >
-                                {isSubmitting ? "Processing..." : `Pay ৳${pendingAdvanceAmount.toLocaleString()}`}
+                                {isSubmitting ? tCommon("processing") : `${t("payNow")} ৳${pendingAdvanceAmount.toLocaleString()}`}
                             </button>
                         </div>
                     )}
@@ -646,9 +649,9 @@ function BookingContent() {
                             >
                                 ✓
                             </div>
-                            <h2 style={{ marginBottom: "0.5rem" }}>Booking Confirmed!</h2>
+                            <h2 style={{ marginBottom: "0.5rem" }}>{t("bookingConfirmed")}</h2>
                             <p style={{ color: "var(--color-text-secondary)", marginBottom: "1.5rem" }}>
-                                Your booking has been successfully created.
+                                {t("bookingCreated")}
                             </p>
 
                             {/* QR Code for check-in */}
@@ -665,7 +668,7 @@ function BookingContent() {
                                 }}
                             >
                                 <div style={{ fontSize: "0.875rem", color: "var(--color-text-secondary)" }}>
-                                    Booking ID
+                                    {t("bookingId")}
                                 </div>
                                 <div style={{ fontWeight: 700, fontFamily: "monospace" }}>
                                     {bookingId.slice(0, 8).toUpperCase()}
@@ -674,19 +677,19 @@ function BookingContent() {
 
                             <div style={{ textAlign: "left", marginBottom: "1.5rem" }}>
                                 <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.5rem" }}>
-                                    <span style={{ color: "var(--color-text-secondary)" }}>Hotel</span>
+                                    <span style={{ color: "var(--color-text-secondary)" }}>{tCommon("room")}</span>
                                     <span style={{ fontWeight: 500 }}>{hotelName}</span>
                                 </div>
                                 <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.5rem" }}>
-                                    <span style={{ color: "var(--color-text-secondary)" }}>Check-in</span>
+                                    <span style={{ color: "var(--color-text-secondary)" }}>{t("checkInDate")}</span>
                                     <span style={{ fontWeight: 500 }}>{checkIn}</span>
                                 </div>
                                 <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.5rem" }}>
-                                    <span style={{ color: "var(--color-text-secondary)" }}>Check-out</span>
+                                    <span style={{ color: "var(--color-text-secondary)" }}>{t("checkOutDate")}</span>
                                     <span style={{ fontWeight: 500 }}>{checkOut}</span>
                                 </div>
                                 <div style={{ display: "flex", justifyContent: "space-between" }}>
-                                    <span style={{ color: "var(--color-text-secondary)" }}>Total</span>
+                                    <span style={{ color: "var(--color-text-secondary)" }}>{t("total")}</span>
                                     <span style={{ fontWeight: 700, color: "var(--color-primary)" }}>
                                         ৳{totalAmount.toLocaleString()}
                                     </span>
@@ -694,7 +697,7 @@ function BookingContent() {
                             </div>
 
                             <Link href="/bookings" className="btn btn-primary btn-block">
-                                View My Bookings
+                                {t("viewMyBookings")}
                             </Link>
                         </div>
                     )}
