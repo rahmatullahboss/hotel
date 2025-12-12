@@ -2,46 +2,27 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { getPartnerHotel } from "../actions/dashboard";
 import { BottomNav } from "../components";
+import { getTranslations } from "next-intl/server";
 
 export const dynamic = 'force-dynamic';
 
 export default async function HelpPage() {
     const hotel = await getPartnerHotel();
+    const t = await getTranslations("help");
 
     if (!hotel) {
         redirect("/auth/signin");
     }
 
-    const faqs = [
-        {
-            question: "How do I check in a guest?",
-            answer: "Use the Scanner page to scan the guest's QR code or enter their booking ID manually. Then tap 'Check In' to confirm their arrival.",
-        },
-        {
-            question: "How does the 20% advance payment work?",
-            answer: "For Pay at Hotel bookings, customers pay 20% online as advance. This covers the platform commission. You collect the remaining 80% at check-in.",
-        },
-        {
-            question: "How do I collect the remaining payment?",
-            answer: "On the dashboard's Today's Check-ins section or the Scanner page, tap the 'Collect' button after receiving cash from the guest.",
-        },
-        {
-            question: "What if a customer cancels?",
-            answer: "If cancelled 24+ hours before check-in, the advance is refunded to their wallet. Late cancellations forfeit the advance, split 50-50 between you and the platform.",
-        },
-        {
-            question: "How do I block a room?",
-            answer: "Go to Room Inventory, tap on a room, and select 'Block Room'. Choose the dates and confirm. Blocked rooms won't appear in search results.",
-        },
-        {
-            question: "How are walk-in guests different?",
-            answer: "Walk-in guests are recorded for inventory tracking only - no commission is charged. Use the Walk-in page to record them.",
-        },
-        {
-            question: "When do I receive my payouts?",
-            answer: "Payouts are processed weekly. You receive the remaining 80% from Pay at Hotel bookings and full amount from walk-ins.",
-        },
-    ];
+    const faqKeys = [
+        "checkInGuest",
+        "advancePayment",
+        "collectPayment",
+        "cancellation",
+        "blockRoom",
+        "walkIn",
+        "payouts",
+    ] as const;
 
     return (
         <>
@@ -49,6 +30,7 @@ export default async function HelpPage() {
             <header className="page-header">
                 <Link
                     href="/settings"
+                    className="back-button"
                     style={{
                         background: "none",
                         border: "none",
@@ -61,9 +43,9 @@ export default async function HelpPage() {
                 >
                     ←
                 </Link>
-                <h1 className="page-title">Help & Support</h1>
+                <h1 className="page-title">{t("title")}</h1>
                 <p style={{ color: "var(--color-text-secondary)", fontSize: "0.875rem" }}>
-                    Frequently asked questions
+                    {t("subtitle")}
                 </p>
             </header>
 
@@ -88,9 +70,9 @@ export default async function HelpPage() {
                         }}
                     >
                         <div style={{ fontSize: "2rem", marginBottom: "0.5rem" }}>📞</div>
-                        <div style={{ fontWeight: 600 }}>Call Support</div>
+                        <div style={{ fontWeight: 600 }}>{t("callSupport")}</div>
                         <div style={{ fontSize: "0.75rem", color: "var(--color-text-muted)" }}>
-                            9 AM - 9 PM
+                            {t("callHours")}
                         </div>
                     </a>
                     <a
@@ -104,9 +86,9 @@ export default async function HelpPage() {
                         }}
                     >
                         <div style={{ fontSize: "2rem", marginBottom: "0.5rem" }}>✉️</div>
-                        <div style={{ fontWeight: 600 }}>Email Us</div>
+                        <div style={{ fontWeight: 600 }}>{t("emailUs")}</div>
                         <div style={{ fontSize: "0.75rem", color: "var(--color-text-muted)" }}>
-                            24h response
+                            {t("emailResponse")}
                         </div>
                     </a>
                 </div>
@@ -114,12 +96,12 @@ export default async function HelpPage() {
                 {/* FAQs */}
                 <section>
                     <h2 style={{ fontSize: "1.125rem", fontWeight: 600, marginBottom: "1rem" }}>
-                        Frequently Asked Questions
+                        {t("faqTitle")}
                     </h2>
                     <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
-                        {faqs.map((faq, index) => (
+                        {faqKeys.map((key) => (
                             <details
-                                key={index}
+                                key={key}
                                 className="card"
                                 style={{ padding: "1rem" }}
                             >
@@ -133,7 +115,7 @@ export default async function HelpPage() {
                                         alignItems: "center",
                                     }}
                                 >
-                                    {faq.question}
+                                    {t(`faqs.${key}.question`)}
                                     <span style={{ color: "var(--color-text-muted)" }}>+</span>
                                 </summary>
                                 <p
@@ -144,7 +126,7 @@ export default async function HelpPage() {
                                         lineHeight: 1.6,
                                     }}
                                 >
-                                    {faq.answer}
+                                    {t(`faqs.${key}.answer`)}
                                 </p>
                             </details>
                         ))}
@@ -164,10 +146,10 @@ export default async function HelpPage() {
                 >
                     <div style={{ fontSize: "1.5rem", marginBottom: "0.5rem" }}>🤝</div>
                     <h3 style={{ fontWeight: 600, marginBottom: "0.5rem" }}>
-                        Need more help?
+                        {t("needMoreHelp")}
                     </h3>
                     <p style={{ fontSize: "0.875rem", opacity: 0.9, marginBottom: "1rem" }}>
-                        Our partner success team is here by your need
+                        {t("partnerTeamHelp")}
                     </p>
                     <a
                         href="https://wa.me/8801700000000"
@@ -181,7 +163,7 @@ export default async function HelpPage() {
                             textDecoration: "none",
                         }}
                     >
-                        Chat on WhatsApp
+                        {t("chatWhatsApp")}
                     </a>
                 </div>
             </main>

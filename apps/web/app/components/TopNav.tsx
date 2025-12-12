@@ -3,10 +3,13 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
+import { useTranslations } from "next-intl";
+import { LanguageSwitcher } from "./LanguageSwitcher";
 
 export function TopNav() {
     const pathname = usePathname();
     const { data: session, status } = useSession();
+    const t = useTranslations("nav");
 
     return (
         <nav className="top-nav">
@@ -19,7 +22,7 @@ export function TopNav() {
                     href="/"
                     className={`top-nav-link ${pathname === "/" ? "active" : ""}`}
                 >
-                    Home
+                    {t("home")}
                 </Link>
                 <Link
                     href="/hotels"
@@ -31,11 +34,12 @@ export function TopNav() {
                     href="/bookings"
                     className={`top-nav-link ${pathname === "/bookings" ? "active" : ""}`}
                 >
-                    My Bookings
+                    {t("bookings")}
                 </Link>
             </div>
 
             <div className="top-nav-actions">
+                <LanguageSwitcher />
                 {status === "loading" ? (
                     <div style={{ width: 80, height: 36 }} />
                 ) : session?.user ? (
@@ -81,7 +85,7 @@ export function TopNav() {
                                 </div>
                             )}
                             <span style={{ fontWeight: 500 }}>
-                                {session.user.name || "Profile"}
+                                {session.user.name || t("profile")}
                             </span>
                         </Link>
                         <button

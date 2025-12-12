@@ -1,0 +1,132 @@
+{
+    "common": {
+        "appName": "Vibe Hotels",
+        "loading": "Loading...",
+        "error": "Error",
+        "success": "Success",
+        "cancel": "Cancel",
+        "confirm": "Confirm",
+        "save": "Save",
+        "back": "Back",
+        "next": "Next",
+        "submit": "Submit",
+        "currency": "৳",
+        "perNight": "/night",
+        "viewAll": "View all →"
+    },
+    "nav": {
+        "home": "Home",
+        "bookings": "Bookings",
+        "wallet": "Wallet",
+        "profile": "Profile",
+        "checkIn": "Check-in"
+    },
+    "home": {
+        "heroTitle": "Find Your Perfect Stay",
+        "heroSubtitle": "Book verified hotels at the best prices in Bangladesh",
+        "featuredHotels": "Featured Hotels",
+        "noHotels": "No hotels available at the moment. Check back soon!",
+        "whyBook": "Why Book with Vibe?",
+        "verifiedProperties": "Verified Properties",
+        "verifiedDesc": "All hotels personally inspected for quality",
+        "bestPrices": "Best Prices",
+        "bestPricesDesc": "Guaranteed lowest rates or money back",
+        "payAtHotel": "Pay at Hotel",
+        "payAtHotelDesc": "No advance payment needed",
+        "instantBooking": "Instant Booking",
+        "instantBookingDesc": "Confirm your stay in just 3 clicks"
+    },
+    "search": {
+        "location": "Where are you going?",
+        "locationPlaceholder": "Search city or area",
+        "checkIn": "Check-in",
+        "checkOut": "Check-out",
+        "guests": "Guests",
+        "searchButton": "Search Hotels"
+    },
+    "hotel": {
+        "rating": "Rating",
+        "reviews": "reviews",
+        "amenities": "Amenities",
+        "location": "Location",
+        "availableRooms": "Available Rooms",
+        "selectRoom": "Select Room",
+        "bookNow": "Book Now",
+        "perNight": "/night",
+        "maxGuests": "Max {count} guests",
+        "from": "From",
+        "payAtHotel": "Pay at Hotel"
+    },
+    "booking": {
+        "yourBooking": "Your Booking",
+        "guestDetails": "Guest Details",
+        "guestName": "Full Name",
+        "guestPhone": "Phone Number",
+        "guestEmail": "Email",
+        "specialRequests": "Special Requests",
+        "paymentMethod": "Payment Method",
+        "payNow": "Pay Full Amount Now",
+        "payAtHotel": "Pay at Hotel",
+        "advanceRequired": "20% advance required",
+        "confirmBooking": "Confirm Booking",
+        "total": "Total",
+        "nights": "nights",
+        "bookingConfirmed": "Booking Confirmed!",
+        "bookingPending": "Booking Pending",
+        "checkInDate": "Check-in Date",
+        "checkOutDate": "Check-out Date"
+    },
+    "wallet": {
+        "title": "Wallet",
+        "balance": "Balance",
+        "addMoney": "Add Money",
+        "transactions": "Transactions",
+        "noTransactions": "No transactions yet"
+    },
+    "profile": {
+        "title": "Profile",
+        "editProfile": "Edit Profile",
+        "myBookings": "My Bookings",
+        "wallet": "Wallet",
+        "help": "Help & Support",
+        "terms": "Terms of Service",
+        "privacy": "Privacy Policy",
+        "logout": "Logout",
+        "signIn": "Sign In",
+        "signInDesc": "Sign in to access all features"
+    },
+    "help": {
+        "title": "Help & Support",
+        "contactUs": "Contact Us",
+        "email": "Email",
+        "phone": "Phone",
+        "faq": "Frequently Asked Questions",
+        "faqs": {
+            "howToBook": {
+                "question": "How do I make a booking?",
+                "answer": "Search for your preferred hotel, select a room, enter your details, and complete the payment. You'll receive confirmation via email and SMS."
+            },
+            "wallet": {
+                "question": "What is the wallet feature?",
+                "answer": "The wallet lets you store money for quick payments. Add funds via bKash and use your balance for booking fees and full payments."
+            },
+            "contactHotel": {
+                "question": "How do I contact a hotel directly?",
+                "answer": "On each hotel's page, you'll find contact information including phone number and address. You can also reach out through our support for any issues."
+            }
+        }
+    },
+    "terms": {
+        "title": "Terms of Service",
+        "lastUpdated": "Last Updated"
+    },
+    "privacy": {
+        "title": "Privacy Policy",
+        "lastUpdated": "Last Updated"
+    },
+    "language": {
+        "title": "Language",
+        "bangla": "বাংলা",
+        "english": "English"
+    }
+}

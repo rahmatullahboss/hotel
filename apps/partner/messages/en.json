@@ -1,0 +1,197 @@
+{
+    "common": {
+        "appName": "Vibe Manager",
+        "loading": "Loading...",
+        "error": "Error",
+        "success": "Success",
+        "cancel": "Cancel",
+        "confirm": "Confirm",
+        "save": "Save",
+        "edit": "Edit",
+        "delete": "Delete",
+        "close": "Close",
+        "back": "Back",
+        "next": "Next",
+        "submit": "Submit",
+        "signedInAs": "Signed in as",
+        "logout": "Logout",
+        "currency": "৳"
+    },
+    "nav": {
+        "home": "Home",
+        "walkIn": "Walk-in",
+        "rooms": "Rooms",
+        "earnings": "Earnings",
+        "settings": "Settings",
+        "help": "Help"
+    },
+    "dashboard": {
+        "title": "Vibe Manager",
+        "welcome": "Welcome to Vibe Manager",
+        "registerHotel": "Register Your Hotel",
+        "registerDescription": "Register your hotel to start managing bookings, inventory, and earnings all in one place.",
+        "pendingApproval": "Pending Approval",
+        "pendingDescription": "Your hotel registration is being reviewed by our team. This usually takes 24-48 hours. We'll notify you once approved.",
+        "whatHappensNext": "What happens next?",
+        "registrationSubmitted": "Registration submitted",
+        "adminReview": "Admin review in progress",
+        "setupRooms": "Set up rooms & pricing",
+        "suspended": "Suspended",
+        "suspendedDescription": "Your hotel has been suspended. Please contact support for more information.",
+        "contactSupport": "Questions? Contact support@vibehotel.com"
+    },
+    "stats": {
+        "monthlyRevenue": "Monthly Revenue",
+        "avgRoomRate": "Avg Room Rate (ARR)",
+        "todaysCheckIns": "Today's Check-ins",
+        "todaysCheckOuts": "Today's Check-outs",
+        "occupancyRate": "Occupancy Rate",
+        "pendingBookings": "Pending Bookings"
+    },
+    "bookings": {
+        "todaysCheckIns": "Today's Check-ins",
+        "todaysCheckOuts": "Today's Check-outs",
+        "currentlyStaying": "Currently Staying",
+        "upcomingCheckIns": "Upcoming Check-ins",
+        "noCheckInsToday": "No check-ins scheduled for today",
+        "noUpcomingBookings": "No upcoming bookings",
+        "dueToday": "Due Today",
+        "checkoutDue": "Checkout Due",
+        "leavesTomorrow": "Leaves tomorrow",
+        "daysLeft": "{count} days left",
+        "dayOf": "Day {current} of {total}",
+        "room": "Room",
+        "nights": "nights",
+        "night": "night",
+        "totalBill": "Total Bill",
+        "advancePaid": "Advance Paid",
+        "fullyPaid": "Fully Paid",
+        "collect": "Collect",
+        "collectBeforeCheckout": "Collect Before Checkout",
+        "due": "Due",
+        "checkIn": "Check In →",
+        "checkOut": "Check Out →",
+        "viewDetails": "View Details →",
+        "call": "Call",
+        "checkedIn": "Checked In",
+        "ready": "Ready",
+        "pending": "Pending",
+        "confirmed": "Confirmed",
+        "today": "Today",
+        "tomorrow": "Tomorrow",
+        "inDays": "In {count} days"
+    },
+    "actions": {
+        "collectPayment": "Collect Payment",
+        "extendStay": "Extend Stay",
+        "checkOutGuest": "Check Out Guest"
+    },
+    "settings": {
+        "title": "Settings",
+        "manageSettings": "Manage your hotel settings",
+        "hotelProfile": "Hotel Profile",
+        "hotelProfileDesc": "Edit name, description, address, and amenities",
+        "photosMedia": "Photos & Media",
+        "photosMediaDesc": "Manage cover image and gallery photos",
+        "bookingHistory": "Booking History",
+        "bookingHistoryDesc": "View all past and upcoming bookings",
+        "analytics": "Analytics",
+        "analyticsDesc": "Revenue trends and performance insights",
+        "helpSupport": "Help & Support",
+        "helpSupportDesc": "FAQ, contact support, tutorials",
+        "payAtHotel": "Pay at Hotel",
+        "payAtHotelDesc": "Allow guests to pay remaining amount at check-in",
+        "commission": "20% Commission",
+        "language": "Language",
+        "languageDesc": "Change app language",
+        "version": "Vibe Manager v1.0.0"
+    },
+    "help": {
+        "title": "Help & Support",
+        "subtitle": "Frequently asked questions",
+        "callSupport": "Call Support",
+        "callHours": "9 AM - 9 PM",
+        "emailUs": "Email Us",
+        "emailResponse": "24h response",
+        "faqTitle": "Frequently Asked Questions",
+        "needMoreHelp": "Need more help?",
+        "partnerTeamHelp": "Our partner success team is here by your side",
+        "chatWhatsApp": "Chat on WhatsApp",
+        "faqs": {
+            "checkInGuest": {
+                "question": "How do I check in a guest?",
+                "answer": "Use the Scanner page to scan the guest's QR code or enter their booking ID manually. Then tap 'Check In' to confirm their arrival."
+            },
+            "advancePayment": {
+                "question": "How does the 20% advance payment work?",
+                "answer": "For Pay at Hotel bookings, customers pay 20% online as advance. This covers the platform commission. You collect the remaining 80% at check-in."
+            },
+            "collectPayment": {
+                "question": "How do I collect the remaining payment?",
+                "answer": "On the dashboard's Today's Check-ins section or the Scanner page, tap the 'Collect' button after receiving cash from the guest."
+            },
+            "cancellation": {
+                "question": "What if a customer cancels?",
+                "answer": "If cancelled 24+ hours before check-in, the advance is refunded to their wallet. Late cancellations forfeit the advance, split 50-50 between you and the platform."
+            },
+            "blockRoom": {
+                "question": "How do I block a room?",
+                "answer": "Go to Room Inventory, tap on a room, and select 'Block Room'. Choose the dates and confirm. Blocked rooms won't appear in search results."
+            },
+            "walkIn": {
+                "question": "How are walk-in guests different?",
+                "answer": "Walk-in guests are recorded for inventory tracking only - no commission is charged. Use the Walk-in page to record them."
+            },
+            "payouts": {
+                "question": "When do I receive my payouts?",
+                "answer": "Payouts are processed weekly. You receive the remaining 80% from Pay at Hotel bookings and full amount from walk-ins."
+            }
+        }
+    },
+    "walkIn": {
+        "title": "Walk-in Guest",
+        "subtitle": "Record walk-in guest",
+        "selectDates": "Select Dates",
+        "checkInDate": "Check-in Date",
+        "checkOutDate": "Check-out Date",
+        "selectRoom": "Select Room",
+        "guestDetails": "Guest Details",
+        "guestName": "Guest Name",
+        "guestPhone": "Phone Number",
+        "guestId": "ID Number (NID/Passport)",
+        "numberOfGuests": "Number of Guests",
+        "recordWalkIn": "Record Walk-in",
+        "noCommission": "No commission",
+        "available": "Available",
+        "unavailable": "Unavailable"
+    },
+    "inventory": {
+        "title": "Room Inventory",
+        "addRoom": "Add Room",
+        "editRoom": "Edit Room",
+        "roomNumber": "Room Number",
+        "roomName": "Room Name",
+        "roomType": "Room Type",
+        "basePrice": "Base Price",
+        "maxGuests": "Max Guests",
+        "description": "Description",
+        "amenities": "Amenities",
+        "photos": "Photos",
+        "blockRoom": "Block Room",
+        "unblockRoom": "Unblock Room"
+    },
+    "earnings": {
+        "title": "Earnings",
+        "totalEarnings": "Total Earnings",
+        "pendingPayout": "Pending Payout",
+        "thisMonth": "This Month",
+        "lastMonth": "Last Month",
+        "payoutHistory": "Payout History"
+    },
+    "language": {
+        "title": "Language",
+        "bangla": "বাংলা",
+        "english": "English",
+        "selectLanguage": "Select Language"
+    }
+}

@@ -6,3 +6,4 @@ export { BookingQRCode } from "./BookingQRCode";
 export { CancelBookingModal } from "./CancelBookingModal";
 export { default as RoomCard } from "./RoomCard";
 export { default as RoomDetailModal } from "./RoomDetailModal";
+export { LanguageSwitcher } from "./LanguageSwitcher";

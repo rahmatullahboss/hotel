@@ -3,6 +3,8 @@ import localFont from "next/font/local";
 import "./globals.css";
 import { TopNav } from "./components/TopNav";
 import { Providers } from "./providers";
+import { NextIntlClientProvider } from "next-intl";
+import { getLocale, getMessages } from "next-intl/server";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -39,17 +41,22 @@ export const viewport: Viewport = {
   themeColor: "#1D3557",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const locale = await getLocale();
+  const messages = await getMessages();
+
   return (
-    <html lang="en">
+    <html lang={locale}>
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
         <Providers>
-          <TopNav />
-          {children}
+          <NextIntlClientProvider messages={messages}>
+            <TopNav />
+            {children}
+          </NextIntlClientProvider>
         </Providers>
         <script
           dangerouslySetInnerHTML={{
@@ -70,5 +77,3 @@ export default function RootLayout({
     </html>
   );
 }
-
-

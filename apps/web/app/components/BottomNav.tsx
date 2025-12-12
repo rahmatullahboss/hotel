@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useTranslations } from "next-intl";
 
 const SearchIcon = ({ active }: { active: boolean }) => (
     <svg
@@ -88,20 +89,21 @@ const CheckOutIcon = ({ active }: { active: boolean }) => (
     </svg>
 );
 
-const navItems = [
-    { href: "/", label: "Search", Icon: SearchIcon },
-    { href: "/checkin", label: "Check-in", Icon: CheckInIcon },
-    { href: "/checkout", label: "Check-out", Icon: CheckOutIcon },
-    { href: "/bookings", label: "Bookings", Icon: BookingsIcon },
-    { href: "/profile", label: "Profile", Icon: ProfileIcon },
-];
-
 export function BottomNav() {
     const pathname = usePathname();
+    const t = useTranslations("nav");
+
+    const navItems = [
+        { href: "/", labelKey: "home", Icon: SearchIcon },
+        { href: "/checkin", labelKey: "checkIn", Icon: CheckInIcon },
+        { href: "/checkout", label: "Check-out", Icon: CheckOutIcon },
+        { href: "/bookings", labelKey: "bookings", Icon: BookingsIcon },
+        { href: "/profile", labelKey: "profile", Icon: ProfileIcon },
+    ];
 
     return (
         <nav className="bottom-nav">
-            {navItems.map(({ href, label, Icon }) => {
+            {navItems.map(({ href, labelKey, label, Icon }) => {
                 const isActive = pathname === href ||
                     (href === "/" && pathname.startsWith("/hotels"));
                 return (
@@ -111,7 +113,7 @@ export function BottomNav() {
                         className={`nav-item ${isActive ? "active" : ""}`}
                     >
                         <Icon active={isActive} />
-                        <span>{label}</span>
+                        <span>{labelKey ? t(labelKey) : label}</span>
                     </Link>
                 );
             })}

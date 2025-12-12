@@ -1,0 +1,132 @@
+{
+    "common": {
+        "appName": "Vibe Hotels",
+        "loading": "লোড হচ্ছে...",
+        "error": "ত্রুটি",
+        "success": "সফল",
+        "cancel": "বাতিল",
+        "confirm": "নিশ্চিত করুন",
+        "save": "সংরক্ষণ",
+        "back": "পিছনে",
+        "next": "পরবর্তী",
+        "submit": "জমা দিন",
+        "currency": "৳",
+        "perNight": "/রাত",
+        "viewAll": "সব দেখুন →"
+    },
+    "nav": {
+        "home": "হোম",
+        "bookings": "বুকিং",
+        "wallet": "ওয়ালেট",
+        "profile": "প্রোফাইল",
+        "checkIn": "চেক-ইন"
+    },
+    "home": {
+        "heroTitle": "আপনার নিখুঁত থাকার জায়গা খুঁজুন",
+        "heroSubtitle": "বাংলাদেশে সেরা মূল্যে যাচাইকৃত হোটেল বুক করুন",
+        "featuredHotels": "ফিচার্ড হোটেল",
+        "noHotels": "বর্তমানে কোনো হোটেল উপলব্ধ নেই। শীঘ্রই আবার দেখুন!",
+        "whyBook": "Vibe এ কেন বুক করবেন?",
+        "verifiedProperties": "যাচাইকৃত প্রপার্টি",
+        "verifiedDesc": "সব হোটেল ব্যক্তিগতভাবে মান যাচাই করা",
+        "bestPrices": "সেরা মূল্য",
+        "bestPricesDesc": "সর্বনিম্ন রেট গ্যারান্টি বা টাকা ফেরত",
+        "payAtHotel": "হোটেলে পেমেন্ট",
+        "payAtHotelDesc": "অগ্রিম পেমেন্ট প্রয়োজন নেই",
+        "instantBooking": "তাৎক্ষণিক বুকিং",
+        "instantBookingDesc": "মাত্র ৩ ক্লিকে আপনার থাকা নিশ্চিত করুন"
+    },
+    "search": {
+        "location": "কোথায় যাচ্ছেন?",
+        "locationPlaceholder": "শহর বা এলাকা খুঁজুন",
+        "checkIn": "চেক-ইন",
+        "checkOut": "চেক-আউট",
+        "guests": "গেস্ট",
+        "searchButton": "হোটেল খুঁজুন"
+    },
+    "hotel": {
+        "rating": "রেটিং",
+        "reviews": "রিভিউ",
+        "amenities": "সুবিধাসমূহ",
+        "location": "অবস্থান",
+        "availableRooms": "উপলব্ধ রুম",
+        "selectRoom": "রুম নির্বাচন করুন",
+        "bookNow": "এখনই বুক করুন",
+        "perNight": "/রাত",
+        "maxGuests": "সর্বোচ্চ {count} জন অতিথি",
+        "from": "শুরু",
+        "payAtHotel": "হোটেলে পেমেন্ট"
+    },
+    "booking": {
+        "yourBooking": "আপনার বুকিং",
+        "guestDetails": "গেস্ট তথ্য",
+        "guestName": "পুরো নাম",
+        "guestPhone": "ফোন নম্বর",
+        "guestEmail": "ইমেইল",
+        "specialRequests": "বিশেষ অনুরোধ",
+        "paymentMethod": "পেমেন্ট পদ্ধতি",
+        "payNow": "এখন পুরো পেমেন্ট করুন",
+        "payAtHotel": "হোটেলে পেমেন্ট",
+        "advanceRequired": "২০% অগ্রিম প্রয়োজন",
+        "confirmBooking": "বুকিং নিশ্চিত করুন",
+        "total": "মোট",
+        "nights": "রাত",
+        "bookingConfirmed": "বুকিং নিশ্চিত!",
+        "bookingPending": "বুকিং মুলতুবি",
+        "checkInDate": "চেক-ইন তারিখ",
+        "checkOutDate": "চেক-আউট তারিখ"
+    },
+    "wallet": {
+        "title": "ওয়ালেট",
+        "balance": "ব্যালেন্স",
+        "addMoney": "টাকা যোগ করুন",
+        "transactions": "লেনদেন",
+        "noTransactions": "কোনো লেনদেন নেই"
+    },
+    "profile": {
+        "title": "প্রোফাইল",
+        "editProfile": "প্রোফাইল সম্পাদনা",
+        "myBookings": "আমার বুকিং",
+        "wallet": "ওয়ালেট",
+        "help": "সাহায্য ও সাপোর্ট",
+        "terms": "শর্তাবলী",
+        "privacy": "গোপনীয়তা নীতি",
+        "logout": "লগআউট",
+        "signIn": "সাইন ইন",
+        "signInDesc": "সব ফিচার অ্যাক্সেস করতে সাইন ইন করুন"
+    },
+    "help": {
+        "title": "সাহায্য ও সাপোর্ট",
+        "contactUs": "যোগাযোগ করুন",
+        "email": "ইমেইল",
+        "phone": "ফোন",
+        "faq": "সচরাচর জিজ্ঞাসিত প্রশ্ন",
+        "faqs": {
+            "howToBook": {
+                "question": "কীভাবে বুকিং করব?",
+                "answer": "আপনার পছন্দের হোটেল খুঁজুন, রুম নির্বাচন করুন, আপনার তথ্য দিন এবং পেমেন্ট সম্পন্ন করুন। আপনি ইমেইল ও এসএমএসে নিশ্চিতকরণ পাবেন।"
+            },
+            "wallet": {
+                "question": "ওয়ালেট ফিচার কী?",
+                "answer": "ওয়ালেট আপনাকে দ্রুত পেমেন্টের জন্য টাকা জমা রাখতে দেয়। bKash দিয়ে টাকা যোগ করুন এবং বুকিং ফি ও পুরো পেমেন্টের জন্য ব্যালেন্স ব্যবহার করুন।"
+            },
+            "contactHotel": {
+                "question": "হোটেলে সরাসরি কীভাবে যোগাযোগ করব?",
+                "answer": "প্রতিটি হোটেলের পেজে ফোন নম্বর ও ঠিকানাসহ যোগাযোগের তথ্য পাবেন। যেকোনো সমস্যায় আমাদের সাপোর্টে যোগাযোগ করতে পারেন।"
+            }
+        }
+    },
+    "terms": {
+        "title": "সেবার শর্তাবলী",
+        "lastUpdated": "সর্বশেষ আপডেট"
+    },
+    "privacy": {
+        "title": "গোপনীয়তা নীতি",
+        "lastUpdated": "সর্বশেষ আপডেট"
+    },
+    "language": {
+        "title": "ভাষা",
+        "bangla": "বাংলা",
+        "english": "English"
+    }
+}

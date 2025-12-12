@@ -1,17 +1,27 @@
 import { BottomNav, SearchForm, HotelCard } from "./components";
 import { getFeaturedHotels } from "./actions/hotels";
+import { getTranslations } from "next-intl/server";
 
 export default async function HomePage() {
   // Fetch real hotels from database
   const featuredHotels = await getFeaturedHotels(4);
+  const t = await getTranslations("home");
+  const tCommon = await getTranslations("common");
+
+  const whyBookItems = [
+    { icon: "✓", titleKey: "verifiedProperties", descKey: "verifiedDesc" },
+    { icon: "💰", titleKey: "bestPrices", descKey: "bestPricesDesc" },
+    { icon: "🏨", titleKey: "payAtHotel", descKey: "payAtHotelDesc" },
+    { icon: "⚡", titleKey: "instantBooking", descKey: "instantBookingDesc" },
+  ];
 
   return (
     <>
       {/* Hero Section */}
       <section className="hero">
-        <h1 className="hero-title">Find Your Perfect Stay</h1>
+        <h1 className="hero-title">{t("heroTitle")}</h1>
         <p className="hero-subtitle">
-          Book verified hotels at the best prices in Bangladesh
+          {t("heroSubtitle")}
         </p>
       </section>
 
@@ -23,9 +33,9 @@ export default async function HomePage() {
         {/* Featured Hotels */}
         <section style={{ marginTop: "3rem" }}>
           <div className="section-header">
-            <h2 className="section-title">Featured Hotels</h2>
+            <h2 className="section-title">{t("featuredHotels")}</h2>
             <a href="/hotels" className="section-link">
-              View all →
+              {tCommon("viewAll")}
             </a>
           </div>
 
@@ -48,7 +58,7 @@ export default async function HomePage() {
               ))
             ) : (
               <div style={{ gridColumn: "1 / -1", textAlign: "center", padding: "2rem", color: "var(--color-text-secondary)" }}>
-                No hotels available at the moment. Check back soon!
+                {t("noHotels")}
               </div>
             )}
           </div>
@@ -57,7 +67,7 @@ export default async function HomePage() {
         {/* Why Vibe */}
         <section style={{ marginTop: "3rem" }}>
           <h2 className="section-title" style={{ marginBottom: "1.5rem", textAlign: "center" }}>
-            Why Book with Vibe?
+            {t("whyBook")}
           </h2>
 
           <div
@@ -67,14 +77,9 @@ export default async function HomePage() {
               gap: "1.5rem",
             }}
           >
-            {[
-              { icon: "✓", title: "Verified Properties", desc: "All hotels personally inspected for quality" },
-              { icon: "💰", title: "Best Prices", desc: "Guaranteed lowest rates or money back" },
-              { icon: "🏨", title: "Pay at Hotel", desc: "No advance payment needed" },
-              { icon: "⚡", title: "Instant Booking", desc: "Confirm your stay in just 3 clicks" },
-            ].map((item) => (
+            {whyBookItems.map((item) => (
               <div
-                key={item.title}
+                key={item.titleKey}
                 className="card"
                 style={{
                   padding: "1.5rem",
@@ -85,7 +90,7 @@ export default async function HomePage() {
                   {item.icon}
                 </div>
                 <div style={{ fontWeight: 600, fontSize: "1.125rem", marginBottom: "0.5rem" }}>
-                  {item.title}
+                  {t(item.titleKey)}
                 </div>
                 <div
                   style={{
@@ -94,7 +99,7 @@ export default async function HomePage() {
                     lineHeight: 1.5,
                   }}
                 >
-                  {item.desc}
+                  {t(item.descKey)}
                 </div>
               </div>
             ))}

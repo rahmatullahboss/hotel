@@ -1,12 +1,15 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { getHotelProfile } from "../actions/settings";
-import { BottomNav } from "../components";
+import { BottomNav, LanguageSwitcher } from "../components";
+import { getTranslations } from "next-intl/server";
 
 export const dynamic = 'force-dynamic';
 
 export default async function SettingsPage() {
     const hotel = await getHotelProfile();
+    const t = await getTranslations("settings");
+    const tNav = await getTranslations("nav");
 
     if (!hotel) {
         redirect("/auth/signin");
@@ -16,32 +19,32 @@ export default async function SettingsPage() {
         {
             href: "/settings/profile",
             icon: "🏨",
-            title: "Hotel Profile",
-            description: "Edit name, description, address, and amenities",
+            title: t("hotelProfile"),
+            description: t("hotelProfileDesc"),
         },
         {
             href: "/settings/photos",
             icon: "📷",
-            title: "Photos & Media",
-            description: "Manage cover image and gallery photos",
+            title: t("photosMedia"),
+            description: t("photosMediaDesc"),
         },
         {
             href: "/bookings",
             icon: "📋",
-            title: "Booking History",
-            description: "View all past and upcoming bookings",
+            title: t("bookingHistory"),
+            description: t("bookingHistoryDesc"),
         },
         {
             href: "/analytics",
             icon: "📊",
-            title: "Analytics",
-            description: "Revenue trends and performance insights",
+            title: t("analytics"),
+            description: t("analyticsDesc"),
         },
         {
             href: "/help",
             icon: "❓",
-            title: "Help & Support",
-            description: "FAQ, contact support, tutorials",
+            title: t("helpSupport"),
+            description: t("helpSupportDesc"),
         },
     ];
 
@@ -49,9 +52,9 @@ export default async function SettingsPage() {
         <>
             {/* Header */}
             <header className="page-header">
-                <h1 className="page-title">Settings</h1>
+                <h1 className="page-title">{t("title")}</h1>
                 <p style={{ color: "var(--color-text-secondary)", fontSize: "0.875rem" }}>
-                    Manage your hotel settings
+                    {t("manageSettings")}
                 </p>
             </header>
 
@@ -97,9 +100,45 @@ export default async function SettingsPage() {
                                 fontSize: "0.75rem",
                             }}
                         >
-                            20% Commission
+                            {t("commission")}
                         </span>
                     </div>
+                </div>
+
+                {/* Language Setting */}
+                <div
+                    className="card"
+                    style={{
+                        marginBottom: "0.75rem",
+                        padding: "1rem",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "1rem",
+                    }}
+                >
+                    <div
+                        style={{
+                            width: "48px",
+                            height: "48px",
+                            borderRadius: "12px",
+                            background: "var(--color-bg-secondary)",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            fontSize: "1.5rem",
+                        }}
+                    >
+                        🌐
+                    </div>
+                    <div style={{ flex: 1 }}>
+                        <div style={{ fontWeight: 600, marginBottom: "0.25rem" }}>
+                            {t("language")}
+                        </div>
+                        <div style={{ fontSize: "0.875rem", color: "var(--color-text-secondary)" }}>
+                            {t("languageDesc")}
+                        </div>
+                    </div>
+                    <LanguageSwitcher />
                 </div>
 
                 {/* Settings Menu */}
@@ -159,10 +198,10 @@ export default async function SettingsPage() {
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                         <div>
                             <div style={{ fontWeight: 600, marginBottom: "0.25rem" }}>
-                                Pay at Hotel
+                                {t("payAtHotel")}
                             </div>
                             <div style={{ fontSize: "0.875rem", color: "var(--color-text-secondary)" }}>
-                                Allow guests to pay remaining amount at check-in
+                                {t("payAtHotelDesc")}
                             </div>
                         </div>
                         <div
@@ -200,7 +239,7 @@ export default async function SettingsPage() {
                         fontSize: "0.75rem",
                     }}
                 >
-                    Vibe Manager v1.0.0
+                    {t("version")}
                 </div>
             </main>
 

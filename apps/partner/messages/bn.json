@@ -1,0 +1,197 @@
+{
+    "common": {
+        "appName": "Vibe Manager",
+        "loading": "লোড হচ্ছে...",
+        "error": "ত্রুটি",
+        "success": "সফল",
+        "cancel": "বাতিল",
+        "confirm": "নিশ্চিত করুন",
+        "save": "সংরক্ষণ করুন",
+        "edit": "সম্পাদনা",
+        "delete": "মুছুন",
+        "close": "বন্ধ করুন",
+        "back": "পিছনে",
+        "next": "পরবর্তী",
+        "submit": "জমা দিন",
+        "signedInAs": "লগইন করেছেন",
+        "logout": "লগআউট",
+        "currency": "৳"
+    },
+    "nav": {
+        "home": "হোম",
+        "walkIn": "ওয়াক-ইন",
+        "rooms": "রুম",
+        "earnings": "আয়",
+        "settings": "সেটিংস",
+        "help": "সাহায্য"
+    },
+    "dashboard": {
+        "title": "Vibe Manager",
+        "welcome": "Vibe Manager এ স্বাগতম",
+        "registerHotel": "আপনার হোটেল নিবন্ধন করুন",
+        "registerDescription": "বুকিং, ইনভেন্টরি এবং আয় এক জায়গায় পরিচালনা করতে আপনার হোটেল নিবন্ধন করুন।",
+        "pendingApproval": "অনুমোদনের অপেক্ষায়",
+        "pendingDescription": "আপনার হোটেল নিবন্ধন আমাদের টিম দ্বারা পর্যালোচনা করা হচ্ছে। সাধারণত ২৪-৪৮ ঘন্টা সময় লাগে। অনুমোদিত হলে আপনাকে জানানো হবে।",
+        "whatHappensNext": "এরপর কী হবে?",
+        "registrationSubmitted": "নিবন্ধন জমা হয়েছে",
+        "adminReview": "অ্যাডমিন পর্যালোচনা চলছে",
+        "setupRooms": "রুম ও মূল্য সেট করুন",
+        "suspended": "স্থগিত",
+        "suspendedDescription": "আপনার হোটেল স্থগিত করা হয়েছে। আরও তথ্যের জন্য সাপোর্টে যোগাযোগ করুন।",
+        "contactSupport": "প্রশ্ন আছে? support@vibehotel.com এ যোগাযোগ করুন"
+    },
+    "stats": {
+        "monthlyRevenue": "মাসিক আয়",
+        "avgRoomRate": "গড় রুম রেট (ARR)",
+        "todaysCheckIns": "আজকের চেক-ইন",
+        "todaysCheckOuts": "আজকের চেক-আউট",
+        "occupancyRate": "অকুপ্যান্সি রেট",
+        "pendingBookings": "মুলতুবি বুকিং"
+    },
+    "bookings": {
+        "todaysCheckIns": "আজকের চেক-ইন",
+        "todaysCheckOuts": "আজকের চেক-আউট",
+        "currentlyStaying": "বর্তমানে থাকছেন",
+        "upcomingCheckIns": "আসন্ন চেক-ইন",
+        "noCheckInsToday": "আজ কোনো চেক-ইন নেই",
+        "noUpcomingBookings": "কোনো আসন্ন বুকিং নেই",
+        "dueToday": "আজ প্রযোজ্য",
+        "checkoutDue": "চেক-আউট বাকি",
+        "leavesTomorrow": "আগামীকাল যাবেন",
+        "daysLeft": "{count} দিন বাকি",
+        "dayOf": "দিন {current}/{total}",
+        "room": "রুম",
+        "nights": "রাত",
+        "night": "রাত",
+        "totalBill": "মোট বিল",
+        "advancePaid": "অগ্রিম পরিশোধিত",
+        "fullyPaid": "সম্পূর্ণ পরিশোধিত",
+        "collect": "সংগ্রহ করুন",
+        "collectBeforeCheckout": "চেক-আউটের আগে সংগ্রহ করুন",
+        "due": "বাকি",
+        "checkIn": "চেক ইন →",
+        "checkOut": "চেক আউট →",
+        "viewDetails": "বিস্তারিত দেখুন →",
+        "call": "কল করুন",
+        "checkedIn": "চেক ইন হয়েছে",
+        "ready": "প্রস্তুত",
+        "pending": "মুলতুবি",
+        "confirmed": "নিশ্চিত",
+        "today": "আজ",
+        "tomorrow": "আগামীকাল",
+        "inDays": "{count} দিনে"
+    },
+    "actions": {
+        "collectPayment": "পেমেন্ট সংগ্রহ",
+        "extendStay": "থাকা বাড়ান",
+        "checkOutGuest": "গেস্ট চেক আউট"
+    },
+    "settings": {
+        "title": "সেটিংস",
+        "manageSettings": "আপনার হোটেল সেটিংস পরিচালনা করুন",
+        "hotelProfile": "হোটেল প্রোফাইল",
+        "hotelProfileDesc": "নাম, বিবরণ, ঠিকানা এবং সুবিধা সম্পাদনা করুন",
+        "photosMedia": "ফটো ও মিডিয়া",
+        "photosMediaDesc": "কভার ছবি এবং গ্যালারি ফটো পরিচালনা করুন",
+        "bookingHistory": "বুকিং ইতিহাস",
+        "bookingHistoryDesc": "সব অতীত এবং আসন্ন বুকিং দেখুন",
+        "analytics": "অ্যানালিটিক্স",
+        "analyticsDesc": "রাজস্ব প্রবণতা এবং পারফরম্যান্স ইনসাইট",
+        "helpSupport": "সাহায্য ও সাপোর্ট",
+        "helpSupportDesc": "FAQ, সাপোর্টে যোগাযোগ, টিউটোরিয়াল",
+        "payAtHotel": "হোটেলে পেমেন্ট",
+        "payAtHotelDesc": "গেস্টদের চেক-ইনে বাকি পেমেন্ট করতে দিন",
+        "commission": "২০% কমিশন",
+        "language": "ভাষা",
+        "languageDesc": "অ্যাপ ভাষা পরিবর্তন করুন",
+        "version": "Vibe Manager v1.0.0"
+    },
+    "help": {
+        "title": "সাহায্য ও সাপোর্ট",
+        "subtitle": "সচরাচর জিজ্ঞাস্য",
+        "callSupport": "কল সাপোর্ট",
+        "callHours": "সকাল ৯টা - রাত ৯টা",
+        "emailUs": "ইমেইল করুন",
+        "emailResponse": "২৪ ঘন্টায় উত্তর",
+        "faqTitle": "সচরাচর জিজ্ঞাসিত প্রশ্ন",
+        "needMoreHelp": "আরও সাহায্য দরকার?",
+        "partnerTeamHelp": "আমাদের পার্টনার সাক্সেস টিম আপনার পাশে আছে",
+        "chatWhatsApp": "WhatsApp এ চ্যাট করুন",
+        "faqs": {
+            "checkInGuest": {
+                "question": "কীভাবে গেস্ট চেক ইন করব?",
+                "answer": "স্ক্যানার পেজে যান এবং গেস্টের QR কোড স্ক্যান করুন অথবা ম্যানুয়ালি বুকিং আইডি দিন। তারপর 'চেক ইন' ট্যাপ করুন।"
+            },
+            "advancePayment": {
+                "question": "২০% অগ্রিম পেমেন্ট কীভাবে কাজ করে?",
+                "answer": "হোটেলে পেমেন্ট বুকিংয়ের জন্য, গ্রাহকরা অনলাইনে ২০% অগ্রিম দেন। এটি প্ল্যাটফর্ম কমিশন কভার করে। আপনি চেক-ইনে বাকি ৮০% নেবেন।"
+            },
+            "collectPayment": {
+                "question": "বাকি পেমেন্ট কীভাবে সংগ্রহ করব?",
+                "answer": "ড্যাশবোর্ডের আজকের চেক-ইন সেকশনে বা স্ক্যানার পেজে, গেস্টের কাছ থেকে ক্যাশ পাওয়ার পর 'সংগ্রহ করুন' বাটনে ট্যাপ করুন।"
+            },
+            "cancellation": {
+                "question": "গ্রাহক বাতিল করলে কী হবে?",
+                "answer": "চেক-ইনের ২৪+ ঘন্টা আগে বাতিল করলে অগ্রিম তাদের ওয়ালেটে ফেরত যায়। দেরিতে বাতিলে অগ্রিম বাজেয়াপ্ত হয়, আপনি ও প্ল্যাটফর্ম ৫০-৫০ ভাগ করেন।"
+            },
+            "blockRoom": {
+                "question": "কীভাবে রুম ব্লক করব?",
+                "answer": "রুম ইনভেন্টরিতে যান, একটি রুমে ট্যাপ করুন এবং 'রুম ব্লক করুন' সিলেক্ট করুন। তারিখ বেছে নিশ্চিত করুন। ব্লক করা রুম সার্চে দেখাবে না।"
+            },
+            "walkIn": {
+                "question": "ওয়াক-ইন গেস্ট কীভাবে আলাদা?",
+                "answer": "ওয়াক-ইন গেস্ট শুধু ইনভেন্টরি ট্র্যাকিংয়ের জন্য রেকর্ড করা হয় - কোনো কমিশন নেওয়া হয় না। তাদের রেকর্ড করতে ওয়াক-ইন পেজ ব্যবহার করুন।"
+            },
+            "payouts": {
+                "question": "কখন পেআউট পাব?",
+                "answer": "পেআউট সাপ্তাহিক প্রসেস করা হয়। হোটেলে পেমেন্ট বুকিং থেকে বাকি ৮০% এবং ওয়াক-ইন থেকে পুরো টাকা পাবেন।"
+            }
+        }
+    },
+    "walkIn": {
+        "title": "ওয়াক-ইন গেস্ট",
+        "subtitle": "ওয়াক-ইন গেস্ট রেকর্ড করুন",
+        "selectDates": "তারিখ নির্বাচন করুন",
+        "checkInDate": "চেক-ইন তারিখ",
+        "checkOutDate": "চেক-আউট তারিখ",
+        "selectRoom": "রুম নির্বাচন করুন",
+        "guestDetails": "গেস্ট তথ্য",
+        "guestName": "গেস্টের নাম",
+        "guestPhone": "ফোন নম্বর",
+        "guestId": "আইডি নম্বর (NID/পাসপোর্ট)",
+        "numberOfGuests": "গেস্ট সংখ্যা",
+        "recordWalkIn": "ওয়াক-ইন রেকর্ড করুন",
+        "noCommission": "কোনো কমিশন নেই",
+        "available": "উপলব্ধ",
+        "unavailable": "অনুপলব্ধ"
+    },
+    "inventory": {
+        "title": "রুম ইনভেন্টরি",
+        "addRoom": "রুম যোগ করুন",
+        "editRoom": "রুম সম্পাদনা",
+        "roomNumber": "রুম নম্বর",
+        "roomName": "রুম নাম",
+        "roomType": "রুম টাইপ",
+        "basePrice": "বেস প্রাইস",
+        "maxGuests": "সর্বোচ্চ গেস্ট",
+        "description": "বিবরণ",
+        "amenities": "সুবিধাসমূহ",
+        "photos": "ফটো",
+        "blockRoom": "রুম ব্লক করুন",
+        "unblockRoom": "রুম আনব্লক করুন"
+    },
+    "earnings": {
+        "title": "আয়",
+        "totalEarnings": "মোট আয়",
+        "pendingPayout": "মুলতুবি পেআউট",
+        "thisMonth": "এই মাসে",
+        "lastMonth": "গত মাসে",
+        "payoutHistory": "পেআউট ইতিহাস"
+    },
+    "language": {
+        "title": "ভাষা",
+        "bangla": "বাংলা",
+        "english": "English",
+        "selectLanguage": "ভাষা নির্বাচন করুন"
+    }
+}
