@@ -1,4 +1,4 @@
-import { BottomNav, SearchForm, HotelCard } from "./components";
+import { BottomNav, SearchForm, HotelCard, Footer } from "./components";
 import { getFeaturedHotels } from "./actions/hotels";
 import { getTranslations } from "next-intl/server";
 
@@ -64,48 +64,26 @@ export default async function HomePage() {
           </div>
         </section>
 
-        {/* Why Vibe */}
-        <section style={{ marginTop: "3rem" }}>
+        {/* Why Vibe - Enhanced for desktop */}
+        <section style={{ marginTop: "3rem", marginBottom: "2rem" }}>
           <h2 className="section-title" style={{ marginBottom: "1.5rem", textAlign: "center" }}>
             {t("whyBook")}
           </h2>
 
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
-              gap: "1.5rem",
-            }}
-          >
+          <div className="why-book-grid">
             {whyBookItems.map((item) => (
-              <div
-                key={item.titleKey}
-                className="card"
-                style={{
-                  padding: "1.5rem",
-                  textAlign: "center",
-                }}
-              >
-                <div style={{ fontSize: "2.5rem", marginBottom: "0.75rem" }}>
-                  {item.icon}
-                </div>
-                <div style={{ fontWeight: 600, fontSize: "1.125rem", marginBottom: "0.5rem" }}>
-                  {t(item.titleKey)}
-                </div>
-                <div
-                  style={{
-                    fontSize: "0.875rem",
-                    color: "var(--color-text-secondary)",
-                    lineHeight: 1.5,
-                  }}
-                >
-                  {t(item.descKey)}
-                </div>
+              <div key={item.titleKey} className="card why-book-card">
+                <span className="why-book-icon">{item.icon}</span>
+                <div className="why-book-title">{t(item.titleKey)}</div>
+                <div className="why-book-desc">{t(item.descKey)}</div>
               </div>
             ))}
           </div>
         </section>
       </main>
+
+      {/* Footer (Desktop only) */}
+      <Footer />
 
       {/* Bottom Navigation (Mobile only) */}
       <BottomNav />

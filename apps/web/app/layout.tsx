@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import { TopNav } from "./components/TopNav";
+import { DesktopHeader } from "./components/DesktopHeader";
 import { Providers } from "./providers";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages } from "next-intl/server";
@@ -54,6 +55,7 @@ export default async function RootLayout({
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
         <Providers>
           <NextIntlClientProvider messages={messages}>
+            <DesktopHeader />
             <TopNav />
             {children}
           </NextIntlClientProvider>
