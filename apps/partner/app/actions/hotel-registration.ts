@@ -13,6 +13,8 @@ export interface HotelRegistrationInput {
     city: string;
     amenities: string[];
     phone?: string;
+    latitude?: number;
+    longitude?: number;
 }
 
 /**
@@ -48,6 +50,8 @@ export async function submitHotelRegistration(
                 address: input.address,
                 city: input.city,
                 amenities: input.amenities,
+                latitude: input.latitude?.toString(),
+                longitude: input.longitude?.toString(),
                 status: "PENDING",
             })
             .returning({ id: hotels.id });

@@ -1,8 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useState, lazy, Suspense } from "react";
 import { useRouter } from "next/navigation";
 import { submitHotelRegistration } from "../actions/hotel-registration";
+
+// Lazy load LocationPicker to avoid SSR issues with Leaflet
+const LocationPicker = lazy(() =>
+    import("../components/LocationPicker").then((mod) => ({ default: mod.LocationPicker }))
+);
 
 const AMENITY_OPTIONS = [
     "WiFi",
@@ -92,6 +97,7 @@ export default function RegisterHotelPage() {
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState(false);
     const [selectedAmenities, setSelectedAmenities] = useState<string[]>([]);
+    const [location, setLocation] = useState<{ lat: number; lng: number } | null>(null);
 
     async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
@@ -112,6 +118,8 @@ export default function RegisterHotelPage() {
             city,
             amenities: selectedAmenities,
             phone,
+            latitude: location?.lat,
+            longitude: location?.lng,
         });
 
         setIsSubmitting(false);
@@ -328,6 +336,31 @@ export default function RegisterHotelPage() {
                                 resize: "vertical",
                             }}
                         />
+                    </div>
+
+                    {/* Location Picker */}
+                    <div style={{ marginBottom: "1.25rem" }}>
+                        <Suspense
+                            fallback={
+                                <div
+                                    style={{
+                                        height: 300,
+                                        display: "flex",
+                                        alignItems: "center",
+                                        justifyContent: "center",
+                                        background: "var(--color-bg-secondary)",
+                                        borderRadius: "0.75rem",
+                                    }}
+                                >
+                                    Loading map...
+                                </div>
+                            }
+                        >
+                            <LocationPicker
+                                value={location || undefined}
+                                onChange={(loc) => setLocation({ lat: loc.lat, lng: loc.lng })}
+                            />
+                        </Suspense>
                     </div>
 
                     {/* Phone */}

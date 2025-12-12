@@ -14,11 +14,49 @@ function HotelsContent() {
     const searchParams = useSearchParams();
     const city = searchParams.get("city") || "";
     const [view, setView] = useState<"list" | "map">("list");
-    const [sortBy, setSortBy] = useState<"price" | "rating">("rating");
+    const [sortBy, setSortBy] = useState<"price" | "rating" | "distance">("rating");
     const [filterPayAtHotel, setFilterPayAtHotel] = useState(false);
     const [selectedHotelId, setSelectedHotelId] = useState<string | undefined>();
     const [hotels, setHotels] = useState<HotelWithPrice[]>([]);
     const [loading, setLoading] = useState(true);
+
+    // Geolocation state
+    const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
+    const [locationLoading, setLocationLoading] = useState(false);
+    const [locationError, setLocationError] = useState<string | null>(null);
+
+    // Get user location
+    const handleGetLocation = useCallback(() => {
+        if (!navigator.geolocation) {
+            setLocationError("Geolocation not supported");
+            return;
+        }
+
+        setLocationLoading(true);
+        setLocationError(null);
+
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                setUserLocation({
+                    lat: position.coords.latitude,
+                    lng: position.coords.longitude,
+                });
+                setSortBy("distance");
+                setLocationLoading(false);
+            },
+            (error) => {
+                setLocationError(error.code === 1 ? "Location access denied" : "Failed to get location");
+                setLocationLoading(false);
+            },
+            { enableHighAccuracy: true, timeout: 10000 }
+        );
+    }, []);
+
+    // Clear location filter
+    const handleClearLocation = useCallback(() => {
+        setUserLocation(null);
+        setSortBy("rating");
+    }, []);
 
     // Fetch hotels from database
     useEffect(() => {
@@ -28,12 +66,15 @@ function HotelsContent() {
                 city: city || undefined,
                 sortBy,
                 payAtHotel: filterPayAtHotel || undefined,
+                latitude: userLocation?.lat,
+                longitude: userLocation?.lng,
+                radiusKm: 15, // 15km radius
             });
             setHotels(results);
             setLoading(false);
         }
         fetchHotels();
-    }, [city, sortBy, filterPayAtHotel]);
+    }, [city, sortBy, filterPayAtHotel, userLocation]);
 
     // Map markers data
     const mapMarkers = useMemo(
@@ -105,16 +146,42 @@ function HotelsContent() {
                 </div>
 
                 {/* Filters */}
-                <div style={{ display: "flex", gap: "0.5rem", overflowX: "auto" }}>
+                <div style={{ display: "flex", gap: "0.5rem", overflowX: "auto", flexWrap: "wrap" }}>
                     <select
                         value={sortBy}
-                        onChange={(e) => setSortBy(e.target.value as "price" | "rating")}
+                        onChange={(e) => setSortBy(e.target.value as "price" | "rating" | "distance")}
                         className="form-input"
                         style={{ padding: "0.5rem", width: "auto", fontSize: "0.875rem" }}
                     >
                         <option value="rating">Top Rated</option>
                         <option value="price">Lowest Price</option>
+                        {userLocation && <option value="distance">Nearest</option>}
                     </select>
+
+                    {/* Nearby / Location Button */}
+                    {userLocation ? (
+                        <button
+                            className="btn btn-primary"
+                            style={{ padding: "0.5rem 1rem", fontSize: "0.875rem", minHeight: "auto" }}
+                            onClick={handleClearLocation}
+                        >
+                            📍 Nearby ✕
+                        </button>
+                    ) : (
+                        <button
+                            className="btn btn-outline"
+                            style={{ padding: "0.5rem 1rem", fontSize: "0.875rem", minHeight: "auto" }}
+                            onClick={handleGetLocation}
+                            disabled={locationLoading}
+                        >
+                            {locationLoading ? "📍 Getting..." : "📍 Nearby"}
+                        </button>
+                    )}
+                    {locationError && (
+                        <span style={{ color: "var(--color-error)", fontSize: "0.75rem", alignSelf: "center" }}>
+                            {locationError}
+                        </span>
+                    )}
 
                     <button
                         className={`btn ${filterPayAtHotel ? "btn-primary" : "btn-outline"}`}
