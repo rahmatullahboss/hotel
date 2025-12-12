@@ -1,6 +1,7 @@
 import { auth, signOut } from "@/auth";
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 import { getUserBookings } from "../actions/bookings";
 import { getWallet, getLoyaltyPoints } from "../actions/wallet";
 import { BottomNav, LanguageSwitcher } from "../components";
@@ -12,10 +13,12 @@ export default async function ProfilePage() {
         redirect("/auth/signin");
     }
 
-    const [bookings, wallet, loyalty] = await Promise.all([
+    const [bookings, wallet, loyalty, t, tWallet] = await Promise.all([
         getUserBookings(session.user.id),
         getWallet(),
         getLoyaltyPoints(),
+        getTranslations("profile"),
+        getTranslations("wallet"),
     ]);
 
     const upcomingBookings = bookings.filter(
@@ -79,7 +82,7 @@ export default async function ProfilePage() {
 
                     <div style={{ display: "flex", gap: "1rem", marginTop: "1rem" }}>
                         <Link href="/profile/edit" className="btn btn-outline" style={{ flex: 1, textAlign: "center", textDecoration: "none", color: "inherit", lineHeight: "inherit" }}>
-                            Edit Profile
+                            {t("editProfile")}
                         </Link>
                         <form
                             action={async () => {
@@ -89,7 +92,7 @@ export default async function ProfilePage() {
                             style={{ flex: 1 }}
                         >
                             <button type="submit" className="btn btn-outline" style={{ width: "100%" }}>
-                                Sign Out
+                                {t("signOut")}
                             </button>
                         </form>
                     </div>
@@ -111,15 +114,15 @@ export default async function ProfilePage() {
                     >
                         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
                             <div>
-                                <div style={{ fontSize: "0.75rem", opacity: 0.8, marginBottom: "0.25rem" }}>Wallet Balance</div>
+                                <div style={{ fontSize: "0.75rem", opacity: 0.8, marginBottom: "0.25rem" }}>{tWallet("walletBalance")}</div>
                                 <div style={{ fontSize: "1.75rem", fontWeight: 700 }}>
                                     ৳{Number(wallet?.balance || 0).toLocaleString()}
                                 </div>
                             </div>
                             <div style={{ textAlign: "right" }}>
-                                <div style={{ fontSize: "0.75rem", opacity: 0.8, marginBottom: "0.25rem" }}>Loyalty Points</div>
+                                <div style={{ fontSize: "0.75rem", opacity: 0.8, marginBottom: "0.25rem" }}>{tWallet("loyaltyPoints")}</div>
                                 <div style={{ fontSize: "1.25rem", fontWeight: 600 }}>
-                                    {(loyalty?.points || 0).toLocaleString()} pts
+                                    {(loyalty?.points || 0).toLocaleString()} {tWallet("pts")}
                                 </div>
                                 <div
                                     style={{
@@ -138,7 +141,7 @@ export default async function ProfilePage() {
                             </div>
                         </div>
                         <div style={{ fontSize: "0.75rem", marginTop: "0.75rem", opacity: 0.7 }}>
-                            Tap to manage wallet →
+                            {tWallet("tapToManage")}
                         </div>
                     </div>
                 </Link>
@@ -157,7 +160,7 @@ export default async function ProfilePage() {
                             {upcomingBookings.length}
                         </div>
                         <div style={{ fontSize: "0.875rem", color: "var(--color-text-secondary)" }}>
-                            Upcoming Trips
+                            {t("upcomingTrips")}
                         </div>
                     </div>
                     <div className="card" style={{ padding: "1rem", textAlign: "center" }}>
@@ -165,7 +168,7 @@ export default async function ProfilePage() {
                             {pastBookings.length}
                         </div>
                         <div style={{ fontSize: "0.875rem", color: "var(--color-text-secondary)" }}>
-                            Past Bookings
+                            {t("pastBookings")}
                         </div>
                     </div>
                 </div>
@@ -174,7 +177,7 @@ export default async function ProfilePage() {
                 {upcomingBookings.length > 0 && (
                     <section style={{ marginBottom: "1.5rem" }}>
                         <h2 className="section-title" style={{ marginBottom: "1rem" }}>
-                            Upcoming Trips
+                            {t("upcomingTrips")}
                         </h2>
                         <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
                             {upcomingBookings.map((booking) => (
@@ -233,7 +236,7 @@ export default async function ProfilePage() {
                     className="btn btn-outline btn-block"
                     style={{ marginBottom: "1rem" }}
                 >
-                    View All Bookings
+                    {t("viewAllBookings")}
                 </Link>
 
                 {/* Account Actions */}
@@ -247,7 +250,7 @@ export default async function ProfilePage() {
                             borderBottom: "1px solid var(--color-border)",
                         }}
                     >
-                        <span>Language / ভাষা</span>
+                        <span>{t("languageSwitch")}</span>
                         <LanguageSwitcher />
                     </div>
                     <Link
@@ -262,7 +265,7 @@ export default async function ProfilePage() {
                             borderBottom: "1px solid var(--color-border)",
                         }}
                     >
-                        <span>Help & Support</span>
+                        <span>{t("help")}</span>
                         <span>→</span>
                     </Link>
                     <Link
@@ -277,7 +280,7 @@ export default async function ProfilePage() {
                             borderBottom: "1px solid var(--color-border)",
                         }}
                     >
-                        <span>Terms of Service</span>
+                        <span>{t("terms")}</span>
                         <span>→</span>
                     </Link>
                     <Link
@@ -291,7 +294,7 @@ export default async function ProfilePage() {
                             textDecoration: "none",
                         }}
                     >
-                        <span>Privacy Policy</span>
+                        <span>{t("privacy")}</span>
                         <span>→</span>
                     </Link>
                 </div>
