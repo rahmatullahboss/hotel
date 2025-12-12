@@ -162,7 +162,11 @@
         "roomHeld": "Room held for 20 minutes",
         "completePaymentToConfirm": "Complete payment to confirm booking",
         "amountToPay": "Amount to Pay",
-        "failedToInitiate": "Failed to initiate payment. Please try again."
+        "failedToInitiate": "Failed to initiate payment. Please try again.",
+        "payByWallet": "Pay by Wallet",
+        "insufficientBalance": "Insufficient balance",
+        "instantPayment": "Instant payment from wallet",
+        "walletPaymentFailed": "Wallet payment failed. Please try again."
     },
     "wallet": {
         "title": "Wallet",

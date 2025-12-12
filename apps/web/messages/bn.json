@@ -162,7 +162,11 @@
         "roomHeld": "রুম ২০ মিনিটের জন্য ধরে রাখা হয়েছে",
         "completePaymentToConfirm": "বুকিং নিশ্চিত করতে পেমেন্ট সম্পন্ন করুন",
         "amountToPay": "পেমেন্টের পরিমাণ",
-        "failedToInitiate": "পেমেন্ট শুরু করতে ব্যর্থ। আবার চেষ্টা করুন।"
+        "failedToInitiate": "পেমেন্ট শুরু করতে ব্যর্থ। আবার চেষ্টা করুন।",
+        "payByWallet": "ওয়ালেট দিয়ে পেমেন্ট",
+        "insufficientBalance": "অপর্যাপ্ত ব্যালেন্স",
+        "instantPayment": "ওয়ালেট থেকে তাৎক্ষণিক পেমেন্ট",
+        "walletPaymentFailed": "ওয়ালেট পেমেন্ট ব্যর্থ। আবার চেষ্টা করুন।"
     },
     "wallet": {
         "title": "ওয়ালেট",

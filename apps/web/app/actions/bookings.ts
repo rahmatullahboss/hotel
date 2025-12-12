@@ -13,7 +13,7 @@ export interface CreateBookingInput {
     guestEmail?: string;
     checkIn: string;
     checkOut: string;
-    paymentMethod: "BKASH" | "NAGAD" | "CARD" | "PAY_AT_HOTEL";
+    paymentMethod: "BKASH" | "NAGAD" | "CARD" | "PAY_AT_HOTEL" | "WALLET";
     totalAmount: number;
     userId?: string;
     useWalletForFee?: boolean; // Use wallet balance for booking fee
@@ -26,6 +26,7 @@ export interface BookingResult {
     bookingFee?: number;
     requiresPayment?: boolean; // True if 20% advance needs to be paid via bKash
     advanceAmount?: number; // Amount to pay via bKash
+    walletPaymentSuccess?: boolean; // True if full payment was made from wallet
 }
 
 /**
@@ -113,7 +114,34 @@ export async function createBooking(input: CreateBookingInput): Promise<BookingR
 
         // For Pay at Hotel: Try wallet first, if not enough, require digital payment
         let requiresPayment = false;
-        if (paymentMethod === "PAY_AT_HOTEL") {
+        let walletPaymentSuccess = false;
+
+        if (paymentMethod === "WALLET") {
+            // Full payment from wallet
+            const wallet = await db.query.wallets.findFirst({
+                where: eq(wallets.userId, userId),
+            });
+
+            if (wallet && Number(wallet.balance) >= totalAmount) {
+                // Deduct full amount from wallet
+                await db
+                    .update(wallets)
+                    .set({
+                        balance: (Number(wallet.balance) - totalAmount).toString(),
+                        updatedAt: new Date(),
+                    })
+                    .where(eq(wallets.id, wallet.id));
+
+                bookingFeeStatus = "PAID";
+                walletPaymentSuccess = true;
+            } else {
+                return {
+                    success: false,
+                    error: "Insufficient wallet balance",
+                    bookingFee,
+                };
+            }
+        } else if (paymentMethod === "PAY_AT_HOTEL") {
             const wallet = await db.query.wallets.findFirst({
                 where: eq(wallets.userId, userId),
             });
@@ -151,8 +179,13 @@ export async function createBooking(input: CreateBookingInput): Promise<BookingR
             ? new Date(Date.now() + 20 * 60 * 1000) // 20 minutes
             : undefined;
 
-        // Booking is CONFIRMED only if advance is paid
+        // Booking is CONFIRMED only if advance is paid (or full wallet payment)
         const bookingStatus = bookingFeeStatus === "PAID" ? "CONFIRMED" : "PENDING";
+
+        // For wallet payment, set paymentStatus to PAID since full amount is deducted
+        const paymentStatusValue = paymentMethod === "WALLET"
+            ? "PAID"
+            : (paymentMethod === "PAY_AT_HOTEL" ? "PAY_AT_HOTEL" : "PENDING");
 
         const [booking] = await db.insert(bookings).values({
             id: bookingId,
@@ -168,10 +201,10 @@ export async function createBooking(input: CreateBookingInput): Promise<BookingR
             totalAmount: totalAmount.toString(),
             commissionAmount: commissionAmount.toString(),
             netAmount: netAmount.toString(),
-            bookingFee: bookingFee.toString(),
+            bookingFee: (paymentMethod === "WALLET" ? totalAmount : bookingFee).toString(),
             bookingFeeStatus,
             paymentMethod,
-            paymentStatus: paymentMethod === "PAY_AT_HOTEL" ? "PAY_AT_HOTEL" : "PENDING",
+            paymentStatus: paymentStatusValue,
             status: bookingStatus,
             qrCode: qrCodeData,
             expiresAt,
@@ -184,13 +217,16 @@ export async function createBooking(input: CreateBookingInput): Promise<BookingR
             });
 
             if (wallet && booking) {
+                const transactionAmount = paymentMethod === "WALLET" ? totalAmount : bookingFee;
                 await db.insert(walletTransactions).values({
                     walletId: wallet.id,
                     type: "DEBIT",
-                    amount: bookingFee.toString(),
+                    amount: transactionAmount.toString(),
                     reason: "BOOKING_FEE",
                     bookingId: booking.id,
-                    description: `Booking fee for ${guestName}`,
+                    description: paymentMethod === "WALLET"
+                        ? `Full payment for ${guestName}`
+                        : `Booking fee for ${guestName}`,
                 });
             }
         }
@@ -217,6 +253,7 @@ export async function createBooking(input: CreateBookingInput): Promise<BookingR
             bookingFee,
             requiresPayment,
             advanceAmount: requiresPayment ? bookingFee : undefined,
+            walletPaymentSuccess,
         };
     } catch (error) {
         console.error("Error creating booking:", error);

@@ -32,40 +32,19 @@ export default function HelpPage() {
                 <h1>{t("title")}</h1>
             </header>
 
-            <main className="container page-content">
+            <main className="container page-content content-page-layout">
                 {/* Contact Options */}
                 <section style={{ marginBottom: "2rem" }}>
                     <h2 className="section-title" style={{ marginBottom: "1rem" }}>
                         {t("contactTitle")}
                     </h2>
-                    <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+                    <div className="help-contact-grid">
                         {/* Email Support */}
                         <a
                             href={`mailto:${SUPPORT_EMAIL}?subject=Help%20Request%20-%20Vibe%20Hotels`}
-                            className="card"
-                            style={{
-                                padding: "1rem",
-                                display: "flex",
-                                alignItems: "center",
-                                gap: "1rem",
-                                textDecoration: "none",
-                                color: "inherit",
-                            }}
+                            className="card help-contact-card"
                         >
-                            <div
-                                style={{
-                                    width: 48,
-                                    height: 48,
-                                    borderRadius: "0.75rem",
-                                    background: "var(--color-bg-secondary)",
-                                    display: "flex",
-                                    alignItems: "center",
-                                    justifyContent: "center",
-                                    fontSize: "1.5rem",
-                                }}
-                            >
-                                📧
-                            </div>
+                            <div className="help-contact-icon">📧</div>
                             <div style={{ flex: 1 }}>
                                 <h3 style={{ fontWeight: 600, marginBottom: "0.25rem" }}>
                                     {t("emailSupport")}
@@ -74,38 +53,15 @@ export default function HelpPage() {
                                     {SUPPORT_EMAIL}
                                 </p>
                             </div>
-                            <span style={{ color: "var(--color-primary)", fontWeight: 500 }}>
-                                →
-                            </span>
+                            <span className="help-contact-arrow" style={{ color: "var(--color-primary)", fontWeight: 500 }}>→</span>
                         </a>
 
                         {/* Phone Support */}
                         <a
                             href={`tel:${SUPPORT_PHONE}`}
-                            className="card"
-                            style={{
-                                padding: "1rem",
-                                display: "flex",
-                                alignItems: "center",
-                                gap: "1rem",
-                                textDecoration: "none",
-                                color: "inherit",
-                            }}
+                            className="card help-contact-card"
                         >
-                            <div
-                                style={{
-                                    width: 48,
-                                    height: 48,
-                                    borderRadius: "0.75rem",
-                                    background: "var(--color-bg-secondary)",
-                                    display: "flex",
-                                    alignItems: "center",
-                                    justifyContent: "center",
-                                    fontSize: "1.5rem",
-                                }}
-                            >
-                                📞
-                            </div>
+                            <div className="help-contact-icon">📞</div>
                             <div style={{ flex: 1 }}>
                                 <h3 style={{ fontWeight: 600, marginBottom: "0.25rem" }}>
                                     {t("phoneSupport")}
@@ -114,9 +70,7 @@ export default function HelpPage() {
                                     {SUPPORT_PHONE_DISPLAY}
                                 </p>
                             </div>
-                            <span style={{ color: "var(--color-primary)", fontWeight: 500 }}>
-                                📱
-                            </span>
+                            <span className="help-contact-arrow" style={{ color: "var(--color-primary)", fontWeight: 500 }}>📱</span>
                         </a>
 
                         {/* WhatsApp Support */}
@@ -124,30 +78,9 @@ export default function HelpPage() {
                             href={`https://wa.me/8801570260118?text=Hello%2C%20I%20need%20help%20with%20Vibe%20Hotels`}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="card"
-                            style={{
-                                padding: "1rem",
-                                display: "flex",
-                                alignItems: "center",
-                                gap: "1rem",
-                                textDecoration: "none",
-                                color: "inherit",
-                            }}
+                            className="card help-contact-card"
                         >
-                            <div
-                                style={{
-                                    width: 48,
-                                    height: 48,
-                                    borderRadius: "0.75rem",
-                                    background: "#25D366",
-                                    display: "flex",
-                                    alignItems: "center",
-                                    justifyContent: "center",
-                                    fontSize: "1.5rem",
-                                }}
-                            >
-                                💬
-                            </div>
+                            <div className="help-contact-icon whatsapp">💬</div>
                             <div style={{ flex: 1 }}>
                                 <h3 style={{ fontWeight: 600, marginBottom: "0.25rem" }}>
                                     {t("whatsapp")}
@@ -156,9 +89,7 @@ export default function HelpPage() {
                                     {t("chatInstant")}
                                 </p>
                             </div>
-                            <span style={{ color: "var(--color-primary)", fontWeight: 500 }}>
-                                →
-                            </span>
+                            <span className="help-contact-arrow" style={{ color: "var(--color-primary)", fontWeight: 500 }}>→</span>
                         </a>
                     </div>
                 </section>

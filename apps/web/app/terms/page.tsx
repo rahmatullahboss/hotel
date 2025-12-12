@@ -16,13 +16,13 @@ export default function TermsPage() {
                 <h1>{t("title")}</h1>
             </header>
 
-            <main className="container page-content">
-                <div className="card" style={{ padding: "1.5rem" }}>
+            <main className="container page-content content-page-layout">
+                <div className="content-page-card">
                     <p style={{ color: "var(--color-text-secondary)", marginBottom: "1.5rem" }}>
                         {t("lastUpdated")}
                     </p>
 
-                    <section style={{ marginBottom: "2rem" }}>
+                    <section>
                         <h2 style={{ fontSize: "1.25rem", fontWeight: 600, marginBottom: "1rem" }}>
                             1. Acceptance of Terms
                         </h2>

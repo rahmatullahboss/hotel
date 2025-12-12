@@ -7,11 +7,13 @@ import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { createBooking } from "../actions/bookings";
 import { getUserProfile } from "../actions/profile";
+import { getWalletBalance } from "../actions/wallet";
 import { BookingQRCode, BottomNav } from "../components";
 
-type PaymentMethod = "BKASH" | "NAGAD" | "CARD" | "PAY_AT_HOTEL";
+type PaymentMethod = "BKASH" | "NAGAD" | "CARD" | "PAY_AT_HOTEL" | "WALLET";
 
 const paymentMethods: { id: PaymentMethod; nameKey: string; icon: string; advancePercent: number }[] = [
+    { id: "WALLET", nameKey: "payByWallet", icon: "💰", advancePercent: 100 },
     { id: "PAY_AT_HOTEL", nameKey: "payAtHotel", icon: "🏨", advancePercent: 20 },
     { id: "BKASH", nameKey: "bKash", icon: "📱", advancePercent: 100 },
     { id: "NAGAD", nameKey: "nagad", icon: "📱", advancePercent: 100 },
@@ -50,6 +52,7 @@ function BookingContent() {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [bookingId, setBookingId] = useState("");
     const [pendingAdvanceAmount, setPendingAdvanceAmount] = useState(0);
+    const [walletBalance, setWalletBalance] = useState<number>(0);
     const [error, setError] = useState("");
 
     // Get current payment method's advance requirement (after paymentMethod state is declared)
@@ -73,6 +76,11 @@ function BookingContent() {
                     }
                 });
             }
+
+            // Fetch wallet balance
+            getWalletBalance().then((balance) => {
+                setWalletBalance(balance);
+            });
         }
     }, [session]);
 
@@ -166,6 +174,14 @@ function BookingContent() {
                             }
                         } catch (paymentErr) {
                             setError(t("paymentServiceUnavailable"));
+                        }
+                    } else if (paymentMethod === "WALLET") {
+                        // Wallet payment - booking is already confirmed if we reach here
+                        // The createBooking action handles wallet deduction
+                        if (result.walletPaymentSuccess) {
+                            setStep(3); // Booking confirmed, paid from wallet
+                        } else {
+                            setError(result.error || t("walletPaymentFailed"));
                         }
                     } else if (paymentMethod === "NAGAD" || paymentMethod === "CARD") {
                         // TODO: Implement Nagad and Card payments
@@ -374,39 +390,71 @@ function BookingContent() {
                             <div className="card" style={{ padding: "1.5rem", marginBottom: "1rem" }}>
                                 <h3 style={{ fontWeight: 600, marginBottom: "1rem" }}>{t("selectPayment")}</h3>
                                 <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
-                                    {paymentMethods.map((method) => (
-                                        <label
-                                            key={method.id}
-                                            style={{
-                                                display: "flex",
-                                                alignItems: "center",
-                                                gap: "1rem",
-                                                padding: "1rem",
-                                                border: `2px solid ${paymentMethod === method.id ? "var(--color-primary)" : "var(--color-border)"}`,
-                                                borderRadius: "0.75rem",
-                                                cursor: "pointer",
-                                                background: paymentMethod === method.id ? "rgba(230, 57, 70, 0.05)" : "transparent",
-                                            }}
-                                        >
-                                            <input
-                                                type="radio"
-                                                name="paymentMethod"
-                                                value={method.id}
-                                                checked={paymentMethod === method.id}
-                                                onChange={() => setPaymentMethod(method.id)}
-                                                style={{ width: 20, height: 20 }}
-                                            />
-                                            <span style={{ fontSize: "1.5rem" }}>{method.icon}</span>
-                                            <div style={{ flex: 1 }}>
-                                                <span style={{ fontWeight: 500 }}>{t(method.nameKey)}</span>
-                                                {method.id === "PAY_AT_HOTEL" && (
-                                                    <div style={{ fontSize: "0.75rem", color: "var(--color-text-secondary)" }}>
-                                                        {t("advanceRequired")}
+                                    {paymentMethods.map((method) => {
+                                        const isWallet = method.id === "WALLET";
+                                        const hasEnoughBalance = walletBalance >= totalAmount;
+                                        const isDisabled = isWallet && !hasEnoughBalance;
+
+                                        return (
+                                            <label
+                                                key={method.id}
+                                                style={{
+                                                    display: "flex",
+                                                    alignItems: "center",
+                                                    gap: "1rem",
+                                                    padding: "1rem",
+                                                    border: `2px solid ${paymentMethod === method.id ? "var(--color-primary)" : "var(--color-border)"}`,
+                                                    borderRadius: "0.75rem",
+                                                    cursor: isDisabled ? "not-allowed" : "pointer",
+                                                    background: paymentMethod === method.id ? "rgba(230, 57, 70, 0.05)" : "transparent",
+                                                    opacity: isDisabled ? 0.5 : 1,
+                                                }}
+                                            >
+                                                <input
+                                                    type="radio"
+                                                    name="paymentMethod"
+                                                    value={method.id}
+                                                    checked={paymentMethod === method.id}
+                                                    onChange={() => !isDisabled && setPaymentMethod(method.id)}
+                                                    disabled={isDisabled}
+                                                    style={{ width: 20, height: 20 }}
+                                                />
+                                                <span style={{ fontSize: "1.5rem" }}>{method.icon}</span>
+                                                <div style={{ flex: 1 }}>
+                                                    <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                                                        <span style={{ fontWeight: 500 }}>{t(method.nameKey)}</span>
+                                                        {isWallet && (
+                                                            <span style={{
+                                                                fontSize: "0.75rem",
+                                                                padding: "0.125rem 0.5rem",
+                                                                borderRadius: "1rem",
+                                                                background: hasEnoughBalance ? "rgba(42, 157, 143, 0.15)" : "rgba(208, 0, 0, 0.1)",
+                                                                color: hasEnoughBalance ? "var(--color-success)" : "var(--color-error)",
+                                                                fontWeight: 600,
+                                                            }}>
+                                                                ৳{walletBalance.toLocaleString()}
+                                                            </span>
+                                                        )}
                                                     </div>
-                                                )}
-                                            </div>
-                                        </label>
-                                    ))}
+                                                    {isWallet && !hasEnoughBalance && (
+                                                        <div style={{ fontSize: "0.75rem", color: "var(--color-error)" }}>
+                                                            {t("insufficientBalance")}
+                                                        </div>
+                                                    )}
+                                                    {isWallet && hasEnoughBalance && (
+                                                        <div style={{ fontSize: "0.75rem", color: "var(--color-success)" }}>
+                                                            {t("instantPayment")}
+                                                        </div>
+                                                    )}
+                                                    {method.id === "PAY_AT_HOTEL" && (
+                                                        <div style={{ fontSize: "0.75rem", color: "var(--color-text-secondary)" }}>
+                                                            {t("advanceRequired")}
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </label>
+                                        );
+                                    })}
                                 </div>
                             </div>
 

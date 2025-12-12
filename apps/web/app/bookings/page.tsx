@@ -367,7 +367,7 @@ export default function BookingsPage() {
                 </button>
             </div>
 
-            <main className="page-content">
+            <main className="page-content bookings-page-layout">
                 {displayedBookings.length === 0 ? (
                     <div className="empty-state">
                         <div className="empty-state-icon">
@@ -388,7 +388,7 @@ export default function BookingsPage() {
                         )}
                     </div>
                 ) : (
-                    <div>
+                    <div className="bookings-grid">
                         {displayedBookings.map((booking) => {
                             const daysUntil = getDaysUntilCheckIn(booking.checkIn);
                             const isPast = activeTab === "past";
