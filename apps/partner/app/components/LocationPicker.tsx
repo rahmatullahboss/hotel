@@ -1,17 +1,6 @@
 "use client";
 
 import { useEffect, useRef, useState, useCallback } from "react";
-import L from "leaflet";
-import "leaflet/dist/leaflet.css";
-
-// Custom marker icon
-const markerIcon = L.icon({
-    iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
-    iconRetinaUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
-    shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
-    iconSize: [25, 41],
-    iconAnchor: [12, 41],
-});
 
 interface LocationPickerProps {
     value?: { lat: number; lng: number };
@@ -27,7 +16,9 @@ export function LocationPicker({
     const mapRef = useRef<HTMLDivElement>(null);
     const mapInstanceRef = useRef<L.Map | null>(null);
     const markerRef = useRef<L.Marker | null>(null);
+    const leafletRef = useRef<typeof import("leaflet") | null>(null);
     const [isLoading, setIsLoading] = useState(false);
+    const [isMapLoaded, setIsMapLoaded] = useState(false);
     const [address, setAddress] = useState<string>("");
 
     // Reverse geocoding using Nominatim (free, open-source)
@@ -48,65 +39,99 @@ export function LocationPicker({
         return undefined;
     }, []);
 
-    // Initialize map
+    // Initialize map (dynamically import Leaflet to avoid SSR issues)
     useEffect(() => {
         if (!mapRef.current || mapInstanceRef.current) return;
 
-        const initialCenter = value ? [value.lat, value.lng] as [number, number] : defaultCenter;
+        let mounted = true;
 
-        const map = L.map(mapRef.current, {
-            center: initialCenter,
-            zoom: 14,
-            zoomControl: true,
-        });
+        const initMap = async () => {
+            // Dynamically import Leaflet only on client-side
+            const L = await import("leaflet");
 
-        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-        }).addTo(map);
+            // Dynamically load Leaflet CSS
+            if (!document.querySelector('link[href*="leaflet.css"]')) {
+                const link = document.createElement("link");
+                link.rel = "stylesheet";
+                link.href = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";
+                document.head.appendChild(link);
+            }
 
-        // Add initial marker if value exists
-        if (value) {
-            const marker = L.marker([value.lat, value.lng], { icon: markerIcon, draggable: true });
-            marker.addTo(map);
-            markerRef.current = marker;
+            if (!mounted || !mapRef.current) return;
 
-            // Handle marker drag
-            marker.on("dragend", async () => {
-                const pos = marker.getLatLng();
-                const addr = await reverseGeocode(pos.lat, pos.lng);
-                onChange({ lat: pos.lat, lng: pos.lng, address: addr });
+            leafletRef.current = L;
+
+            // Create custom marker icon
+            const markerIcon = L.icon({
+                iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
+                iconRetinaUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
+                shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
+                iconSize: [25, 41],
+                iconAnchor: [12, 41],
             });
 
-            reverseGeocode(value.lat, value.lng);
-        }
+            const initialCenter = value ? [value.lat, value.lng] as [number, number] : defaultCenter;
 
-        // Handle map click to place/move marker
-        map.on("click", async (e: L.LeafletMouseEvent) => {
-            const { lat, lng } = e.latlng;
+            const map = L.map(mapRef.current, {
+                center: initialCenter,
+                zoom: 14,
+                zoomControl: true,
+            });
 
-            if (markerRef.current) {
-                markerRef.current.setLatLng([lat, lng]);
-            } else {
-                const marker = L.marker([lat, lng], { icon: markerIcon, draggable: true });
+            L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+            }).addTo(map);
+
+            // Add initial marker if value exists
+            if (value) {
+                const marker = L.marker([value.lat, value.lng], { icon: markerIcon, draggable: true });
                 marker.addTo(map);
                 markerRef.current = marker;
 
+                // Handle marker drag
                 marker.on("dragend", async () => {
                     const pos = marker.getLatLng();
                     const addr = await reverseGeocode(pos.lat, pos.lng);
                     onChange({ lat: pos.lat, lng: pos.lng, address: addr });
                 });
+
+                reverseGeocode(value.lat, value.lng);
             }
 
-            const addr = await reverseGeocode(lat, lng);
-            onChange({ lat, lng, address: addr });
-        });
+            // Handle map click to place/move marker
+            map.on("click", async (e: L.LeafletMouseEvent) => {
+                const { lat, lng } = e.latlng;
 
-        mapInstanceRef.current = map;
+                if (markerRef.current) {
+                    markerRef.current.setLatLng([lat, lng]);
+                } else {
+                    const marker = L.marker([lat, lng], { icon: markerIcon, draggable: true });
+                    marker.addTo(map);
+                    markerRef.current = marker;
+
+                    marker.on("dragend", async () => {
+                        const pos = marker.getLatLng();
+                        const addr = await reverseGeocode(pos.lat, pos.lng);
+                        onChange({ lat: pos.lat, lng: pos.lng, address: addr });
+                    });
+                }
+
+                const addr = await reverseGeocode(lat, lng);
+                onChange({ lat, lng, address: addr });
+            });
+
+            mapInstanceRef.current = map;
+            setIsMapLoaded(true);
+        };
+
+        initMap();
 
         return () => {
-            map.remove();
-            mapInstanceRef.current = null;
+            mounted = false;
+            if (mapInstanceRef.current) {
+                mapInstanceRef.current.remove();
+                mapInstanceRef.current = null;
+            }
         };
     }, []);
 
@@ -127,7 +152,20 @@ export function LocationPicker({
             return;
         }
 
+        if (!leafletRef.current || !mapInstanceRef.current) {
+            alert("Map not loaded yet");
+            return;
+        }
+
         setIsLoading(true);
+        const L = leafletRef.current;
+        const markerIcon = L.icon({
+            iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
+            iconRetinaUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
+            shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
+            iconSize: [25, 41],
+            iconAnchor: [12, 41],
+        });
 
         navigator.geolocation.getCurrentPosition(
             async (position) => {
@@ -181,7 +219,7 @@ export function LocationPicker({
                     type="button"
                     className="btn btn-outline"
                     onClick={handleUseCurrentLocation}
-                    disabled={isLoading}
+                    disabled={isLoading || !isMapLoaded}
                     style={{ fontSize: "0.875rem", padding: "0.5rem 1rem" }}
                 >
                     {isLoading ? "📍 Getting..." : "📍 Use My Location"}
@@ -196,6 +234,7 @@ export function LocationPicker({
                     borderRadius: "0.75rem",
                     overflow: "hidden",
                     border: "1px solid var(--color-border)",
+                    background: "var(--color-bg-secondary)",
                 }}
             />
 
