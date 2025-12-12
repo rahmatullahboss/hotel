@@ -1771,37 +1771,69 @@ main.page-with-book-bar {
 /* Desktop Footer Enhancements */
 @media (min-width: 1024px) {
   .site-footer {
-    padding: 4rem 2rem 2rem;
+    padding: 3rem 2rem 2rem;
     margin-top: 1rem;
   }
 
   .footer-container {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 4rem;
+    max-width: 1400px;
+    margin: 0 auto;
     padding: 0 2rem;
   }
 
   .footer-brand {
-    margin-bottom: 3rem;
-    max-width: 300px;
+    margin-bottom: 0;
+    max-width: 320px;
     text-align: left;
+  }
+
+  .footer-logo {
+    margin-bottom: 1rem;
+  }
+
+  .footer-logo .logo-icon {
+    font-size: 2rem;
+  }
+
+  .footer-logo .logo-text {
+    font-size: 1.5rem;
   }
 
   .footer-tagline {
     margin: 0;
+    font-size: 0.9375rem;
+    line-height: 1.6;
   }
 
   .footer-links-grid {
-    gap: 2rem;
-    margin-bottom: 3rem;
+    display: flex;
+    justify-content: space-between;
+    gap: 3rem;
+    margin-bottom: 0;
     text-align: left;
+  }
+
+  .footer-links-column {
+    flex: 1;
   }
 
   .footer-column-title {
     font-size: 1rem;
     margin-bottom: 1.25rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
   }
 
   .footer-link {
     font-size: 0.9375rem;
+  }
+
+  .footer-link:hover {
+    color: white;
+    text-decoration: underline;
   }
 
   .footer-links-list li {
@@ -1809,13 +1841,29 @@ main.page-with-book-bar {
   }
 
   .footer-bottom {
+    grid-column: 1 / -1;
     flex-direction: row;
     justify-content: space-between;
     padding-top: 2rem;
+    margin-top: 2rem;
   }
 
   .footer-copyright {
     font-size: 0.875rem;
+  }
+
+  .footer-social {
+    gap: 1.5rem;
+  }
+
+  .social-link {
+    font-size: 1.5rem;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+  }
+
+  .social-link:hover {
+    opacity: 1;
+    transform: scale(1.1);
   }
 }
 
