@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { getPartnerHotel, getDashboardStats, getUpcomingBookings, getTodaysCheckIns, getCurrentlyStaying, getTodaysCheckOuts } from "./actions/dashboard";
-import { BottomNav, ScannerFAB, StatCard, LogoutButton, HotelCheckInQR, CollectPaymentButton, CheckOutButton, ExtendStayButton } from "./components";
+import { BottomNav, ScannerFAB, StatCard, LogoutButton, HotelCheckInQR, CollectPaymentButton, CheckOutButton, ExtendStayButton, NoShowButton } from "./components";
 import { auth } from "../auth";
 import Link from "next/link";
 
@@ -382,13 +382,22 @@ export default async function DashboardPage() {
                         />
                       )}
                       {booking.status === "CONFIRMED" && (
-                        <a
-                          href={`/scanner?bookingId=${booking.id}`}
-                          className="btn btn-accent"
-                          style={{ fontSize: "0.75rem", padding: "0.5rem 1rem", flex: 1 }}
-                        >
-                          Check In →
-                        </a>
+                        <>
+                          <NoShowButton
+                            bookingId={booking.id}
+                            hotelId={hotel.id}
+                            guestName={booking.guestName}
+                            guestPhone={booking.guestPhone}
+                            advancePaid={booking.advancePaid}
+                          />
+                          <a
+                            href={`/scanner?bookingId=${booking.id}`}
+                            className="btn btn-accent"
+                            style={{ fontSize: "0.75rem", padding: "0.5rem 1rem", flex: 1 }}
+                          >
+                            Check In →
+                          </a>
+                        </>
                       )}
                       {booking.status === "CHECKED_IN" && (
                         <a
