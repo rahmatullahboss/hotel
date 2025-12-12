@@ -149,11 +149,6 @@ export default function RoomCard({ room, isSelected, onSelect, onViewDetails }: 
                                 ৳{basePrice.toLocaleString()}
                             </div>
                         )}
-                        {room.priceBreakdown && room.priceBreakdown.rules.length > 0 && (
-                            <div style={{ fontSize: "0.5rem", color: "var(--color-primary)", marginTop: "0.125rem" }}>
-                                {room.priceBreakdown.rules[0]?.name}
-                            </div>
-                        )}
                     </div>
                 </div>
 

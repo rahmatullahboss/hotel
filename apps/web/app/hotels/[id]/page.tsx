@@ -437,12 +437,6 @@ export default function HotelDetailPage() {
                             <div style={{ fontSize: "0.75rem", color: "var(--color-text-secondary)" }}>
                                 {selectedRoom.name} • {nights} night{nights > 1 ? 's' : ''} = ৳{total.toLocaleString()}
                             </div>
-                            {/* Show discount badge */}
-                            {selectedRoom.priceBreakdown && selectedRoom.priceBreakdown.rules.length > 0 && isDiscount && (
-                                <div style={{ fontSize: "0.625rem", color: "var(--color-success)", marginTop: "0.125rem" }}>
-                                    🎉 {selectedRoom.priceBreakdown.rules.map(r => r.name).join(' + ')}
-                                </div>
-                            )}
                         </div>
                         <button className="btn btn-primary btn-lg" onClick={handleBookNow}>
                             {t("bookNow")}
