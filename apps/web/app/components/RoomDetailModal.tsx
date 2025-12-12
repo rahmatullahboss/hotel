@@ -8,12 +8,19 @@ interface RoomDetailModalProps {
         name: string;
         type: string;
         basePrice: string;
+        dynamicPrice?: number;
+        totalDynamicPrice?: number;
+        nights?: number;
         maxGuests: number;
         description: string | null;
         photos: string[];
         amenities: string[];
         isAvailable: boolean;
         unavailableReason?: string;
+        priceBreakdown?: {
+            multiplier: number;
+            rules: Array<{ name: string; description: string }>;
+        };
     };
     isOpen: boolean;
     onClose: () => void;
@@ -83,6 +90,12 @@ export default function RoomDetailModal({ room, isOpen, onClose, onSelectRoom }:
 
     const isUnavailable = room.isAvailable === false;
     const typeInfo = roomTypeInfo[room.type] || { label: room.type, color: "#6b7280", icon: "🛏️" };
+
+    // Calculate display price - use dynamic price if available
+    const basePrice = Number(room.basePrice);
+    const displayPrice = room.dynamicPrice ?? basePrice;
+    // Only show strikethrough when customer gets a DISCOUNT (not when price is higher)
+    const showOriginalPrice = room.dynamicPrice && room.dynamicPrice < basePrice;
 
     const handlePrevPhoto = () => {
         setCurrentPhoto((prev) => (prev === 0 ? photos.length - 1 : prev - 1));
@@ -161,8 +174,13 @@ export default function RoomDetailModal({ room, isOpen, onClose, onSelectRoom }:
                             </div>
                         </div>
                         <div className="room-modal-price">
-                            <span className="room-modal-price-amount">৳{Number(room.basePrice).toLocaleString()}</span>
+                            <span className="room-modal-price-amount">৳{displayPrice.toLocaleString()}</span>
                             <span className="room-modal-price-label">/night</span>
+                            {showOriginalPrice && (
+                                <div style={{ fontSize: "0.75rem", color: "var(--color-text-muted)", textDecoration: "line-through" }}>
+                                    ৳{basePrice.toLocaleString()}
+                                </div>
+                            )}
                         </div>
                     </div>
 

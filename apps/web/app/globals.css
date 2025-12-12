@@ -1378,3 +1378,113 @@ main.page-with-book-bar {
   opacity: 0.5;
   cursor: not-allowed;
 }
+
+/* ================================================
+   HOTEL DETAIL PAGE - DESKTOP ENHANCEMENTS
+   ================================================ */
+
+/* Desktop hero image container */
+.hotel-detail-hero {
+  position: relative;
+  width: 100%;
+  height: 280px;
+}
+
+/* Desktop container for hotel detail content */
+.hotel-detail-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Desktop info cards */
+.hotel-detail-card {
+  background: white;
+  padding: 1rem;
+  border-radius: 1rem;
+  margin-bottom: 1rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+/* Desktop hero image improvements */
+@media (min-width: 768px) {
+  .hotel-detail-hero {
+    height: 380px;
+  }
+
+  .hotel-detail-hero img {
+    border-radius: 0 0 1.5rem 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .hotel-detail-hero {
+    height: 450px;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+
+  .hotel-detail-hero img {
+    border-radius: 1.5rem;
+    margin-top: 1rem;
+  }
+
+  /* Two-column layout for hotel details */
+  .hotel-detail-layout {
+    display: grid;
+    grid-template-columns: 1fr 380px;
+    gap: 2rem;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 2rem;
+  }
+
+  .hotel-detail-main {
+    min-width: 0;
+  }
+
+  .hotel-detail-sidebar {
+    position: sticky;
+    top: 100px;
+    height: fit-content;
+  }
+
+  /* Better book now bar on desktop */
+  .book-now-bar.desktop-enhanced {
+    max-width: 1400px;
+    margin: 0 auto;
+    left: 50%;
+    transform: translateX(-50%);
+    border-radius: 1rem 1rem 0 0;
+    padding: 1.25rem 2rem;
+  }
+
+  /* Room cards in 3 column grid on desktop */
+  .room-cards-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  /* Larger room card images */
+  .room-card-image-container {
+    height: 180px;
+  }
+
+  /* Better room modal on desktop */
+  .room-modal {
+    max-width: 700px;
+  }
+}
+
+@media (min-width: 1440px) {
+  .hotel-detail-layout {
+    grid-template-columns: 1fr 420px;
+    gap: 3rem;
+  }
+
+  .room-cards-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .room-card-image-container {
+    height: 200px;
+  }
+}

@@ -230,16 +230,9 @@ export default async function DashboardPage() {
         </div>
       </header>
 
-      <main>
-        {/* Stats Grid - Row 1: Revenue & ARR */}
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(2, 1fr)",
-            gap: "1rem",
-            marginBottom: "1rem",
-          }}
-        >
+      <main className="dashboard-content">
+        {/* Stats Grid */}
+        <div className="dashboard-stats">
           <StatCard
             value={`৳${stats.monthlyRevenue.toLocaleString()}`}
             label="Monthly Revenue"
@@ -249,17 +242,6 @@ export default async function DashboardPage() {
             value={`৳${stats.averageRoomRate.toLocaleString()}`}
             label="Avg Room Rate (ARR)"
           />
-        </div>
-
-        {/* Stats Grid - Row 2: Check-ins/outs */}
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(2, 1fr)",
-            gap: "1rem",
-            marginBottom: "1rem",
-          }}
-        >
           <StatCard
             value={stats.todayCheckIns}
             label="Today's Check-ins"
@@ -268,17 +250,6 @@ export default async function DashboardPage() {
             value={stats.todayCheckOuts}
             label="Today's Check-outs"
           />
-        </div>
-
-        {/* Stats Grid - Row 3: Occupancy & Pending */}
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(2, 1fr)",
-            gap: "1rem",
-            marginBottom: "1.5rem",
-          }}
-        >
           <StatCard
             value={`${stats.occupancyRate}%`}
             label="Occupancy Rate"
@@ -291,22 +262,12 @@ export default async function DashboardPage() {
         </div>
 
         {/* Today's Check-ins - Action List */}
-        <section style={{ marginBottom: "1.5rem" }}>
-          <h2
-            style={{
-              fontSize: "1.125rem",
-              fontWeight: 600,
-              marginBottom: "1rem",
-              color: "var(--color-text-primary)",
-              display: "flex",
-              alignItems: "center",
-              gap: "0.5rem",
-            }}
-          >
+        <section className="dashboard-section">
+          <h2 className="dashboard-section-title">
             📋 Today&apos;s Check-ins
           </h2>
 
-          <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+          <div className="booking-list">
             {todaysCheckIns.length === 0 ? (
               <div
                 className="card"
