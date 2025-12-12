@@ -704,9 +704,105 @@ function BookingContent() {
         </>);
 }
 
+function BookingLoadingSkeleton() {
+    return (
+        <main className="page-content">
+            <div className="container" style={{ maxWidth: 600 }}>
+                {/* Progress Steps Skeleton */}
+                <div
+                    style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        marginBottom: "2rem",
+                        position: "relative",
+                    }}
+                >
+                    <div
+                        style={{
+                            position: "absolute",
+                            top: "50%",
+                            left: "15%",
+                            right: "15%",
+                            height: 2,
+                            background: "var(--color-border)",
+                            transform: "translateY(-50%)",
+                            zIndex: 0,
+                        }}
+                    />
+                    {[1, 2, 3].map((s) => (
+                        <div
+                            key={s}
+                            style={{
+                                display: "flex",
+                                flexDirection: "column",
+                                alignItems: "center",
+                                zIndex: 1,
+                            }}
+                        >
+                            <div
+                                className="skeleton"
+                                style={{
+                                    width: 32,
+                                    height: 32,
+                                    borderRadius: "50%",
+                                }}
+                            />
+                            <div
+                                className="skeleton"
+                                style={{
+                                    width: 50,
+                                    height: 12,
+                                    marginTop: "0.5rem",
+                                    borderRadius: "0.25rem",
+                                }}
+                            />
+                        </div>
+                    ))}
+                </div>
+
+                {/* Room Image and Details Skeleton */}
+                <div className="card" style={{ overflow: "hidden", marginBottom: "1rem" }}>
+                    <div className="skeleton" style={{ height: 140, borderRadius: 0 }} />
+                    <div style={{ padding: "1rem" }}>
+                        <div className="skeleton" style={{ width: "70%", height: 20, marginBottom: "0.5rem" }} />
+                        <div className="skeleton" style={{ width: "50%", height: 14, marginBottom: "0.75rem" }} />
+                        <div
+                            style={{
+                                display: "flex",
+                                justifyContent: "space-between",
+                                paddingTop: "0.75rem",
+                                borderTop: "1px solid var(--color-border)",
+                            }}
+                        >
+                            <div className="skeleton" style={{ width: 120, height: 14 }} />
+                            <div className="skeleton" style={{ width: 60, height: 14 }} />
+                        </div>
+                    </div>
+                </div>
+
+                {/* Form Skeleton */}
+                <div className="card" style={{ padding: "1.5rem", marginBottom: "1rem" }}>
+                    <div className="skeleton" style={{ width: 120, height: 20, marginBottom: "1.25rem" }} />
+
+                    {/* Form Fields */}
+                    {[1, 2, 3].map((i) => (
+                        <div key={i} style={{ marginBottom: "1rem" }}>
+                            <div className="skeleton" style={{ width: 80, height: 12, marginBottom: "0.5rem" }} />
+                            <div className="skeleton" style={{ height: 44, borderRadius: "0.5rem" }} />
+                        </div>
+                    ))}
+                </div>
+
+                {/* Submit Button Skeleton */}
+                <div className="skeleton" style={{ height: 52, borderRadius: "0.75rem" }} />
+            </div>
+        </main>
+    );
+}
+
 export default function BookingPage() {
     return (
-        <Suspense fallback={<div style={{ padding: "2rem", textAlign: "center" }}>Loading...</div>}>
+        <Suspense fallback={<BookingLoadingSkeleton />}>
             <BookingContent />
         </Suspense>
     );
