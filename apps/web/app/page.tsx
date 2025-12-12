@@ -65,7 +65,7 @@ export default async function HomePage() {
         </section>
 
         {/* Why Vibe - Enhanced for desktop */}
-        <section style={{ marginTop: "3rem", marginBottom: "2rem" }}>
+        <section style={{ marginTop: "3rem", marginBottom: "0" }}>
           <h2 className="section-title" style={{ marginBottom: "1.5rem", textAlign: "center" }}>
             {t("whyBook")}
           </h2>
