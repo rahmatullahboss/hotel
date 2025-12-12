@@ -25,6 +25,7 @@ export function RoomGrid({ initialRooms, hotelId }: RoomGridProps) {
     const [blockEndDate, setBlockEndDate] = useState("");
     const [blockReason, setBlockReason] = useState("");
     const [showDatePickers, setShowDatePickers] = useState(false);
+    const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
     const today = new Date().toISOString().split("T")[0]!;
 
@@ -34,6 +35,7 @@ export function RoomGrid({ initialRooms, hotelId }: RoomGridProps) {
         setBlockEndDate(today);
         setBlockReason("");
         setShowDatePickers(false);
+        setErrorMessage(null);
         setIsModalOpen(true);
     };
 
@@ -41,44 +43,37 @@ export function RoomGrid({ initialRooms, hotelId }: RoomGridProps) {
         if (!selectedRoom) return;
 
         const isBlocking = selectedRoom.status !== "BLOCKED";
+        setErrorMessage(null);
 
-        // Optimistic UI update
-        setRooms((prev) =>
-            prev.map((r) =>
-                r.id === selectedRoom.id
-                    ? {
-                        ...r,
-                        status: isBlocking ? "BLOCKED" : "AVAILABLE",
-                    }
-                    : r
-            )
-        );
-
-        setIsModalOpen(false);
-
-        // Call server action
+        // Call server action first to validate
         startTransition(async () => {
             const result = isBlocking
                 ? await blockRoom(selectedRoom.id, today, today, "Quick block")
                 : await unblockRoom(selectedRoom.id, today, today);
 
             if (!result.success) {
-                // Revert on error
+                // Show error and keep modal open
+                setErrorMessage(result.error || "Failed to update room status");
+            } else {
+                // Success - update UI and close modal
                 setRooms((prev) =>
                     prev.map((r) =>
                         r.id === selectedRoom.id
-                            ? { ...r, status: selectedRoom.status }
+                            ? {
+                                ...r,
+                                status: isBlocking ? "BLOCKED" : "AVAILABLE",
+                            }
                             : r
                     )
                 );
+                setIsModalOpen(false);
             }
         });
     };
 
     const handleAdvancedBlock = async () => {
         if (!selectedRoom || !blockStartDate || !blockEndDate) return;
-
-        setIsModalOpen(false);
+        setErrorMessage(null);
 
         startTransition(async () => {
             const result = await blockRoom(
@@ -88,9 +83,11 @@ export function RoomGrid({ initialRooms, hotelId }: RoomGridProps) {
                 blockReason || "Blocked by partner"
             );
 
-            if (result.success) {
-                // Refresh to get updated status
-                // For today's blocking, update optimistically
+            if (!result.success) {
+                // Show error and keep modal open
+                setErrorMessage(result.error || "Failed to block room");
+            } else {
+                // Success - update UI and close modal
                 if (blockStartDate <= today && blockEndDate >= today) {
                     setRooms((prev) =>
                         prev.map((r) =>
@@ -100,6 +97,7 @@ export function RoomGrid({ initialRooms, hotelId }: RoomGridProps) {
                         )
                     );
                 }
+                setIsModalOpen(false);
             }
         });
     };
@@ -244,6 +242,21 @@ export function RoomGrid({ initialRooms, hotelId }: RoomGridProps) {
                         >
                             {selectedRoom.type} • {statusLabels[selectedRoom.status]} • ৳{selectedRoom.price.toLocaleString()}/night
                         </p>
+
+                        {/* Error Message Display */}
+                        {errorMessage && (
+                            <div style={{
+                                padding: "0.75rem 1rem",
+                                background: "rgba(230, 57, 70, 0.1)",
+                                border: "1px solid var(--color-error)",
+                                borderRadius: "0.5rem",
+                                color: "var(--color-error)",
+                                marginBottom: "1rem",
+                                fontSize: "0.875rem",
+                            }}>
+                                ⚠️ {errorMessage}
+                            </div>
+                        )}
 
                         {/* Quick Actions */}
                         {!showDatePickers && (

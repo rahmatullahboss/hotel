@@ -2,7 +2,7 @@
 
 import { db } from "@repo/db";
 import { rooms, roomInventory, bookings } from "@repo/db/schema";
-import { eq, and, gte, lte, or } from "drizzle-orm";
+import { eq, and, gte, lte, or, ne } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
 export interface RoomStatus {
@@ -96,6 +96,26 @@ export async function blockRoom(
     reason?: string
 ): Promise<{ success: boolean; error?: string }> {
     try {
+        // VALIDATION: Check for existing bookings that overlap with the date range
+        const conflictingBookings = await db.query.bookings.findMany({
+            where: and(
+                eq(bookings.roomId, roomId),
+                lte(bookings.checkIn, endDate),
+                gte(bookings.checkOut, startDate),
+                ne(bookings.status, "CANCELLED"),
+            ),
+        });
+
+        if (conflictingBookings.length > 0) {
+            const bookedDates = conflictingBookings.map(b =>
+                `${b.checkIn} to ${b.checkOut}`
+            ).join(", ");
+            return {
+                success: false,
+                error: `Cannot block room: existing bookings for dates ${bookedDates}. Please cancel or manage these bookings first.`
+            };
+        }
+
         // Generate all dates between start and end
         const dates: string[] = [];
         const current = new Date(startDate);
