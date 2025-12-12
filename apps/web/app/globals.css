@@ -1771,14 +1771,14 @@ main.page-with-book-bar {
 /* Desktop Footer Enhancements */
 @media (min-width: 1024px) {
   .site-footer {
-    padding: 4rem 2rem 1rem;
+    padding: 4rem 2rem 2rem;
     margin-top: 1rem;
   }
 
   .footer-container {
     display: grid;
     grid-template-columns: 1fr 2fr;
-    gap: 4rem;
+    gap: 2rem;
     max-width: 1400px;
     margin: 0 auto;
     padding: 0 2rem;
@@ -1844,8 +1844,8 @@ main.page-with-book-bar {
     grid-column: 1 / -1;
     flex-direction: row;
     justify-content: space-between;
-    padding-top: 2rem;
-    margin-top: 2rem;
+    padding-top: 1.5rem;
+    margin-top: 1.5rem;
   }
 
   .footer-copyright {
