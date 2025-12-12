@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
+import { getTranslations } from "next-intl/server";
 import { getWallet, getTransactionHistory, getLoyaltyPoints } from "../actions/wallet";
 import { WalletCard } from "./WalletCard";
 import { TransactionList } from "./TransactionList";
@@ -14,10 +15,11 @@ export default async function WalletPage() {
         redirect("/auth/signin");
     }
 
-    const [wallet, transactions, loyalty] = await Promise.all([
+    const [wallet, transactions, loyalty, t] = await Promise.all([
         getWallet(),
         getTransactionHistory(),
         getLoyaltyPoints(),
+        getTranslations("wallet"),
     ]);
 
     return (
@@ -31,10 +33,10 @@ export default async function WalletPage() {
                 }}
             >
                 <h1 style={{ fontSize: "1.5rem", fontWeight: 700, marginBottom: "0.5rem" }}>
-                    My Wallet
+                    {t("myWallet")}
                 </h1>
                 <p style={{ opacity: 0.9, fontSize: "0.875rem" }}>
-                    Manage your balance and track transactions
+                    {t("manageBalance")}
                 </p>
             </header>
 
@@ -54,7 +56,7 @@ export default async function WalletPage() {
                 >
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                         <div>
-                            <div style={{ fontSize: "0.875rem", opacity: 0.9 }}>Loyalty Points</div>
+                            <div style={{ fontSize: "0.875rem", opacity: 0.9 }}>{t("loyaltyPoints")}</div>
                             <div style={{ fontSize: "2rem", fontWeight: 700 }}>
                                 {loyalty?.points?.toLocaleString() || 0}
                             </div>
@@ -71,7 +73,7 @@ export default async function WalletPage() {
                         </div>
                     </div>
                     <div style={{ fontSize: "0.75rem", marginTop: "0.75rem", opacity: 0.8 }}>
-                        Earn points on every booking • Use points for discounts
+                        {t("earnPoints")}
                     </div>
                 </div>
 
@@ -85,32 +87,32 @@ export default async function WalletPage() {
                         border: "1px solid var(--color-border)",
                     }}
                 >
-                    <h3 style={{ fontWeight: 600, marginBottom: "1rem" }}>💡 How It Works</h3>
+                    <h3 style={{ fontWeight: 600, marginBottom: "1rem" }}>💡 {t("howItWorks")}</h3>
                     <div style={{ display: "grid", gap: "0.75rem" }}>
                         <div style={{ display: "flex", gap: "0.75rem", alignItems: "flex-start" }}>
                             <span style={{ fontSize: "1.25rem" }}>💳</span>
                             <div>
-                                <div style={{ fontWeight: 500 }}>Top Up Wallet</div>
+                                <div style={{ fontWeight: 500 }}>{t("topUpWallet")}</div>
                                 <div style={{ fontSize: "0.875rem", color: "var(--color-text-secondary)" }}>
-                                    Add money via bKash/Nagad for quick bookings
+                                    {t("topUpDesc")}
                                 </div>
                             </div>
                         </div>
                         <div style={{ display: "flex", gap: "0.75rem", alignItems: "flex-start" }}>
                             <span style={{ fontSize: "1.25rem" }}>🎁</span>
                             <div>
-                                <div style={{ fontWeight: 500 }}>Earn Rewards</div>
+                                <div style={{ fontWeight: 500 }}>{t("earnRewards")}</div>
                                 <div style={{ fontSize: "0.875rem", color: "var(--color-text-secondary)" }}>
-                                    Get points on every booking + bonus for QR check-in
+                                    {t("earnRewardsDesc")}
                                 </div>
                             </div>
                         </div>
                         <div style={{ display: "flex", gap: "0.75rem", alignItems: "flex-start" }}>
                             <span style={{ fontSize: "1.25rem" }}>🔒</span>
                             <div>
-                                <div style={{ fontWeight: 500 }}>Secure Booking</div>
+                                <div style={{ fontWeight: 500 }}>{t("secureBooking")}</div>
                                 <div style={{ fontSize: "0.875rem", color: "var(--color-text-secondary)" }}>
-                                    Small booking fee ensures your reservation
+                                    {t("secureBookingDesc")}
                                 </div>
                             </div>
                         </div>
@@ -125,3 +127,4 @@ export default async function WalletPage() {
         </div>
     );
 }
+
