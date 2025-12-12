@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { BottomNav } from "../components";
 import { useTranslations } from "next-intl";
+import { FiMail, FiPhone, FiMessageCircle, FiArrowRight } from "react-icons/fi";
+import { FaWhatsapp } from "react-icons/fa";
 
 const SUPPORT_EMAIL = "rahmatullahzisan@gmail.com";
 const SUPPORT_PHONE = "+8801570260118";
@@ -44,7 +46,7 @@ export default function HelpPage() {
                             href={`mailto:${SUPPORT_EMAIL}?subject=Help%20Request%20-%20Vibe%20Hotels`}
                             className="card help-contact-card"
                         >
-                            <div className="help-contact-icon">📧</div>
+                            <div className="help-contact-icon"><FiMail size={24} /></div>
                             <div style={{ flex: 1 }}>
                                 <h3 style={{ fontWeight: 600, marginBottom: "0.25rem" }}>
                                     {t("emailSupport")}
@@ -61,7 +63,7 @@ export default function HelpPage() {
                             href={`tel:${SUPPORT_PHONE}`}
                             className="card help-contact-card"
                         >
-                            <div className="help-contact-icon">📞</div>
+                            <div className="help-contact-icon"><FiPhone size={24} /></div>
                             <div style={{ flex: 1 }}>
                                 <h3 style={{ fontWeight: 600, marginBottom: "0.25rem" }}>
                                     {t("phoneSupport")}
@@ -70,7 +72,7 @@ export default function HelpPage() {
                                     {SUPPORT_PHONE_DISPLAY}
                                 </p>
                             </div>
-                            <span className="help-contact-arrow" style={{ color: "var(--color-primary)", fontWeight: 500 }}>📱</span>
+                            <span className="help-contact-arrow" style={{ color: "var(--color-primary)", fontWeight: 500 }}><FiArrowRight size={18} /></span>
                         </a>
 
                         {/* WhatsApp Support */}
@@ -80,7 +82,7 @@ export default function HelpPage() {
                             rel="noopener noreferrer"
                             className="card help-contact-card"
                         >
-                            <div className="help-contact-icon whatsapp">💬</div>
+                            <div className="help-contact-icon whatsapp"><FaWhatsapp size={24} color="white" /></div>
                             <div style={{ flex: 1 }}>
                                 <h3 style={{ fontWeight: 600, marginBottom: "0.25rem" }}>
                                     {t("whatsapp")}

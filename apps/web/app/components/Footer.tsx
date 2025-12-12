@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { useTranslations } from "next-intl";
+import { FaHotel, FaFacebookF, FaInstagram, FaTwitter } from "react-icons/fa";
 
 export function Footer() {
     const t = useTranslations("footer");
@@ -28,7 +29,7 @@ export function Footer() {
                 {/* Brand Section */}
                 <div className="footer-brand">
                     <Link href="/" className="footer-logo">
-                        <span className="logo-icon">🏨</span>
+                        <span className="logo-icon"><FaHotel size={24} /></span>
                         <span className="logo-text">Vibe Hotels</span>
                     </Link>
                     <p className="footer-tagline">
@@ -84,9 +85,9 @@ export function Footer() {
                         {t("copyright", { year: currentYear })}
                     </p>
                     <div className="footer-social">
-                        <a href="#" className="social-link" aria-label="Facebook">📘</a>
-                        <a href="#" className="social-link" aria-label="Instagram">📸</a>
-                        <a href="#" className="social-link" aria-label="Twitter">🐦</a>
+                        <a href="#" className="social-link" aria-label="Facebook"><FaFacebookF size={18} /></a>
+                        <a href="#" className="social-link" aria-label="Instagram"><FaInstagram size={18} /></a>
+                        <a href="#" className="social-link" aria-label="Twitter"><FaTwitter size={18} /></a>
                     </div>
                 </div>
             </div>

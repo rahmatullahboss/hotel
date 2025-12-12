@@ -1,4 +1,5 @@
 import { BottomNav, SearchForm, HotelCard, Footer } from "./components";
+import { WhyBookGrid } from "./components/WhyBook";
 import { getFeaturedHotels } from "./actions/hotels";
 import { getTranslations } from "next-intl/server";
 
@@ -9,10 +10,10 @@ export default async function HomePage() {
   const tCommon = await getTranslations("common");
 
   const whyBookItems = [
-    { icon: "✓", titleKey: "verifiedProperties", descKey: "verifiedDesc" },
-    { icon: "💰", titleKey: "bestPrices", descKey: "bestPricesDesc" },
-    { icon: "🏨", titleKey: "payAtHotel", descKey: "payAtHotelDesc" },
-    { icon: "⚡", titleKey: "instantBooking", descKey: "instantBookingDesc" },
+    { iconType: "verified" as const, titleKey: "verifiedProperties", descKey: "verifiedDesc" },
+    { iconType: "prices" as const, titleKey: "bestPrices", descKey: "bestPricesDesc" },
+    { iconType: "hotel" as const, titleKey: "payAtHotel", descKey: "payAtHotelDesc" },
+    { iconType: "instant" as const, titleKey: "instantBooking", descKey: "instantBookingDesc" },
   ];
 
   return (
@@ -70,15 +71,7 @@ export default async function HomePage() {
             {t("whyBook")}
           </h2>
 
-          <div className="why-book-grid">
-            {whyBookItems.map((item) => (
-              <div key={item.titleKey} className="card why-book-card">
-                <span className="why-book-icon">{item.icon}</span>
-                <div className="why-book-title">{t(item.titleKey)}</div>
-                <div className="why-book-desc">{t(item.descKey)}</div>
-              </div>
-            ))}
-          </div>
+          <WhyBookGrid items={whyBookItems} />
         </section>
       </main>
 

@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { BottomNav, RoomCard, RoomDetailModal } from "../../components";
 import { getHotelById, getAvailableRooms, RoomWithDetails } from "../../actions/hotels";
+import { FiMapPin } from "react-icons/fi";
 
 // Lazy load map to avoid SSR issues
 const HotelMap = lazy(() =>
@@ -295,7 +296,7 @@ export default function HotelDetailPage() {
                                         name: hotel.name,
                                         lat: parseFloat(hotel.latitude),
                                         lng: parseFloat(hotel.longitude),
-                                        price: rooms[0] ? Number(rooms[0].basePrice) : 0,
+                                        price: rooms[0] ? (rooms[0].dynamicPrice ?? Number(rooms[0].basePrice)) : 0,
                                         rating: hotel.rating ? parseFloat(hotel.rating) : undefined,
                                     }]}
                                     center={[parseFloat(hotel.latitude), parseFloat(hotel.longitude)]}
@@ -303,8 +304,8 @@ export default function HotelDetailPage() {
                                 />
                             </Suspense>
                         </div>
-                        <p style={{ fontSize: "0.75rem", color: "var(--color-text-secondary)", marginTop: "0.5rem" }}>
-                            📍 {hotel.address}, {hotel.city}
+                        <p style={{ fontSize: "0.75rem", color: "var(--color-text-secondary)", marginTop: "0.5rem", display: "flex", alignItems: "center", gap: "0.25rem" }}>
+                            <FiMapPin size={12} /> {hotel.address}, {hotel.city}
                         </p>
                     </div>
                 )}

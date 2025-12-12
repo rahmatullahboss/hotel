@@ -6,6 +6,8 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { BottomNav } from "../components";
 import { customerSelfCheckOut } from "../actions/checkin";
+import { FiLock, FiRefreshCw, FiCamera, FiAlertTriangle } from "react-icons/fi";
+import { FaHandPeace } from "react-icons/fa";
 
 export default function CheckOutPage() {
     const { data: session, status } = useSession();
@@ -118,7 +120,7 @@ export default function CheckOutPage() {
             <>
                 <main className="container page-content" style={{ paddingTop: "2rem" }}>
                     <div className="card" style={{ padding: "2rem", textAlign: "center" }}>
-                        <div style={{ fontSize: "3rem", marginBottom: "1rem" }}>🔒</div>
+                        <div style={{ fontSize: "3rem", marginBottom: "1rem" }}><FiLock size={48} color="var(--color-text-secondary)" /></div>
                         <h2 style={{ marginBottom: "0.5rem" }}>Sign In Required</h2>
                         <p style={{ color: "var(--color-text-secondary)", marginBottom: "1.5rem" }}>
                             Please sign in to check out of your hotel
@@ -260,7 +262,7 @@ export default function CheckOutPage() {
                                                 animation: "pulse 1.5s infinite",
                                             }}
                                         >
-                                            🔄
+                                            <FiRefreshCw size={32} style={{ animation: "spin 1s linear infinite" }} />
                                         </div>
                                         <h2 style={{ marginBottom: "0.5rem" }}>Processing...</h2>
                                         <p style={{ color: "var(--color-text-secondary)" }}>
@@ -283,7 +285,7 @@ export default function CheckOutPage() {
                                                 color: "white",
                                             }}
                                         >
-                                            👋
+                                            <FaHandPeace size={40} />
                                         </div>
                                         <h2 style={{ marginBottom: "0.5rem" }}>Ready to Leave?</h2>
                                         <p style={{ color: "var(--color-text-secondary)", marginBottom: "1.5rem" }}>
@@ -293,7 +295,7 @@ export default function CheckOutPage() {
                                             className="btn btn-primary btn-block btn-lg"
                                             onClick={() => setScanning(true)}
                                         >
-                                            📷 Scan QR Code to Check Out
+                                            <FiCamera size={20} style={{ marginRight: "0.5rem" }} /> Scan QR Code to Check Out
                                         </button>
                                     </>
                                 )}
@@ -410,7 +412,7 @@ function QRScannerComponent({ onScan }: { onScan: (data: string) => void }) {
     if (error) {
         return (
             <div style={{ textAlign: "center", padding: "2rem" }}>
-                <div style={{ color: "var(--color-error)", marginBottom: "1rem" }}>⚠️ {error}</div>
+                <div style={{ color: "var(--color-error)", marginBottom: "1rem", display: "flex", alignItems: "center", justifyContent: "center", gap: "0.5rem" }}><FiAlertTriangle size={20} /> {error}</div>
                 <p style={{ color: "var(--color-text-secondary)", fontSize: "0.875rem" }}>
                     Please allow camera access to scan QR codes
                 </p>

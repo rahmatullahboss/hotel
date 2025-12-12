@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
+import { FiMapPin, FiCalendar, FiUser } from "react-icons/fi";
 
 interface SearchFormProps {
     compact?: boolean;
@@ -81,7 +82,7 @@ export function SearchForm({ compact = false }: SearchFormProps) {
             <div className="search-row">
                 {/* Location */}
                 <div className="search-field search-field-location">
-                    <span className="search-field-icon">📍</span>
+                    <span className="search-field-icon"><FiMapPin size={18} /></span>
                     <div className="search-field-content">
                         <span className="search-field-label">{t("city")}</span>
                         <input
@@ -98,7 +99,7 @@ export function SearchForm({ compact = false }: SearchFormProps) {
 
                 {/* Check-in */}
                 <div className="search-field">
-                    <span className="search-field-icon">📅</span>
+                    <span className="search-field-icon"><FiCalendar size={18} /></span>
                     <div className="search-field-content">
                         <span className="search-field-label">{t("checkIn")}</span>
                         <input
@@ -115,7 +116,7 @@ export function SearchForm({ compact = false }: SearchFormProps) {
 
                 {/* Check-out */}
                 <div className="search-field">
-                    <span className="search-field-icon">📅</span>
+                    <span className="search-field-icon"><FiCalendar size={18} /></span>
                     <div className="search-field-content">
                         <span className="search-field-label">{t("checkOut")}</span>
                         <input
@@ -132,7 +133,7 @@ export function SearchForm({ compact = false }: SearchFormProps) {
 
                 {/* Guests */}
                 <div className="search-field search-field-guests">
-                    <span className="search-field-icon">👤</span>
+                    <span className="search-field-icon"><FiUser size={18} /></span>
                     <div className="search-field-content">
                         <span className="search-field-label">{t("guests")}</span>
                         <select

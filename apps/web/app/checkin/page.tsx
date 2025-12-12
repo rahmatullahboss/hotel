@@ -7,6 +7,8 @@ import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { BottomNav } from "../components";
 import { customerSelfCheckIn } from "../actions/checkin";
+import { FiSmartphone, FiCheckCircle, FiXCircle, FiCalendar, FiLock, FiCamera, FiAlertTriangle } from "react-icons/fi";
+import { FaHotel, FaBed } from "react-icons/fa";
 
 export default function CheckInPage() {
     const t = useTranslations("checkin");
@@ -220,7 +222,7 @@ export default function CheckInPage() {
             `}</style>
 
             <header className="checkin-header">
-                <h1>📱 {t("title")}</h1>
+                <h1><FiSmartphone size={24} style={{ marginRight: "0.5rem" }} /> {t("title")}</h1>
                 <p>{t("instruction")}</p>
             </header>
 
@@ -228,7 +230,7 @@ export default function CheckInPage() {
                 {!result ? (
                     <>
                         <div className="scan-card">
-                            <div className="scan-icon">🏨</div>
+                            <div className="scan-icon"><FaHotel size={48} color="var(--color-primary)" /></div>
                             <h2 style={{ marginBottom: "0.5rem" }}>{t("readyTitle")}</h2>
                             <p style={{
                                 color: "var(--color-text-secondary)",
@@ -259,7 +261,7 @@ export default function CheckInPage() {
                 ) : (
                     <div className="result-card">
                         <div className="result-icon">
-                            {result.success ? "✅" : "❌"}
+                            {result.success ? <FiCheckCircle size={48} color="var(--color-success)" /> : <FiXCircle size={48} color="var(--color-error)" />}
                         </div>
                         <div
                             className="result-title"
@@ -270,9 +272,9 @@ export default function CheckInPage() {
 
                         {result.booking && (
                             <div className="booking-details">
-                                <h3>🏨 {result.booking.hotelName}</h3>
-                                <p>🛏️ {result.booking.roomName}</p>
-                                <p>📅 {formatDate(result.booking.checkIn)} → {formatDate(result.booking.checkOut)}</p>
+                                <h3><FaHotel size={16} style={{ marginRight: "0.5rem" }} /> {result.booking.hotelName}</h3>
+                                <p><FaBed size={14} style={{ marginRight: "0.5rem" }} /> {result.booking.roomName}</p>
+                                <p><FiCalendar size={14} style={{ marginRight: "0.5rem" }} /> {formatDate(result.booking.checkIn)} → {formatDate(result.booking.checkOut)}</p>
                             </div>
                         )}
 
@@ -435,7 +437,7 @@ function QRScannerComponent({ onScan }: { onScan: (data: string) => void }) {
                 maxWidth: "320px",
             }}>
                 <div style={{ fontSize: "3rem", marginBottom: "1rem" }}>
-                    {errorType === "https" ? "🔒" : errorType === "permission" ? "📷" : "⚠️"}
+                    {errorType === "https" ? <FiLock size={40} /> : errorType === "permission" ? <FiCamera size={40} /> : <FiAlertTriangle size={40} />}
                 </div>
                 <p style={{ marginBottom: "1rem", lineHeight: 1.5 }}>{error}</p>
                 {errorType === "permission" && (

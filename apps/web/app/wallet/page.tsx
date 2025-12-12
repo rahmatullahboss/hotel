@@ -4,6 +4,7 @@ import { getTranslations } from "next-intl/server";
 import { getWallet, getTransactionHistory, getLoyaltyPoints } from "../actions/wallet";
 import { WalletCard } from "./WalletCard";
 import { TransactionList } from "./TransactionList";
+import { HowItWorks } from "./HowItWorks";
 import { BottomNav } from "../components";
 
 export const dynamic = 'force-dynamic';
@@ -78,46 +79,11 @@ export default async function WalletPage() {
                 </div>
 
                 {/* How It Works */}
-                <div
-                    style={{
-                        background: "white",
-                        borderRadius: "1rem",
-                        padding: "1.25rem",
-                        marginBottom: "1.5rem",
-                        border: "1px solid var(--color-border)",
-                    }}
-                >
-                    <h3 style={{ fontWeight: 600, marginBottom: "1rem" }}>💡 {t("howItWorks")}</h3>
-                    <div style={{ display: "grid", gap: "0.75rem" }}>
-                        <div style={{ display: "flex", gap: "0.75rem", alignItems: "flex-start" }}>
-                            <span style={{ fontSize: "1.25rem" }}>💳</span>
-                            <div>
-                                <div style={{ fontWeight: 500 }}>{t("topUpWallet")}</div>
-                                <div style={{ fontSize: "0.875rem", color: "var(--color-text-secondary)" }}>
-                                    {t("topUpDesc")}
-                                </div>
-                            </div>
-                        </div>
-                        <div style={{ display: "flex", gap: "0.75rem", alignItems: "flex-start" }}>
-                            <span style={{ fontSize: "1.25rem" }}>🎁</span>
-                            <div>
-                                <div style={{ fontWeight: 500 }}>{t("earnRewards")}</div>
-                                <div style={{ fontSize: "0.875rem", color: "var(--color-text-secondary)" }}>
-                                    {t("earnRewardsDesc")}
-                                </div>
-                            </div>
-                        </div>
-                        <div style={{ display: "flex", gap: "0.75rem", alignItems: "flex-start" }}>
-                            <span style={{ fontSize: "1.25rem" }}>🔒</span>
-                            <div>
-                                <div style={{ fontWeight: 500 }}>{t("secureBooking")}</div>
-                                <div style={{ fontSize: "0.875rem", color: "var(--color-text-secondary)" }}>
-                                    {t("secureBookingDesc")}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <HowItWorks items={[
+                    { titleKey: "topUpWallet", descKey: "topUpDesc", iconType: "topUp" },
+                    { titleKey: "earnRewards", descKey: "earnRewardsDesc", iconType: "rewards" },
+                    { titleKey: "secureBooking", descKey: "secureBookingDesc", iconType: "secure" },
+                ]} />
 
                 {/* Transaction History */}
                 <TransactionList transactions={transactions} />

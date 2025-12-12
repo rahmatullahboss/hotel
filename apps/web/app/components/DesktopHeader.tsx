@@ -5,6 +5,8 @@ import { usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { useTranslations } from "next-intl";
+import { FiHome, FiSearch, FiCalendar } from "react-icons/fi";
+import { FaHotel, FaWallet } from "react-icons/fa";
 
 export function DesktopHeader() {
     const pathname = usePathname();
@@ -12,10 +14,10 @@ export function DesktopHeader() {
     const t = useTranslations("nav");
 
     const navLinks = [
-        { href: "/", label: t("home"), icon: "🏠" },
-        { href: "/hotels", label: t("searchHotels"), icon: "🔍" },
-        { href: "/bookings", label: t("myBookings"), icon: "📋" },
-        { href: "/wallet", label: t("wallet"), icon: "💰" },
+        { href: "/", label: t("home"), icon: <FiHome size={18} /> },
+        { href: "/hotels", label: t("searchHotels"), icon: <FiSearch size={18} /> },
+        { href: "/bookings", label: t("myBookings"), icon: <FiCalendar size={18} /> },
+        { href: "/wallet", label: t("wallet"), icon: <FaWallet size={18} /> },
     ];
 
     return (
@@ -23,7 +25,7 @@ export function DesktopHeader() {
             <div className="desktop-header-container">
                 {/* Logo */}
                 <Link href="/" className="desktop-header-logo">
-                    <span className="logo-icon">🏨</span>
+                    <span className="logo-icon"><FaHotel size={24} /></span>
                     <span className="logo-text">Vibe Hotels</span>
                 </Link>
 

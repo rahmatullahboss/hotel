@@ -2,6 +2,9 @@
 
 import { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
+import { FiWifi, FiTv, FiCoffee, FiCheck, FiSlash } from "react-icons/fi";
+import { FaSnowflake, FaWineBottle, FaConciergeBell, FaSun, FaWater, FaCity, FaLock, FaBath, FaShower, FaWind, FaParking, FaSwimmingPool, FaDumbbell, FaSpa, FaBed, FaCrown } from "react-icons/fa";
+import { MdIron, MdOutlineFreeBreakfast } from "react-icons/md";
 
 interface RoomDetailModalProps {
     room: {
@@ -28,41 +31,44 @@ interface RoomDetailModalProps {
     onSelectRoom: () => void;
 }
 
-// Amenity icons mapping
-const amenityIcons: Record<string, string> = {
-    "WiFi": "📶",
-    "wifi": "📶",
-    "AC": "❄️",
-    "ac": "❄️",
-    "Air Conditioning": "❄️",
-    "TV": "📺",
-    "tv": "📺",
-    "Television": "📺",
-    "Mini Bar": "🍾",
-    "Minibar": "🍾",
-    "Room Service": "🛎️",
-    "Balcony": "🌅",
-    "Sea View": "🌊",
-    "City View": "🏙️",
-    "Safe": "🔐",
-    "Bathtub": "🛁",
-    "Shower": "🚿",
-    "Hair Dryer": "💨",
-    "Iron": "👔",
-    "Coffee Maker": "☕",
-    "Breakfast": "🍳",
-    "Parking": "🅿️",
-    "Pool Access": "🏊",
-    "Gym Access": "💪",
-    "Spa Access": "🧖",
+// Amenity icons mapping - using React Icons
+const getAmenityIcon = (amenity: string) => {
+    const icons: Record<string, React.ReactNode> = {
+        "WiFi": <FiWifi size={14} />,
+        "wifi": <FiWifi size={14} />,
+        "AC": <FaSnowflake size={14} />,
+        "ac": <FaSnowflake size={14} />,
+        "Air Conditioning": <FaSnowflake size={14} />,
+        "TV": <FiTv size={14} />,
+        "tv": <FiTv size={14} />,
+        "Television": <FiTv size={14} />,
+        "Mini Bar": <FaWineBottle size={14} />,
+        "Minibar": <FaWineBottle size={14} />,
+        "Room Service": <FaConciergeBell size={14} />,
+        "Balcony": <FaSun size={14} />,
+        "Sea View": <FaWater size={14} />,
+        "City View": <FaCity size={14} />,
+        "Safe": <FaLock size={14} />,
+        "Bathtub": <FaBath size={14} />,
+        "Shower": <FaShower size={14} />,
+        "Hair Dryer": <FaWind size={14} />,
+        "Iron": <MdIron size={14} />,
+        "Coffee Maker": <FiCoffee size={14} />,
+        "Breakfast": <MdOutlineFreeBreakfast size={14} />,
+        "Parking": <FaParking size={14} />,
+        "Pool Access": <FaSwimmingPool size={14} />,
+        "Gym Access": <FaDumbbell size={14} />,
+        "Spa Access": <FaSpa size={14} />,
+    };
+    return icons[amenity] || <FiCheck size={14} />;
 };
 
 // Room type info
-const roomTypeInfo: Record<string, { label: string; color: string; icon: string }> = {
-    "SINGLE": { label: "Single Room", color: "#6366f1", icon: "🛏️" },
-    "DOUBLE": { label: "Double Room", color: "#22c55e", icon: "🛏️🛏️" },
-    "SUITE": { label: "Suite", color: "#f59e0b", icon: "👑" },
-    "DORMITORY": { label: "Dormitory", color: "#8b5cf6", icon: "🛏️🛏️🛏️" },
+const roomTypeInfo: Record<string, { label: string; color: string; icon: React.ReactNode }> = {
+    "SINGLE": { label: "Single Room", color: "#6366f1", icon: <FaBed size={14} /> },
+    "DOUBLE": { label: "Double Room", color: "#22c55e", icon: <><FaBed size={14} /><FaBed size={14} /></> },
+    "SUITE": { label: "Suite", color: "#f59e0b", icon: <FaCrown size={14} /> },
+    "DORMITORY": { label: "Dormitory", color: "#8b5cf6", icon: <><FaBed size={14} /><FaBed size={14} /><FaBed size={14} /></> },
 };
 
 export default function RoomDetailModal({ room, isOpen, onClose, onSelectRoom }: RoomDetailModalProps) {
@@ -202,7 +208,7 @@ export default function RoomDetailModal({ room, isOpen, onClose, onSelectRoom }:
                                 {room.amenities.map((amenity) => (
                                     <div key={amenity} className="room-modal-amenity">
                                         <span className="room-modal-amenity-icon">
-                                            {amenityIcons[amenity] || "✓"}
+                                            {getAmenityIcon(amenity)}
                                         </span>
                                         <span>{amenity}</span>
                                     </div>
@@ -214,7 +220,7 @@ export default function RoomDetailModal({ room, isOpen, onClose, onSelectRoom }:
                     {/* Unavailable Notice */}
                     {isUnavailable && (
                         <div className="room-modal-unavailable">
-                            <span>🚫</span>
+                            <span><FiSlash size={20} /></span>
                             <div>
                                 <strong>{t("notAvailable")}</strong>
                                 {room.unavailableReason && <p>{room.unavailableReason}</p>}

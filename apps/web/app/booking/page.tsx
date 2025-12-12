@@ -9,15 +9,17 @@ import { createBooking } from "../actions/bookings";
 import { getUserProfile } from "../actions/profile";
 import { getWalletBalance } from "../actions/wallet";
 import { BookingQRCode, BottomNav } from "../components";
+import { FiLock, FiClock, FiCreditCard, FiSmartphone, FiCheck } from "react-icons/fi";
+import { FaHotel, FaWallet } from "react-icons/fa";
 
 type PaymentMethod = "BKASH" | "NAGAD" | "CARD" | "PAY_AT_HOTEL" | "WALLET";
 
-const paymentMethods: { id: PaymentMethod; nameKey: string; icon: string; advancePercent: number }[] = [
-    { id: "WALLET", nameKey: "payByWallet", icon: "💰", advancePercent: 100 },
-    { id: "PAY_AT_HOTEL", nameKey: "payAtHotel", icon: "🏨", advancePercent: 20 },
-    { id: "BKASH", nameKey: "bKash", icon: "📱", advancePercent: 100 },
-    { id: "NAGAD", nameKey: "nagad", icon: "📱", advancePercent: 100 },
-    { id: "CARD", nameKey: "creditDebitCard", icon: "💳", advancePercent: 100 },
+const paymentMethods: { id: PaymentMethod; nameKey: string; icon: React.ReactNode; advancePercent: number }[] = [
+    { id: "WALLET", nameKey: "payByWallet", icon: <FaWallet size={24} />, advancePercent: 100 },
+    { id: "PAY_AT_HOTEL", nameKey: "payAtHotel", icon: <FaHotel size={24} />, advancePercent: 20 },
+    { id: "BKASH", nameKey: "bKash", icon: <FiSmartphone size={24} />, advancePercent: 100 },
+    { id: "NAGAD", nameKey: "nagad", icon: <FiSmartphone size={24} />, advancePercent: 100 },
+    { id: "CARD", nameKey: "creditDebitCard", icon: <FiCreditCard size={24} />, advancePercent: 100 },
 ];
 
 function BookingContent() {
@@ -97,7 +99,7 @@ function BookingContent() {
         return (
             <main style={{ padding: "2rem", textAlign: "center" }}>
                 <div className="card" style={{ padding: "2rem", maxWidth: 400, margin: "0 auto" }}>
-                    <div style={{ fontSize: "3rem", marginBottom: "1rem" }}>🔒</div>
+                    <div style={{ fontSize: "3rem", marginBottom: "1rem" }}><FiLock size={48} color="var(--color-text-secondary)" /></div>
                     <h2 style={{ marginBottom: "0.5rem" }}>{t("signInRequired")}</h2>
                     <p style={{ color: "var(--color-text-secondary)", marginBottom: "1.5rem" }}>
                         {t("signInToBook")}
@@ -555,7 +557,7 @@ function BookingContent() {
                                         margin: "0 auto 1rem",
                                     }}
                                 >
-                                    💳
+                                    <FiCreditCard size={28} />
                                 </div>
                                 <h3 style={{ fontWeight: 600, marginBottom: "0.5rem" }}>
                                     {t("pay20Advance")}
@@ -577,7 +579,7 @@ function BookingContent() {
                                     fontSize: "0.875rem",
                                 }}
                             >
-                                <strong>⏱️ {t("roomHeld")}</strong>
+                                <strong><FiClock size={16} style={{ marginRight: "0.5rem" }} /> {t("roomHeld")}</strong>
                                 <div style={{ color: "var(--color-text-secondary)", marginTop: "0.25rem" }}>
                                     {t("completePaymentToConfirm")}
                                 </div>
@@ -623,7 +625,7 @@ function BookingContent() {
                                         onChange={() => setAdvancePaymentMethod("BKASH")}
                                         style={{ width: 20, height: 20 }}
                                     />
-                                    <span style={{ fontSize: "1.5rem" }}>📱</span>
+                                    <span style={{ fontSize: "1.5rem" }}><FiSmartphone size={24} /></span>
                                     <span style={{ fontWeight: 500 }}>{t("bKash")}</span>
                                 </label>
                                 <label
@@ -645,7 +647,7 @@ function BookingContent() {
                                         onChange={() => setAdvancePaymentMethod("NAGAD")}
                                         style={{ width: 20, height: 20 }}
                                     />
-                                    <span style={{ fontSize: "1.5rem" }}>📱</span>
+                                    <span style={{ fontSize: "1.5rem" }}><FiSmartphone size={24} /></span>
                                     <span style={{ fontWeight: 500 }}>{t("nagad")}</span>
                                     <span style={{ marginLeft: "auto", fontSize: "0.75rem", color: "var(--color-text-secondary)" }}>
                                         {tCommon("comingSoon")}

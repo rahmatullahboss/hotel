@@ -2,6 +2,9 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
+import { FiWifi, FiTv, FiCoffee, FiCheck } from "react-icons/fi";
+import { FaSnowflake, FaWineBottle, FaConciergeBell, FaSun, FaWater, FaCity, FaLock, FaBath, FaShower, FaWind, FaParking, FaSwimmingPool, FaDumbbell, FaSpa } from "react-icons/fa";
+import { MdIron, MdOutlineFreeBreakfast } from "react-icons/md";
 
 interface RoomCardProps {
     room: {
@@ -28,33 +31,36 @@ interface RoomCardProps {
     onViewDetails: () => void;
 }
 
-// Amenity icons mapping
-const amenityIcons: Record<string, string> = {
-    "WiFi": "📶",
-    "wifi": "📶",
-    "AC": "❄️",
-    "ac": "❄️",
-    "Air Conditioning": "❄️",
-    "TV": "📺",
-    "tv": "📺",
-    "Television": "📺",
-    "Mini Bar": "🍾",
-    "Minibar": "🍾",
-    "Room Service": "🛎️",
-    "Balcony": "🌅",
-    "Sea View": "🌊",
-    "City View": "🏙️",
-    "Safe": "🔐",
-    "Bathtub": "🛁",
-    "Shower": "🚿",
-    "Hair Dryer": "💨",
-    "Iron": "👔",
-    "Coffee Maker": "☕",
-    "Breakfast": "🍳",
-    "Parking": "🅿️",
-    "Pool Access": "🏊",
-    "Gym Access": "💪",
-    "Spa Access": "🧖",
+// Amenity icons mapping - using React Icons
+const getAmenityIcon = (amenity: string) => {
+    const icons: Record<string, React.ReactNode> = {
+        "WiFi": <FiWifi size={12} />,
+        "wifi": <FiWifi size={12} />,
+        "AC": <FaSnowflake size={12} />,
+        "ac": <FaSnowflake size={12} />,
+        "Air Conditioning": <FaSnowflake size={12} />,
+        "TV": <FiTv size={12} />,
+        "tv": <FiTv size={12} />,
+        "Television": <FiTv size={12} />,
+        "Mini Bar": <FaWineBottle size={12} />,
+        "Minibar": <FaWineBottle size={12} />,
+        "Room Service": <FaConciergeBell size={12} />,
+        "Balcony": <FaSun size={12} />,
+        "Sea View": <FaWater size={12} />,
+        "City View": <FaCity size={12} />,
+        "Safe": <FaLock size={12} />,
+        "Bathtub": <FaBath size={12} />,
+        "Shower": <FaShower size={12} />,
+        "Hair Dryer": <FaWind size={12} />,
+        "Iron": <MdIron size={12} />,
+        "Coffee Maker": <FiCoffee size={12} />,
+        "Breakfast": <MdOutlineFreeBreakfast size={12} />,
+        "Parking": <FaParking size={12} />,
+        "Pool Access": <FaSwimmingPool size={12} />,
+        "Gym Access": <FaDumbbell size={12} />,
+        "Spa Access": <FaSpa size={12} />,
+    };
+    return icons[amenity] || <FiCheck size={12} />;
 };
 
 // Room type badges
@@ -162,7 +168,7 @@ export default function RoomCard({ room, isSelected, onSelect, onViewDetails }: 
                     <div className="room-amenities">
                         {displayAmenities.map((amenity) => (
                             <span key={amenity} className="room-amenity-tag">
-                                {amenityIcons[amenity] || "✓"} {amenity}
+                                {getAmenityIcon(amenity)} {amenity}
                             </span>
                         ))}
                         {remainingCount > 0 && (

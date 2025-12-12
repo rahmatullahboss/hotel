@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { BottomNav, HotelCard } from "../components";
 import { searchHotels, type HotelWithPrice } from "../actions/hotels";
+import { FiMapPin, FiX } from "react-icons/fi";
 
 // Lazy load the map component to avoid SSR issues
 const HotelMapLazy = lazy(() =>
@@ -169,7 +170,7 @@ function HotelsContent() {
                             style={{ padding: "0.5rem 1rem", fontSize: "0.875rem", minHeight: "auto" }}
                             onClick={handleClearLocation}
                         >
-                            📍 {t("nearby")} ✕
+                            <FiMapPin size={16} style={{ marginRight: "0.25rem" }} /> {t("nearby")} <FiX size={14} style={{ marginLeft: "0.25rem" }} />
                         </button>
                     ) : (
                         <button
@@ -178,7 +179,7 @@ function HotelsContent() {
                             onClick={handleGetLocation}
                             disabled={locationLoading}
                         >
-                            {locationLoading ? `📍 ${t("gettingLocation")}` : `📍 ${t("nearby")}`}
+                            {locationLoading ? <><FiMapPin size={16} /> {t("gettingLocation")}</> : <><FiMapPin size={16} /> {t("nearby")}</>}
                         </button>
                     )}
                     {locationError && (
