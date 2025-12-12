@@ -24,7 +24,7 @@ function SignInContent() {
     };
 
     return (
-        <main style={{ minHeight: "100vh", padding: "2rem 1rem", background: "var(--color-bg-secondary)" }}>
+        <main className="main-centered">
             <div className="container" style={{ maxWidth: "400px", margin: "0 auto" }}>
                 {/* Logo */}
                 <div style={{ textAlign: "center", marginBottom: "2rem" }}>

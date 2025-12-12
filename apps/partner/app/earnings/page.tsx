@@ -24,7 +24,7 @@ export default async function EarningsPage() {
                 </p>
             </header>
 
-            <main style={{ padding: "1rem" }}>
+            <main>
                 {/* Earnings Cards */}
                 <div
                     style={{

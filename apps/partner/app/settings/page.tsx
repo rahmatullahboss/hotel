@@ -55,7 +55,7 @@ export default async function SettingsPage() {
                 </p>
             </header>
 
-            <main style={{ padding: "1rem" }}>
+            <main>
                 {/* Hotel Info Card */}
                 <div
                     className="card"

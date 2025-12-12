@@ -57,7 +57,23 @@ body {
   padding: 0 1rem;
 }
 
+.container-sm {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
 /* Button Base Styles */
+.main-centered {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1rem;
+  background-color: var(--color-bg-primary);
+  text-align: center;
+}
+
 .btn {
   display: inline-flex;
   align-items: center;
@@ -256,9 +272,11 @@ body {
   height: 32px;
 }
 
-/* Main content padding for bottom nav */
+/* Main content padding for bottom nav - Base styles (Mobile) */
 main {
+  padding: 1rem;
   padding-bottom: calc(5rem + env(safe-area-inset-bottom));
+  min-height: 100vh;
 }
 
 /* Stat Cards */

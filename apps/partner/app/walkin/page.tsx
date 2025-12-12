@@ -30,7 +30,7 @@ export default async function WalkInPage() {
                 </p>
             </header>
 
-            <main style={{ padding: "1rem" }}>
+            <main>
                 {/* Info Banner */}
                 <div
                     className="card"

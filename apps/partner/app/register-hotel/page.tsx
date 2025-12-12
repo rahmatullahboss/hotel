@@ -133,18 +133,7 @@ export default function RegisterHotelPage() {
 
     if (success) {
         return (
-            <main
-                style={{
-                    minHeight: "100vh",
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    padding: "2rem 1rem",
-                    background: "var(--color-bg-primary)",
-                    textAlign: "center",
-                }}
-            >
+            <main className="main-centered">
                 <div
                     style={{
                         width: "100px",
@@ -200,7 +189,7 @@ export default function RegisterHotelPage() {
                 </p>
             </header>
 
-            <main style={{ padding: "1.5rem", maxWidth: "600px", margin: "0 auto" }}>
+            <main className="container-sm">
                 <form onSubmit={handleSubmit} className="card">
                     {error && (
                         <div

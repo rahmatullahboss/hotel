@@ -18,7 +18,7 @@ function ErrorContent() {
     const message = error ? errorMessages[error] || errorMessages.Default : errorMessages.Default;
 
     return (
-        <main style={{ minHeight: "100vh", padding: "2rem 1rem", background: "var(--color-bg-secondary)" }}>
+        <main className="main-centered">
             <div className="container" style={{ maxWidth: "400px", margin: "0 auto" }}>
                 <div style={{ textAlign: "center", marginBottom: "2rem" }}>
                     <h1 style={{ fontSize: "2rem", fontWeight: 800, color: "var(--color-primary)" }}>

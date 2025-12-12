@@ -54,7 +54,7 @@ export default async function AnalyticsPage({ searchParams }: PageProps) {
                 </p>
             </header>
 
-            <main style={{ padding: "1rem", paddingBottom: "6rem" }}>
+            <main>
                 {/* Period Filter */}
                 <div
                     style={{

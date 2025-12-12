@@ -79,7 +79,7 @@ export default async function BookingsPage({ searchParams }: PageProps) {
                 </p>
             </header>
 
-            <main style={{ padding: "1rem", paddingBottom: "6rem" }}>
+            <main>
                 {/* Status Filter Tabs */}
                 <div
                     style={{

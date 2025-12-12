@@ -30,7 +30,7 @@ export default async function InventoryPage() {
                 </Link>
             </header>
 
-            <main style={{ padding: "1rem" }}>
+            <main>
                 {rooms.length === 0 ? (
                     <div className="card" style={{ padding: "2rem", textAlign: "center" }}>
                         <p style={{ color: "var(--color-text-secondary)", marginBottom: "1rem" }}>

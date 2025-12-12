@@ -29,7 +29,7 @@ export default async function PricingPage() {
                 </p>
             </header>
 
-            <main style={{ padding: "1rem" }}>
+            <main>
                 {/* Info Card */}
                 <div
                     className="card"

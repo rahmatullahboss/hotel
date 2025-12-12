@@ -232,7 +232,7 @@ export default function ScannerPage() {
                 </p>
             </header>
 
-            <main style={{ padding: "1rem" }}>
+            <main>
                 {!result ? (
                     <>
                         {/* Scan QR Button */}

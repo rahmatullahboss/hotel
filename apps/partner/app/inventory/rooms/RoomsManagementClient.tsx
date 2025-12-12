@@ -268,7 +268,7 @@ export default function RoomsManagementClient({ hotelId, rooms: initialRooms }: 
                 </button>
             </header>
 
-            <main style={{ padding: "1rem", paddingBottom: "6rem" }}>
+            <main>
                 {/* Messages */}
                 {error && (
                     <div style={{

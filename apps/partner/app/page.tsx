@@ -20,16 +20,7 @@ export default async function DashboardPage() {
   // State 1: User has no hotel - prompt to register
   if (!hotel) {
     return (
-      <main style={{
-        minHeight: "100vh",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-        padding: "2rem 1rem",
-        background: "var(--color-bg-primary)",
-        textAlign: "center"
-      }}>
+      <main className="main-centered">
         <div style={{
           width: "100px",
           height: "100px",
@@ -83,16 +74,7 @@ export default async function DashboardPage() {
   // State 2: Hotel is pending approval
   if (hotel.status === "PENDING") {
     return (
-      <main style={{
-        minHeight: "100vh",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-        padding: "2rem 1rem",
-        background: "var(--color-bg-primary)",
-        textAlign: "center"
-      }}>
+      <main className="main-centered">
         <div style={{
           width: "100px",
           height: "100px",
@@ -169,16 +151,7 @@ export default async function DashboardPage() {
   // State 3: Hotel is suspended
   if (hotel.status === "SUSPENDED") {
     return (
-      <main style={{
-        minHeight: "100vh",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-        padding: "2rem 1rem",
-        background: "var(--color-bg-primary)",
-        textAlign: "center"
-      }}>
+      <main className="main-centered">
         <div style={{
           width: "100px",
           height: "100px",
@@ -257,7 +230,7 @@ export default async function DashboardPage() {
         </div>
       </header>
 
-      <main style={{ padding: "1rem" }}>
+      <main>
         {/* Stats Grid - Row 1: Revenue & ARR */}
         <div
           style={{

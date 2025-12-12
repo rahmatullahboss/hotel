@@ -73,7 +73,7 @@ export function ProfileForm({ hotel }: ProfileFormProps) {
                 </p>
             </header>
 
-            <main style={{ padding: "1rem", paddingBottom: "6rem" }}>
+            <main>
                 <form onSubmit={handleSubmit}>
                     {/* Success Message */}
                     {success && (

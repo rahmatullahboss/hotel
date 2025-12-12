@@ -36,7 +36,7 @@ export default async function PhotosPage() {
                 </p>
             </header>
 
-            <main style={{ padding: "1rem", paddingBottom: "6rem" }}>
+            <main>
                 {/* Cover Image Section */}
                 <section style={{ marginBottom: "2rem" }}>
                     <h2 style={{ fontSize: "1rem", fontWeight: 600, marginBottom: "1rem" }}>

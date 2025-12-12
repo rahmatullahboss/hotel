@@ -67,7 +67,7 @@ export default async function HelpPage() {
                 </p>
             </header>
 
-            <main style={{ padding: "1rem", paddingBottom: "6rem" }}>
+            <main>
                 {/* Quick Actions */}
                 <div
                     style={{
