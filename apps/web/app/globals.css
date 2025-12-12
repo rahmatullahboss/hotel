@@ -211,26 +211,26 @@ body {
 .search-form {
   background: white;
   border-radius: 1rem;
-  padding: 1.5rem;
+  padding: 1rem;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
 }
 
 .form-group {
-  margin-bottom: 1rem;
+  margin-bottom: 0.75rem;
 }
 
 .form-label {
   display: block;
   font-weight: 600;
-  font-size: 0.875rem;
-  margin-bottom: 0.5rem;
+  font-size: 0.8125rem;
+  margin-bottom: 0.375rem;
   color: var(--color-text-primary);
 }
 
 .form-input {
   width: 100%;
-  padding: 0.875rem 1rem;
-  font-size: 1rem;
+  padding: 0.75rem 0.875rem;
+  font-size: 0.9375rem;
   border: 2px solid var(--color-border);
   border-radius: 0.5rem;
   outline: none;
