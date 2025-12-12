@@ -1,32 +1,41 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { recordWalkIn } from "../actions/walkin";
-
-interface Room {
-    id: string;
-    number: string;
-    name: string;
-    type: string;
-    price: number;
-    status: string;
-}
+import { recordWalkIn, checkRoomAvailabilityForDates, RoomAvailability } from "../actions/walkin";
 
 interface WalkInFormProps {
-    rooms: Room[];
+    hotelId: string;
 }
 
-export function WalkInForm({ rooms }: WalkInFormProps) {
+export function WalkInForm({ hotelId }: WalkInFormProps) {
     const router = useRouter();
     const [isPending, startTransition] = useTransition();
-    const [selectedRoom, setSelectedRoom] = useState<Room | null>(null);
     const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
     const [idPhotoUrl, setIdPhotoUrl] = useState<string | null>(null);
     const [uploadingPhoto, setUploadingPhoto] = useState(false);
 
+    // Step 1: Dates
     const today = new Date().toISOString().split("T")[0]!;
     const tomorrow = new Date(Date.now() + 86400000).toISOString().split("T")[0]!;
+    const [checkIn, setCheckIn] = useState(today);
+    const [checkOut, setCheckOut] = useState(tomorrow);
+
+    // Step 2: Rooms with availability
+    const [rooms, setRooms] = useState<RoomAvailability[]>([]);
+    const [loadingRooms, setLoadingRooms] = useState(false);
+    const [selectedRoom, setSelectedRoom] = useState<RoomAvailability | null>(null);
+
+    // Fetch rooms when dates change
+    useEffect(() => {
+        if (checkIn && checkOut && checkIn < checkOut) {
+            setLoadingRooms(true);
+            setSelectedRoom(null); // Reset selection when dates change
+            checkRoomAvailabilityForDates(checkIn, checkOut)
+                .then(setRooms)
+                .finally(() => setLoadingRooms(false));
+        }
+    }, [checkIn, checkOut]);
 
     const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -68,8 +77,8 @@ export function WalkInForm({ rooms }: WalkInFormProps) {
                 guestPhone: formData.get("guestPhone") as string,
                 guestEmail: formData.get("guestEmail") as string || undefined,
                 guestCount: Number(formData.get("guestCount")) || 1,
-                checkIn: formData.get("checkIn") as string,
-                checkOut: formData.get("checkOut") as string,
+                checkIn,
+                checkOut,
                 totalAmount: Number(formData.get("totalAmount")),
                 notes: formData.get("notes") as string || undefined,
                 guestIdPhoto: idPhotoUrl || undefined,
@@ -84,48 +93,142 @@ export function WalkInForm({ rooms }: WalkInFormProps) {
         });
     };
 
+    const availableCount = rooms.filter(r => r.isAvailable).length;
+    const unavailableCount = rooms.filter(r => !r.isAvailable).length;
+
     return (
         <form onSubmit={handleSubmit}>
-            {/* Room Selection */}
+            {/* Step 1: Date Selection - Always Visible */}
             <div className="card" style={{ marginBottom: "1rem" }}>
-                <h3 style={{ fontWeight: 600, marginBottom: "0.75rem" }}>Select Room</h3>
-                <div style={{ display: "grid", gap: "0.5rem" }}>
-                    {rooms.map((room) => (
-                        <div
-                            key={room.id}
-                            onClick={() => setSelectedRoom(room)}
-                            style={{
-                                padding: "0.75rem",
-                                border: `2px solid ${selectedRoom?.id === room.id ? "var(--color-primary)" : "var(--color-border)"}`,
-                                borderRadius: "0.5rem",
-                                cursor: "pointer",
-                                background: selectedRoom?.id === room.id ? "rgba(29, 53, 87, 0.05)" : "transparent",
-                                display: "flex",
-                                justifyContent: "space-between",
-                                alignItems: "center",
-                            }}
-                        >
-                            <div>
-                                <div style={{ fontWeight: 600 }}>
-                                    Room {room.number} - {room.name}
-                                </div>
-                                <div style={{ fontSize: "0.875rem", color: "var(--color-text-secondary)" }}>
-                                    {room.type}
-                                </div>
-                            </div>
-                            <div style={{ fontWeight: 700 }}>
-                                ৳{room.price.toLocaleString()}/night
-                            </div>
-                        </div>
-                    ))}
+                <h3 style={{ fontWeight: 600, marginBottom: "0.75rem", display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                    <span className="step-number">1</span>
+                    Select Stay Dates
+                </h3>
+                <p style={{ fontSize: "0.875rem", color: "var(--color-text-secondary)", marginBottom: "1rem" }}>
+                    Choose dates first to see room availability
+                </p>
+
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
+                    <div>
+                        <label style={{ display: "block", fontWeight: 500, marginBottom: "0.5rem", fontSize: "0.875rem" }}>
+                            Check-in *
+                        </label>
+                        <input
+                            type="date"
+                            value={checkIn}
+                            onChange={(e) => setCheckIn(e.target.value)}
+                            min={today}
+                            required
+                            className="form-input"
+                        />
+                    </div>
+                    <div>
+                        <label style={{ display: "block", fontWeight: 500, marginBottom: "0.5rem", fontSize: "0.875rem" }}>
+                            Check-out *
+                        </label>
+                        <input
+                            type="date"
+                            value={checkOut}
+                            onChange={(e) => setCheckOut(e.target.value)}
+                            min={checkIn || today}
+                            required
+                            className="form-input"
+                        />
+                    </div>
                 </div>
+            </div>
+
+            {/* Step 2: Room Selection with Availability */}
+            <div className="card" style={{ marginBottom: "1rem" }}>
+                <h3 style={{ fontWeight: 600, marginBottom: "0.75rem", display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                    <span className="step-number">2</span>
+                    Select Room
+                </h3>
+
+                {/* Availability Summary */}
+                {rooms.length > 0 && (
+                    <div style={{ display: "flex", gap: "0.5rem", marginBottom: "1rem", flexWrap: "wrap" }}>
+                        <span className="badge badge-success">
+                            {availableCount} Available
+                        </span>
+                        {unavailableCount > 0 && (
+                            <span className="badge badge-error">
+                                {unavailableCount} Unavailable
+                            </span>
+                        )}
+                    </div>
+                )}
+
+                {loadingRooms ? (
+                    <div style={{ padding: "2rem", textAlign: "center", color: "var(--color-text-secondary)" }}>
+                        ⏳ Checking availability...
+                    </div>
+                ) : rooms.length === 0 ? (
+                    <div style={{ padding: "2rem", textAlign: "center", color: "var(--color-text-secondary)" }}>
+                        No rooms found. Please check the dates.
+                    </div>
+                ) : (
+                    <div style={{ display: "grid", gap: "0.5rem" }}>
+                        {rooms.map((room) => (
+                            <div
+                                key={room.id}
+                                onClick={() => room.isAvailable && setSelectedRoom(room)}
+                                style={{
+                                    padding: "0.75rem",
+                                    border: `2px solid ${!room.isAvailable
+                                            ? "var(--color-error)"
+                                            : selectedRoom?.id === room.id
+                                                ? "var(--color-primary)"
+                                                : "var(--color-border)"
+                                        }`,
+                                    borderRadius: "0.5rem",
+                                    cursor: room.isAvailable ? "pointer" : "not-allowed",
+                                    background: !room.isAvailable
+                                        ? "rgba(208, 0, 0, 0.05)"
+                                        : selectedRoom?.id === room.id
+                                            ? "rgba(29, 53, 87, 0.05)"
+                                            : "transparent",
+                                    opacity: room.isAvailable ? 1 : 0.7,
+                                    display: "flex",
+                                    justifyContent: "space-between",
+                                    alignItems: "center",
+                                }}
+                            >
+                                <div>
+                                    <div style={{ fontWeight: 600, display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                                        Room {room.number} - {room.name}
+                                        {room.isAvailable ? (
+                                            <span style={{ color: "var(--color-success)", fontSize: "0.875rem" }}>✓</span>
+                                        ) : (
+                                            <span style={{ color: "var(--color-error)", fontSize: "0.875rem" }}>✕</span>
+                                        )}
+                                    </div>
+                                    <div style={{ fontSize: "0.875rem", color: "var(--color-text-secondary)" }}>
+                                        {room.type}
+                                        {!room.isAvailable && room.unavailableReason && (
+                                            <span style={{ marginLeft: "0.5rem", color: "var(--color-error)" }}>
+                                                • {room.unavailableReason}
+                                            </span>
+                                        )}
+                                    </div>
+                                </div>
+                                <div style={{ fontWeight: 700, color: room.isAvailable ? "inherit" : "var(--color-text-secondary)" }}>
+                                    ৳{room.price.toLocaleString()}/night
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                )}
             </div>
 
             {selectedRoom && (
                 <>
-                    {/* Guest Details */}
+                    {/* Step 3: Guest Details */}
                     <div className="card" style={{ marginBottom: "1rem" }}>
-                        <h3 style={{ fontWeight: 600, marginBottom: "0.75rem" }}>Guest Details</h3>
+                        <h3 style={{ fontWeight: 600, marginBottom: "0.75rem", display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                            <span className="step-number">3</span>
+                            Guest Details
+                        </h3>
 
                         <div style={{ display: "grid", gap: "1rem" }}>
                             <div>
@@ -137,13 +240,7 @@ export function WalkInForm({ rooms }: WalkInFormProps) {
                                     type="text"
                                     required
                                     placeholder="Full name"
-                                    style={{
-                                        width: "100%",
-                                        padding: "0.75rem",
-                                        border: "2px solid var(--color-border)",
-                                        borderRadius: "0.5rem",
-                                        fontSize: "1rem",
-                                    }}
+                                    className="form-input"
                                 />
                             </div>
 
@@ -157,13 +254,7 @@ export function WalkInForm({ rooms }: WalkInFormProps) {
                                         type="tel"
                                         required
                                         placeholder="01XXXXXXXXX"
-                                        style={{
-                                            width: "100%",
-                                            padding: "0.75rem",
-                                            border: "2px solid var(--color-border)",
-                                            borderRadius: "0.5rem",
-                                            fontSize: "1rem",
-                                        }}
+                                        className="form-input"
                                     />
                                 </div>
                                 <div>
@@ -175,13 +266,7 @@ export function WalkInForm({ rooms }: WalkInFormProps) {
                                         type="number"
                                         min="1"
                                         defaultValue="1"
-                                        style={{
-                                            width: "100%",
-                                            padding: "0.75rem",
-                                            border: "2px solid var(--color-border)",
-                                            borderRadius: "0.5rem",
-                                            fontSize: "1rem",
-                                        }}
+                                        className="form-input"
                                     />
                                 </div>
                             </div>
@@ -194,61 +279,15 @@ export function WalkInForm({ rooms }: WalkInFormProps) {
                                     name="guestEmail"
                                     type="email"
                                     placeholder="guest@email.com"
-                                    style={{
-                                        width: "100%",
-                                        padding: "0.75rem",
-                                        border: "2px solid var(--color-border)",
-                                        borderRadius: "0.5rem",
-                                        fontSize: "1rem",
-                                    }}
+                                    className="form-input"
                                 />
                             </div>
                         </div>
                     </div>
 
-                    {/* Stay Details */}
+                    {/* Payment */}
                     <div className="card" style={{ marginBottom: "1rem" }}>
-                        <h3 style={{ fontWeight: 600, marginBottom: "0.75rem" }}>Stay Details</h3>
-
-                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem", marginBottom: "1rem" }}>
-                            <div>
-                                <label style={{ display: "block", fontWeight: 500, marginBottom: "0.5rem", fontSize: "0.875rem" }}>
-                                    Check-in *
-                                </label>
-                                <input
-                                    name="checkIn"
-                                    type="date"
-                                    required
-                                    defaultValue={today}
-                                    style={{
-                                        width: "100%",
-                                        padding: "0.75rem",
-                                        border: "2px solid var(--color-border)",
-                                        borderRadius: "0.5rem",
-                                        fontSize: "1rem",
-                                    }}
-                                />
-                            </div>
-                            <div>
-                                <label style={{ display: "block", fontWeight: 500, marginBottom: "0.5rem", fontSize: "0.875rem" }}>
-                                    Check-out *
-                                </label>
-                                <input
-                                    name="checkOut"
-                                    type="date"
-                                    required
-                                    defaultValue={tomorrow}
-                                    style={{
-                                        width: "100%",
-                                        padding: "0.75rem",
-                                        border: "2px solid var(--color-border)",
-                                        borderRadius: "0.5rem",
-                                        fontSize: "1rem",
-                                    }}
-                                />
-                            </div>
-                        </div>
-
+                        <h3 style={{ fontWeight: 600, marginBottom: "0.75rem" }}>Payment</h3>
                         <div>
                             <label style={{ display: "block", fontWeight: 500, marginBottom: "0.5rem", fontSize: "0.875rem" }}>
                                 Total Amount (৳) *
@@ -259,13 +298,7 @@ export function WalkInForm({ rooms }: WalkInFormProps) {
                                 required
                                 min="1"
                                 defaultValue={selectedRoom.price}
-                                style={{
-                                    width: "100%",
-                                    padding: "0.75rem",
-                                    border: "2px solid var(--color-border)",
-                                    borderRadius: "0.5rem",
-                                    fontSize: "1rem",
-                                }}
+                                className="form-input"
                             />
                         </div>
                     </div>
@@ -364,14 +397,8 @@ export function WalkInForm({ rooms }: WalkInFormProps) {
                             name="notes"
                             placeholder="Any special requirements..."
                             rows={2}
-                            style={{
-                                width: "100%",
-                                padding: "0.75rem",
-                                border: "2px solid var(--color-border)",
-                                borderRadius: "0.5rem",
-                                fontSize: "1rem",
-                                resize: "vertical",
-                            }}
+                            className="form-input"
+                            style={{ resize: "vertical" }}
                         />
                     </div>
 

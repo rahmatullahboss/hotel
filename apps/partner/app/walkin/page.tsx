@@ -1,6 +1,5 @@
 import { redirect } from "next/navigation";
 import { getPartnerHotel } from "../actions/dashboard";
-import { getHotelRooms } from "../actions/inventory";
 import { BottomNav, ScannerFAB } from "../components";
 import { WalkInForm } from "./WalkInForm";
 
@@ -16,9 +15,6 @@ export default async function WalkInPage() {
     if (hotel.status !== "ACTIVE") {
         redirect("/");
     }
-
-    const rooms = await getHotelRooms(hotel.id);
-    const availableRooms = rooms.filter(r => r.status === "AVAILABLE");
 
     return (
         <>
@@ -58,15 +54,7 @@ export default async function WalkInPage() {
                     </div>
                 </div>
 
-                {availableRooms.length === 0 ? (
-                    <div className="card" style={{ padding: "2rem", textAlign: "center" }}>
-                        <p style={{ color: "var(--color-text-secondary)" }}>
-                            No rooms available. All rooms are occupied or blocked.
-                        </p>
-                    </div>
-                ) : (
-                    <WalkInForm rooms={availableRooms} />
-                )}
+                <WalkInForm hotelId={hotel.id} />
             </main>
 
             <ScannerFAB />

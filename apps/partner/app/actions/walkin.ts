@@ -186,3 +186,109 @@ export async function getTodayWalkIns(): Promise<{
         return { count: 0, revenue: 0 };
     }
 }
+
+export interface RoomAvailability {
+    id: string;
+    number: string;
+    name: string;
+    type: string;
+    price: number;
+    isAvailable: boolean;
+    unavailableReason?: string;
+}
+
+/**
+ * Check room availability for specific dates
+ * Returns all rooms with their availability status for the date range
+ */
+export async function checkRoomAvailabilityForDates(
+    checkIn: string,
+    checkOut: string
+): Promise<RoomAvailability[]> {
+    try {
+        const hotel = await getPartnerHotel();
+        if (!hotel) return [];
+
+        // Get all rooms for the hotel
+        const hotelRooms = await db.query.rooms.findMany({
+            where: eq(rooms.hotelId, hotel.id),
+            orderBy: rooms.roomNumber,
+        });
+
+        const result: RoomAvailability[] = [];
+
+        for (const room of hotelRooms) {
+            let isAvailable = true;
+            let unavailableReason: string | undefined;
+
+            // Check 1: Is room blocked for any of these dates?
+            const blockedInventory = await db.query.roomInventory.findFirst({
+                where: and(
+                    eq(roomInventory.roomId, room.id),
+                    eq(roomInventory.status, "BLOCKED"),
+                    gte(roomInventory.date, checkIn),
+                    lte(roomInventory.date, checkOut)
+                ),
+            });
+
+            if (blockedInventory) {
+                isAvailable = false;
+                unavailableReason = "Room is blocked for these dates";
+            }
+
+            // Check 2: Is room already booked (platform booking)?
+            if (isAvailable) {
+                const existingBooking = await db.query.bookings.findFirst({
+                    where: and(
+                        eq(bookings.roomId, room.id),
+                        lte(bookings.checkIn, checkOut),
+                        gte(bookings.checkOut, checkIn),
+                        ne(bookings.status, "CANCELLED"),
+                        ne(bookings.status, "CHECKED_OUT")
+                    ),
+                });
+
+                if (existingBooking) {
+                    isAvailable = false;
+                    if (existingBooking.bookingSource === "PLATFORM") {
+                        unavailableReason = "Has platform booking";
+                    } else {
+                        unavailableReason = "Already occupied";
+                    }
+                }
+            }
+
+            // Check 3: Is room occupied in inventory?
+            if (isAvailable) {
+                const occupiedInventory = await db.query.roomInventory.findFirst({
+                    where: and(
+                        eq(roomInventory.roomId, room.id),
+                        eq(roomInventory.status, "OCCUPIED"),
+                        gte(roomInventory.date, checkIn),
+                        lte(roomInventory.date, checkOut)
+                    ),
+                });
+
+                if (occupiedInventory) {
+                    isAvailable = false;
+                    unavailableReason = "Room is occupied";
+                }
+            }
+
+            result.push({
+                id: room.id,
+                number: room.roomNumber,
+                name: room.name,
+                type: room.type,
+                price: Number(room.basePrice) || 0,
+                isAvailable,
+                unavailableReason,
+            });
+        }
+
+        return result;
+    } catch (error) {
+        console.error("Error checking room availability:", error);
+        return [];
+    }
+}
