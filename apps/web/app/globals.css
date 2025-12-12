@@ -1663,7 +1663,7 @@ main.page-with-book-bar {
   padding: 2rem 1rem;
   padding-bottom: calc(2rem + 80px);
   /* Extra padding for bottom nav on mobile */
-  margin-top: 2rem;
+  margin-top: 1rem;
 }
 
 .footer-container {
@@ -1772,7 +1772,7 @@ main.page-with-book-bar {
 @media (min-width: 1024px) {
   .site-footer {
     padding: 4rem 2rem 2rem;
-    margin-top: 4rem;
+    margin-top: 2rem;
   }
 
   .footer-container {
