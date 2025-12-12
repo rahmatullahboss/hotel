@@ -15,6 +15,7 @@ export function SearchForm({ compact = false }: SearchFormProps) {
     const [checkIn, setCheckIn] = useState("");
     const [checkOut, setCheckOut] = useState("");
     const [guests, setGuests] = useState(2);
+    const [showAdvanced, setShowAdvanced] = useState(false);
     const [priceMin, setPriceMin] = useState("");
     const [priceMax, setPriceMax] = useState("");
 
@@ -75,104 +76,138 @@ export function SearchForm({ compact = false }: SearchFormProps) {
     }
 
     return (
-        <form onSubmit={handleSubmit} className="search-form">
-            <div className="form-group">
-                <label htmlFor="city" className="form-label">
-                    {t("city")}
-                </label>
-                <input
-                    id="city"
-                    type="text"
-                    className="form-input"
-                    placeholder={t("location")}
-                    value={city}
-                    onChange={(e) => setCity(e.target.value)}
-                />
-            </div>
-
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
-                <div className="form-group">
-                    <label htmlFor="checkIn" className="form-label">
-                        {t("checkIn")}
-                    </label>
-                    <input
-                        id="checkIn"
-                        type="date"
-                        className="form-input"
-                        value={checkIn}
-                        min={today}
-                        onChange={(e) => setCheckIn(e.target.value)}
-                    />
+        <form onSubmit={handleSubmit} className="search-form search-form-compact">
+            {/* Main Search Row */}
+            <div className="search-row">
+                {/* Location */}
+                <div className="search-field search-field-location">
+                    <span className="search-field-icon">📍</span>
+                    <div className="search-field-content">
+                        <span className="search-field-label">{t("city")}</span>
+                        <input
+                            type="text"
+                            className="search-field-input"
+                            placeholder={t("locationPlaceholder")}
+                            value={city}
+                            onChange={(e) => setCity(e.target.value)}
+                        />
+                    </div>
                 </div>
 
-                <div className="form-group">
-                    <label htmlFor="checkOut" className="form-label">
-                        {t("checkOut")}
-                    </label>
-                    <input
-                        id="checkOut"
-                        type="date"
-                        className="form-input"
-                        value={checkOut}
-                        min={checkIn || today}
-                        onChange={(e) => setCheckOut(e.target.value)}
-                    />
-                </div>
-            </div>
+                <div className="search-divider" />
 
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "1rem" }}>
-                <div className="form-group">
-                    <label htmlFor="guests" className="form-label">
-                        {t("guests")}
-                    </label>
-                    <select
-                        id="guests"
-                        className="form-input"
-                        value={guests}
-                        onChange={(e) => setGuests(Number(e.target.value))}
+                {/* Check-in */}
+                <div className="search-field">
+                    <span className="search-field-icon">📅</span>
+                    <div className="search-field-content">
+                        <span className="search-field-label">{t("checkIn")}</span>
+                        <input
+                            type="date"
+                            className="search-field-input"
+                            value={checkIn}
+                            min={today}
+                            onChange={(e) => setCheckIn(e.target.value)}
+                        />
+                    </div>
+                </div>
+
+                <div className="search-divider" />
+
+                {/* Check-out */}
+                <div className="search-field">
+                    <span className="search-field-icon">📅</span>
+                    <div className="search-field-content">
+                        <span className="search-field-label">{t("checkOut")}</span>
+                        <input
+                            type="date"
+                            className="search-field-input"
+                            value={checkOut}
+                            min={checkIn || today}
+                            onChange={(e) => setCheckOut(e.target.value)}
+                        />
+                    </div>
+                </div>
+
+                <div className="search-divider" />
+
+                {/* Guests */}
+                <div className="search-field search-field-guests">
+                    <span className="search-field-icon">👤</span>
+                    <div className="search-field-content">
+                        <span className="search-field-label">{t("guests")}</span>
+                        <select
+                            className="search-field-input"
+                            value={guests}
+                            onChange={(e) => setGuests(Number(e.target.value))}
+                        >
+                            {[1, 2, 3, 4, 5, 6].map((n) => (
+                                <option key={n} value={n}>
+                                    {n} {t("guest")}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+                </div>
+
+                {/* Search Button */}
+                <button type="submit" className="search-btn">
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        strokeWidth={2}
+                        stroke="currentColor"
+                        className="search-btn-icon"
                     >
-                        {[1, 2, 3, 4, 5, 6].map((n) => (
-                            <option key={n} value={n}>
-                                {n} {t("guest")}
-                            </option>
-                        ))}
-                    </select>
-                </div>
-
-                <div className="form-group">
-                    <label htmlFor="priceMin" className="form-label">
-                        {t("minPrice")}
-                    </label>
-                    <input
-                        id="priceMin"
-                        type="number"
-                        className="form-input"
-                        placeholder="500"
-                        min="0"
-                        value={priceMin}
-                        onChange={(e) => setPriceMin(e.target.value)}
-                    />
-                </div>
-
-                <div className="form-group">
-                    <label htmlFor="priceMax" className="form-label">
-                        {t("maxPrice")}
-                    </label>
-                    <input
-                        id="priceMax"
-                        type="number"
-                        className="form-input"
-                        placeholder="10000"
-                        min="0"
-                        value={priceMax}
-                        onChange={(e) => setPriceMax(e.target.value)}
-                    />
-                </div>
+                        <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"
+                        />
+                    </svg>
+                    <span className="search-btn-text">{t("searchButton")}</span>
+                </button>
             </div>
 
-            <button type="submit" className="btn btn-primary btn-block btn-lg">
-                {t("searchButton")}
+            {/* Advanced Filters Toggle */}
+            <button
+                type="button"
+                className="search-advanced-toggle"
+                onClick={() => setShowAdvanced(!showAdvanced)}
+            >
+                {showAdvanced ? "− Hide filters" : "+ Price filters"}
             </button>
+
+            {/* Advanced Filters */}
+            {showAdvanced && (
+                <div className="search-advanced">
+                    <div className="search-price-fields">
+                        <div className="search-price-field">
+                            <span className="search-field-label">{t("minPrice")}</span>
+                            <input
+                                type="number"
+                                className="search-field-input"
+                                placeholder="৳ 500"
+                                min="0"
+                                value={priceMin}
+                                onChange={(e) => setPriceMin(e.target.value)}
+                            />
+                        </div>
+                        <span className="search-price-separator">—</span>
+                        <div className="search-price-field">
+                            <span className="search-field-label">{t("maxPrice")}</span>
+                            <input
+                                type="number"
+                                className="search-field-input"
+                                placeholder="৳ 10,000"
+                                min="0"
+                                value={priceMax}
+                                onChange={(e) => setPriceMax(e.target.value)}
+                            />
+                        </div>
+                    </div>
+                </div>
+            )}
         </form>
     );
 }
