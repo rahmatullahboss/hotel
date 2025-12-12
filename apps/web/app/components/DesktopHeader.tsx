@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
+import { LanguageSwitcher } from "./LanguageSwitcher";
 
 export function DesktopHeader() {
     const pathname = usePathname();
@@ -39,6 +40,7 @@ export function DesktopHeader() {
 
                 {/* User Actions */}
                 <div className="desktop-header-actions">
+                    <LanguageSwitcher />
                     {session ? (
                         <Link href="/profile" className="desktop-user-btn">
                             <span className="user-avatar">
