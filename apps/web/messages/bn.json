@@ -50,9 +50,9 @@
         "verifiedProperties": "যাচাইকৃত প্রপার্টি",
         "verifiedDesc": "সব হোটেল ব্যক্তিগতভাবে মান যাচাই করা",
         "bestPrices": "সেরা মূল্য",
-        "bestPricesDesc": "সর্বনিম্ন রেট গ্যারান্টি বা টাকা ফেরত",
+        "bestPricesDesc": "যাচাইকৃত হোটেলে প্রতিযোগিতামূলক রেট",
         "payAtHotel": "হোটেলে পেমেন্ট",
-        "payAtHotelDesc": "অগ্রিম পেমেন্ট প্রয়োজন নেই",
+        "payAtHotelDesc": "মাত্র ২০% অগ্রিম, বাকি হোটেলে পরিশোধ করুন",
         "instantBooking": "তাৎক্ষণিক বুকিং",
         "instantBookingDesc": "মাত্র ৩ ক্লিকে আপনার থাকা নিশ্চিত করুন"
     },
