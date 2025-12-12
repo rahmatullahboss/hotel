@@ -15,6 +15,13 @@
       "when": 1765443151527,
       "tag": "0001_uneven_carlie_cooper",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1765501690646,
+      "tag": "0002_nappy_sebastian_shaw",
+      "breakpoints": true
     }
   ]
 }
