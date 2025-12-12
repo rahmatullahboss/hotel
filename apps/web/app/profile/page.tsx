@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { getUserBookings } from "../actions/bookings";
 import { getWallet, getLoyaltyPoints } from "../actions/wallet";
-import { BottomNav } from "../components";
+import { BottomNav, LanguageSwitcher } from "../components";
 
 export default async function ProfilePage() {
     const session = await auth();
@@ -238,6 +238,18 @@ export default async function ProfilePage() {
 
                 {/* Account Actions */}
                 <div className="card" style={{ padding: "0" }}>
+                    <div
+                        style={{
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "space-between",
+                            padding: "1rem",
+                            borderBottom: "1px solid var(--color-border)",
+                        }}
+                    >
+                        <span>Language / ভাষা</span>
+                        <LanguageSwitcher />
+                    </div>
                     <Link
                         href="/help"
                         style={{

@@ -1661,6 +1661,8 @@ main.page-with-book-bar {
   background: var(--color-secondary);
   color: white;
   padding: 2rem 1rem;
+  padding-bottom: calc(2rem + 80px);
+  /* Extra padding for bottom nav on mobile */
   margin-top: 2rem;
 }
 
