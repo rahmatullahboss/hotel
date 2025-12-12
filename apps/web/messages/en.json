@@ -286,6 +286,8 @@
         "tagline": "Find your perfect stay at the best prices. Pay at hotel, book instantly.",
         "support": "Support",
         "partners": "For Partners",
+        "terms": "Terms of Service",
+        "privacy": "Privacy Policy",
         "copyright": "© {year} Vibe Hotels. All rights reserved."
     },
     "auth": {
