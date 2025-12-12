@@ -87,8 +87,12 @@ export default function HotelDetailPage() {
         if (!hotel || !selectedRoom || !checkIn || !checkOut) return;
         const roomPhoto = selectedRoom.photos && selectedRoom.photos.length > 0 ? selectedRoom.photos[0] : "";
         const roomPhotoParam = roomPhoto ? `&roomPhoto=${encodeURIComponent(roomPhoto)}` : "";
+        // Use dynamic price if available, otherwise base price
+        const price = selectedRoom.dynamicPrice ?? Number(selectedRoom.basePrice);
+        const nights = selectedRoom.nights ?? 1;
+        const total = selectedRoom.totalDynamicPrice ?? price * nights;
         router.push(
-            `/booking?hotelId=${hotel.id}&roomId=${selectedRoom.id}&hotel=${encodeURIComponent(hotel.name)}&room=${encodeURIComponent(selectedRoom.name)}&price=${selectedRoom.basePrice}&checkIn=${checkIn}&checkOut=${checkOut}${roomPhotoParam}`
+            `/booking?hotelId=${hotel.id}&roomId=${selectedRoom.id}&hotel=${encodeURIComponent(hotel.name)}&room=${encodeURIComponent(selectedRoom.name)}&price=${price}&nights=${nights}&totalPrice=${total}&checkIn=${checkIn}&checkOut=${checkOut}${roomPhotoParam}`
         );
     };
 
@@ -395,37 +399,57 @@ export default function HotelDetailPage() {
             </main>
 
             {/* Sticky Book Now Footer */}
-            {selectedRoom && (
-                <div
-                    className="book-now-bar"
-                    style={{
-                        position: "fixed",
-                        left: 0,
-                        right: 0,
-                        background: "white",
-                        padding: "1rem",
-                        boxShadow: "0 -4px 12px rgba(0, 0, 0, 0.1)",
-                        borderTop: "1px solid var(--color-border)",
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                        zIndex: 90,
-                    }}
-                >
-                    <div>
-                        <div className="hotel-price">
-                            ৳{Number(selectedRoom.basePrice).toLocaleString()}
-                            <span className="hotel-price-label">{tCommon("perNight")}</span>
+            {selectedRoom && (() => {
+                const displayPrice = selectedRoom.dynamicPrice ?? Number(selectedRoom.basePrice);
+                const basePrice = Number(selectedRoom.basePrice);
+                const isDiscount = selectedRoom.dynamicPrice && selectedRoom.dynamicPrice < basePrice;
+                const nights = selectedRoom.nights ?? 1;
+                const total = selectedRoom.totalDynamicPrice ?? displayPrice * nights;
+
+                return (
+                    <div
+                        className="book-now-bar"
+                        style={{
+                            position: "fixed",
+                            left: 0,
+                            right: 0,
+                            background: "white",
+                            padding: "1rem",
+                            boxShadow: "0 -4px 12px rgba(0, 0, 0, 0.1)",
+                            borderTop: "1px solid var(--color-border)",
+                            display: "flex",
+                            justifyContent: "space-between",
+                            alignItems: "center",
+                            zIndex: 90,
+                        }}
+                    >
+                        <div>
+                            <div className="hotel-price">
+                                ৳{displayPrice.toLocaleString()}
+                                <span className="hotel-price-label">{tCommon("perNight")}</span>
+                            </div>
+                            {/* Only show strikethrough when it's a DISCOUNT */}
+                            {isDiscount && (
+                                <div style={{ fontSize: "0.625rem", color: "var(--color-text-muted)", textDecoration: "line-through" }}>
+                                    ৳{basePrice.toLocaleString()}/night
+                                </div>
+                            )}
+                            <div style={{ fontSize: "0.75rem", color: "var(--color-text-secondary)" }}>
+                                {selectedRoom.name} • {nights} night{nights > 1 ? 's' : ''} = ৳{total.toLocaleString()}
+                            </div>
+                            {/* Show discount badge */}
+                            {selectedRoom.priceBreakdown && selectedRoom.priceBreakdown.rules.length > 0 && isDiscount && (
+                                <div style={{ fontSize: "0.625rem", color: "var(--color-success)", marginTop: "0.125rem" }}>
+                                    🎉 {selectedRoom.priceBreakdown.rules.map(r => r.name).join(' + ')}
+                                </div>
+                            )}
                         </div>
-                        <div style={{ fontSize: "0.75rem", color: "var(--color-text-secondary)" }}>
-                            {selectedRoom.name}
-                        </div>
+                        <button className="btn btn-primary btn-lg" onClick={handleBookNow}>
+                            {t("bookNow")}
+                        </button>
                     </div>
-                    <button className="btn btn-primary btn-lg" onClick={handleBookNow}>
-                        {t("bookNow")}
-                    </button>
-                </div>
-            )}
+                );
+            })()}
 
             <BottomNav />
         </>

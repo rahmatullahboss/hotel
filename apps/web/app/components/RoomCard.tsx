@@ -81,7 +81,8 @@ export default function RoomCard({ room, isSelected, onSelect, onViewDetails }: 
     // Calculate display price
     const displayPrice = room.dynamicPrice ?? Number(room.basePrice);
     const basePrice = Number(room.basePrice);
-    const hasDynamicPricing = room.dynamicPrice && room.dynamicPrice !== basePrice;
+    // Only show strikethrough when customer gets a DISCOUNT (not when price is higher)
+    const showOriginalPrice = room.dynamicPrice && room.dynamicPrice < basePrice;
 
     return (
         <div
@@ -143,7 +144,7 @@ export default function RoomCard({ room, isSelected, onSelect, onViewDetails }: 
                     <div className="room-card-price">
                         <span className="room-price-amount">৳{displayPrice.toLocaleString()}</span>
                         <span className="room-price-label">/night</span>
-                        {hasDynamicPricing && (
+                        {showOriginalPrice && (
                             <div style={{ fontSize: "0.625rem", color: "var(--color-text-muted)", textDecoration: "line-through" }}>
                                 ৳{basePrice.toLocaleString()}
                             </div>
