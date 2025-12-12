@@ -8,12 +8,19 @@ interface RoomCardProps {
         name: string;
         type: string;
         basePrice: string;
+        dynamicPrice?: number;
+        totalDynamicPrice?: number;
+        nights?: number;
         maxGuests: number;
         description: string | null;
         photos: string[];
         amenities: string[];
         isAvailable: boolean;
         unavailableReason?: string;
+        priceBreakdown?: {
+            multiplier: number;
+            rules: Array<{ name: string; description: string }>;
+        };
     };
     isSelected: boolean;
     onSelect: () => void;
@@ -70,6 +77,11 @@ export default function RoomCard({ room, isSelected, onSelect, onViewDetails }: 
     // Get top 3 amenities to show
     const displayAmenities = room.amenities.slice(0, 3);
     const remainingCount = room.amenities.length - 3;
+
+    // Calculate display price
+    const displayPrice = room.dynamicPrice ?? Number(room.basePrice);
+    const basePrice = Number(room.basePrice);
+    const hasDynamicPricing = room.dynamicPrice && room.dynamicPrice !== basePrice;
 
     return (
         <div
@@ -129,8 +141,18 @@ export default function RoomCard({ room, isSelected, onSelect, onViewDetails }: 
                         </div>
                     </div>
                     <div className="room-card-price">
-                        <span className="room-price-amount">৳{Number(room.basePrice).toLocaleString()}</span>
+                        <span className="room-price-amount">৳{displayPrice.toLocaleString()}</span>
                         <span className="room-price-label">/night</span>
+                        {hasDynamicPricing && (
+                            <div style={{ fontSize: "0.625rem", color: "var(--color-text-muted)", textDecoration: "line-through" }}>
+                                ৳{basePrice.toLocaleString()}
+                            </div>
+                        )}
+                        {room.priceBreakdown && room.priceBreakdown.rules.length > 0 && (
+                            <div style={{ fontSize: "0.5rem", color: "var(--color-primary)", marginTop: "0.125rem" }}>
+                                {room.priceBreakdown.rules[0]?.name}
+                            </div>
+                        )}
                     </div>
                 </div>
 

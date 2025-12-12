@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 
 interface SearchFormProps {
     compact?: boolean;
@@ -9,6 +10,7 @@ interface SearchFormProps {
 
 export function SearchForm({ compact = false }: SearchFormProps) {
     const router = useRouter();
+    const t = useTranslations("search");
     const [city, setCity] = useState("");
     const [checkIn, setCheckIn] = useState("");
     const [checkOut, setCheckOut] = useState("");
@@ -25,7 +27,6 @@ export function SearchForm({ compact = false }: SearchFormProps) {
         router.push(`/hotels?${params.toString()}`);
     };
 
-    // Get today's date for min attribute
     const today = new Date().toISOString().split("T")[0];
 
     if (compact) {
@@ -59,10 +60,10 @@ export function SearchForm({ compact = false }: SearchFormProps) {
                 </svg>
                 <div>
                     <div style={{ fontWeight: 600, color: "var(--color-text-primary)" }}>
-                        Where to?
+                        {t("whereTo")}
                     </div>
                     <div style={{ fontSize: "0.875rem", color: "var(--color-text-secondary)" }}>
-                        Search hotels • Any date • 2 guests
+                        {t("searchHotels")}
                     </div>
                 </div>
             </button>
@@ -73,13 +74,13 @@ export function SearchForm({ compact = false }: SearchFormProps) {
         <form onSubmit={handleSubmit} className="search-form">
             <div className="form-group">
                 <label htmlFor="city" className="form-label">
-                    City
+                    {t("city")}
                 </label>
                 <input
                     id="city"
                     type="text"
                     className="form-input"
-                    placeholder="Where are you going?"
+                    placeholder={t("location")}
                     value={city}
                     onChange={(e) => setCity(e.target.value)}
                 />
@@ -88,7 +89,7 @@ export function SearchForm({ compact = false }: SearchFormProps) {
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
                 <div className="form-group">
                     <label htmlFor="checkIn" className="form-label">
-                        Check In
+                        {t("checkIn")}
                     </label>
                     <input
                         id="checkIn"
@@ -102,7 +103,7 @@ export function SearchForm({ compact = false }: SearchFormProps) {
 
                 <div className="form-group">
                     <label htmlFor="checkOut" className="form-label">
-                        Check Out
+                        {t("checkOut")}
                     </label>
                     <input
                         id="checkOut"
@@ -117,7 +118,7 @@ export function SearchForm({ compact = false }: SearchFormProps) {
 
             <div className="form-group">
                 <label htmlFor="guests" className="form-label">
-                    Guests
+                    {t("guests")}
                 </label>
                 <select
                     id="guests"
@@ -127,14 +128,14 @@ export function SearchForm({ compact = false }: SearchFormProps) {
                 >
                     {[1, 2, 3, 4, 5, 6].map((n) => (
                         <option key={n} value={n}>
-                            {n} {n === 1 ? "Guest" : "Guests"}
+                            {n} {t("guest")}
                         </option>
                     ))}
                 </select>
             </div>
 
             <button type="submit" className="btn btn-primary btn-block btn-lg">
-                Search Hotels
+                {t("searchButton")}
             </button>
         </form>
     );

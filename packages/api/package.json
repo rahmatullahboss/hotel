@@ -15,6 +15,10 @@
         "./hotels": {
             "types": "./dist/hotels/index.d.ts",
             "default": "./dist/hotels/index.js"
+        },
+        "./pricing": {
+            "types": "./dist/pricing/index.d.ts",
+            "default": "./dist/pricing/index.js"
         }
     },
     "scripts": {

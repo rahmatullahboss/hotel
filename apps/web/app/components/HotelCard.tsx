@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 
 interface HotelCardProps {
     id: string;
@@ -23,6 +26,9 @@ export function HotelCard({
     amenities,
     payAtHotel = false,
 }: HotelCardProps) {
+    const t = useTranslations("hotel");
+    const tCommon = useTranslations("common");
+
     return (
         <Link href={`/hotels/${id}`} className="card hotel-card">
             {/* Image */}
@@ -42,7 +48,7 @@ export function HotelCard({
                             left: "0.75rem",
                         }}
                     >
-                        Pay at Hotel
+                        {t("payAtHotel")}
                     </span>
                 )}
             </div>
@@ -79,7 +85,7 @@ export function HotelCard({
                     <div style={{ textAlign: "right" }}>
                         <div className="hotel-price">
                             ৳{price.toLocaleString()}
-                            <span className="hotel-price-label">/night</span>
+                            <span className="hotel-price-label">{tCommon("perNight")}</span>
                         </div>
                     </div>
                 </div>
@@ -96,7 +102,7 @@ export function HotelCard({
                     </svg>
                     <span className="rating-value">{rating.toFixed(1)}</span>
                     <span style={{ color: "var(--color-text-muted)" }}>
-                        ({reviewCount} reviews)
+                        ({reviewCount} {tCommon("reviews")})
                     </span>
                 </div>
 

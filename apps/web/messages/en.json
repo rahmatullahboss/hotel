@@ -2,6 +2,9 @@
     "common": {
         "appName": "Vibe Hotels",
         "loading": "Loading...",
+        "loadingMap": "Loading map...",
+        "loadingHotels": "Loading hotels...",
+        "searching": "Searching...",
         "error": "Error",
         "success": "Success",
         "cancel": "Cancel",
@@ -12,10 +15,13 @@
         "submit": "Submit",
         "currency": "৳",
         "perNight": "/night",
-        "viewAll": "View all →"
+        "viewAll": "View all →",
+        "night": "night",
+        "reviews": "reviews"
     },
     "nav": {
         "home": "Home",
+        "hotels": "Hotels",
         "bookings": "Bookings",
         "wallet": "Wallet",
         "profile": "Profile",
@@ -37,12 +43,49 @@
         "instantBookingDesc": "Confirm your stay in just 3 clicks"
     },
     "search": {
+        "city": "City",
+        "whereTo": "Where to?",
+        "searchHotels": "Search hotels • Any date • 2 guests",
         "location": "Where are you going?",
         "locationPlaceholder": "Search city or area",
-        "checkIn": "Check-in",
-        "checkOut": "Check-out",
+        "checkIn": "Check In",
+        "checkOut": "Check Out",
         "guests": "Guests",
+        "guest": "Guest",
         "searchButton": "Search Hotels"
+    },
+    "hotels": {
+        "allHotels": "All Hotels",
+        "hotelsIn": "Hotels in {city}",
+        "propertiesFound": "{count} properties found",
+        "noHotelsFound": "No hotels found. Try adjusting your filters.",
+        "listView": "List",
+        "mapView": "Map",
+        "topRated": "Top Rated",
+        "lowestPrice": "Lowest Price",
+        "nearest": "Nearest",
+        "nearby": "Nearby",
+        "gettingLocation": "Getting...",
+        "locationDenied": "Location access denied",
+        "locationFailed": "Failed to get location",
+        "payAtHotel": "Pay at Hotel"
+    },
+    "hotelDetail": {
+        "hotelNotFound": "Hotel not found",
+        "hotelNotFoundDesc": "This hotel may have been removed or is unavailable.",
+        "browseHotels": "Browse Hotels",
+        "about": "About",
+        "amenities": "Amenities",
+        "location": "Location",
+        "selectDates": "Select Dates",
+        "availableRooms": "Available Rooms",
+        "noRoomsAvailable": "No rooms available at the moment.",
+        "hotelPolicies": "Hotel Policies",
+        "checkInTime": "Check-in: 2:00 PM",
+        "checkOutTime": "Check-out: 12:00 PM",
+        "cancellationPolicy": "Cancellation: Free cancellation up to 24 hours before check-in",
+        "bookNow": "Book Now",
+        "payAtHotel": "Pay at Hotel"
     },
     "hotel": {
         "rating": "Rating",

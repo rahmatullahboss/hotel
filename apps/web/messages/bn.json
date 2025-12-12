@@ -2,6 +2,9 @@
     "common": {
         "appName": "Vibe Hotels",
         "loading": "লোড হচ্ছে...",
+        "loadingMap": "ম্যাপ লোড হচ্ছে...",
+        "loadingHotels": "হোটেল লোড হচ্ছে...",
+        "searching": "খোঁজা হচ্ছে...",
         "error": "ত্রুটি",
         "success": "সফল",
         "cancel": "বাতিল",
@@ -12,10 +15,13 @@
         "submit": "জমা দিন",
         "currency": "৳",
         "perNight": "/রাত",
-        "viewAll": "সব দেখুন →"
+        "viewAll": "সব দেখুন →",
+        "night": "রাত",
+        "reviews": "রিভিউ"
     },
     "nav": {
         "home": "হোম",
+        "hotels": "হোটেল",
         "bookings": "বুকিং",
         "wallet": "ওয়ালেট",
         "profile": "প্রোফাইল",
@@ -37,12 +43,49 @@
         "instantBookingDesc": "মাত্র ৩ ক্লিকে আপনার থাকা নিশ্চিত করুন"
     },
     "search": {
+        "city": "শহর",
+        "whereTo": "কোথায় যাচ্ছেন?",
+        "searchHotels": "হোটেল খুঁজুন • যেকোনো তারিখ • ২ জন",
         "location": "কোথায় যাচ্ছেন?",
         "locationPlaceholder": "শহর বা এলাকা খুঁজুন",
         "checkIn": "চেক-ইন",
         "checkOut": "চেক-আউট",
         "guests": "গেস্ট",
+        "guest": "গেস্ট",
         "searchButton": "হোটেল খুঁজুন"
+    },
+    "hotels": {
+        "allHotels": "সব হোটেল",
+        "hotelsIn": "{city} এ হোটেল",
+        "propertiesFound": "{count} টি হোটেল পাওয়া গেছে",
+        "noHotelsFound": "কোনো হোটেল পাওয়া যায়নি। ফিল্টার পরিবর্তন করে দেখুন।",
+        "listView": "লিস্ট",
+        "mapView": "ম্যাপ",
+        "topRated": "টপ রেটেড",
+        "lowestPrice": "সর্বনিম্ন মূল্য",
+        "nearest": "কাছের",
+        "nearby": "আশেপাশে",
+        "gettingLocation": "লোকেশন নেওয়া হচ্ছে...",
+        "locationDenied": "লোকেশন অনুমতি নেই",
+        "locationFailed": "লোকেশন পেতে ব্যর্থ",
+        "payAtHotel": "হোটেলে পেমেন্ট"
+    },
+    "hotelDetail": {
+        "hotelNotFound": "হোটেল পাওয়া যায়নি",
+        "hotelNotFoundDesc": "এই হোটেলটি মুছে ফেলা হয়েছে বা বর্তমানে উপলব্ধ নেই।",
+        "browseHotels": "হোটেল দেখুন",
+        "about": "সম্পর্কে",
+        "amenities": "সুবিধাসমূহ",
+        "location": "অবস্থান",
+        "selectDates": "তারিখ নির্বাচন করুন",
+        "availableRooms": "উপলব্ধ রুম",
+        "noRoomsAvailable": "বর্তমানে কোনো রুম উপলব্ধ নেই।",
+        "hotelPolicies": "হোটেল নীতিমালা",
+        "checkInTime": "চেক-ইন: দুপুর ২:০০ টা",
+        "checkOutTime": "চেক-আউট: দুপুর ১২:০০ টা",
+        "cancellationPolicy": "বাতিল: চেক-ইনের ২৪ ঘন্টা আগে পর্যন্ত বিনামূল্যে বাতিল",
+        "bookNow": "এখনই বুক করুন",
+        "payAtHotel": "হোটেলে পেমেন্ট"
     },
     "hotel": {
         "rating": "রেটিং",

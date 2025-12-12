@@ -2,6 +2,7 @@
 
 import { useState, useEffect, lazy, Suspense } from "react";
 import { useParams, useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { BottomNav, RoomCard, RoomDetailModal } from "../../components";
 import { getHotelById, getAvailableRooms, RoomWithDetails } from "../../actions/hotels";
 
@@ -31,6 +32,9 @@ export default function HotelDetailPage() {
     const params = useParams();
     const router = useRouter();
     const hotelId = params.id as string;
+    const t = useTranslations("hotelDetail");
+    const tCommon = useTranslations("common");
+    const tSearch = useTranslations("search");
 
     const [hotel, setHotel] = useState<HotelDetail | null>(null);
     const [rooms, setRooms] = useState<Room[]>([]);
@@ -55,7 +59,6 @@ export default function HotelDetailPage() {
                     ...data,
                     images: data.images || [data.coverImage || "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800"],
                 });
-                // Don't set rooms here - let the availability effect handle it
             }
             setLoading(false);
         }
@@ -70,7 +73,6 @@ export default function HotelDetailPage() {
             const availableRooms = await getAvailableRooms(hotelId, checkIn, checkOut);
             setRooms(availableRooms);
 
-            // Auto-select first available room
             const firstAvailable = availableRooms.find((r) => r.isAvailable !== false);
             if (firstAvailable) {
                 setSelectedRoom(firstAvailable);
@@ -83,7 +85,6 @@ export default function HotelDetailPage() {
 
     const handleBookNow = () => {
         if (!hotel || !selectedRoom || !checkIn || !checkOut) return;
-        // Include room photo in URL params for booking page preview
         const roomPhoto = selectedRoom.photos && selectedRoom.photos.length > 0 ? selectedRoom.photos[0] : "";
         const roomPhotoParam = roomPhoto ? `&roomPhoto=${encodeURIComponent(roomPhoto)}` : "";
         router.push(
@@ -103,10 +104,10 @@ export default function HotelDetailPage() {
     if (!hotel) {
         return (
             <div style={{ padding: "2rem", textAlign: "center" }}>
-                <h2>Hotel not found</h2>
-                <p style={{ color: "var(--color-text-secondary)" }}>This hotel may have been removed or is unavailable.</p>
+                <h2>{t("hotelNotFound")}</h2>
+                <p style={{ color: "var(--color-text-secondary)" }}>{t("hotelNotFoundDesc")}</p>
                 <button className="btn btn-primary" onClick={() => router.push("/hotels")} style={{ marginTop: "1rem" }}>
-                    Browse Hotels
+                    {t("browseHotels")}
                 </button>
             </div>
         );
@@ -189,7 +190,7 @@ export default function HotelDetailPage() {
                             right: "1rem",
                         }}
                     >
-                        Pay at Hotel
+                        {t("payAtHotel")}
                     </span>
                 )}
             </div>
@@ -229,7 +230,7 @@ export default function HotelDetailPage() {
                         </svg>
                         <span className="rating-value">{parseFloat(hotel.rating || "0").toFixed(1)}</span>
                         <span style={{ color: "var(--color-text-muted)" }}>
-                            ({hotel.reviewCount} reviews)
+                            ({hotel.reviewCount} {tCommon("reviews")})
                         </span>
                     </div>
                 </div>
@@ -238,7 +239,7 @@ export default function HotelDetailPage() {
                 {hotel.description && (
                     <div className="card" style={{ padding: "1rem", marginBottom: "1rem" }}>
                         <h2 style={{ fontSize: "1rem", fontWeight: 600, marginBottom: "0.5rem" }}>
-                            About
+                            {t("about")}
                         </h2>
                         <p style={{ fontSize: "0.875rem", color: "var(--color-text-secondary)", lineHeight: 1.6 }}>
                             {hotel.description}
@@ -250,7 +251,7 @@ export default function HotelDetailPage() {
                 {hotel.amenities && hotel.amenities.length > 0 && (
                     <div className="card" style={{ padding: "1rem", marginBottom: "1rem" }}>
                         <h2 style={{ fontSize: "1rem", fontWeight: 600, marginBottom: "0.75rem" }}>
-                            Amenities
+                            {t("amenities")}
                         </h2>
                         <div className="amenity-tags">
                             {hotel.amenities.map((amenity) => (
@@ -266,7 +267,7 @@ export default function HotelDetailPage() {
                 {hotel.latitude && hotel.longitude && (
                     <div className="card" style={{ padding: "1rem", marginBottom: "1rem" }}>
                         <h2 style={{ fontSize: "1rem", fontWeight: 600, marginBottom: "0.75rem" }}>
-                            Location
+                            {t("location")}
                         </h2>
                         <div style={{ borderRadius: "0.5rem", overflow: "hidden", height: 200 }}>
                             <Suspense
@@ -280,7 +281,7 @@ export default function HotelDetailPage() {
                                             background: "var(--color-bg-secondary)",
                                         }}
                                     >
-                                        Loading map...
+                                        {tCommon("loadingMap")}
                                     </div>
                                 }
                             >
@@ -307,11 +308,11 @@ export default function HotelDetailPage() {
                 {/* Date Selection */}
                 <div className="card" style={{ padding: "1rem", marginBottom: "1rem" }}>
                     <h2 style={{ fontSize: "1rem", fontWeight: 600, marginBottom: "0.75rem" }}>
-                        Select Dates
+                        {t("selectDates")}
                     </h2>
                     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
                         <div className="form-group" style={{ marginBottom: 0 }}>
-                            <label className="form-label" style={{ fontSize: "0.875rem" }}>Check-in</label>
+                            <label className="form-label" style={{ fontSize: "0.875rem" }}>{tSearch("checkIn")}</label>
                             <input
                                 type="date"
                                 className="form-input"
@@ -328,7 +329,7 @@ export default function HotelDetailPage() {
                             />
                         </div>
                         <div className="form-group" style={{ marginBottom: 0 }}>
-                            <label className="form-label" style={{ fontSize: "0.875rem" }}>Check-out</label>
+                            <label className="form-label" style={{ fontSize: "0.875rem" }}>{tSearch("checkOut")}</label>
                             <input
                                 type="date"
                                 className="form-input"
@@ -343,7 +344,7 @@ export default function HotelDetailPage() {
                 {/* Room Selection with Photos */}
                 <div style={{ marginBottom: "1rem" }}>
                     <h2 style={{ fontSize: "1.125rem", fontWeight: 600, marginBottom: "1rem" }}>
-                        Available Rooms
+                        {t("availableRooms")}
                     </h2>
                     {rooms.length > 0 ? (
                         <div className="room-cards-grid">
@@ -359,7 +360,7 @@ export default function HotelDetailPage() {
                         </div>
                     ) : (
                         <div className="card" style={{ padding: "2rem", textAlign: "center" }}>
-                            <p style={{ color: "var(--color-text-secondary)" }}>No rooms available at the moment.</p>
+                            <p style={{ color: "var(--color-text-secondary)" }}>{t("noRoomsAvailable")}</p>
                         </div>
                     )}
                 </div>
@@ -377,17 +378,17 @@ export default function HotelDetailPage() {
                 {/* Policies */}
                 <div className="card" style={{ padding: "1rem" }}>
                     <h2 style={{ fontSize: "1rem", fontWeight: 600, marginBottom: "0.75rem" }}>
-                        Hotel Policies
+                        {t("hotelPolicies")}
                     </h2>
                     <div style={{ fontSize: "0.875rem", color: "var(--color-text-secondary)" }}>
                         <div style={{ marginBottom: "0.5rem" }}>
-                            <strong>Check-in:</strong> 2:00 PM
+                            {t("checkInTime")}
                         </div>
                         <div style={{ marginBottom: "0.5rem" }}>
-                            <strong>Check-out:</strong> 12:00 PM
+                            {t("checkOutTime")}
                         </div>
                         <div>
-                            <strong>Cancellation:</strong> Free cancellation up to 24 hours before check-in
+                            {t("cancellationPolicy")}
                         </div>
                     </div>
                 </div>
@@ -414,14 +415,14 @@ export default function HotelDetailPage() {
                     <div>
                         <div className="hotel-price">
                             ৳{Number(selectedRoom.basePrice).toLocaleString()}
-                            <span className="hotel-price-label">/night</span>
+                            <span className="hotel-price-label">{tCommon("perNight")}</span>
                         </div>
                         <div style={{ fontSize: "0.75rem", color: "var(--color-text-secondary)" }}>
                             {selectedRoom.name}
                         </div>
                     </div>
                     <button className="btn btn-primary btn-lg" onClick={handleBookNow}>
-                        Book Now
+                        {t("bookNow")}
                     </button>
                 </div>
             )}

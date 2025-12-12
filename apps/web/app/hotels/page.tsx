@@ -2,6 +2,7 @@
 
 import { Suspense, useState, useEffect, useCallback, useMemo, lazy } from "react";
 import { useSearchParams } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { BottomNav, HotelCard } from "../components";
 import { searchHotels, type HotelWithPrice } from "../actions/hotels";
 
@@ -13,6 +14,9 @@ const HotelMapLazy = lazy(() =>
 function HotelsContent() {
     const searchParams = useSearchParams();
     const city = searchParams.get("city") || "";
+    const t = useTranslations("hotels");
+    const tCommon = useTranslations("common");
+
     const [view, setView] = useState<"list" | "map">("list");
     const [sortBy, setSortBy] = useState<"price" | "rating" | "distance">("rating");
     const [filterPayAtHotel, setFilterPayAtHotel] = useState(false);
@@ -28,7 +32,7 @@ function HotelsContent() {
     // Get user location
     const handleGetLocation = useCallback(() => {
         if (!navigator.geolocation) {
-            setLocationError("Geolocation not supported");
+            setLocationError(t("locationFailed"));
             return;
         }
 
@@ -45,12 +49,12 @@ function HotelsContent() {
                 setLocationLoading(false);
             },
             (error) => {
-                setLocationError(error.code === 1 ? "Location access denied" : "Failed to get location");
+                setLocationError(error.code === 1 ? t("locationDenied") : t("locationFailed"));
                 setLocationLoading(false);
             },
             { enableHighAccuracy: true, timeout: 10000 }
         );
-    }, []);
+    }, [t]);
 
     // Clear location filter
     const handleClearLocation = useCallback(() => {
@@ -68,7 +72,7 @@ function HotelsContent() {
                 payAtHotel: filterPayAtHotel || undefined,
                 latitude: userLocation?.lat,
                 longitude: userLocation?.lng,
-                radiusKm: 15, // 15km radius
+                radiusKm: 15,
             });
             setHotels(results);
             setLoading(false);
@@ -121,10 +125,10 @@ function HotelsContent() {
                 >
                     <div>
                         <h1 style={{ fontSize: "1.25rem", fontWeight: 700 }}>
-                            {city ? `Hotels in ${city}` : "All Hotels"}
+                            {city ? `${city} এ হোটেল` : t("allHotels")}
                         </h1>
                         <p style={{ fontSize: "0.875rem", color: "var(--color-text-secondary)" }}>
-                            {loading ? "Searching..." : `${hotels.length} properties found`}
+                            {loading ? tCommon("searching") : `${hotels.length} টি হোটেল পাওয়া গেছে`}
                         </p>
                     </div>
 
@@ -134,13 +138,13 @@ function HotelsContent() {
                             className={`view-toggle-btn ${view === "list" ? "active" : ""}`}
                             onClick={() => setView("list")}
                         >
-                            List
+                            {t("listView")}
                         </button>
                         <button
                             className={`view-toggle-btn ${view === "map" ? "active" : ""}`}
                             onClick={() => setView("map")}
                         >
-                            Map
+                            {t("mapView")}
                         </button>
                     </div>
                 </div>
@@ -153,9 +157,9 @@ function HotelsContent() {
                         className="form-input"
                         style={{ padding: "0.5rem", width: "auto", fontSize: "0.875rem" }}
                     >
-                        <option value="rating">Top Rated</option>
-                        <option value="price">Lowest Price</option>
-                        {userLocation && <option value="distance">Nearest</option>}
+                        <option value="rating">{t("topRated")}</option>
+                        <option value="price">{t("lowestPrice")}</option>
+                        {userLocation && <option value="distance">{t("nearest")}</option>}
                     </select>
 
                     {/* Nearby / Location Button */}
@@ -165,7 +169,7 @@ function HotelsContent() {
                             style={{ padding: "0.5rem 1rem", fontSize: "0.875rem", minHeight: "auto" }}
                             onClick={handleClearLocation}
                         >
-                            📍 Nearby ✕
+                            📍 {t("nearby")} ✕
                         </button>
                     ) : (
                         <button
@@ -174,7 +178,7 @@ function HotelsContent() {
                             onClick={handleGetLocation}
                             disabled={locationLoading}
                         >
-                            {locationLoading ? "📍 Getting..." : "📍 Nearby"}
+                            {locationLoading ? `📍 ${t("gettingLocation")}` : `📍 ${t("nearby")}`}
                         </button>
                     )}
                     {locationError && (
@@ -188,7 +192,7 @@ function HotelsContent() {
                         style={{ padding: "0.5rem 1rem", fontSize: "0.875rem", minHeight: "auto" }}
                         onClick={() => setFilterPayAtHotel(!filterPayAtHotel)}
                     >
-                        Pay at Hotel
+                        {t("payAtHotel")}
                     </button>
                 </div>
             </header>
@@ -200,7 +204,7 @@ function HotelsContent() {
                     </div>
                 ) : hotels.length === 0 ? (
                     <div style={{ textAlign: "center", padding: "3rem", color: "var(--color-text-secondary)" }}>
-                        No hotels found. Try adjusting your filters.
+                        {t("noHotelsFound")}
                     </div>
                 ) : view === "list" ? (
                     <div className="hotel-grid">
@@ -248,7 +252,7 @@ function HotelsContent() {
                                             background: "var(--color-bg-secondary)",
                                         }}
                                     >
-                                        Loading map...
+                                        {tCommon("loadingMap")}
                                     </div>
                                 }
                             >
@@ -291,8 +295,10 @@ function HotelsContent() {
 }
 
 export default function HotelsPage() {
+    const tCommon = useTranslations("common");
+
     return (
-        <Suspense fallback={<div style={{ padding: "2rem", textAlign: "center" }}>Loading hotels...</div>}>
+        <Suspense fallback={<div style={{ padding: "2rem", textAlign: "center" }}>{tCommon("loadingHotels")}</div>}>
             <HotelsContent />
         </Suspense>
     );

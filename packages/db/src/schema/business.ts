@@ -555,6 +555,23 @@ export const reviewsRelations = relations(reviews, ({ one }) => ({
     }),
 }));
 
+// ====================
+// SEASONAL/HOLIDAY PRICING RULES
+// ====================
+
+export const seasonalRules = pgTable("seasonalRules", {
+    id: text("id")
+        .primaryKey()
+        .$defaultFn(() => crypto.randomUUID()),
+    name: text("name").notNull(),           // "Eid-ul-Fitr 2024", "Pohela Boishakh"
+    startDate: date("startDate", { mode: "string" }).notNull(),
+    endDate: date("endDate", { mode: "string" }).notNull(),
+    multiplier: decimal("multiplier", { precision: 4, scale: 2 }).notNull(), // 1.25 = +25%
+    isActive: boolean("isActive").default(true).notNull(),
+    createdAt: timestamp("createdAt", { mode: "date" }).defaultNow().notNull(),
+    updatedAt: timestamp("updatedAt", { mode: "date" }).defaultNow().notNull(),
+});
+
 // Type exports
 export type Hotel = typeof hotels.$inferSelect;
 export type NewHotel = typeof hotels.$inferInsert;
@@ -580,3 +597,6 @@ export type PayoutRequest = typeof payoutRequests.$inferSelect;
 export type NewPayoutRequest = typeof payoutRequests.$inferInsert;
 export type Review = typeof reviews.$inferSelect;
 export type NewReview = typeof reviews.$inferInsert;
+export type SeasonalRule = typeof seasonalRules.$inferSelect;
+export type NewSeasonalRule = typeof seasonalRules.$inferInsert;
+
