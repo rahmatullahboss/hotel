@@ -343,6 +343,71 @@ export default function BookingsPage() {
                 .past-booking-card .booking-image {
                     filter: grayscale(100%);
                 }
+                
+                /* Desktop enhancements */
+                @media (min-width: 1024px) {
+                    .bookings-header {
+                        padding: 2rem;
+                        text-align: center;
+                    }
+                    .bookings-header h1 {
+                        font-size: 2rem;
+                    }
+                    .booking-card {
+                        display: grid;
+                        grid-template-columns: 300px 1fr;
+                        margin-bottom: 0;
+                        border: 1px solid var(--color-border);
+                        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                    }
+                    .booking-card:hover {
+                        transform: translateY(-4px);
+                        box-shadow: 0 16px 48px rgba(0, 0, 0, 0.12);
+                        border-color: var(--color-primary);
+                    }
+                    .booking-card:active {
+                        transform: translateY(-2px);
+                    }
+                    .booking-image {
+                        height: 100%;
+                        min-height: 220px;
+                    }
+                    .booking-image img {
+                        transition: transform 0.4s ease;
+                    }
+                    .booking-card:hover .booking-image img {
+                        transform: scale(1.05);
+                    }
+                    .booking-content {
+                        padding: 1.5rem;
+                        display: flex;
+                        flex-direction: column;
+                    }
+                    .booking-hotel-name {
+                        font-size: 1.25rem;
+                    }
+                    .booking-footer {
+                        margin-top: auto;
+                    }
+                    .booking-price {
+                        font-size: 1.5rem;
+                    }
+                    .booking-actions {
+                        border-radius: 0 0 1rem 0;
+                    }
+                    .empty-state {
+                        padding: 4rem 2rem;
+                        background: white;
+                        border-radius: 1.5rem;
+                        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+                    }
+                    .empty-state-icon {
+                        font-size: 5rem;
+                    }
+                    .empty-state h2 {
+                        font-size: 1.5rem;
+                    }
+                }
             `}</style>
 
             <header className="bookings-header">

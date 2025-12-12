@@ -147,28 +147,29 @@ export default async function ProfilePage() {
                 </Link>
 
                 {/* Quick Stats */}
-                <div
-                    style={{
-                        display: "grid",
-                        gridTemplateColumns: "repeat(2, 1fr)",
-                        gap: "1rem",
-                        marginBottom: "1.5rem",
-                    }}
-                >
-                    <div className="card" style={{ padding: "1rem", textAlign: "center" }}>
-                        <div style={{ fontSize: "2rem", fontWeight: 700, color: "var(--color-primary)" }}>
+                <div className="profile-stats-grid" style={{ marginBottom: "1.5rem" }}>
+                    <div className="card profile-stat-card">
+                        <div className="profile-stat-number">
                             {upcomingBookings.length}
                         </div>
-                        <div style={{ fontSize: "0.875rem", color: "var(--color-text-secondary)" }}>
+                        <div className="profile-stat-label">
                             {t("upcomingTrips")}
                         </div>
                     </div>
-                    <div className="card" style={{ padding: "1rem", textAlign: "center" }}>
-                        <div style={{ fontSize: "2rem", fontWeight: 700, color: "var(--color-secondary)" }}>
+                    <div className="card profile-stat-card">
+                        <div className="profile-stat-number">
                             {pastBookings.length}
                         </div>
-                        <div style={{ fontSize: "0.875rem", color: "var(--color-text-secondary)" }}>
+                        <div className="profile-stat-label">
                             {t("pastBookings")}
+                        </div>
+                    </div>
+                    <div className="card profile-stat-card">
+                        <div className="profile-stat-number">
+                            {(loyalty?.points || 0).toLocaleString()}
+                        </div>
+                        <div className="profile-stat-label">
+                            {tWallet("loyaltyPoints")}
                         </div>
                     </div>
                 </div>
