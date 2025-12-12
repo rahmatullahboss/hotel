@@ -37,7 +37,9 @@
         "signOut": "Sign Out",
         "logIn": "Log In",
         "myBookings": "My Bookings",
-        "searchHotels": "Search Hotels"
+        "searchHotels": "Search Hotels",
+        "checkIn": "Check In",
+        "checkOut": "Check Out"
     },
     "home": {
         "heroTitle": "Find Your Perfect Stay",

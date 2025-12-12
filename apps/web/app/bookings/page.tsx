@@ -1,4 +1,3 @@
-```javascript
 "use client";
 
 import { useState, useEffect } from "react";
@@ -140,211 +139,211 @@ export default function BookingsPage() {
     return (
         <>
             <style jsx>{`
-    .bookings - header {
-    padding: 1rem;
-    background: linear - gradient(135deg, var(--color - primary), #c1121f);
-    color: white;
-}
-                .bookings - header h1 {
-    font - size: 1.5rem;
-    font - weight: 700;
-    margin: 0;
-}
-                .bookings - tabs {
-    display: flex;
-    background: white;
-    border - bottom: 1px solid var(--color - border);
-    position: sticky;
-    top: 0;
-    z - index: 10;
-}
-                .tab - btn {
-    flex: 1;
-    padding: 1rem;
-    border: none;
-    background: transparent;
-    font - size: 0.9375rem;
-    font - weight: 500;
-    color: var(--color - text - secondary);
-    cursor: pointer;
-    position: relative;
-    transition: all 0.2s;
-}
-                .tab - btn.active {
-    color: var(--color - primary);
-}
-                .tab - btn.active::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 3px;
-    background: var(--color - primary);
-    border - radius: 3px 3px 0 0;
-}
-                .tab - count {
-    display: inline - flex;
-    align - items: center;
-    justify - content: center;
-    min - width: 20px;
-    height: 20px;
-    margin - left: 0.5rem;
-    padding: 0 6px;
-    font - size: 0.75rem;
-    font - weight: 600;
-    background: var(--color - bg - tertiary);
-    border - radius: 10px;
-}
-                .tab - btn.active.tab - count {
-    background: var(--color - primary);
-    color: white;
-}
-                .booking - card {
-    background: white;
-    border - radius: 1rem;
-    overflow: hidden;
-    box - shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-    margin - bottom: 1rem;
-    transition: transform 0.2s, box - shadow 0.2s;
-}
-                .booking - card:active {
-    transform: scale(0.98);
-}
-                .booking - image {
-    position: relative;
-    height: 140px;
-    overflow: hidden;
-}
-                .booking - image img {
-    width: 100 %;
-    height: 100 %;
-    object - fit: cover;
-}
-                .booking - status - overlay {
-    position: absolute;
-    top: 0.75rem;
-    left: 0.75rem;
-    display: flex;
-    gap: 0.5rem;
-}
-                .days - badge {
-    position: absolute;
-    top: 0.75rem;
-    right: 0.75rem;
-    background: rgba(0, 0, 0, 0.7);
-    color: white;
-    padding: 0.25rem 0.75rem;
-    border - radius: 1rem;
-    font - size: 0.75rem;
-    font - weight: 600;
-}
-                .booking - content {
-    padding: 1rem;
-}
-                .booking - hotel - name {
-    font - size: 1.125rem;
-    font - weight: 700;
-    margin - bottom: 0.25rem;
-    color: var(--color - text - primary);
-}
-                .booking - room {
-    font - size: 0.875rem;
-    color: var(--color - text - secondary);
-    margin - bottom: 0.75rem;
-}
-                .booking - dates {
-    display: flex;
-    align - items: center;
-    gap: 0.5rem;
-    padding: 0.75rem;
-    background: var(--color - bg - secondary);
-    border - radius: 0.5rem;
-    margin - bottom: 0.75rem;
-}
-                .date - block {
-    flex: 1;
-    text - align: center;
-}
-                .date - label {
-    font - size: 0.625rem;
-    text - transform: uppercase;
-    color: var(--color - text - secondary);
-    letter - spacing: 0.5px;
-}
-                .date - value {
-    font - size: 0.875rem;
-    font - weight: 600;
-    color: var(--color - text - primary);
-}
-                .date - arrow {
-    color: var(--color - text - secondary);
-}
-                .booking - footer {
-    display: flex;
-    justify - content: space - between;
-    align - items: center;
-    padding - top: 0.75rem;
-    border - top: 1px solid var(--color - border);
-}
-                .booking - id {
-    font - size: 0.75rem;
-    color: var(--color - text - secondary);
-}
-                .booking - id span {
-    font - weight: 600;
-    color: var(--color - text - primary);
-    font - family: monospace;
-}
-                .booking - price {
-    font - size: 1.25rem;
-    font - weight: 700;
-    color: var(--color - primary);
-}
-                .booking - actions {
-    display: flex;
-    gap: 0.5rem;
-    padding: 0.75rem 1rem;
-    background: var(--color - bg - secondary);
-    border - top: 1px solid var(--color - border);
-}
-                .booking - actions button {
-    flex: 1;
-}
-                .payment - info {
-    display: flex;
-    align - items: center;
-    gap: 0.5rem;
-    font - size: 0.8125rem;
-    padding: 0.5rem 0.75rem;
-    border - radius: 0.5rem;
-    margin - bottom: 0.75rem;
-}
-                .empty - state {
-    text - align: center;
-    padding: 3rem 1.5rem;
-}
-                .empty - state - icon {
-    font - size: 4rem;
-    margin - bottom: 1rem;
-}
-                .empty - state h2 {
-    font - size: 1.25rem;
-    font - weight: 600;
-    margin - bottom: 0.5rem;
-    color: var(--color - text - primary);
-}
-                .empty - state p {
-    color: var(--color - text - secondary);
-    margin - bottom: 1.5rem;
-}
-                .past - booking - card {
-    opacity: 0.7;
-}
-                .past - booking - card.booking - image {
-    filter: grayscale(100 %);
-}
-`}</style>
+                .bookings-header {
+                    padding: 1rem;
+                    background: linear-gradient(135deg, var(--color-primary), #c1121f);
+                    color: white;
+                }
+                .bookings-header h1 {
+                    font-size: 1.5rem;
+                    font-weight: 700;
+                    margin: 0;
+                }
+                .bookings-tabs {
+                    display: flex;
+                    background: white;
+                    border-bottom: 1px solid var(--color-border);
+                    position: sticky;
+                    top: 0;
+                    z-index: 10;
+                }
+                .tab-btn {
+                    flex: 1;
+                    padding: 1rem;
+                    border: none;
+                    background: transparent;
+                    font-size: 0.9375rem;
+                    font-weight: 500;
+                    color: var(--color-text-secondary);
+                    cursor: pointer;
+                    position: relative;
+                    transition: all 0.2s;
+                }
+                .tab-btn.active {
+                    color: var(--color-primary);
+                }
+                .tab-btn.active::after {
+                    content: '';
+                    position: absolute;
+                    bottom: 0;
+                    left: 0;
+                    right: 0;
+                    height: 3px;
+                    background: var(--color-primary);
+                    border-radius: 3px 3px 0 0;
+                }
+                .tab-count {
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                    min-width: 20px;
+                    height: 20px;
+                    margin-left: 0.5rem;
+                    padding: 0 6px;
+                    font-size: 0.75rem;
+                    font-weight: 600;
+                    background: var(--color-bg-tertiary);
+                    border-radius: 10px;
+                }
+                .tab-btn.active .tab-count {
+                    background: var(--color-primary);
+                    color: white;
+                }
+                .booking-card {
+                    background: white;
+                    border-radius: 1rem;
+                    overflow: hidden;
+                    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+                    margin-bottom: 1rem;
+                    transition: transform 0.2s, box-shadow 0.2s;
+                }
+                .booking-card:active {
+                    transform: scale(0.98);
+                }
+                .booking-image {
+                    position: relative;
+                    height: 140px;
+                    overflow: hidden;
+                }
+                .booking-image img {
+                    width: 100%;
+                    height: 100%;
+                    object-fit: cover;
+                }
+                .booking-status-overlay {
+                    position: absolute;
+                    top: 0.75rem;
+                    left: 0.75rem;
+                    display: flex;
+                    gap: 0.5rem;
+                }
+                .days-badge {
+                    position: absolute;
+                    top: 0.75rem;
+                    right: 0.75rem;
+                    background: rgba(0, 0, 0, 0.7);
+                    color: white;
+                    padding: 0.25rem 0.75rem;
+                    border-radius: 1rem;
+                    font-size: 0.75rem;
+                    font-weight: 600;
+                }
+                .booking-content {
+                    padding: 1rem;
+                }
+                .booking-hotel-name {
+                    font-size: 1.125rem;
+                    font-weight: 700;
+                    margin-bottom: 0.25rem;
+                    color: var(--color-text-primary);
+                }
+                .booking-room {
+                    font-size: 0.875rem;
+                    color: var(--color-text-secondary);
+                    margin-bottom: 0.75rem;
+                }
+                .booking-dates {
+                    display: flex;
+                    align-items: center;
+                    gap: 0.5rem;
+                    padding: 0.75rem;
+                    background: var(--color-bg-secondary);
+                    border-radius: 0.5rem;
+                    margin-bottom: 0.75rem;
+                }
+                .date-block {
+                    flex: 1;
+                    text-align: center;
+                }
+                .date-label {
+                    font-size: 0.625rem;
+                    text-transform: uppercase;
+                    color: var(--color-text-secondary);
+                    letter-spacing: 0.5px;
+                }
+                .date-value {
+                    font-size: 0.875rem;
+                    font-weight: 600;
+                    color: var(--color-text-primary);
+                }
+                .date-arrow {
+                    color: var(--color-text-secondary);
+                }
+                .booking-footer {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    padding-top: 0.75rem;
+                    border-top: 1px solid var(--color-border);
+                }
+                .booking-id {
+                    font-size: 0.75rem;
+                    color: var(--color-text-secondary);
+                }
+                .booking-id span {
+                    font-weight: 600;
+                    color: var(--color-text-primary);
+                    font-family: monospace;
+                }
+                .booking-price {
+                    font-size: 1.25rem;
+                    font-weight: 700;
+                    color: var(--color-primary);
+                }
+                .booking-actions {
+                    display: flex;
+                    gap: 0.5rem;
+                    padding: 0.75rem 1rem;
+                    background: var(--color-bg-secondary);
+                    border-top: 1px solid var(--color-border);
+                }
+                .booking-actions button {
+                    flex: 1;
+                }
+                .payment-info {
+                    display: flex;
+                    align-items: center;
+                    gap: 0.5rem;
+                    font-size: 0.8125rem;
+                    padding: 0.5rem 0.75rem;
+                    border-radius: 0.5rem;
+                    margin-bottom: 0.75rem;
+                }
+                .empty-state {
+                    text-align: center;
+                    padding: 3rem 1.5rem;
+                }
+                .empty-state-icon {
+                    font-size: 4rem;
+                    margin-bottom: 1rem;
+                }
+                .empty-state h2 {
+                    font-size: 1.25rem;
+                    font-weight: 600;
+                    margin-bottom: 0.5rem;
+                    color: var(--color-text-primary);
+                }
+                .empty-state p {
+                    color: var(--color-text-secondary);
+                    margin-bottom: 1.5rem;
+                }
+                .past-booking-card {
+                    opacity: 0.7;
+                }
+                .past-booking-card .booking-image {
+                    filter: grayscale(100%);
+                }
+            `}</style>
 
             <header className="bookings-header">
                 <h1>{t("title")}</h1>
@@ -353,14 +352,14 @@ export default function BookingsPage() {
             {/* Tabs */}
             <div className="bookings-tabs">
                 <button
-                    className={`tab - btn ${ activeTab === "upcoming" ? "active" : "" } `}
+                    className={`tab-btn ${activeTab === "upcoming" ? "active" : ""}`}
                     onClick={() => setActiveTab("upcoming")}
                 >
                     {t("upcoming")}
                     <span className="tab-count">{upcomingBookings.length}</span>
                 </button>
                 <button
-                    className={`tab - btn ${ activeTab === "past" ? "active" : "" } `}
+                    className={`tab-btn ${activeTab === "past" ? "active" : ""}`}
                     onClick={() => setActiveTab("past")}
                 >
                     {t("past")}
@@ -397,7 +396,7 @@ export default function BookingsPage() {
                             return (
                                 <div
                                     key={booking.id}
-                                    className={`booking - card ${ isPast ? "past-booking-card" : "" } `}
+                                    className={`booking-card ${isPast ? "past-booking-card" : ""}`}
                                 >
                                     {/* Image Section */}
                                     <div className="booking-image">
@@ -406,7 +405,7 @@ export default function BookingsPage() {
                                             alt={booking.hotelName || "Hotel"}
                                         />
                                         <div className="booking-status-overlay">
-                                            <span className={`badge ${ statusConfig[booking.status].className } `}>
+                                            <span className={`badge ${statusConfig[booking.status].className}`}>
                                                 {statusConfig[booking.status].icon} {t(statusConfig[booking.status].labelKey)}
                                             </span>
                                         </div>
@@ -473,7 +472,7 @@ export default function BookingsPage() {
                                             <div
                                                 className="payment-info"
                                                 style={{
-                                                    background: `${ paymentStatusConfig[booking.paymentStatus].color } 15`,
+                                                    background: `${paymentStatusConfig[booking.paymentStatus].color}15`,
                                                     color: paymentStatusConfig[booking.paymentStatus].color,
                                                 }}
                                             >
@@ -519,7 +518,7 @@ export default function BookingsPage() {
                                                     className="btn btn-primary"
                                                     onClick={() => {
                                                         // Redirect to payment
-                                                        window.location.href = `/ booking / payment ? bookingId = ${ booking.id } `;
+                                                        window.location.href = `/booking/payment?bookingId=${booking.id}`;
                                                     }}
                                                 >
                                                     {t("completePayment")}
@@ -532,7 +531,7 @@ export default function BookingsPage() {
                                                         selectedBookingId === booking.id ? null : booking.id
                                                     )}
                                                 >
-                                                    {selectedBookingId === booking.id ? t("hideQR") : `📱 ${ t("showQR") } `}
+                                                    {selectedBookingId === booking.id ? t("hideQR") : `📱 ${t("showQR")}`}
                                                 </button>
                                             )}
                                             {booking.status !== "CHECKED_IN" && (
@@ -581,18 +580,20 @@ export default function BookingsPage() {
             <BottomNav />
 
             {/* Cancel Booking Modal */}
-            {cancellingBooking && session?.user?.id && (
-                <CancelBookingModal
-                    bookingId={cancellingBooking.id}
-                    userId={session.user.id}
-                    hotelName={cancellingBooking.hotelName || "Hotel"}
-                    onClose={() => setCancellingBooking(null)}
-                    onSuccess={() => {
-                        setCancellingBooking(null);
-                        fetchBookings();
-                    }}
-                />
-            )}
+            {
+                cancellingBooking && session?.user?.id && (
+                    <CancelBookingModal
+                        bookingId={cancellingBooking.id}
+                        userId={session.user.id}
+                        hotelName={cancellingBooking.hotelName || "Hotel"}
+                        onClose={() => setCancellingBooking(null)}
+                        onSuccess={() => {
+                            setCancellingBooking(null);
+                            fetchBookings();
+                        }}
+                    />
+                )
+            }
         </>
     );
 }

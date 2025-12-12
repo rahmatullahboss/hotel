@@ -37,7 +37,9 @@
         "signOut": "সাইন আউট",
         "logIn": "লগ ইন",
         "myBookings": "আমার বুকিং",
-        "searchHotels": "হোটেল খুঁজুন"
+        "searchHotels": "হোটেল খুঁজুন",
+        "checkIn": "চেক ইন",
+        "checkOut": "চেক আউট"
     },
     "home": {
         "heroTitle": "আপনার নিখুঁত থাকার জায়গা খুঁজুন",
