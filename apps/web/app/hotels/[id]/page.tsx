@@ -1,9 +1,14 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, lazy, Suspense } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { BottomNav, RoomCard, RoomDetailModal } from "../../components";
 import { getHotelById, getAvailableRooms, RoomWithDetails } from "../../actions/hotels";
+
+// Lazy load map to avoid SSR issues
+const HotelMap = lazy(() =>
+    import("../../components/Map/HotelMap").then((mod) => ({ default: mod.HotelMap }))
+);
 
 interface Room extends RoomWithDetails { }
 
@@ -18,6 +23,8 @@ interface HotelDetail {
     images: string[];
     amenities: string[];
     payAtHotelEnabled: boolean;
+    latitude: string | null;
+    longitude: string | null;
 }
 
 export default function HotelDetailPage() {
@@ -252,6 +259,48 @@ export default function HotelDetailPage() {
                                 </span>
                             ))}
                         </div>
+                    </div>
+                )}
+
+                {/* Location Map */}
+                {hotel.latitude && hotel.longitude && (
+                    <div className="card" style={{ padding: "1rem", marginBottom: "1rem" }}>
+                        <h2 style={{ fontSize: "1rem", fontWeight: 600, marginBottom: "0.75rem" }}>
+                            Location
+                        </h2>
+                        <div style={{ borderRadius: "0.5rem", overflow: "hidden", height: 200 }}>
+                            <Suspense
+                                fallback={
+                                    <div
+                                        style={{
+                                            height: "100%",
+                                            display: "flex",
+                                            alignItems: "center",
+                                            justifyContent: "center",
+                                            background: "var(--color-bg-secondary)",
+                                        }}
+                                    >
+                                        Loading map...
+                                    </div>
+                                }
+                            >
+                                <HotelMap
+                                    hotels={[{
+                                        id: hotel.id,
+                                        name: hotel.name,
+                                        lat: parseFloat(hotel.latitude),
+                                        lng: parseFloat(hotel.longitude),
+                                        price: rooms[0] ? Number(rooms[0].basePrice) : 0,
+                                        rating: hotel.rating ? parseFloat(hotel.rating) : undefined,
+                                    }]}
+                                    center={[parseFloat(hotel.latitude), parseFloat(hotel.longitude)]}
+                                    zoom={15}
+                                />
+                            </Suspense>
+                        </div>
+                        <p style={{ fontSize: "0.75rem", color: "var(--color-text-secondary)", marginTop: "0.5rem" }}>
+                            📍 {hotel.address}, {hotel.city}
+                        </p>
                     </div>
                 )}
 

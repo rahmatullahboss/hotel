@@ -3,6 +3,7 @@
 import { db } from "@repo/db";
 import { hotels, rooms } from "@repo/db/schema";
 import { eq, and, desc, sql } from "drizzle-orm";
+import { unstable_cache } from "next/cache";
 
 export interface HotelWithPrice {
     id: string;
@@ -174,9 +175,9 @@ export async function getHotelById(hotelId: string) {
 }
 
 /**
- * Get featured hotels for home page
+ * Get featured hotels for home page (cached for 60 seconds)
  */
-export async function getFeaturedHotels(limit = 4): Promise<HotelWithPrice[]> {
+const _getFeaturedHotels = async (limit: number): Promise<HotelWithPrice[]> => {
     try {
         const result = await db
             .select({
@@ -218,7 +219,13 @@ export async function getFeaturedHotels(limit = 4): Promise<HotelWithPrice[]> {
         console.error("Error fetching featured hotels:", error);
         return [];
     }
-}
+};
+
+export const getFeaturedHotels = unstable_cache(
+    _getFeaturedHotels,
+    ["featured-hotels"],
+    { tags: ["hotels"], revalidate: 60 }
+);
 
 /**
  * Room data with availability and full details for display
