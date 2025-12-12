@@ -15,6 +15,8 @@ export function SearchForm({ compact = false }: SearchFormProps) {
     const [checkIn, setCheckIn] = useState("");
     const [checkOut, setCheckOut] = useState("");
     const [guests, setGuests] = useState(2);
+    const [priceMin, setPriceMin] = useState("");
+    const [priceMax, setPriceMax] = useState("");
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -24,6 +26,8 @@ export function SearchForm({ compact = false }: SearchFormProps) {
             checkOut: checkOut || new Date(Date.now() + 86400000).toISOString().split("T")[0]!,
             guests: guests.toString(),
         });
+        if (priceMin) params.set("priceMin", priceMin);
+        if (priceMax) params.set("priceMax", priceMax);
         router.push(`/hotels?${params.toString()}`);
     };
 
@@ -116,22 +120,54 @@ export function SearchForm({ compact = false }: SearchFormProps) {
                 </div>
             </div>
 
-            <div className="form-group">
-                <label htmlFor="guests" className="form-label">
-                    {t("guests")}
-                </label>
-                <select
-                    id="guests"
-                    className="form-input"
-                    value={guests}
-                    onChange={(e) => setGuests(Number(e.target.value))}
-                >
-                    {[1, 2, 3, 4, 5, 6].map((n) => (
-                        <option key={n} value={n}>
-                            {n} {t("guest")}
-                        </option>
-                    ))}
-                </select>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "1rem" }}>
+                <div className="form-group">
+                    <label htmlFor="guests" className="form-label">
+                        {t("guests")}
+                    </label>
+                    <select
+                        id="guests"
+                        className="form-input"
+                        value={guests}
+                        onChange={(e) => setGuests(Number(e.target.value))}
+                    >
+                        {[1, 2, 3, 4, 5, 6].map((n) => (
+                            <option key={n} value={n}>
+                                {n} {t("guest")}
+                            </option>
+                        ))}
+                    </select>
+                </div>
+
+                <div className="form-group">
+                    <label htmlFor="priceMin" className="form-label">
+                        Min Price (৳)
+                    </label>
+                    <input
+                        id="priceMin"
+                        type="number"
+                        className="form-input"
+                        placeholder="500"
+                        min="0"
+                        value={priceMin}
+                        onChange={(e) => setPriceMin(e.target.value)}
+                    />
+                </div>
+
+                <div className="form-group">
+                    <label htmlFor="priceMax" className="form-label">
+                        Max Price (৳)
+                    </label>
+                    <input
+                        id="priceMax"
+                        type="number"
+                        className="form-input"
+                        placeholder="10000"
+                        min="0"
+                        value={priceMax}
+                        onChange={(e) => setPriceMax(e.target.value)}
+                    />
+                </div>
             </div>
 
             <button type="submit" className="btn btn-primary btn-block btn-lg">
