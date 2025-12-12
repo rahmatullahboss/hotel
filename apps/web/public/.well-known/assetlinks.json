@@ -5,9 +5,9 @@
         ],
         "target": {
             "namespace": "android_app",
-            "package_name": "com.vibe.app",
+            "package_name": "app.vercel.banglarooms.twa",
             "sha256_cert_fingerprints": [
-                "YOUR_SHA256_FINGERPRINT_HERE"
+                "E3:D5:68:C9:CA:14:B7:5F:C5:2A:1E:59:9F:02:79:C4:0E:F7:E5:D3:D9:0D:E4:95:B9:09:EF:04:5B:9A:F6:16"
             ]
         }
     }
