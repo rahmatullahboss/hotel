@@ -460,6 +460,101 @@ export const hotelMetricsRelations = relations(hotelMetrics, ({ one }) => ({
     }),
 }));
 
+// ====================
+// PAYOUT REQUESTS (Hotel Owner Settlements)
+// ====================
+
+export type PayoutStatus = "PENDING" | "APPROVED" | "REJECTED" | "PROCESSING" | "PAID";
+export type PayoutMethod = "BKASH" | "BANK" | "NAGAD";
+
+export const payoutRequests = pgTable("payoutRequests", {
+    id: text("id")
+        .primaryKey()
+        .$defaultFn(() => crypto.randomUUID()),
+    hotelId: text("hotelId")
+        .notNull()
+        .references(() => hotels.id, { onDelete: "cascade" }),
+    requestedBy: text("requestedBy")
+        .notNull()
+        .references(() => users.id),
+    amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
+    status: text("status", {
+        enum: ["PENDING", "APPROVED", "REJECTED", "PROCESSING", "PAID"],
+    })
+        .default("PENDING")
+        .notNull(),
+    paymentMethod: text("paymentMethod", { enum: ["BKASH", "BANK", "NAGAD"] }).notNull(),
+    accountNumber: text("accountNumber").notNull(),
+    accountName: text("accountName"),
+    transactionReference: text("transactionReference"), // Bank/bKash Trx ID after payment
+    rejectionReason: text("rejectionReason"),
+    processedBy: text("processedBy").references(() => users.id),
+    processedAt: timestamp("processedAt", { mode: "date" }),
+    createdAt: timestamp("createdAt", { mode: "date" }).defaultNow().notNull(),
+    updatedAt: timestamp("updatedAt", { mode: "date" }).defaultNow().notNull(),
+});
+
+export const payoutRequestsRelations = relations(payoutRequests, ({ one }) => ({
+    hotel: one(hotels, {
+        fields: [payoutRequests.hotelId],
+        references: [hotels.id],
+    }),
+    requester: one(users, {
+        fields: [payoutRequests.requestedBy],
+        references: [users.id],
+    }),
+}));
+
+// ====================
+// REVIEWS (Customer Reviews)
+// ====================
+
+export const reviews = pgTable("reviews", {
+    id: text("id")
+        .primaryKey()
+        .$defaultFn(() => crypto.randomUUID()),
+    bookingId: text("bookingId")
+        .notNull()
+        .unique()
+        .references(() => bookings.id, { onDelete: "cascade" }),
+    hotelId: text("hotelId")
+        .notNull()
+        .references(() => hotels.id, { onDelete: "cascade" }),
+    userId: text("userId")
+        .notNull()
+        .references(() => users.id, { onDelete: "cascade" }),
+    rating: integer("rating").notNull(), // 1-5 stars
+    title: text("title"),
+    content: text("content"),
+    photos: jsonb("photos").$type<string[]>().default([]),
+    // Breakdown ratings (1-5)
+    cleanlinessRating: integer("cleanlinessRating"),
+    serviceRating: integer("serviceRating"),
+    valueRating: integer("valueRating"),
+    locationRating: integer("locationRating"),
+    // Hotel response
+    hotelResponse: text("hotelResponse"),
+    hotelRespondedAt: timestamp("hotelRespondedAt", { mode: "date" }),
+    isVisible: boolean("isVisible").default(true).notNull(),
+    createdAt: timestamp("createdAt", { mode: "date" }).defaultNow().notNull(),
+    updatedAt: timestamp("updatedAt", { mode: "date" }).defaultNow().notNull(),
+});
+
+export const reviewsRelations = relations(reviews, ({ one }) => ({
+    booking: one(bookings, {
+        fields: [reviews.bookingId],
+        references: [bookings.id],
+    }),
+    hotel: one(hotels, {
+        fields: [reviews.hotelId],
+        references: [hotels.id],
+    }),
+    user: one(users, {
+        fields: [reviews.userId],
+        references: [users.id],
+    }),
+}));
+
 // Type exports
 export type Hotel = typeof hotels.$inferSelect;
 export type NewHotel = typeof hotels.$inferInsert;
@@ -481,3 +576,7 @@ export type LoyaltyPoints = typeof loyaltyPoints.$inferSelect;
 export type NewLoyaltyPoints = typeof loyaltyPoints.$inferInsert;
 export type HotelMetrics = typeof hotelMetrics.$inferSelect;
 export type NewHotelMetrics = typeof hotelMetrics.$inferInsert;
+export type PayoutRequest = typeof payoutRequests.$inferSelect;
+export type NewPayoutRequest = typeof payoutRequests.$inferInsert;
+export type Review = typeof reviews.$inferSelect;
+export type NewReview = typeof reviews.$inferInsert;

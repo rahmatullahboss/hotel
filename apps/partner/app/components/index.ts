@@ -8,3 +8,4 @@ export { HotelCheckInQR } from "./HotelCheckInQR";
 export { CollectPaymentButton } from "./CollectPaymentButton";
 export { CheckOutButton } from "./CheckOutButton";
 export { ExtendStayButton } from "./ExtendStayButton";
+export { PayoutSection } from "./PayoutSection";

@@ -1,7 +1,8 @@
 import { redirect } from "next/navigation";
 import { getPartnerHotel } from "../actions/dashboard";
 import { getEarningsData } from "../actions/earnings";
-import { BottomNav, ScannerFAB } from "../components";
+import { getAvailableBalance, getPayoutHistory } from "../actions/payout";
+import { BottomNav, ScannerFAB, PayoutSection } from "../components";
 
 export const dynamic = 'force-dynamic';
 
@@ -12,7 +13,11 @@ export default async function EarningsPage() {
         redirect("/auth/signin");
     }
 
-    const earnings = await getEarningsData(hotel.id, "month");
+    const [earnings, balance, payoutHistory] = await Promise.all([
+        getEarningsData(hotel.id, "month"),
+        getAvailableBalance(),
+        getPayoutHistory(),
+    ]);
 
     return (
         <>
@@ -56,6 +61,13 @@ export default async function EarningsPage() {
                         <div className="stat-label">Platform Commission</div>
                     </div>
                 </div>
+
+                {/* Payout Section */}
+                <PayoutSection
+                    availableBalance={balance.availableBalance}
+                    pendingPayouts={balance.pendingPayouts}
+                    payouts={payoutHistory.payouts}
+                />
 
                 {/* Commission Info */}
                 <div
