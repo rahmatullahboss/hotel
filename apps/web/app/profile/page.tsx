@@ -164,14 +164,6 @@ export default async function ProfilePage() {
                             {t("pastBookings")}
                         </div>
                     </div>
-                    <div className="card profile-stat-card">
-                        <div className="profile-stat-number">
-                            {(loyalty?.points || 0).toLocaleString()}
-                        </div>
-                        <div className="profile-stat-label">
-                            {tWallet("loyaltyPoints")}
-                        </div>
-                    </div>
                 </div>
 
                 {/* Upcoming Bookings */}

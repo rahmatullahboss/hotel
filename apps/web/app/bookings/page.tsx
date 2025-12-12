@@ -6,6 +6,12 @@ import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { getUserBookings } from "../actions/bookings";
 import { BottomNav, BookingQRCode, CancelBookingModal } from "../components";
+import {
+    FiClock, FiCheckCircle, FiXCircle, FiCheck,
+    FiCalendar, FiMapPin, FiCreditCard, FiDollarSign,
+    FiSearch, FiLock, FiArrowRight
+} from "react-icons/fi";
+import { FaHotel, FaQrcode } from "react-icons/fa";
 
 type BookingStatus = "PENDING" | "CONFIRMED" | "CHECKED_IN" | "CHECKED_OUT" | "CANCELLED";
 type PaymentStatus = "PENDING" | "PAID" | "PAY_AT_HOTEL" | "REFUNDED";
@@ -26,19 +32,19 @@ interface Booking {
     bookingFeeStatus?: string;
 }
 
-const statusConfig: Record<BookingStatus, { labelKey: string; className: string; icon: string }> = {
-    PENDING: { labelKey: "pendingPayment", className: "badge-warning", icon: "⏳" },
-    CONFIRMED: { labelKey: "confirmed", className: "badge-success", icon: "✅" },
-    CHECKED_IN: { labelKey: "checkedIn", className: "badge-success", icon: "🏨" },
-    CHECKED_OUT: { labelKey: "completed", className: "", icon: "✓" },
-    CANCELLED: { labelKey: "cancelled", className: "badge-error", icon: "❌" },
+const statusConfig: Record<BookingStatus, { labelKey: string; className: string; icon: React.ReactNode }> = {
+    PENDING: { labelKey: "pendingPayment", className: "badge-warning", icon: <FiClock size={14} /> },
+    CONFIRMED: { labelKey: "confirmed", className: "badge-success", icon: <FiCheckCircle size={14} /> },
+    CHECKED_IN: { labelKey: "checkedIn", className: "badge-success", icon: <FaHotel size={14} /> },
+    CHECKED_OUT: { labelKey: "completed", className: "", icon: <FiCheck size={14} /> },
+    CANCELLED: { labelKey: "cancelled", className: "badge-error", icon: <FiXCircle size={14} /> },
 };
 
-const paymentStatusConfig: Record<PaymentStatus, { labelKey: string; color: string }> = {
-    PENDING: { labelKey: "paymentPending", color: "var(--color-warning)" },
-    PAID: { labelKey: "fullyPaid", color: "var(--color-success)" },
-    PAY_AT_HOTEL: { labelKey: "payAtHotel", color: "var(--color-primary)" },
-    REFUNDED: { labelKey: "refunded", color: "var(--color-text-secondary)" },
+const paymentStatusConfig: Record<PaymentStatus, { labelKey: string; color: string; icon: React.ReactNode }> = {
+    PENDING: { labelKey: "paymentPending", color: "var(--color-warning)", icon: <FiClock size={14} /> },
+    PAID: { labelKey: "fullyPaid", color: "var(--color-success)", icon: <FiCheckCircle size={14} /> },
+    PAY_AT_HOTEL: { labelKey: "payAtHotel", color: "var(--color-primary)", icon: <FiDollarSign size={14} /> },
+    REFUNDED: { labelKey: "refunded", color: "var(--color-text-secondary)", icon: <FiCreditCard size={14} /> },
 };
 
 type TabType = "upcoming" | "past";
@@ -104,7 +110,7 @@ export default function BookingsPage() {
                 </header>
                 <main className="page-content">
                     <div className="empty-state">
-                        <div className="empty-state-icon">🔒</div>
+                        <div className="empty-state-icon"><FiLock size={48} color="var(--color-text-secondary)" /></div>
                         <h2>{tCommon("signInRequired")}</h2>
                         <p>{tCommon("signInToBook")}</p>
                         <Link href="/auth/signin" className="btn btn-primary">
@@ -535,7 +541,7 @@ export default function BookingsPage() {
                 {displayedBookings.length === 0 ? (
                     <div className="empty-state">
                         <div className="empty-state-icon">
-                            {activeTab === "upcoming" ? "🏨" : "📋"}
+                            {activeTab === "upcoming" ? <FaHotel size={48} color="var(--color-primary)" /> : <FiCalendar size={48} color="var(--color-text-secondary)" />}
                         </div>
                         <h2>
                             {activeTab === "upcoming" ? t("noUpcoming") : t("noPast")}
@@ -607,8 +613,8 @@ export default function BookingsPage() {
                                                     alignItems: "center",
                                                     marginBottom: "0.5rem",
                                                 }}>
-                                                    <span style={{ fontSize: "0.8125rem", color: "var(--color-text-secondary)" }}>
-                                                        ✅ {t("advancePaid")}
+                                                    <span style={{ fontSize: "0.8125rem", color: "var(--color-text-secondary)", display: "flex", alignItems: "center", gap: "0.375rem" }}>
+                                                        <FiCheckCircle size={14} color="var(--color-success)" /> {t("advancePaid")}
                                                     </span>
                                                     <span style={{ fontSize: "0.875rem", fontWeight: 600, color: "var(--color-success)" }}>
                                                         ৳{Number(booking.bookingFee || 0).toLocaleString()}
@@ -621,8 +627,8 @@ export default function BookingsPage() {
                                                     paddingTop: "0.5rem",
                                                     borderTop: "1px dashed var(--color-border)",
                                                 }}>
-                                                    <span style={{ fontSize: "0.875rem", fontWeight: 600, color: "var(--color-primary)" }}>
-                                                        💵 {t("payAtHotel")}
+                                                    <span style={{ fontSize: "0.875rem", fontWeight: 600, color: "var(--color-primary)", display: "flex", alignItems: "center", gap: "0.375rem" }}>
+                                                        <FiDollarSign size={14} /> {t("payAtHotel")}
                                                     </span>
                                                     <span style={{ fontSize: "1rem", fontWeight: 700, color: "var(--color-primary)" }}>
                                                         ৳{(Number(booking.totalAmount) - Number(booking.bookingFee || 0)).toLocaleString()}
@@ -641,8 +647,7 @@ export default function BookingsPage() {
                                                 }}
                                             >
                                                 <span>
-                                                    {booking.paymentStatus === "PAY_AT_HOTEL" ? "💵" :
-                                                        booking.paymentStatus === "PAID" ? "✅" : "⏳"}
+                                                    {paymentStatusConfig[booking.paymentStatus].icon}
                                                 </span>
                                                 <span style={{ fontWeight: 500 }}>
                                                     {t(paymentStatusConfig[booking.paymentStatus].labelKey)}
@@ -695,7 +700,7 @@ export default function BookingsPage() {
                                                         selectedBookingId === booking.id ? null : booking.id
                                                     )}
                                                 >
-                                                    {selectedBookingId === booking.id ? t("hideQR") : `📱 ${t("showQR")}`}
+                                                    {selectedBookingId === booking.id ? t("hideQR") : <><FaQrcode size={14} style={{ marginRight: "0.375rem" }} /> {t("showQR")}</>}
                                                 </button>
                                             )}
                                             {booking.status !== "CHECKED_IN" && (
