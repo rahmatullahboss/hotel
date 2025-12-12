@@ -17,7 +17,7 @@ export const PRICING_CONFIG = {
     // Day of week multipliers (BD weekend = Friday/Saturday)
     dayOfWeek: {
         5: 1.15,  // Friday: +15%
-        6: 1.20,  // Saturday: +20%
+        6: 1.15,  // Saturday: +15% (same as Friday)
         4: 1.05,  // Thursday (pre-weekend): +5%
     } as Record<number, number>,
 

@@ -65,6 +65,27 @@ export async function searchHotels(params: SearchParams): Promise<HotelWithPrice
     const { city, minPrice, maxPrice, payAtHotel, sortBy = "rating", latitude, longitude, radiusKm = 10 } = params;
 
     try {
+        // Try to import pricing module
+        let calculateDynamicPrice: ((input: {
+            basePrice: number;
+            checkIn: string;
+            checkOut: string;
+        }) => { finalPrice: number }) | null = null;
+
+        try {
+            const pricingModule = await import("@repo/api/pricing");
+            calculateDynamicPrice = pricingModule.calculateDynamicPrice;
+        } catch (e) {
+            console.log("Pricing module not available for search:", e);
+        }
+
+        // Get today and tomorrow for dynamic pricing calculation
+        const today = new Date();
+        const tomorrow = new Date(today);
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        const checkIn = today.toISOString().split('T')[0]!;
+        const checkOut = tomorrow.toISOString().split('T')[0]!;
+
         // Get all hotels with their lowest room price
         const result = await db
             .select({
@@ -103,6 +124,23 @@ export async function searchHotels(params: SearchParams): Promise<HotelWithPrice
                 distance = calculateDistance(latitude, longitude, hotelLat, hotelLng);
             }
 
+            // Apply dynamic pricing
+            const basePrice = h.lowestPrice ?? 0;
+            let displayPrice = basePrice;
+
+            if (calculateDynamicPrice && basePrice > 0) {
+                try {
+                    const priceResult = calculateDynamicPrice({
+                        basePrice,
+                        checkIn,
+                        checkOut,
+                    });
+                    displayPrice = priceResult.finalPrice;
+                } catch (e) {
+                    console.log("Error calculating dynamic price:", e);
+                }
+            }
+
             return {
                 id: h.id,
                 name: h.name,
@@ -115,7 +153,7 @@ export async function searchHotels(params: SearchParams): Promise<HotelWithPrice
                 imageUrl: h.imageUrl ?? "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800&h=600&fit=crop",
                 amenities: h.amenities ?? [],
                 payAtHotel: h.payAtHotel,
-                lowestPrice: h.lowestPrice ?? 0,
+                lowestPrice: displayPrice,
                 distance,
             };
         });
@@ -176,9 +214,31 @@ export async function getHotelById(hotelId: string) {
 
 /**
  * Get featured hotels for home page (cached for 60 seconds)
+ * Applies dynamic pricing for today's date
  */
 const _getFeaturedHotels = async (limit: number): Promise<HotelWithPrice[]> => {
     try {
+        // Try to import pricing module
+        let calculateDynamicPrice: ((input: {
+            basePrice: number;
+            checkIn: string;
+            checkOut: string;
+        }) => { finalPrice: number }) | null = null;
+
+        try {
+            const pricingModule = await import("@repo/api/pricing");
+            calculateDynamicPrice = pricingModule.calculateDynamicPrice;
+        } catch (e) {
+            console.log("Pricing module not available for featured hotels:", e);
+        }
+
+        // Get today and tomorrow for dynamic pricing calculation
+        const today = new Date();
+        const tomorrow = new Date(today);
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        const checkIn = today.toISOString().split('T')[0]!;
+        const checkOut = tomorrow.toISOString().split('T')[0]!;
+
         const result = await db
             .select({
                 id: hotels.id,
@@ -201,20 +261,39 @@ const _getFeaturedHotels = async (limit: number): Promise<HotelWithPrice[]> => {
             .orderBy(desc(hotels.rating))
             .limit(limit);
 
-        return result.map((h) => ({
-            id: h.id,
-            name: h.name,
-            location: h.location,
-            city: h.city,
-            latitude: h.latitude ? parseFloat(h.latitude) : null,
-            longitude: h.longitude ? parseFloat(h.longitude) : null,
-            rating: h.rating ? parseFloat(h.rating) : 0,
-            reviewCount: h.reviewCount,
-            imageUrl: h.imageUrl ?? "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800&h=600&fit=crop",
-            amenities: h.amenities ?? [],
-            payAtHotel: h.payAtHotel,
-            lowestPrice: h.lowestPrice ?? 0,
-        }));
+        return result.map((h) => {
+            const basePrice = h.lowestPrice ?? 0;
+            let displayPrice = basePrice;
+
+            // Apply dynamic pricing if available
+            if (calculateDynamicPrice && basePrice > 0) {
+                try {
+                    const priceResult = calculateDynamicPrice({
+                        basePrice,
+                        checkIn,
+                        checkOut,
+                    });
+                    displayPrice = priceResult.finalPrice;
+                } catch (e) {
+                    console.log("Error calculating dynamic price:", e);
+                }
+            }
+
+            return {
+                id: h.id,
+                name: h.name,
+                location: h.location,
+                city: h.city,
+                latitude: h.latitude ? parseFloat(h.latitude) : null,
+                longitude: h.longitude ? parseFloat(h.longitude) : null,
+                rating: h.rating ? parseFloat(h.rating) : 0,
+                reviewCount: h.reviewCount,
+                imageUrl: h.imageUrl ?? "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800&h=600&fit=crop",
+                amenities: h.amenities ?? [],
+                payAtHotel: h.payAtHotel,
+                lowestPrice: displayPrice,
+            };
+        });
     } catch (error) {
         console.error("Error fetching featured hotels:", error);
         return [];
