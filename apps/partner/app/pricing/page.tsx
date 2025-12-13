@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { MdLightbulb } from "react-icons/md";
 import { getPartnerRole } from "../actions/getPartnerRole";
 import { getPartnerHotel } from "../actions/dashboard";
 import { getRoomPricing } from "../actions/pricing";
@@ -49,7 +50,7 @@ export default async function PricingPage() {
                     }}
                 >
                     <div style={{ display: "flex", alignItems: "flex-start", gap: "0.75rem" }}>
-                        <div style={{ fontSize: "1.5rem" }}>💡</div>
+                        <div style={{ fontSize: "1.5rem" }}><MdLightbulb /></div>
                         <div>
                             <div style={{ fontWeight: 600, marginBottom: "0.25rem" }}>
                                 Smart Pricing Tips
@@ -84,3 +85,4 @@ export default async function PricingPage() {
         </>
     );
 }
+

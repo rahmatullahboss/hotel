@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import { MdSmartphone, MdDirectionsWalk } from "react-icons/md";
 import { getPartnerHotel } from "../actions/dashboard";
 import { getBookingHistory } from "../actions/bookings-history";
 import { BottomNav } from "../components";
@@ -162,7 +163,7 @@ export default async function BookingsPage({ searchParams }: PageProps) {
                                 </div>
                                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                                     <div style={{ fontSize: "0.75rem", color: "var(--color-text-muted)" }}>
-                                        {booking.bookingSource === "WALK_IN" ? "🚶 Walk-in" : "📱 Platform"}
+                                        {booking.bookingSource === "WALK_IN" ? <><MdDirectionsWalk style={{ display: "inline", verticalAlign: "middle" }} /> Walk-in</> : <><MdSmartphone style={{ display: "inline", verticalAlign: "middle" }} /> Platform</>}
                                     </div>
                                     <div style={{ textAlign: "right" }}>
                                         <div style={{ fontWeight: 700 }}>৳{booking.totalAmount.toLocaleString()}</div>

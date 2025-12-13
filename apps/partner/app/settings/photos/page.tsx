@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import { MdCameraAlt, MdImage, MdLightbulb } from "react-icons/md";
 import { getHotelProfile } from "../../actions/settings";
 import { BottomNav } from "../../components";
 
@@ -58,7 +59,7 @@ export default async function PhotosPage() {
                     >
                         {!hotel.coverImage && (
                             <div style={{ textAlign: "center", color: "var(--color-text-muted)" }}>
-                                <div style={{ fontSize: "2rem", marginBottom: "0.5rem" }}>📷</div>
+                                <div style={{ fontSize: "2rem", marginBottom: "0.5rem" }}><MdCameraAlt /></div>
                                 <div>No cover image</div>
                             </div>
                         )}
@@ -83,7 +84,7 @@ export default async function PhotosPage() {
                                 color: "var(--color-text-muted)",
                             }}
                         >
-                            <div style={{ fontSize: "2rem", marginBottom: "0.5rem" }}>🖼️</div>
+                            <div style={{ fontSize: "2rem", marginBottom: "0.5rem" }}><MdImage /></div>
                             <div>No photos yet</div>
                             <p style={{ fontSize: "0.875rem", marginTop: "0.5rem" }}>
                                 Add photos to showcase your hotel
@@ -122,7 +123,7 @@ export default async function PhotosPage() {
                     }}
                 >
                     <div style={{ display: "flex", alignItems: "flex-start", gap: "0.75rem" }}>
-                        <div style={{ fontSize: "1.25rem" }}>💡</div>
+                        <div style={{ fontSize: "1.25rem" }}><MdLightbulb /></div>
                         <div style={{ fontSize: "0.875rem", color: "var(--color-text-secondary)" }}>
                             <p style={{ marginBottom: "0.5rem" }}>
                                 <strong>Tip:</strong> High-quality photos attract more guests.

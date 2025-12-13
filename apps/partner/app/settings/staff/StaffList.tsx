@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { MdError, MdCheckCircle, MdBusinessCenter, MdRoomService, MdGroup } from "react-icons/md";
 import type { StaffMember } from "../../actions/staff";
 import {
     inviteStaffMember,
@@ -127,7 +128,7 @@ export function StaffList({ initialStaff, currentUserId }: StaffListProps) {
                         padding: "0.75rem 1rem",
                     }}
                 >
-                    <span style={{ color: "var(--color-error)" }}>❌ {error}</span>
+                    <span style={{ color: "var(--color-error)" }}><MdError style={{ display: "inline", verticalAlign: "middle" }} /> {error}</span>
                 </div>
             )}
             {success && (
@@ -140,7 +141,7 @@ export function StaffList({ initialStaff, currentUserId }: StaffListProps) {
                         padding: "0.75rem 1rem",
                     }}
                 >
-                    <span style={{ color: "var(--color-success)" }}>✅ {success}</span>
+                    <span style={{ color: "var(--color-success)" }}><MdCheckCircle style={{ display: "inline", verticalAlign: "middle" }} /> {success}</span>
                 </div>
             )}
 
@@ -218,7 +219,7 @@ export function StaffList({ initialStaff, currentUserId }: StaffListProps) {
                                     style={{ flex: 1 }}
                                     onClick={() => setInviteRole("MANAGER")}
                                 >
-                                    👔 Manager
+                                    <MdBusinessCenter style={{ display: "inline", verticalAlign: "middle" }} /> Manager
                                 </button>
                                 <button
                                     type="button"
@@ -226,7 +227,7 @@ export function StaffList({ initialStaff, currentUserId }: StaffListProps) {
                                     style={{ flex: 1 }}
                                     onClick={() => setInviteRole("RECEPTIONIST")}
                                 >
-                                    🛎️ Receptionist
+                                    <MdRoomService style={{ display: "inline", verticalAlign: "middle" }} /> Receptionist
                                 </button>
                             </div>
                         </div>
@@ -305,7 +306,7 @@ export function StaffList({ initialStaff, currentUserId }: StaffListProps) {
                         style={{ textAlign: "center", padding: "2rem" }}
                     >
                         <div style={{ fontSize: "2rem", marginBottom: "0.5rem" }}>
-                            👥
+                            <MdGroup size={32} />
                         </div>
                         <p style={{ color: "var(--color-text-secondary)" }}>
                             No staff members yet. Add your first team member above.

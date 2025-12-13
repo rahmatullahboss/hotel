@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { MdSync, MdFileDownload, MdWarning } from "react-icons/md";
 import { connectChannel, disconnectChannel, syncChannel, pullChannelBookings } from "../actions/channels";
 
 type ChannelType = "BOOKING_COM" | "EXPEDIA" | "AGODA" | "SHARETRIP" | "GOZAYAAN";
@@ -9,6 +10,7 @@ interface Channel {
     type: ChannelType;
     name: string;
     logo: string;
+    logoColor?: string;
     description: string;
     status: "available" | "coming_soon";
 }
@@ -138,7 +140,18 @@ export default function ChannelsClient({ channels, connections, rooms }: Channel
                                     marginBottom: "0.75rem",
                                 }}>
                                     <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
-                                        <span style={{ fontSize: "1.5rem" }}>{channel.logo}</span>
+                                        <span style={{
+                                            fontSize: "1.5rem",
+                                            width: "36px",
+                                            height: "36px",
+                                            display: "flex",
+                                            alignItems: "center",
+                                            justifyContent: "center",
+                                            borderRadius: "50%",
+                                            backgroundColor: channel.logoColor || "var(--color-primary)",
+                                            color: "white",
+                                            fontWeight: "bold"
+                                        }}>{channel.logo}</span>
                                         <div>
                                             <div style={{ fontWeight: 600 }}>{channel.name}</div>
                                             <div style={{
@@ -219,7 +232,7 @@ export default function ChannelsClient({ channels, connections, rooms }: Channel
                                                 color: "var(--color-error)",
                                                 fontSize: "0.75rem",
                                             }}>
-                                                ⚠️ {connection.syncError}
+                                                <MdWarning style={{ display: "inline", verticalAlign: "middle" }} /> {connection.syncError}
                                             </div>
                                         )}
                                     </div>
@@ -235,7 +248,7 @@ export default function ChannelsClient({ channels, connections, rooms }: Channel
                                                 disabled={loading === `sync-${connection.id}`}
                                                 style={{ fontSize: "0.75rem", padding: "0.5rem 1rem" }}
                                             >
-                                                {loading === `sync-${connection.id}` ? "Syncing..." : "🔄 Sync Now"}
+                                                {loading === `sync-${connection.id}` ? "Syncing..." : <><MdSync style={{ display: "inline", verticalAlign: "middle" }} /> Sync Now</>}
                                             </button>
                                             <button
                                                 className="btn btn-outline"
@@ -243,7 +256,7 @@ export default function ChannelsClient({ channels, connections, rooms }: Channel
                                                 disabled={loading === `pull-${connection.id}`}
                                                 style={{ fontSize: "0.75rem", padding: "0.5rem 1rem" }}
                                             >
-                                                {loading === `pull-${connection.id}` ? "Pulling..." : "📥 Pull Bookings"}
+                                                {loading === `pull-${connection.id}` ? "Pulling..." : <><MdFileDownload style={{ display: "inline", verticalAlign: "middle" }} /> Pull Bookings</>}
                                             </button>
                                             <button
                                                 className="btn btn-outline"
@@ -331,7 +344,7 @@ export default function ChannelsClient({ channels, connections, rooms }: Channel
                                 marginBottom: "1rem",
                                 fontSize: "0.875rem",
                             }}>
-                                ⚠️ {error}
+                                <MdWarning style={{ display: "inline", verticalAlign: "middle" }} /> {error}
                             </div>
                         )}
 

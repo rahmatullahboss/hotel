@@ -6,6 +6,7 @@
  */
 
 import { useState, useEffect } from 'react';
+import { MdSignalWifiOff, MdSync, MdCheck } from 'react-icons/md';
 import { isOnline, getPendingActions, type PendingCheckIn } from '@/lib/offline';
 import styles from './OfflineIndicator.module.css';
 
@@ -60,21 +61,21 @@ export function OfflineIndicator() {
             <div className={styles.content}>
                 {!online ? (
                     <>
-                        <span className={styles.icon}>📶</span>
+                        <span className={styles.icon}><MdSignalWifiOff /></span>
                         <span className={styles.text}>
                             You are offline. Changes will sync when connected.
                         </span>
                     </>
                 ) : pendingCount > 0 ? (
                     <>
-                        <span className={styles.icon}>🔄</span>
+                        <span className={styles.icon}><MdSync /></span>
                         <span className={styles.text}>
                             Syncing {pendingCount} pending action{pendingCount !== 1 ? 's' : ''}...
                         </span>
                     </>
                 ) : (
                     <>
-                        <span className={styles.icon}>✓</span>
+                        <span className={styles.icon}><MdCheck /></span>
                         <span className={styles.text}>Back online!</span>
                     </>
                 )}

@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import { MdBusiness, MdCameraAlt, MdGroup, MdReceipt, MdInsights, MdHelpOutline, MdLanguage } from "react-icons/md";
 import { getHotelProfile } from "../actions/settings";
 import { getPartnerRole } from "../actions/getPartnerRole";
 import { BottomNav, LanguageSwitcher } from "../components";
@@ -21,38 +22,38 @@ export default async function SettingsPage() {
     const settingsItems = [
         {
             href: "/settings/profile",
-            icon: "🏨",
+            icon: <MdBusiness size={24} />,
             title: t("hotelProfile"),
             description: t("hotelProfileDesc"),
         },
         {
             href: "/settings/photos",
-            icon: "📷",
+            icon: <MdCameraAlt size={24} />,
             title: t("photosMedia"),
             description: t("photosMediaDesc"),
         },
         // Staff Management - OWNER only
         ...(roleInfo.permissions.canManageStaff ? [{
             href: "/settings/staff",
-            icon: "👥",
+            icon: <MdGroup size={24} />,
             title: "Staff Management",
             description: "Manage team members and roles",
         }] : []),
         {
             href: "/bookings",
-            icon: "📋",
+            icon: <MdReceipt size={24} />,
             title: t("bookingHistory"),
             description: t("bookingHistoryDesc"),
         },
         {
             href: "/analytics",
-            icon: "📊",
+            icon: <MdInsights size={24} />,
             title: t("analytics"),
             description: t("analyticsDesc"),
         },
         {
             href: "/help",
-            icon: "❓",
+            icon: <MdHelpOutline size={24} />,
             title: t("helpSupport"),
             description: t("helpSupportDesc"),
         },
@@ -92,7 +93,7 @@ export default async function SettingsPage() {
                                 fontSize: "1.75rem",
                             }}
                         >
-                            🏨
+                            <MdBusiness size={28} />
                         </div>
                         <div style={{ flex: 1 }}>
                             <h2 style={{ fontSize: "1.25rem", fontWeight: 700, marginBottom: "0.25rem" }}>
@@ -138,7 +139,7 @@ export default async function SettingsPage() {
                             fontSize: "1.5rem",
                         }}
                     >
-                        🌐
+                        <MdLanguage size={24} />
                     </div>
                     <div style={{ flex: 1 }}>
                         <div style={{ fontWeight: 600, marginBottom: "0.25rem" }}>

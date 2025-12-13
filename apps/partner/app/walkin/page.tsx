@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { MdAttachMoney } from "react-icons/md";
 import { getPartnerRole } from "../actions/getPartnerRole";
 import { getPartnerHotel } from "../actions/dashboard";
 import { BottomNav, ScannerFAB } from "../components";
@@ -44,7 +45,7 @@ export default async function WalkInPage() {
                     }}
                 >
                     <div style={{ display: "flex", alignItems: "flex-start", gap: "0.75rem" }}>
-                        <div style={{ fontSize: "1.5rem" }}>💰</div>
+                        <div style={{ fontSize: "1.5rem" }}><MdAttachMoney /></div>
                         <div>
                             <div style={{ fontWeight: 600, marginBottom: "0.25rem" }}>
                                 No Commission for Walk-ins

@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import { MdSmartphone, MdDirectionsWalk } from "react-icons/md";
 import { getPartnerHotel } from "../actions/dashboard";
 import { getAnalyticsData } from "../actions/analytics";
 import { BottomNav } from "../components";
@@ -175,7 +176,7 @@ export default async function AnalyticsPage({ searchParams }: PageProps) {
                     </h2>
                     <div style={{ display: "flex", gap: "1rem" }}>
                         <div style={{ flex: 1, textAlign: "center" }}>
-                            <div style={{ fontSize: "1.5rem", marginBottom: "0.25rem" }}>📱</div>
+                            <div style={{ fontSize: "1.5rem", marginBottom: "0.25rem" }}><MdSmartphone /></div>
                             <div style={{ fontWeight: 700, fontSize: "1.25rem" }}>
                                 {analytics.platformBookings}
                             </div>
@@ -188,7 +189,7 @@ export default async function AnalyticsPage({ searchParams }: PageProps) {
                         </div>
                         <div style={{ width: "1px", background: "var(--color-border)" }} />
                         <div style={{ flex: 1, textAlign: "center" }}>
-                            <div style={{ fontSize: "1.5rem", marginBottom: "0.25rem" }}>🚶</div>
+                            <div style={{ fontSize: "1.5rem", marginBottom: "0.25rem" }}><MdDirectionsWalk /></div>
                             <div style={{ fontWeight: 700, fontSize: "1.25rem" }}>
                                 {analytics.walkInBookings}
                             </div>

@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import { MdPhone, MdEmail, MdHandshake } from "react-icons/md";
 import { getPartnerHotel } from "../actions/dashboard";
 import { BottomNav } from "../components";
 import { getTranslations } from "next-intl/server";
@@ -69,7 +70,7 @@ export default async function HelpPage() {
                             color: "inherit",
                         }}
                     >
-                        <div style={{ fontSize: "2rem", marginBottom: "0.5rem" }}>📞</div>
+                        <div style={{ fontSize: "2rem", marginBottom: "0.5rem" }}><MdPhone /></div>
                         <div style={{ fontWeight: 600 }}>{t("callSupport")}</div>
                         <div style={{ fontSize: "0.75rem", color: "var(--color-text-muted)" }}>
                             {t("callHours")}
@@ -85,7 +86,7 @@ export default async function HelpPage() {
                             color: "inherit",
                         }}
                     >
-                        <div style={{ fontSize: "2rem", marginBottom: "0.5rem" }}>✉️</div>
+                        <div style={{ fontSize: "2rem", marginBottom: "0.5rem" }}><MdEmail /></div>
                         <div style={{ fontWeight: 600 }}>{t("emailUs")}</div>
                         <div style={{ fontSize: "0.75rem", color: "var(--color-text-muted)" }}>
                             {t("emailResponse")}
@@ -144,7 +145,7 @@ export default async function HelpPage() {
                         textAlign: "center",
                     }}
                 >
-                    <div style={{ fontSize: "1.5rem", marginBottom: "0.5rem" }}>🤝</div>
+                    <div style={{ fontSize: "1.5rem", marginBottom: "0.5rem" }}><MdHandshake /></div>
                     <h3 style={{ fontWeight: 600, marginBottom: "0.5rem" }}>
                         {t("needMoreHelp")}
                     </h3>
