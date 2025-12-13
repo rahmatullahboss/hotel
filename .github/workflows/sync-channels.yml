@@ -1,0 +1,20 @@
+name: Sync Channels
+
+on:
+  schedule:
+    # Run every 30 minutes
+    - cron: '*/30 * * * *'
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  sync-channels:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Sync all active OTA channels
+        run: |
+          curl -X POST "${{ secrets.PARTNER_APP_URL }}/api/cron/sync-channels" \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            -H "Content-Type: application/json"
+        env:
+          PARTNER_APP_URL: ${{ secrets.PARTNER_APP_URL }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
