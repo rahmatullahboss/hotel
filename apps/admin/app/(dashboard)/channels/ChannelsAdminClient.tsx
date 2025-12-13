@@ -19,15 +19,13 @@ interface Connection {
 
 interface SyncLog {
     id: string;
-    connectionId: string;
+    channelConnectionId: string;
     hotelName: string;
     channelType: string;
-    syncType: string;
+    operation: string;
     status: string;
-    itemsSynced: number | null;
     errorMessage: string | null;
-    startedAt: Date;
-    completedAt: Date | null;
+    createdAt: Date;
 }
 
 interface ChannelInfo {
@@ -175,56 +173,46 @@ export default function ChannelsAdminClient({ connections, recentLogs, channelIn
                                     <th>Time</th>
                                     <th>Hotel</th>
                                     <th>Channel</th>
-                                    <th>Type</th>
+                                    <th>Operation</th>
                                     <th>Status</th>
-                                    <th>Items</th>
-                                    <th>Duration</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {recentLogs.length === 0 ? (
                                     <tr>
-                                        <td colSpan={7} style={{ textAlign: "center", padding: "2rem" }}>
+                                        <td colSpan={5} style={{ textAlign: "center", padding: "2rem" }}>
                                             No sync logs found
                                         </td>
                                     </tr>
                                 ) : (
-                                    recentLogs.map((log) => {
-                                        const duration = log.completedAt
-                                            ? Math.round((new Date(log.completedAt).getTime() - new Date(log.startedAt).getTime()) / 1000)
-                                            : null;
-
-                                        return (
-                                            <tr key={log.id}>
-                                                <td style={{ fontSize: "0.8rem" }}>
-                                                    {new Date(log.startedAt).toLocaleString()}
-                                                </td>
-                                                <td>{log.hotelName}</td>
-                                                <td>
-                                                    <span style={{ marginRight: "0.5rem" }}>
-                                                        {channelInfo[log.channelType]?.logo || "🔗"}
+                                    recentLogs.map((log) => (
+                                        <tr key={log.id}>
+                                            <td style={{ fontSize: "0.8rem" }}>
+                                                {new Date(log.createdAt).toLocaleString()}
+                                            </td>
+                                            <td>{log.hotelName}</td>
+                                            <td>
+                                                <span style={{ marginRight: "0.5rem" }}>
+                                                    {channelInfo[log.channelType]?.logo || "🔗"}
+                                                </span>
+                                                {channelInfo[log.channelType]?.name || log.channelType}
+                                            </td>
+                                            <td style={{ textTransform: "capitalize" }}>
+                                                {log.operation.toLowerCase().replace("_", " ")}
+                                            </td>
+                                            <td>
+                                                {log.status === "SUCCESS" ? (
+                                                    <span className="badge badge-success">Success</span>
+                                                ) : log.status === "FAILED" ? (
+                                                    <span className="badge badge-error" title={log.errorMessage || undefined}>
+                                                        Failed
                                                     </span>
-                                                    {channelInfo[log.channelType]?.name || log.channelType}
-                                                </td>
-                                                <td style={{ textTransform: "capitalize" }}>
-                                                    {log.syncType.toLowerCase().replace("_", " ")}
-                                                </td>
-                                                <td>
-                                                    {log.status === "SUCCESS" ? (
-                                                        <span className="badge badge-success">Success</span>
-                                                    ) : log.status === "FAILED" ? (
-                                                        <span className="badge badge-error" title={log.errorMessage || undefined}>
-                                                            Failed
-                                                        </span>
-                                                    ) : (
-                                                        <span className="badge badge-warning">In Progress</span>
-                                                    )}
-                                                </td>
-                                                <td>{log.itemsSynced ?? "—"}</td>
-                                                <td>{duration !== null ? `${duration}s` : "—"}</td>
-                                            </tr>
-                                        );
-                                    })
+                                                ) : (
+                                                    <span className="badge badge-warning">Partial</span>
+                                                )}
+                                            </td>
+                                        </tr>
+                                    ))
                                 )}
                             </tbody>
                         </table>
