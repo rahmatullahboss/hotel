@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { getPartnerRole } from "../actions/getPartnerRole";
 import { getPartnerHotel } from "../actions/dashboard";
 import { BottomNav, ScannerFAB } from "../components";
 import { WalkInForm } from "./WalkInForm";
@@ -6,13 +7,19 @@ import { WalkInForm } from "./WalkInForm";
 export const dynamic = 'force-dynamic';
 
 export default async function WalkInPage() {
-    const hotel = await getPartnerHotel();
+    const roleInfo = await getPartnerRole();
 
-    if (!hotel) {
+    if (!roleInfo) {
         redirect("/auth/signin");
     }
 
-    if (hotel.status !== "ACTIVE") {
+    // All roles can access walk-in (OWNER, MANAGER, RECEPTIONIST)
+    // No additional role check needed
+
+    // Get hotel details for status check
+    const hotel = await getPartnerHotel();
+
+    if (!hotel || hotel.status !== "ACTIVE") {
         redirect("/");
     }
 
@@ -54,11 +61,11 @@ export default async function WalkInPage() {
                     </div>
                 </div>
 
-                <WalkInForm hotelId={hotel.id} />
+                <WalkInForm hotelId={roleInfo.hotelId} />
             </main>
 
             <ScannerFAB />
-            <BottomNav />
+            <BottomNav role={roleInfo.role} />
         </>
     );
 }

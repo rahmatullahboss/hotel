@@ -1,17 +1,19 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { getHotelProfile } from "../actions/settings";
+import { getPartnerRole } from "../actions/getPartnerRole";
 import { BottomNav, LanguageSwitcher } from "../components";
 import { getTranslations } from "next-intl/server";
 
 export const dynamic = 'force-dynamic';
 
 export default async function SettingsPage() {
+    const roleInfo = await getPartnerRole();
     const hotel = await getHotelProfile();
     const t = await getTranslations("settings");
     const tNav = await getTranslations("nav");
 
-    if (!hotel) {
+    if (!roleInfo || !hotel) {
         redirect("/auth/signin");
     }
 
@@ -244,7 +246,7 @@ export default async function SettingsPage() {
             </main>
 
             {/* Bottom Navigation */}
-            <BottomNav />
+            <BottomNav role={roleInfo.role} />
         </>
     );
 }

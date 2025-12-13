@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { getPartnerRole } from "../actions/getPartnerRole";
 import { getPartnerHotel } from "../actions/dashboard";
 import { getRoomPricing } from "../actions/pricing";
 import { BottomNav, ScannerFAB } from "../components";
@@ -7,17 +8,25 @@ import { PricingGrid } from "./PricingGrid";
 export const dynamic = 'force-dynamic';
 
 export default async function PricingPage() {
-    const hotel = await getPartnerHotel();
+    const roleInfo = await getPartnerRole();
 
-    if (!hotel) {
+    if (!roleInfo) {
         redirect("/auth/signin");
     }
 
-    if (hotel.status !== "ACTIVE") {
+    // Role-based access control: Only OWNER and MANAGER can manage pricing
+    if (!roleInfo.permissions.canManagePricing) {
+        redirect("/?accessDenied=pricing");
+    }
+
+    // Get hotel details for status check
+    const hotel = await getPartnerHotel();
+
+    if (!hotel || hotel.status !== "ACTIVE") {
         redirect("/");
     }
 
-    const rooms = await getRoomPricing(hotel.id);
+    const rooms = await getRoomPricing(roleInfo.hotelId);
 
     return (
         <>
@@ -71,7 +80,7 @@ export default async function PricingPage() {
             </main>
 
             <ScannerFAB />
-            <BottomNav />
+            <BottomNav role={roleInfo.role} />
         </>
     );
 }
