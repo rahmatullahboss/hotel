@@ -1,0 +1,59 @@
+name: Apply Dynamic Pricing
+
+on:
+  schedule:
+    # Run daily at 3:00 AM Bangladesh Time (UTC 21:00 previous day)
+    - cron: '0 21 * * *'
+  workflow_dispatch: # Allow manual trigger
+    inputs:
+      partner_url:
+        description: 'Partner App URL (override secret)'
+        required: false
+      cron_secret:
+        description: 'Cron Secret (override secret)'
+        required: false
+
+jobs:
+  apply-pricing:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check Secrets
+        run: |
+          if [ -z "${{ secrets.PARTNER_APP_URL }}" ] && [ -z "${{ inputs.partner_url }}" ]; then
+            echo "::error::PARTNER_APP_URL secret is missing! Go to Repo Settings > Secrets and Actions to add it."
+            exit 1
+          fi
+
+      - name: Apply dynamic pricing to all rooms
+        env:
+          PARTNER_APP_URL: ${{ inputs.partner_url || secrets.PARTNER_APP_URL }}
+          CRON_SECRET: ${{ inputs.cron_secret || secrets.CRON_SECRET }}
+        run: |
+          echo "Applying dynamic pricing for $PARTNER_APP_URL..."
+          
+          # Remove trailing slash if present
+          BASE_URL=${PARTNER_APP_URL%/}
+          
+          # Check if CRON_SECRET is provided, if so add header
+          if [ -n "$CRON_SECRET" ]; then
+            AUTH_HEADER="Authorization: Bearer $CRON_SECRET"
+          else
+            AUTH_HEADER="X-No-Auth: true"
+          fi
+          
+          RESPONSE=$(curl -s -w "\n%{http_code}" -X POST "$BASE_URL/api/cron/apply-pricing" \
+            -H "$AUTH_HEADER" \
+            -H "Content-Type: application/json")
+          
+          HTTP_CODE=$(echo "$RESPONSE" | tail -n 1)
+          BODY=$(echo "$RESPONSE" | sed '$d')
+          
+          echo "Response: $BODY"
+          echo "HTTP Code: $HTTP_CODE"
+          
+          if [ "$HTTP_CODE" -ne 200 ]; then
+            echo "::error::Pricing update failed with HTTP $HTTP_CODE"
+            exit 1
+          fi
+          
+          echo "✅ Dynamic pricing applied successfully!"

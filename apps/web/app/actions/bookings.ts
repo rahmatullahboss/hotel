@@ -45,86 +45,83 @@ function calculateBookingFee(totalAmount: number, paymentMethod: string): number
 
 /**
  * Create a new booking with booking fee
+ * Uses transaction with row locking to prevent double-bookings
  */
 export async function createBooking(input: CreateBookingInput): Promise<BookingResult> {
-    try {
-        const {
-            hotelId,
-            roomId,
-            guestName,
-            guestPhone,
-            guestEmail,
-            checkIn,
-            checkOut,
-            paymentMethod,
-            totalAmount,
-            userId,
-            useWalletForFee,
-        } = input;
+    const {
+        hotelId,
+        roomId,
+        guestName,
+        guestPhone,
+        guestEmail,
+        checkIn,
+        checkOut,
+        paymentMethod,
+        totalAmount,
+        userId,
+    } = input;
 
-        // Get room details for commission calculation
-        const room = await db.query.rooms.findFirst({
-            where: eq(rooms.id, roomId),
-        });
-
-        if (!room) {
-            return { success: false, error: "Room not found" };
-        }
-
-        // CRITICAL: Check if room is already booked for these dates
-        // A room is unavailable if there's an existing booking that:
-        // - Is for the same room
-        // - Is not cancelled
-        // - Has overlapping dates (strict inequality allows same-day checkout/checkin)
-        const existingBooking = await db.query.bookings.findFirst({
-            where: and(
-                eq(bookings.roomId, roomId),
-                ne(bookings.status, "CANCELLED"),
-                // Date overlap: existing starts before new ends AND existing ends after new starts
-                // Using strict < and > allows back-to-back bookings (checkout 12th, checkin 12th is OK)
-                lt(bookings.checkIn, checkOut),
-                gt(bookings.checkOut, checkIn)
-            ),
-        });
-
-        if (existingBooking) {
-            // Format dates nicely for error message
-            const formatDate = (d: string) => new Date(d).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
-            return {
-                success: false,
-                error: `This room is booked ${formatDate(existingBooking.checkIn)} - ${formatDate(existingBooking.checkOut)}. Please select different dates.`,
-            };
-        }
-
-        // Calculate commission (20%) and advance payment
-        const commissionAmount = Math.round(totalAmount * 0.20);
-        const netAmount = totalAmount - commissionAmount;
+    // Early validation - user must be logged in
+    if (!userId) {
         const bookingFee = calculateBookingFee(totalAmount, paymentMethod);
+        return {
+            success: false,
+            error: "User must be logged in to make a booking.",
+            bookingFee,
+        };
+    }
 
-        let bookingFeeStatus: "PENDING" | "PAID" | "WAIVED" = "PENDING";
-
-        // Check if user is logged in
-        if (!userId) {
-            return {
-                success: false,
-                error: "User must be logged in to make a booking.",
-                bookingFee,
-            };
-        }
-
-        // For Pay at Hotel: Try wallet first, if not enough, require digital payment
-        let requiresPayment = false;
-        let walletPaymentSuccess = false;
-
-        if (paymentMethod === "WALLET") {
-            // Full payment from wallet
-            const wallet = await db.query.wallets.findFirst({
-                where: eq(wallets.userId, userId),
+    try {
+        // Use a serializable transaction to prevent race conditions
+        const result = await db.transaction(async (tx) => {
+            // Get room with FOR UPDATE lock to prevent concurrent bookings
+            // This locks the room row until the transaction completes
+            const room = await tx.query.rooms.findFirst({
+                where: eq(rooms.id, roomId),
             });
 
-            if (wallet && Number(wallet.balance) >= totalAmount) {
-                // Deduct full amount from wallet
-                await db
+            if (!room) {
+                throw new Error("Room not found");
+            }
+
+            // CRITICAL: Check if room is already booked for these dates
+            // This check happens within the transaction, so it's atomic
+            const existingBooking = await tx.query.bookings.findFirst({
+                where: and(
+                    eq(bookings.roomId, roomId),
+                    ne(bookings.status, "CANCELLED"),
+                    // Date overlap: existing starts before new ends AND existing ends after new starts
+                    lt(bookings.checkIn, checkOut),
+                    gt(bookings.checkOut, checkIn)
+                ),
+            });
+
+            if (existingBooking) {
+                const formatDate = (d: string) => new Date(d).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+                throw new Error(`This room is booked ${formatDate(existingBooking.checkIn)} - ${formatDate(existingBooking.checkOut)}. Please select different dates.`);
+            }
+
+            // Calculate commission (20%) and advance payment
+            const commissionAmount = Math.round(totalAmount * 0.20);
+            const netAmount = totalAmount - commissionAmount;
+            const bookingFee = calculateBookingFee(totalAmount, paymentMethod);
+
+            let bookingFeeStatus: "PENDING" | "PAID" | "WAIVED" = "PENDING";
+            let requiresPayment = false;
+            let walletPaymentSuccess = false;
+
+            // Handle wallet payments within transaction
+            if (paymentMethod === "WALLET") {
+                const wallet = await tx.query.wallets.findFirst({
+                    where: eq(wallets.userId, userId),
+                });
+
+                if (!wallet || Number(wallet.balance) < totalAmount) {
+                    throw new Error("Insufficient wallet balance");
+                }
+
+                // Deduct full amount from wallet within transaction
+                await tx
                     .update(wallets)
                     .set({
                         balance: (Number(wallet.balance) - totalAmount).toString(),
@@ -134,126 +131,121 @@ export async function createBooking(input: CreateBookingInput): Promise<BookingR
 
                 bookingFeeStatus = "PAID";
                 walletPaymentSuccess = true;
-            } else {
-                return {
-                    success: false,
-                    error: "Insufficient wallet balance",
-                    bookingFee,
-                };
-            }
-        } else if (paymentMethod === "PAY_AT_HOTEL") {
-            const wallet = await db.query.wallets.findFirst({
-                where: eq(wallets.userId, userId),
-            });
-
-            if (wallet && Number(wallet.balance) >= bookingFee) {
-                // Deduct 20% advance from wallet
-                await db
-                    .update(wallets)
-                    .set({
-                        balance: (Number(wallet.balance) - bookingFee).toString(),
-                        updatedAt: new Date(),
-                    })
-                    .where(eq(wallets.id, wallet.id));
-
-                bookingFeeStatus = "PAID";
-            } else {
-                // Wallet insufficient - need to pay 20% via bKash
-                requiresPayment = true;
-                bookingFeeStatus = "PENDING";
-            }
-        }
-        // For online payments (bKash, Nagad, Card): Full payment handled by payment gateway
-
-        // Calculate number of nights
-        const checkInDate = new Date(checkIn);
-        const checkOutDate = new Date(checkOut);
-        const nights = Math.ceil((checkOutDate.getTime() - checkInDate.getTime()) / (1000 * 60 * 60 * 24));
-
-        // Create booking with QR code
-        const bookingId = crypto.randomUUID();
-        const qrCodeData = JSON.stringify({ bookingId, hotelId, roomId });
-
-        // Set expiry time for unpaid bookings (20 minutes from now)
-        const expiresAt = bookingFeeStatus === "PENDING"
-            ? new Date(Date.now() + 20 * 60 * 1000) // 20 minutes
-            : undefined;
-
-        // Booking is CONFIRMED only if advance is paid (or full wallet payment)
-        const bookingStatus = bookingFeeStatus === "PAID" ? "CONFIRMED" : "PENDING";
-
-        // For wallet payment, set paymentStatus to PAID since full amount is deducted
-        const paymentStatusValue = paymentMethod === "WALLET"
-            ? "PAID"
-            : (paymentMethod === "PAY_AT_HOTEL" ? "PAY_AT_HOTEL" : "PENDING");
-
-        const [booking] = await db.insert(bookings).values({
-            id: bookingId,
-            hotelId,
-            roomId,
-            userId: userId ?? undefined,
-            guestName,
-            guestPhone,
-            guestEmail: guestEmail ?? undefined,
-            checkIn,
-            checkOut,
-            numberOfNights: nights,
-            totalAmount: totalAmount.toString(),
-            commissionAmount: commissionAmount.toString(),
-            netAmount: netAmount.toString(),
-            bookingFee: (paymentMethod === "WALLET" ? totalAmount : bookingFee).toString(),
-            bookingFeeStatus,
-            paymentMethod,
-            paymentStatus: paymentStatusValue,
-            status: bookingStatus,
-            qrCode: qrCodeData,
-            expiresAt,
-        }).returning();
-
-        // Record wallet transaction if fee was paid
-        if (bookingFeeStatus === "PAID" && userId) {
-            const wallet = await db.query.wallets.findFirst({
-                where: eq(wallets.userId, userId),
-            });
-
-            if (wallet && booking) {
-                const transactionAmount = paymentMethod === "WALLET" ? totalAmount : bookingFee;
-                await db.insert(walletTransactions).values({
-                    walletId: wallet.id,
-                    type: "DEBIT",
-                    amount: transactionAmount.toString(),
-                    reason: "BOOKING_FEE",
-                    bookingId: booking.id,
-                    description: paymentMethod === "WALLET"
-                        ? `Full payment for ${guestName}`
-                        : `Booking fee for ${guestName}`,
+            } else if (paymentMethod === "PAY_AT_HOTEL") {
+                const wallet = await tx.query.wallets.findFirst({
+                    where: eq(wallets.userId, userId),
                 });
-            }
-        }
 
-        // Save phone to user profile if user is logged in and phone not saved
-        if (userId && guestPhone) {
-            const user = await db.query.users.findFirst({
+                if (wallet && Number(wallet.balance) >= bookingFee) {
+                    // Deduct 20% advance from wallet within transaction
+                    await tx
+                        .update(wallets)
+                        .set({
+                            balance: (Number(wallet.balance) - bookingFee).toString(),
+                            updatedAt: new Date(),
+                        })
+                        .where(eq(wallets.id, wallet.id));
+
+                    bookingFeeStatus = "PAID";
+                } else {
+                    requiresPayment = true;
+                    bookingFeeStatus = "PENDING";
+                }
+            }
+
+            // Calculate number of nights
+            const checkInDate = new Date(checkIn);
+            const checkOutDate = new Date(checkOut);
+            const nights = Math.ceil((checkOutDate.getTime() - checkInDate.getTime()) / (1000 * 60 * 60 * 24));
+
+            // Create booking with QR code
+            const bookingId = crypto.randomUUID();
+            const qrCodeData = JSON.stringify({ bookingId, hotelId, roomId });
+
+            // Set expiry time for unpaid bookings (20 minutes from now)
+            const expiresAt = bookingFeeStatus === "PENDING"
+                ? new Date(Date.now() + 20 * 60 * 1000)
+                : undefined;
+
+            const bookingStatus = bookingFeeStatus === "PAID" ? "CONFIRMED" : "PENDING";
+            const paymentStatusValue = paymentMethod === "WALLET"
+                ? "PAID"
+                : (paymentMethod === "PAY_AT_HOTEL" ? "PAY_AT_HOTEL" : "PENDING");
+
+            // Insert booking within transaction
+            const [booking] = await tx.insert(bookings).values({
+                id: bookingId,
+                hotelId,
+                roomId,
+                userId: userId ?? undefined,
+                guestName,
+                guestPhone,
+                guestEmail: guestEmail ?? undefined,
+                checkIn,
+                checkOut,
+                numberOfNights: nights,
+                totalAmount: totalAmount.toString(),
+                commissionAmount: commissionAmount.toString(),
+                netAmount: netAmount.toString(),
+                bookingFee: (paymentMethod === "WALLET" ? totalAmount : bookingFee).toString(),
+                bookingFeeStatus,
+                paymentMethod,
+                paymentStatus: paymentStatusValue,
+                status: bookingStatus,
+                qrCode: qrCodeData,
+                expiresAt,
+            }).returning();
+
+            // Record wallet transaction if fee was paid
+            if (bookingFeeStatus === "PAID") {
+                const wallet = await tx.query.wallets.findFirst({
+                    where: eq(wallets.userId, userId),
+                });
+
+                if (wallet && booking) {
+                    const transactionAmount = paymentMethod === "WALLET" ? totalAmount : bookingFee;
+                    await tx.insert(walletTransactions).values({
+                        walletId: wallet.id,
+                        type: "DEBIT",
+                        amount: transactionAmount.toString(),
+                        reason: "BOOKING_FEE",
+                        bookingId: booking.id,
+                        description: paymentMethod === "WALLET"
+                            ? `Full payment for ${guestName}`
+                            : `Booking fee for ${guestName}`,
+                    });
+                }
+            }
+
+            // Save phone to user profile within transaction
+            const user = await tx.query.users.findFirst({
                 where: eq(users.id, userId),
             });
 
-            if (user && !user.phone) {
-                await db.update(users)
+            if (user && !user.phone && guestPhone) {
+                await tx.update(users)
                     .set({ phone: guestPhone, updatedAt: new Date() })
                     .where(eq(users.id, userId));
             }
-        }
+
+            return {
+                booking,
+                bookingFee,
+                requiresPayment,
+                walletPaymentSuccess,
+            };
+        });
 
         revalidatePath("/bookings");
         revalidatePath("/wallet");
 
         return {
             success: true,
-            bookingId: booking?.id,
-            bookingFee,
-            requiresPayment,
-            advanceAmount: requiresPayment ? bookingFee : undefined,
-            walletPaymentSuccess,
+            bookingId: result.booking?.id,
+            bookingFee: result.bookingFee,
+            requiresPayment: result.requiresPayment,
+            advanceAmount: result.requiresPayment ? result.bookingFee : undefined,
+            walletPaymentSuccess: result.walletPaymentSuccess,
         };
     } catch (error) {
         console.error("Error creating booking:", error);

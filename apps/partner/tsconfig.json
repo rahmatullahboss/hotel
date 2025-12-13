@@ -4,7 +4,7 @@
     "baseUrl": ".",
     "paths": {
       "@/*": [
-        "./app/*"
+        "./*"
       ]
     },
     "declaration": false,

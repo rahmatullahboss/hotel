@@ -105,3 +105,87 @@ self.addEventListener('notificationclick', (event) => {
         clients.openWindow(event.notification.data.url)
     );
 });
+
+// Background sync for offline check-ins
+self.addEventListener('sync', (event) => {
+    if (event.tag === 'sync-checkins') {
+        event.waitUntil(syncPendingCheckIns());
+    }
+});
+
+// Sync pending check-in actions
+async function syncPendingCheckIns() {
+    // Open IndexedDB
+    const dbRequest = indexedDB.open('vibe-offline-db', 1);
+
+    return new Promise((resolve, reject) => {
+        dbRequest.onerror = () => reject(dbRequest.error);
+        dbRequest.onsuccess = async () => {
+            const db = dbRequest.result;
+            const tx = db.transaction('pendingActions', 'readwrite');
+            const store = tx.objectStore('pendingActions');
+            const getAllRequest = store.getAll();
+
+            getAllRequest.onsuccess = async () => {
+                const actions = getAllRequest.result.filter(a => !a.synced);
+
+                for (const action of actions) {
+                    try {
+                        const endpoint = action.action === 'CHECK_IN'
+                            ? '/api/bookings/check-in'
+                            : '/api/bookings/check-out';
+
+                        const response = await fetch(endpoint, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ bookingId: action.bookingId }),
+                        });
+
+                        if (response.ok) {
+                            // Mark as synced
+                            action.synced = true;
+                            const updateTx = db.transaction('pendingActions', 'readwrite');
+                            updateTx.objectStore('pendingActions').put(action);
+                        }
+                    } catch (error) {
+                        console.error('[SW] Sync failed for action:', action.id, error);
+                    }
+                }
+
+                resolve();
+            };
+        };
+    });
+}
+
+// Cache API responses for today's bookings
+self.addEventListener('fetch', (event) => {
+    const url = new URL(event.request.url);
+
+    // Special handling for today's bookings API
+    if (url.pathname === '/api/bookings/today' && event.request.method === 'GET') {
+        event.respondWith(
+            fetch(event.request)
+                .then((response) => {
+                    // Clone and cache the response
+                    const responseClone = response.clone();
+                    caches.open(CACHE_NAME).then((cache) => {
+                        cache.put(event.request, responseClone);
+                    });
+                    return response;
+                })
+                .catch(async () => {
+                    // Return cached response when offline
+                    const cachedResponse = await caches.match(event.request);
+                    if (cachedResponse) {
+                        return cachedResponse;
+                    }
+                    // Return empty array if no cache
+                    return new Response(JSON.stringify({ bookings: [] }), {
+                        headers: { 'Content-Type': 'application/json' }
+                    });
+                })
+        );
+        return;
+    }
+});
