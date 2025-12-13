@@ -7,21 +7,26 @@ on:
   workflow_dispatch: # Allow manual trigger
     inputs:
       partner_url:
-        description: 'Partner App URL'
+        description: 'Partner App URL (override secret)'
         required: false
-        default: 'https://hotel-partner.vercel.app'
       cron_secret:
-        description: 'Cron Secret'
+        description: 'Cron Secret (override secret)'
         required: false
 
 jobs:
   sync-channels:
     runs-on: ubuntu-latest
     steps:
+      - name: Check Secrets
+        run: |
+          if [ -z "${{ secrets.PARTNER_APP_URL }}" ] && [ -z "${{ inputs.partner_url }}" ]; then
+            echo "::error::PARTNER_APP_URL secret is missing! Go to Repo Settings > Secrets and Actions to add it."
+            exit 1
+          fi
+
       - name: Sync all active OTA channels
         env:
-          # Priority: Manual Input > Repo Secret > Hardcoded Fallback
-          PARTNER_APP_URL: ${{ inputs.partner_url || secrets.PARTNER_APP_URL || 'https://hotel-partner.vercel.app' }}
+          PARTNER_APP_URL: ${{ inputs.partner_url || secrets.PARTNER_APP_URL }}
           CRON_SECRET: ${{ inputs.cron_secret || secrets.CRON_SECRET }}
         run: |
           echo "Syncing channels for $PARTNER_APP_URL..."
