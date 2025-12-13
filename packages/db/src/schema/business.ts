@@ -7,6 +7,7 @@ import {
     decimal,
     jsonb,
     date,
+    uniqueIndex,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 import { users } from "./auth";
@@ -112,22 +113,29 @@ export const roomsRelations = relations(rooms, ({ one, many }) => ({
 // ROOM INVENTORY
 // ====================
 
-export const roomInventory = pgTable("roomInventory", {
-    id: text("id")
-        .primaryKey()
-        .$defaultFn(() => crypto.randomUUID()),
-    roomId: text("roomId")
-        .notNull()
-        .references(() => rooms.id, { onDelete: "cascade" }),
-    date: date("date", { mode: "string" }).notNull(),
-    status: text("status", { enum: ["AVAILABLE", "OCCUPIED", "BLOCKED"] })
-        .default("AVAILABLE")
-        .notNull(),
-    price: decimal("price", { precision: 10, scale: 2 }), // Override price for specific date
-    notes: text("notes"),
-    createdAt: timestamp("createdAt", { mode: "date" }).defaultNow().notNull(),
-    updatedAt: timestamp("updatedAt", { mode: "date" }).defaultNow().notNull(),
-});
+export const roomInventory = pgTable(
+    "roomInventory",
+    {
+        id: text("id")
+            .primaryKey()
+            .$defaultFn(() => crypto.randomUUID()),
+        roomId: text("roomId")
+            .notNull()
+            .references(() => rooms.id, { onDelete: "cascade" }),
+        date: date("date", { mode: "string" }).notNull(),
+        status: text("status", { enum: ["AVAILABLE", "OCCUPIED", "BLOCKED"] })
+            .default("AVAILABLE")
+            .notNull(),
+        price: decimal("price", { precision: 10, scale: 2 }), // Override price for specific date
+        notes: text("notes"),
+        createdAt: timestamp("createdAt", { mode: "date" }).defaultNow().notNull(),
+        updatedAt: timestamp("updatedAt", { mode: "date" }).defaultNow().notNull(),
+    },
+    (table) => [
+        // Unique constraint for upserts - each room can only have one inventory entry per date
+        uniqueIndex("room_date_unique").on(table.roomId, table.date),
+    ]
+);
 
 export const roomInventoryRelations = relations(roomInventory, ({ one }) => ({
     room: one(rooms, {
