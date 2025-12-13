@@ -141,7 +141,14 @@ export const roomInventoryRelations = relations(roomInventory, ({ one }) => ({
 // ====================
 
 // Booking Source Enum - tracks where booking originated
-export type BookingSource = "PLATFORM" | "WALK_IN";
+export type BookingSource =
+    | "PLATFORM"
+    | "WALK_IN"
+    | "BOOKING_COM"
+    | "EXPEDIA"
+    | "AGODA"
+    | "SHARETRIP"
+    | "GOZAYAAN";
 
 // Commission Status Enum - tracks commission collection
 export type CommissionStatus = "PENDING" | "PAID" | "WAIVED" | "NOT_APPLICABLE";
@@ -168,10 +175,22 @@ export const bookings = pgTable("bookings", {
 
     // Booking source - platform bookings have commission, walk-ins don't
     bookingSource: text("bookingSource", {
-        enum: ["PLATFORM", "WALK_IN"],
+        enum: [
+            "PLATFORM",
+            "WALK_IN",
+            "BOOKING_COM",
+            "EXPEDIA",
+            "AGODA",
+            "SHARETRIP",
+            "GOZAYAAN",
+        ],
     })
         .default("PLATFORM")
         .notNull(),
+
+    // External OTA booking reference
+    externalBookingId: text("externalBookingId"), // OTA's reservation ID
+    channelConnectionId: text("channelConnectionId"), // Reference to channelConnections table
 
     status: text("status", {
         enum: ["PENDING", "CONFIRMED", "CHECKED_IN", "CHECKED_OUT", "CANCELLED"],
