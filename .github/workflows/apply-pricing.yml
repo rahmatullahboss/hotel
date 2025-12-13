@@ -33,17 +33,24 @@ jobs:
           
           # Remove trailing slash if present
           BASE_URL=${PARTNER_APP_URL%/}
+          ENDPOINT="$BASE_URL/api/cron/apply-pricing"
+          
+          echo "Calling: $ENDPOINT"
           
           # Check if CRON_SECRET is provided, if so add header
           if [ -n "$CRON_SECRET" ]; then
             AUTH_HEADER="Authorization: Bearer $CRON_SECRET"
+            echo "Using CRON_SECRET for authentication"
           else
             AUTH_HEADER="X-No-Auth: true"
+            echo "No CRON_SECRET provided"
           fi
           
-          RESPONSE=$(curl -s -w "\n%{http_code}" -X POST "$BASE_URL/api/cron/apply-pricing" \
+          # Use -L to follow redirects
+          RESPONSE=$(curl -sL -w "\n%{http_code}" -X POST "$ENDPOINT" \
             -H "$AUTH_HEADER" \
-            -H "Content-Type: application/json")
+            -H "Content-Type: application/json" \
+            --max-time 300)
           
           HTTP_CODE=$(echo "$RESPONSE" | tail -n 1)
           BODY=$(echo "$RESPONSE" | sed '$d')
@@ -57,3 +64,4 @@ jobs:
           fi
           
           echo "✅ Dynamic pricing applied successfully!"
+
