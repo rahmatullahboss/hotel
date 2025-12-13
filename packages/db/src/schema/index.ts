@@ -15,3 +15,6 @@ export * from "./housekeeping";
 
 // Incentives schema exports
 export * from "./incentives";
+
+// Pricing Intelligence schema exports
+export * from "./pricing";
