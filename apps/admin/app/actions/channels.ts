@@ -66,20 +66,18 @@ export async function getRecentSyncLogs(limit = 50) {
     const logs = await db
         .select({
             id: syncLogs.id,
-            connectionId: syncLogs.connectionId,
+            channelConnectionId: syncLogs.channelConnectionId,
             hotelName: hotels.name,
             channelType: channelConnections.channelType,
-            syncType: syncLogs.syncType,
+            operation: syncLogs.operation,
             status: syncLogs.status,
-            itemsSynced: syncLogs.itemsSynced,
             errorMessage: syncLogs.errorMessage,
-            startedAt: syncLogs.startedAt,
-            completedAt: syncLogs.completedAt,
+            createdAt: syncLogs.createdAt,
         })
         .from(syncLogs)
-        .innerJoin(channelConnections, eq(channelConnections.id, syncLogs.connectionId))
+        .innerJoin(channelConnections, eq(channelConnections.id, syncLogs.channelConnectionId))
         .innerJoin(hotels, eq(hotels.id, channelConnections.hotelId))
-        .orderBy(desc(syncLogs.startedAt))
+        .orderBy(desc(syncLogs.createdAt))
         .limit(limit);
 
     return logs;
