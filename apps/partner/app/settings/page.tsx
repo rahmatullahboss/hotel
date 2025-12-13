@@ -17,6 +17,7 @@ export default async function SettingsPage() {
         redirect("/auth/signin");
     }
 
+    // Build settings items, conditionally including owner-only items
     const settingsItems = [
         {
             href: "/settings/profile",
@@ -30,6 +31,13 @@ export default async function SettingsPage() {
             title: t("photosMedia"),
             description: t("photosMediaDesc"),
         },
+        // Staff Management - OWNER only
+        ...(roleInfo.permissions.canManageStaff ? [{
+            href: "/settings/staff",
+            icon: "👥",
+            title: "Staff Management",
+            description: "Manage team members and roles",
+        }] : []),
         {
             href: "/bookings",
             icon: "📋",
