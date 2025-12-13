@@ -12,3 +12,6 @@ export * from "./hotelStaff";
 
 // Housekeeping schema exports
 export * from "./housekeeping";
+
+// Incentives schema exports
+export * from "./incentives";
