@@ -2,7 +2,7 @@
 
 import { db } from "@repo/db";
 import { bookings, rooms } from "@repo/db/schema";
-import { eq, and, gte, lte, sql, count, sum } from "drizzle-orm";
+import { eq, and, gte, lte, sql, count, sum, ne } from "drizzle-orm";
 import { getPartnerHotel } from "./dashboard";
 
 export interface DailyRevenue {
@@ -69,12 +69,13 @@ export async function getAnalyticsData(
         const startDateStr = startDate.toISOString().split("T")[0]!;
         const endDateStr = endDate.toISOString().split("T")[0]!;
 
-        // Get all bookings in the period
+        // Get all bookings in the period (exclude cancelled bookings)
         const periodBookings = await db.query.bookings.findMany({
             where: and(
                 eq(bookings.hotelId, hotel.id),
                 gte(bookings.checkIn, startDateStr),
-                lte(bookings.checkIn, endDateStr)
+                lte(bookings.checkIn, endDateStr),
+                ne(bookings.status, "CANCELLED")
             ),
         });
 
