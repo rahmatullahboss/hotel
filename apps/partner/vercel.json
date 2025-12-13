@@ -2,5 +2,11 @@
     "$schema": "https://openapi.vercel.sh/vercel.json",
     "framework": "nextjs",
     "installCommand": "npm install --prefix=../..",
-    "buildCommand": "cd ../.. && npx turbo run build --filter=partner"
+    "buildCommand": "cd ../.. && npx turbo run build --filter=partner",
+    "crons": [
+        {
+            "path": "/api/cron/sync-channels",
+            "schedule": "*/30 * * * *"
+        }
+    ]
 }
