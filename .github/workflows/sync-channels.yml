@@ -5,16 +5,39 @@ on:
     # Run every 30 minutes
     - cron: '*/30 * * * *'
   workflow_dispatch: # Allow manual trigger
+    inputs:
+      partner_url:
+        description: 'Partner App URL (override secret)'
+        required: false
+      cron_secret:
+        description: 'Cron Secret (override secret)'
+        required: false
 
 jobs:
   sync-channels:
     runs-on: ubuntu-latest
     steps:
-      - name: Sync all active OTA channels
+      - name: Check Secrets
         run: |
-          curl -X POST "${{ secrets.PARTNER_APP_URL }}/api/cron/sync-channels" \
-            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
-            -H "Content-Type: application/json"
+          if [ -z "${{ secrets.PARTNER_APP_URL }}" ] && [ -z "${{ inputs.partner_url }}" ]; then
+            echo "::error::PARTNER_APP_URL secret is missing! Go to Repo Settings > Secrets and Actions to add it."
+            exit 1
+          fi
+          if [ -z "${{ secrets.CRON_SECRET }}" ] && [ -z "${{ inputs.cron_secret }}" ]; then
+            echo "::error::CRON_SECRET secret is missing! Go to Repo Settings > Secrets and Actions to add it."
+            exit 1
+          fi
+
+      - name: Sync all active OTA channels
         env:
-          PARTNER_APP_URL: ${{ secrets.PARTNER_APP_URL }}
-          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+          PARTNER_APP_URL: ${{ inputs.partner_url || secrets.PARTNER_APP_URL }}
+          CRON_SECRET: ${{ inputs.cron_secret || secrets.CRON_SECRET }}
+        run: |
+          echo "Syncing channels for $PARTNER_APP_URL..."
+          
+          # Remove trailing slash if present
+          BASE_URL=${PARTNER_APP_URL%/}
+          
+          curl -v -X POST "$BASE_URL/api/cron/sync-channels" \
+            -H "Authorization: Bearer $CRON_SECRET" \
+            -H "Content-Type: application/json"
