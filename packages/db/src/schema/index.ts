@@ -9,3 +9,6 @@ export * from "./channel";
 
 // Hotel Staff (RBAC) schema exports
 export * from "./hotelStaff";
+
+// Housekeeping schema exports
+export * from "./housekeeping";
