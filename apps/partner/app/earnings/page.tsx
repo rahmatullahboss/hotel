@@ -1,20 +1,25 @@
 import { redirect } from "next/navigation";
-import { getPartnerHotel } from "../actions/dashboard";
 import { getEarningsData } from "../actions/earnings";
 import { getAvailableBalance, getPayoutHistory } from "../actions/payout";
+import { getPartnerRole } from "../actions/getPartnerRole";
 import { BottomNav, ScannerFAB, PayoutSection } from "../components";
 
 export const dynamic = 'force-dynamic';
 
 export default async function EarningsPage() {
-    const hotel = await getPartnerHotel();
+    const roleInfo = await getPartnerRole();
 
-    if (!hotel) {
+    if (!roleInfo) {
         redirect("/auth/signin");
     }
 
+    // Role-based access control: Only OWNER can view earnings
+    if (!roleInfo.permissions.canViewEarnings) {
+        redirect("/?accessDenied=earnings");
+    }
+
     const [earnings, balance, payoutHistory] = await Promise.all([
-        getEarningsData(hotel.id, "month"),
+        getEarningsData(roleInfo.hotelId, "month"),
         getAvailableBalance(),
         getPayoutHistory(),
     ]);
@@ -179,7 +184,7 @@ export default async function EarningsPage() {
             <ScannerFAB />
 
             {/* Bottom Navigation */}
-            <BottomNav />
+            <BottomNav role={roleInfo.role} />
         </>
     );
 }

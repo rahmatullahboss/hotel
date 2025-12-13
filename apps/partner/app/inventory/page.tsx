@@ -1,19 +1,24 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { getPartnerHotel } from "../actions/dashboard";
 import { getHotelRooms } from "../actions/inventory";
+import { getPartnerRole } from "../actions/getPartnerRole";
 import { BottomNav, ScannerFAB, RoomGrid } from "../components";
 
 export const dynamic = 'force-dynamic';
 
 export default async function InventoryPage() {
-    const hotel = await getPartnerHotel();
+    const roleInfo = await getPartnerRole();
 
-    if (!hotel) {
+    if (!roleInfo) {
         redirect("/auth/signin");
     }
 
-    const rooms = await getHotelRooms(hotel.id);
+    // Role-based access control: Only OWNER and MANAGER can manage inventory
+    if (!roleInfo.permissions.canManageInventory) {
+        redirect("/?accessDenied=inventory");
+    }
+
+    const rooms = await getHotelRooms(roleInfo.hotelId);
 
     return (
         <>
@@ -41,7 +46,7 @@ export default async function InventoryPage() {
                         </Link>
                     </div>
                 ) : (
-                    <RoomGrid initialRooms={rooms} hotelId={hotel.id} />
+                    <RoomGrid initialRooms={rooms} hotelId={roleInfo.hotelId} />
                 )}
             </main>
 
@@ -49,7 +54,7 @@ export default async function InventoryPage() {
             <ScannerFAB />
 
             {/* Bottom Navigation */}
-            <BottomNav />
+            <BottomNav role={roleInfo.role} />
         </>
     );
 }

@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { getPartnerHotel, getDashboardStats, getUpcomingBookings, getTodaysCheckIns, getCurrentlyStaying, getTodaysCheckOuts } from "./actions/dashboard";
+import { getPartnerRole } from "./actions/getPartnerRole";
 import { BottomNav, ScannerFAB, StatCard, LogoutButton, HotelCheckInQR, CollectPaymentButton, CheckOutButton, ExtendStayButton, NoShowButton } from "./components";
 import { auth } from "../auth";
 import Link from "next/link";
@@ -187,6 +188,10 @@ export default async function DashboardPage() {
       </main>
     );
   }
+
+  // Get partner role for RBAC
+  const roleInfo = await getPartnerRole();
+  const currentRole = roleInfo?.role ?? "RECEPTIONIST";
 
   // State 4: Hotel is ACTIVE - Show full dashboard
   const [stats, upcomingBookings, todaysCheckIns, currentlyStaying, todaysCheckOuts] = await Promise.all([
@@ -909,7 +914,7 @@ export default async function DashboardPage() {
       < ScannerFAB />
 
       {/* Bottom Navigation */}
-      < BottomNav />
+      <BottomNav role={currentRole} />
     </>
   );
 }

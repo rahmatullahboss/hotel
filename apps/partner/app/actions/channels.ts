@@ -5,15 +5,7 @@ import { db, rooms, channelConnections, channelRoomMappings } from "@repo/db";
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { getPartnerHotel } from "./dashboard";
-import {
-    connectChannel as cmConnectChannel,
-    disconnectChannel as cmDisconnectChannel,
-    getChannelConnections as cmGetChannelConnections,
-    getRoomMappings as cmGetRoomMappings,
-    updateRoomMappings as cmUpdateRoomMappings,
-    syncInventory,
-    pullBookings as cmPullBookings,
-} from "@repo/api";
+import { channelManager } from "@repo/api";
 
 /**
  * Get the partner's hotel ID
@@ -30,7 +22,7 @@ export async function getChannelConnections() {
     const hotelId = await getPartnerHotelId();
     if (!hotelId) return [];
 
-    return await cmGetChannelConnections(hotelId);
+    return await channelManager.getChannelConnections(hotelId);
 }
 
 /**
@@ -55,7 +47,7 @@ export async function getHotelRooms() {
  * Get room mappings for a connection
  */
 export async function getRoomMappings(connectionId: string) {
-    return await cmGetRoomMappings(connectionId);
+    return await channelManager.getRoomMappings(connectionId);
 }
 
 /**
@@ -74,7 +66,7 @@ export async function connectChannel(
         return { success: false, error: "Hotel not found" };
     }
 
-    const result = await cmConnectChannel(hotelId, channelType, credentials);
+    const result = await channelManager.connectChannel(hotelId, channelType, credentials);
 
     if (result.success) {
         revalidatePath("/channels");
@@ -87,7 +79,7 @@ export async function connectChannel(
  * Disconnect from an OTA channel
  */
 export async function disconnectChannel(connectionId: string) {
-    const result = await cmDisconnectChannel(connectionId);
+    const result = await channelManager.disconnectChannel(connectionId);
 
     if (result.success) {
         revalidatePath("/channels");
@@ -107,7 +99,7 @@ export async function updateRoomMappings(
         externalRatePlanId?: string;
     }>
 ) {
-    const result = await cmUpdateRoomMappings(connectionId, mappings);
+    const result = await channelManager.updateRoomMappings(connectionId, mappings);
 
     if (result.success) {
         revalidatePath("/channels");
@@ -124,7 +116,7 @@ export async function syncChannel(connectionId: string) {
     const endDate = new Date();
     endDate.setDate(endDate.getDate() + 365); // Sync 1 year ahead
 
-    const result = await syncInventory(connectionId, {
+    const result = await channelManager.syncInventory(connectionId, {
         startDate: today.toISOString().split("T")[0]!,
         endDate: endDate.toISOString().split("T")[0]!,
     });
@@ -141,7 +133,7 @@ export async function pullChannelBookings(connectionId: string) {
     const since = new Date();
     since.setDate(since.getDate() - 7);
 
-    const result = await cmPullBookings(connectionId, since);
+    const result = await channelManager.pullBookings(connectionId, since);
 
     if (result.success) {
         revalidatePath("/channels");

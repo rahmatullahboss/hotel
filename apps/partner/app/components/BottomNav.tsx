@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
+import type { PartnerRole } from "@repo/db/schema";
 
 // SVG Icons as components for better performance
 const HomeIcon = ({ active }: { active: boolean }) => (
@@ -69,16 +70,24 @@ const WalkInIcon = ({ active }: { active: boolean }) => (
     </svg>
 );
 
-export function BottomNav() {
+interface BottomNavProps {
+    role?: PartnerRole;
+}
+
+export function BottomNav({ role = "OWNER" }: BottomNavProps) {
     const pathname = usePathname();
     const t = useTranslations("nav");
 
-    const navItems = [
-        { href: "/", labelKey: "home", Icon: HomeIcon },
-        { href: "/walkin", labelKey: "walkIn", Icon: WalkInIcon },
-        { href: "/inventory", labelKey: "rooms", Icon: CalendarIcon },
-        { href: "/earnings", labelKey: "earnings", Icon: WalletIcon },
+    // Role-based navigation items
+    const allNavItems = [
+        { href: "/", labelKey: "home", Icon: HomeIcon, roles: ["OWNER", "MANAGER", "RECEPTIONIST"] },
+        { href: "/walkin", labelKey: "walkIn", Icon: WalkInIcon, roles: ["OWNER", "MANAGER", "RECEPTIONIST"] },
+        { href: "/inventory", labelKey: "rooms", Icon: CalendarIcon, roles: ["OWNER", "MANAGER"] },
+        { href: "/earnings", labelKey: "earnings", Icon: WalletIcon, roles: ["OWNER"] },
     ];
+
+    // Filter nav items based on current role
+    const navItems = allNavItems.filter(item => item.roles.includes(role));
 
     return (
         <nav className="bottom-nav">
