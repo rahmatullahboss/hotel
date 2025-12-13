@@ -2,7 +2,9 @@ import { redirect } from "next/navigation";
 import { getEarningsData } from "../actions/earnings";
 import { getAvailableBalance, getPayoutHistory } from "../actions/payout";
 import { getPartnerRole } from "../actions/getPartnerRole";
+import { getPartnerHotel } from "../actions/dashboard";
 import { BottomNav, ScannerFAB, PayoutSection } from "../components";
+import { EarningsExportClient } from "../components/EarningsExportClient";
 
 export const dynamic = 'force-dynamic';
 
@@ -18,20 +20,28 @@ export default async function EarningsPage() {
         redirect("/?accessDenied=earnings");
     }
 
-    const [earnings, balance, payoutHistory] = await Promise.all([
+    const [earnings, balance, payoutHistory, hotel] = await Promise.all([
         getEarningsData(roleInfo.hotelId, "month"),
         getAvailableBalance(),
         getPayoutHistory(),
+        getPartnerHotel(),
     ]);
 
     return (
         <>
             {/* Header */}
-            <header className="page-header">
-                <h1 className="page-title">Earnings</h1>
-                <p style={{ color: "var(--color-text-secondary)", fontSize: "0.875rem" }}>
-                    Your revenue summary
-                </p>
+            <header className="page-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                <div>
+                    <h1 className="page-title">Earnings</h1>
+                    <p style={{ color: "var(--color-text-secondary)", fontSize: "0.875rem" }}>
+                        Your revenue summary
+                    </p>
+                </div>
+                <EarningsExportClient
+                    earnings={earnings}
+                    hotelName={hotel?.name || "Hotel"}
+                    period="month"
+                />
             </header>
 
             <main>

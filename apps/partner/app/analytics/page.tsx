@@ -4,6 +4,7 @@ import { MdSmartphone, MdDirectionsWalk } from "react-icons/md";
 import { getPartnerHotel } from "../actions/dashboard";
 import { getAnalyticsData } from "../actions/analytics";
 import { BottomNav } from "../components";
+import { AnalyticsExportClient } from "../components/AnalyticsExportClient";
 
 export const dynamic = 'force-dynamic';
 
@@ -34,25 +35,39 @@ export default async function AnalyticsPage({ searchParams }: PageProps) {
     return (
         <>
             {/* Header */}
-            <header className="page-header">
-                <Link
-                    href="/settings"
-                    style={{
-                        background: "none",
-                        border: "none",
-                        fontSize: "1.5rem",
-                        textDecoration: "none",
-                        color: "inherit",
-                        display: "block",
-                        marginBottom: "0.5rem",
+            <header className="page-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                <div>
+                    <Link
+                        href="/settings"
+                        style={{
+                            background: "none",
+                            border: "none",
+                            fontSize: "1.5rem",
+                            textDecoration: "none",
+                            color: "inherit",
+                            display: "block",
+                            marginBottom: "0.5rem",
+                        }}
+                    >
+                        ←
+                    </Link>
+                    <h1 className="page-title">Analytics</h1>
+                    <p style={{ color: "var(--color-text-secondary)", fontSize: "0.875rem" }}>
+                        Performance insights
+                    </p>
+                </div>
+                <AnalyticsExportClient
+                    analytics={{
+                        totalBookings: analytics.totalBookings,
+                        totalRevenue: analytics.totalRevenue,
+                        occupancyRate: analytics.occupancyRate,
+                        avgBookingValue: analytics.avgBookingValue,
+                        platformBookings: analytics.platformBookings,
+                        walkInBookings: analytics.walkInBookings,
                     }}
-                >
-                    ←
-                </Link>
-                <h1 className="page-title">Analytics</h1>
-                <p style={{ color: "var(--color-text-secondary)", fontSize: "0.875rem" }}>
-                    Performance insights
-                </p>
+                    hotelName={hotel.name}
+                    period={periodLabels[period]}
+                />
             </header>
 
             <main>

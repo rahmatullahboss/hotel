@@ -4,6 +4,7 @@ import { MdSmartphone, MdDirectionsWalk } from "react-icons/md";
 import { getPartnerHotel } from "../actions/dashboard";
 import { getBookingHistory } from "../actions/bookings-history";
 import { BottomNav } from "../components";
+import { BookingsExportClient } from "../components/BookingsExportClient";
 
 export const dynamic = 'force-dynamic';
 
@@ -59,25 +60,47 @@ export default async function BookingsPage({ searchParams }: PageProps) {
     return (
         <>
             {/* Header */}
-            <header className="page-header">
-                <Link
-                    href="/settings"
-                    style={{
-                        background: "none",
-                        border: "none",
-                        fontSize: "1.5rem",
-                        textDecoration: "none",
-                        color: "inherit",
-                        display: "block",
-                        marginBottom: "0.5rem",
+            <header className="page-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                <div>
+                    <Link
+                        href="/settings"
+                        style={{
+                            background: "none",
+                            border: "none",
+                            fontSize: "1.5rem",
+                            textDecoration: "none",
+                            color: "inherit",
+                            display: "block",
+                            marginBottom: "0.5rem",
+                        }}
+                    >
+                        ←
+                    </Link>
+                    <h1 className="page-title">Booking History</h1>
+                    <p style={{ color: "var(--color-text-secondary)", fontSize: "0.875rem" }}>
+                        {total} total bookings
+                    </p>
+                </div>
+                <BookingsExportClient
+                    bookings={bookings.map((b) => ({
+                        id: b.id,
+                        guestName: b.guestName,
+                        guestPhone: b.guestPhone,
+                        roomNumber: b.roomNumber,
+                        roomName: b.roomName || b.roomNumber,
+                        checkIn: b.checkIn,
+                        checkOut: b.checkOut,
+                        status: b.status,
+                        totalAmount: b.totalAmount,
+                        paymentStatus: b.paymentStatus,
+                        bookingSource: b.bookingSource,
+                    }))}
+                    hotelName={hotel.name}
+                    dateRange={{
+                        startDate: new Date(new Date().setMonth(new Date().getMonth() - 1)).toISOString().split("T")[0]!,
+                        endDate: new Date().toISOString().split("T")[0]!,
                     }}
-                >
-                    ←
-                </Link>
-                <h1 className="page-title">Booking History</h1>
-                <p style={{ color: "var(--color-text-secondary)", fontSize: "0.875rem" }}>
-                    {total} total bookings
-                </p>
+                />
             </header>
 
             <main>
