@@ -865,6 +865,24 @@ export default async function DashboardPage() {
               <span style={{ fontWeight: 500, color: "var(--color-text-primary)" }}>All Bookings</span>
               <span style={{ fontSize: "0.75rem", color: "var(--color-text-secondary)" }}>View history</span>
             </a>
+            <a
+              href="/channels"
+              className="card"
+              style={{
+                padding: "1rem",
+                textDecoration: "none",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                gap: "0.5rem",
+                textAlign: "center",
+                background: "linear-gradient(135deg, rgba(42, 157, 143, 0.1) 0%, rgba(29, 53, 87, 0.1) 100%)",
+              }}
+            >
+              <span style={{ fontSize: "1.5rem" }}>🌐</span>
+              <span style={{ fontWeight: 500, color: "var(--color-text-primary)" }}>Channels</span>
+              <span style={{ fontSize: "0.75rem", color: "var(--color-text-secondary)" }}>Sync with OTAs</span>
+            </a>
           </div>
         </section>
 
