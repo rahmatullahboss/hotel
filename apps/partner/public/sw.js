@@ -85,12 +85,20 @@ self.addEventListener('push', (event) => {
         const data = event.data.json();
         const options = {
             body: data.body,
-            icon: '/icons/icon-192.png',
-            badge: '/icons/icon-192.png',
+            icon: data.icon || '/icons/icon-192.png',
+            badge: data.badge || '/icons/icon-192.png',
             vibrate: [100, 50, 100],
+            tag: data.tag || 'default', // Prevents duplicate notifications
+            renotify: true, // Notify even if same tag exists
+            requireInteraction: false, // Auto dismiss after a while
             data: {
-                url: data.url || '/'
-            }
+                url: data.url || '/',
+                ...data.data
+            },
+            actions: [
+                { action: 'open', title: 'Open' },
+                { action: 'dismiss', title: 'Dismiss' }
+            ]
         };
         event.waitUntil(
             self.registration.showNotification(data.title, options)
@@ -101,9 +109,34 @@ self.addEventListener('push', (event) => {
 // Handle notification click
 self.addEventListener('notificationclick', (event) => {
     event.notification.close();
+
+    // Handle action buttons
+    if (event.action === 'dismiss') {
+        return;
+    }
+
+    // Open the app and navigate to the URL
     event.waitUntil(
-        clients.openWindow(event.notification.data.url)
+        clients.matchAll({ type: 'window', includeUncontrolled: true })
+            .then((clientList) => {
+                // Check if there's already a window/tab open
+                for (const client of clientList) {
+                    if (client.url.includes(self.location.origin) && 'focus' in client) {
+                        client.focus();
+                        client.navigate(event.notification.data.url);
+                        return;
+                    }
+                }
+                // Open new window if none found
+                return clients.openWindow(event.notification.data.url);
+            })
     );
+});
+
+// Handle notification close
+self.addEventListener('notificationclose', (event) => {
+    // Track notification dismissals if needed
+    console.log('[SW] Notification closed:', event.notification.tag);
 });
 
 // Background sync for offline check-ins

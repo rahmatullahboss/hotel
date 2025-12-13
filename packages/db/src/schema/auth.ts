@@ -79,6 +79,49 @@ export const verificationTokens = pgTable(
     ]
 );
 
+// Push Notification Subscriptions
+// Stores Web Push API subscription data for each user's device
+export const pushSubscriptions = pgTable("pushSubscriptions", {
+    id: text("id")
+        .primaryKey()
+        .$defaultFn(() => crypto.randomUUID()),
+    userId: text("userId")
+        .notNull()
+        .references(() => users.id, { onDelete: "cascade" }),
+    endpoint: text("endpoint").notNull(),
+    p256dh: text("p256dh").notNull(), // Public key for encryption
+    auth: text("auth").notNull(), // Authentication secret
+    deviceName: text("deviceName"), // Optional device identifier (browser/OS)
+    isActive: boolean("isActive").default(true).notNull(),
+    createdAt: timestamp("createdAt", { mode: "date" }).defaultNow().notNull(),
+});
+
+// Notification Preferences
+// Controls which types of notifications each user wants to receive
+export const notificationPreferences = pgTable("notificationPreferences", {
+    id: text("id")
+        .primaryKey()
+        .$defaultFn(() => crypto.randomUUID()),
+    userId: text("userId")
+        .notNull()
+        .references(() => users.id, { onDelete: "cascade" })
+        .unique(),
+    // Partner notifications
+    newBooking: boolean("newBooking").default(true).notNull(),
+    cancellation: boolean("cancellation").default(true).notNull(),
+    checkInReminder: boolean("checkInReminder").default(true).notNull(),
+    paymentReceived: boolean("paymentReceived").default(true).notNull(),
+    lowInventory: boolean("lowInventory").default(true).notNull(),
+    // Guest notifications
+    bookingConfirmation: boolean("bookingConfirmation").default(true).notNull(),
+    checkInInstructions: boolean("checkInInstructions").default(true).notNull(),
+    promotions: boolean("promotions").default(true).notNull(),
+    updatedAt: timestamp("updatedAt", { mode: "date" }).defaultNow().notNull(),
+});
+
 // Type exports
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
+export type PushSubscription = typeof pushSubscriptions.$inferSelect;
+export type NewPushSubscription = typeof pushSubscriptions.$inferInsert;
+export type NotificationPreferences = typeof notificationPreferences.$inferSelect;

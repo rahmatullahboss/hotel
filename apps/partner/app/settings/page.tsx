@@ -4,6 +4,7 @@ import { MdBusiness, MdCameraAlt, MdGroup, MdReceipt, MdInsights, MdHelpOutline,
 import { getHotelProfile } from "../actions/settings";
 import { getPartnerRole } from "../actions/getPartnerRole";
 import { BottomNav, LanguageSwitcher } from "../components";
+import { NotificationSettings } from "../components/NotificationSettings";
 import { getTranslations } from "next-intl/server";
 
 export const dynamic = 'force-dynamic';
@@ -150,6 +151,11 @@ export default async function SettingsPage() {
                         </div>
                     </div>
                     <LanguageSwitcher />
+                </div>
+
+                {/* Push Notifications */}
+                <div style={{ marginBottom: "1.5rem" }}>
+                    <NotificationSettings />
                 </div>
 
                 {/* Settings Menu */}
