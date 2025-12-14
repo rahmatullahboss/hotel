@@ -108,12 +108,19 @@ export const getCityBySlug = unstable_cache(
 
 /**
  * Get all city slugs for static generation
+ * Returns empty array if table doesn't exist (for first deployment)
  */
 export async function getAllCitySlugs(): Promise<string[]> {
-    const result = await db
-        .select({ slug: cities.slug })
-        .from(cities)
-        .where(eq(cities.isActive, true));
+    try {
+        const result = await db
+            .select({ slug: cities.slug })
+            .from(cities)
+            .where(eq(cities.isActive, true));
 
-    return result.map((c) => c.slug);
+        return result.map((c) => c.slug);
+    } catch (error) {
+        // Table may not exist yet during first build
+        console.warn("Cities table not found, returning empty array for static params");
+        return [];
+    }
 }
