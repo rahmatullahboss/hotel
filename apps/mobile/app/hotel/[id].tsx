@@ -178,7 +178,7 @@ export default function HotelDetailScreen() {
                                     <Text style={[styles.roomCapacity, { color: colors.textSecondary }]}>
                                         👥 Up to {room.maxGuests} guests
                                     </Text>
-                                    <View style={styles.roomPriceRow}>
+                                    <View style={[styles.roomPriceRow, { backgroundColor: 'transparent' }]}>
                                         {/* Show strikethrough only when there's a discount */}
                                         {room.dynamicPrice && room.dynamicPrice < Number(room.basePrice) && (
                                             <Text style={[styles.originalPrice, { color: '#999' }]}>
@@ -188,7 +188,7 @@ export default function HotelDetailScreen() {
                                         <Text style={[styles.roomPrice, { color: Colors.primary }]}>
                                             ৳{Number(room.dynamicPrice || room.basePrice || 0).toLocaleString()}
                                         </Text>
-                                        <Text style={{ fontSize: 14, color: '#666', marginLeft: 2 }}>/night</Text>
+                                        <Text style={{ fontSize: 14, color: '#666', marginLeft: 4, backgroundColor: 'transparent' }}>/night</Text>
                                     </View>
                                     <TouchableOpacity
                                         style={[styles.bookButton, { backgroundColor: Colors.primary }]}
