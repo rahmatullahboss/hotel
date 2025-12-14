@@ -23,10 +23,10 @@ interface Hotel {
   id: string;
   name: string;
   city: string;
-  address: string;
-  rating: number;
+  location?: string;
+  rating: string | number;
   imageUrl: string;
-  minPrice?: number;
+  lowestPrice?: number;
 }
 
 const QUICK_FILTERS = [
@@ -168,7 +168,7 @@ export default function HomeScreen() {
                     </Text>
                     <View style={styles.ratingBadge}>
                       <FontAwesome name="star" size={10} color="#fff" />
-                      <Text style={styles.ratingText}>{hotel.rating?.toFixed(1) || '4.0'}</Text>
+                      <Text style={styles.ratingText}>{Number(hotel.rating || 0).toFixed(1)}</Text>
                     </View>
                   </View>
                   <View style={[styles.locationRow, { backgroundColor: 'transparent' }]}>
@@ -180,7 +180,7 @@ export default function HomeScreen() {
                   <View style={[styles.priceRow, { backgroundColor: 'transparent' }]}>
                     <Text style={[styles.priceLabel, { color: colors.textSecondary }]}>Starting from</Text>
                     <Text style={[styles.hotelPrice, { color: Colors.primary }]}>
-                      ৳{hotel.minPrice?.toLocaleString() || '2,500'}
+                      ৳{Number(hotel.lowestPrice || 0).toLocaleString()}
                     </Text>
                     <Text style={[styles.perNight, { color: colors.textSecondary }]}>/night</Text>
                   </View>
