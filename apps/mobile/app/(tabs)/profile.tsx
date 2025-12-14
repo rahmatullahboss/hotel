@@ -32,10 +32,12 @@ export default function ProfileScreen() {
 
     const MENU_ITEMS = [
         { icon: 'suitcase' as const, label: t('profile.menu.myTrips'), route: '/(tabs)/bookings' },
+        { icon: 'credit-card' as const, label: t('profile.menu.wallet'), route: '/wallet' },
+        { icon: 'gift' as const, label: t('profile.menu.referral'), route: '/referral' },
+        { icon: 'trophy' as const, label: t('profile.menu.achievements'), route: '/achievements' },
         { icon: 'heart-o' as const, label: t('profile.menu.savedHotels'), route: '/saved' },
-        { icon: 'credit-card' as const, label: t('profile.menu.paymentMethods'), route: '/payment-methods' },
         { icon: 'bell-o' as const, label: t('profile.menu.notifications'), route: '/notifications' },
-        { icon: 'gift' as const, label: t('profile.menu.offersRewards'), route: '/offers' },
+        { icon: 'tag' as const, label: t('profile.menu.offersRewards'), route: '/offers' },
         { icon: 'question-circle-o' as const, label: t('profile.menu.helpSupport'), route: '/help' },
     ];
 

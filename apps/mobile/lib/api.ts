@@ -113,6 +113,45 @@ export const api = {
 
     // Cities
     getCities: () => apiRequest<any[]>('/api/cities'),
+
+    // Wallet
+    getWallet: () => apiRequest<{
+        balance: number;
+        loyalty: { points: number; lifetimePoints: number; tier: string };
+        transactions: any[];
+    }>('/api/user/wallet'),
+
+    // Referral
+    getReferral: () => apiRequest<{
+        code: string;
+        totalReferrals: number;
+        pendingReferrals: number;
+        completedReferrals: number;
+        totalEarned: number;
+        referralHistory: any[];
+    }>('/api/user/referral'),
+
+    applyReferralCode: (code: string) => apiRequest<{ success: boolean; message?: string }>('/api/user/referral', {
+        method: 'POST',
+        body: JSON.stringify({ code }),
+    }),
+
+    // Achievements
+    getAchievements: () => apiRequest<{
+        streak: {
+            currentStreak: number;
+            longestStreak: number;
+            totalLoginDays: number;
+            nextReward: { days: number; reward: number; badgeCode: string } | null;
+            daysUntilReward: number;
+        };
+        badges: any[];
+        earnedCount: number;
+    }>('/api/user/achievements'),
+
+    recordDailyLogin: () => apiRequest<{ success: boolean; currentStreak: number; reward: any }>('/api/user/achievements', {
+        method: 'POST',
+    }),
 };
 
 export default api;
