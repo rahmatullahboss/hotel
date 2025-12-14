@@ -1,14 +1,13 @@
-/* Why Choose Us Component Styles - Light Theme */
+/* Why Choose Us Component Styles - Matching Homepage why-book */
 
 .why-choose-us {
-    padding: 2rem 1rem 6rem;
-    background: var(--color-bg-secondary);
+    /* Uses same structure as homepage section */
 }
 
 .why-choose-us-title {
-    font-size: 1.25rem;
     font-weight: 700;
-    margin-bottom: 1.25rem;
+    font-size: 1.125rem;
+    margin-bottom: 1.5rem;
     text-align: center;
     color: var(--color-text-primary);
 }
@@ -20,64 +19,71 @@
 }
 
 .why-choose-us-card {
-    background: white;
-    padding: 1.25rem;
-    border-radius: 0.875rem;
+    padding: 1.25rem 1rem;
+    border-radius: 1rem;
     text-align: center;
+    background: white;
     border: 1px solid var(--color-border);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    transition: all 0.3s ease;
 }
 
 .why-choose-us-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+    transform: translateY(-4px);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.1);
+    border-color: var(--color-primary);
 }
 
 .why-choose-us-icon {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 48px;
-    height: 48px;
-    margin: 0 auto 0.75rem;
-    background: linear-gradient(135deg, #ee2a7b 0%, #ff6b6b 100%);
-    border-radius: 0.75rem;
-    color: white;
-    font-size: 1.5rem;
+    color: var(--color-primary);
 }
 
 .why-choose-us-card h3 {
-    font-size: 0.9375rem;
     font-weight: 600;
-    margin-bottom: 0.375rem;
+    font-size: 0.9375rem;
+    margin-bottom: 0.25rem;
     color: var(--color-text-primary);
 }
 
 .why-choose-us-card p {
     font-size: 0.8125rem;
     color: var(--color-text-secondary);
-    line-height: 1.5;
+    line-height: 1.4;
 }
 
-/* Responsive */
+/* Responsive - Match homepage desktop styles */
 @media (min-width: 640px) {
-    .why-choose-us {
-        padding: 2.5rem 2rem 4rem;
-    }
-
     .why-choose-us-grid {
         grid-template-columns: repeat(4, 1fr);
     }
 }
 
 @media (min-width: 1024px) {
+    .why-choose-us-grid {
+        gap: 1.5rem;
+    }
+
     .why-choose-us-card {
-        padding: 1.5rem;
+        padding: 2rem 1.5rem;
+        border-radius: 1.25rem;
     }
 
     .why-choose-us-icon {
-        width: 56px;
-        height: 56px;
-        font-size: 1.75rem;
+        font-size: 3rem;
+        margin-bottom: 1rem;
+    }
+
+    .why-choose-us-card h3 {
+        font-size: 1.125rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .why-choose-us-card p {
+        font-size: 0.9375rem;
+        line-height: 1.5;
     }
 }

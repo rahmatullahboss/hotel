@@ -13,39 +13,39 @@ export function WhyChooseUs({ cityName }: WhyChooseUsProps) {
     const t = useTranslations("whyChooseUs");
 
     return (
-        <section className="why-choose-us">
+        <section className="why-choose-us" style={{ marginTop: "3rem", marginBottom: "0" }}>
             <div className="container">
-                <h2 className="why-choose-us-title">
+                <h2 className="section-title" style={{ marginBottom: "1.5rem", textAlign: "center" }}>
                     {cityName ? t("titleWithCity", { city: cityName }) : t("title")}
                 </h2>
                 <div className="why-choose-us-grid">
-                    <div className="why-choose-us-card">
-                        <div className="why-choose-us-icon">
-                            <FiCheck />
-                        </div>
-                        <h3>{t("verifiedTitle")}</h3>
-                        <p>{t("verifiedDesc")}</p>
+                    <div className="why-choose-us-card card">
+                        <span className="why-choose-us-icon">
+                            <FiCheck size={24} />
+                        </span>
+                        <h3 className="why-book-title">{t("verifiedTitle")}</h3>
+                        <p className="why-book-desc">{t("verifiedDesc")}</p>
                     </div>
-                    <div className="why-choose-us-card">
-                        <div className="why-choose-us-icon">
-                            <FiDollarSign />
-                        </div>
-                        <h3>{t("priceTitle")}</h3>
-                        <p>{t("priceDesc")}</p>
+                    <div className="why-choose-us-card card">
+                        <span className="why-choose-us-icon">
+                            <FiDollarSign size={24} />
+                        </span>
+                        <h3 className="why-book-title">{t("priceTitle")}</h3>
+                        <p className="why-book-desc">{t("priceDesc")}</p>
                     </div>
-                    <div className="why-choose-us-card">
-                        <div className="why-choose-us-icon">
-                            <FiHome />
-                        </div>
-                        <h3>{t("payAtHotelTitle")}</h3>
-                        <p>{t("payAtHotelDesc")}</p>
+                    <div className="why-choose-us-card card">
+                        <span className="why-choose-us-icon">
+                            <FiHome size={24} />
+                        </span>
+                        <h3 className="why-book-title">{t("payAtHotelTitle")}</h3>
+                        <p className="why-book-desc">{t("payAtHotelDesc")}</p>
                     </div>
-                    <div className="why-choose-us-card">
-                        <div className="why-choose-us-icon">
-                            <FiZap />
-                        </div>
-                        <h3>{t("instantTitle")}</h3>
-                        <p>{t("instantDesc")}</p>
+                    <div className="why-choose-us-card card">
+                        <span className="why-choose-us-icon">
+                            <FiZap size={24} />
+                        </span>
+                        <h3 className="why-book-title">{t("instantTitle")}</h3>
+                        <p className="why-book-desc">{t("instantDesc")}</p>
                     </div>
                 </div>
             </div>
