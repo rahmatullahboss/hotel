@@ -193,15 +193,12 @@ export default function HomeScreen() {
                   </View>
                   <View style={[styles.priceRow, { backgroundColor: 'transparent' }]}>
                     <Text style={[styles.priceLabel, { color: colors.textSecondary }]}>{t('home.startingFrom')}</Text>
-                    <View style={styles.priceContainer}>
+                    <Text>
                       <Text style={[styles.hotelPrice, { color: Colors.primary }]}>
                         {t('common.currency')}{formatPrice(hotel.lowestPrice || 0)}
                       </Text>
-                      {/* Explicitly using separate Text components to avoid truncation issues */}
-                      <Text style={[styles.perNight, { color: '#666' }]}>
-                        {t('common.perNight')}
-                      </Text>
-                    </View>
+                      <Text style={[styles.perNight, { color: '#666' }]}> {t('common.perNight')}</Text>
+                    </Text>
                   </View>
                 </View>
               </TouchableOpacity>
@@ -423,10 +420,6 @@ const styles = StyleSheet.create({
   priceLabel: {
     fontSize: 12,
     marginRight: 6,
-  },
-  priceContainer: {
-    flexDirection: 'row',
-    alignItems: 'baseline',
   },
   hotelPrice: {
     fontSize: 18,
