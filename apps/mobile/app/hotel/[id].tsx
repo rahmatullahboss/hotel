@@ -188,13 +188,16 @@ export default function HotelDetailScreen() {
                                                 <Text style={[styles.roomPrice, { color: Colors.primary }]}>
                                                     ৳{Number(room.dynamicPrice).toLocaleString()}
                                                 </Text>
+                                                <Text style={styles.perNight}>/night</Text>
                                             </>
                                         ) : (
-                                            <Text style={[styles.roomPrice, { color: Colors.primary }]}>
-                                                ৳{Number(room.dynamicPrice || room.basePrice || 0).toLocaleString()}
-                                            </Text>
+                                            <>
+                                                <Text style={[styles.roomPrice, { color: Colors.primary }]}>
+                                                    ৳{Number(room.dynamicPrice || room.basePrice || 0).toLocaleString()}
+                                                </Text>
+                                                <Text style={styles.perNight}>/night</Text>
+                                            </>
                                         )}
-                                        <Text style={[styles.perNight, { color: '#717171' }]}>/night</Text>
                                     </View>
                                     <TouchableOpacity
                                         style={[styles.bookButton, { backgroundColor: Colors.primary }]}
@@ -333,6 +336,7 @@ const styles = StyleSheet.create({
     perNight: {
         fontSize: 14,
         marginLeft: 4,
+        color: '#717171',
     },
     bookButton: {
         paddingVertical: 12,
