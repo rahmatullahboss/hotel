@@ -3,6 +3,7 @@ import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { Tabs } from 'expo-router';
 import { Platform } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useTranslation } from 'react-i18next';
 
 import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
@@ -25,6 +26,7 @@ export default function TabLayout() {
   const colorScheme = useColorScheme() ?? 'light';
   const colors = Colors[colorScheme];
   const insets = useSafeAreaInsets();
+  const { t } = useTranslation();
 
   return (
     <Tabs
@@ -58,7 +60,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Home',
+          title: t('nav.home'),
           tabBarIcon: ({ color, focused }) => (
             <TabBarIcon name="home" color={color} focused={focused} />
           ),
@@ -67,7 +69,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="search"
         options={{
-          title: 'Search',
+          title: t('nav.search'),
           tabBarIcon: ({ color, focused }) => (
             <TabBarIcon name="search" color={color} focused={focused} />
           ),
@@ -76,7 +78,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="bookings"
         options={{
-          title: 'My Trips',
+          title: t('nav.myTrips'),
           tabBarIcon: ({ color, focused }) => (
             <TabBarIcon name="suitcase" color={color} focused={focused} />
           ),
@@ -85,7 +87,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="profile"
         options={{
-          title: 'Account',
+          title: t('nav.account'),
           tabBarIcon: ({ color, focused }) => (
             <TabBarIcon name="user-circle" color={color} focused={focused} />
           ),

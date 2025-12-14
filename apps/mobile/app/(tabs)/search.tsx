@@ -10,23 +10,25 @@ import { Text, View } from '@/components/Themed';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
+import { useTranslation } from 'react-i18next';
 import Colors from '@/constants/Colors';
 
 const { width } = Dimensions.get('window');
 
 const POPULAR_CITIES = [
-    { name: 'Dhaka', image: '🏙️', hotels: '250+ hotels' },
-    { name: 'Chittagong', image: '⛵', hotels: '120+ hotels' },
-    { name: "Cox's Bazar", image: '🏖️', hotels: '180+ hotels' },
-    { name: 'Sylhet', image: '🌿', hotels: '90+ hotels' },
-    { name: 'Rajshahi', image: '🏛️', hotels: '45+ hotels' },
-    { name: 'Khulna', image: '🌊', hotels: '35+ hotels' },
+    { name: 'Dhaka', image: '🏙️', hotels: '250+' },
+    { name: 'Chittagong', image: '⛵', hotels: '120+' },
+    { name: "Cox's Bazar", image: '🏖️', hotels: '180+' },
+    { name: 'Sylhet', image: '🌿', hotels: '90+' },
+    { name: 'Rajshahi', image: '🏛️', hotels: '45+' },
+    { name: 'Khulna', image: '🌊', hotels: '35+' },
 ];
 
 export default function SearchScreen() {
     const router = useRouter();
     const colors = Colors.light; // Force light theme
     const insets = useSafeAreaInsets();
+    const { t } = useTranslation();
 
     const [searchQuery, setSearchQuery] = useState('');
 
@@ -41,8 +43,8 @@ export default function SearchScreen() {
         <View style={[styles.container, { backgroundColor: colors.background }]}>
             {/* Header */}
             <View style={[styles.header, { paddingTop: insets.top + 10, backgroundColor: Colors.primary }]}>
-                <Text style={styles.headerTitle}>Search</Text>
-                <Text style={styles.headerSubtitle}>Find hotels in any city</Text>
+                <Text style={styles.headerTitle}>{t('search.title')}</Text>
+                <Text style={styles.headerSubtitle}>{t('search.subtitle')}</Text>
             </View>
 
             <ScrollView
@@ -55,7 +57,7 @@ export default function SearchScreen() {
                         <FontAwesome name="search" size={18} color={colors.textSecondary} />
                         <TextInput
                             style={[styles.searchInput, { color: colors.text }]}
-                            placeholder="City, hotel, or landmark"
+                            placeholder={t('search.placeholder')}
                             placeholderTextColor={colors.textSecondary}
                             value={searchQuery}
                             onChangeText={setSearchQuery}
@@ -71,7 +73,7 @@ export default function SearchScreen() {
                 {/* Popular Cities */}
                 <View style={styles.section}>
                     <Text style={[styles.sectionTitle, { color: colors.text }]}>
-                        Popular Destinations
+                        {t('search.popularDestinations')}
                     </Text>
                     <View style={styles.citiesGrid}>
                         {POPULAR_CITIES.map((city) => (
@@ -83,7 +85,9 @@ export default function SearchScreen() {
                             >
                                 <Text style={styles.cityEmoji}>{city.image}</Text>
                                 <Text style={[styles.cityName, { color: colors.text }]}>{city.name}</Text>
-                                <Text style={[styles.cityHotels, { color: colors.textSecondary }]}>{city.hotels}</Text>
+                                <Text style={[styles.cityHotels, { color: colors.textSecondary }]}>
+                                    {city.hotels} {t('search.hotels')}
+                                </Text>
                             </TouchableOpacity>
                         ))}
                     </View>
@@ -92,12 +96,12 @@ export default function SearchScreen() {
                 {/* Recent Searches */}
                 <View style={styles.section}>
                     <Text style={[styles.sectionTitle, { color: colors.text }]}>
-                        Recent Searches
+                        {t('search.recentSearches')}
                     </Text>
                     <View style={[styles.emptyRecent, { backgroundColor: colors.backgroundSecondary }]}>
                         <FontAwesome name="history" size={24} color={colors.textSecondary} />
                         <Text style={[styles.emptyText, { color: colors.textSecondary }]}>
-                            Your recent searches will appear here
+                            {t('search.recentEmpty')}
                         </Text>
                     </View>
                 </View>

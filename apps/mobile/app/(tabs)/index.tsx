@@ -27,7 +27,6 @@ interface Hotel {
   rating: string | number;
   imageUrl: string;
   lowestPrice?: number;
-  basePrice?: number; // Added for discount display
 }
 
 const QUICK_FILTERS = [
@@ -180,17 +179,11 @@ export default function HomeScreen() {
                   </View>
                   <View style={[styles.priceRow, { backgroundColor: 'transparent' }]}>
                     <Text style={[styles.priceLabel, { color: colors.textSecondary }]}>Starting from</Text>
-                    {/* Show strikethrough only when there's a discount */}
-                    {hotel.lowestPrice && hotel.basePrice && hotel.lowestPrice < hotel.basePrice && (
-                      <Text style={[styles.originalPrice, { color: '#999', marginRight: 6 }]}>
-                        ৳{Number(hotel.basePrice).toLocaleString()}
-                      </Text>
-                    )}
                     <Text>
                       <Text style={[styles.hotelPrice, { color: Colors.primary }]}>
                         ৳{Number(hotel.lowestPrice || 0).toLocaleString()}
                       </Text>
-                      <Text style={{ fontSize: 12, color: '#666' }}> /night</Text>
+                      <Text style={{ fontSize: 12, color: '#717171' }}> /night</Text>
                     </Text>
                   </View>
                 </View>
@@ -407,6 +400,7 @@ const styles = StyleSheet.create({
   priceRow: {
     flexDirection: 'row',
     alignItems: 'baseline',
+    flexWrap: 'wrap',
   },
   priceLabel: {
     fontSize: 12,
@@ -419,9 +413,5 @@ const styles = StyleSheet.create({
   perNight: {
     fontSize: 12,
     marginLeft: 2,
-  },
-  originalPrice: {
-    fontSize: 12,
-    textDecorationLine: 'line-through',
   },
 });

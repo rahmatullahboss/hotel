@@ -292,7 +292,6 @@ const _getFeaturedHotels = async (limit: number): Promise<HotelWithPrice[]> => {
                 amenities: h.amenities ?? [],
                 payAtHotel: h.payAtHotel,
                 lowestPrice: displayPrice,
-                basePrice: basePrice, // Original base price for strikethrough
             };
         });
     } catch (error) {
