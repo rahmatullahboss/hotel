@@ -178,26 +178,17 @@ export default function HotelDetailScreen() {
                                     <Text style={[styles.roomCapacity, { color: colors.textSecondary }]}>
                                         👥 Up to {room.maxGuests} guests
                                     </Text>
-                                    <View style={[styles.roomPriceRow, { backgroundColor: 'transparent' }]}>
-                                        {/* Only show strikethrough when dynamic price is LOWER (discount) */}
-                                        {room.dynamicPrice && room.dynamicPrice < Number(room.basePrice) ? (
-                                            <>
-                                                <Text style={[styles.originalPrice, { color: colors.textSecondary }]}>
-                                                    ৳{Number(room.basePrice || 0).toLocaleString()}
-                                                </Text>
-                                                <Text style={[styles.roomPrice, { color: Colors.primary }]}>
-                                                    ৳{Number(room.dynamicPrice).toLocaleString()}
-                                                </Text>
-                                                <Text style={styles.perNight}>/night</Text>
-                                            </>
-                                        ) : (
-                                            <>
-                                                <Text style={[styles.roomPrice, { color: Colors.primary }]}>
-                                                    ৳{Number(room.dynamicPrice || room.basePrice || 0).toLocaleString()}
-                                                </Text>
-                                                <Text style={styles.perNight}>/night</Text>
-                                            </>
+                                    <View style={styles.roomPriceRow}>
+                                        {/* Show strikethrough only when there's a discount */}
+                                        {room.dynamicPrice && room.dynamicPrice < Number(room.basePrice) && (
+                                            <Text style={[styles.originalPrice, { color: '#999' }]}>
+                                                ৳{Number(room.basePrice).toLocaleString()}
+                                            </Text>
                                         )}
+                                        <Text style={[styles.roomPrice, { color: Colors.primary }]}>
+                                            ৳{Number(room.dynamicPrice || room.basePrice || 0).toLocaleString()}
+                                        </Text>
+                                        <Text style={{ fontSize: 14, color: '#666', marginLeft: 2 }}>/night</Text>
                                     </View>
                                     <TouchableOpacity
                                         style={[styles.bookButton, { backgroundColor: Colors.primary }]}
