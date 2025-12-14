@@ -5,12 +5,14 @@ import {
     TouchableOpacity,
     ActivityIndicator,
     Image,
+    Switch,
 } from 'react-native';
 import { Text, View } from '@/components/Themed';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import Colors from '@/constants/Colors';
+import { useTheme } from '@/context/ThemeContext';
 import api, { removeToken } from '@/lib/api';
 
 interface User {
@@ -26,12 +28,12 @@ const MENU_ITEMS = [
     { icon: 'bell-o' as const, label: 'Notifications', route: '/notifications' },
     { icon: 'gift' as const, label: 'Offers & Rewards', route: '/offers' },
     { icon: 'question-circle-o' as const, label: 'Help & Support', route: '/help' },
-    { icon: 'cog' as const, label: 'Settings', route: '/settings' },
 ];
 
 export default function ProfileScreen() {
     const router = useRouter();
-    const colors = Colors.light; // Force light theme
+    const { theme, toggleTheme } = useTheme();
+    const colors = Colors[theme];
     const insets = useSafeAreaInsets();
 
     const [user, setUser] = useState<User | null>(null);
@@ -104,6 +106,22 @@ export default function ProfileScreen() {
                 style={styles.scrollView}
                 showsVerticalScrollIndicator={false}
             >
+                {/* Theme Toggle */}
+                <View style={[styles.themeSection, { backgroundColor: colors.card }]}>
+                    <View style={[styles.themeRow, { backgroundColor: 'transparent' }]}>
+                        <View style={[styles.menuIconContainer, { backgroundColor: `${Colors.primary}10` }]}>
+                            <FontAwesome name="moon-o" size={18} color={Colors.primary} />
+                        </View>
+                        <Text style={[styles.menuLabel, { color: colors.text }]}>Dark Mode</Text>
+                        <Switch
+                            value={theme === 'dark'}
+                            onValueChange={toggleTheme}
+                            trackColor={{ false: '#D1D5DB', true: Colors.primary }}
+                            thumbColor="#FFFFFF"
+                        />
+                    </View>
+                </View>
+
                 {/* Menu Items */}
                 <View style={styles.menuSection}>
                     {MENU_ITEMS.map((item, index) => (
@@ -219,8 +237,20 @@ const styles = StyleSheet.create({
     scrollView: {
         flex: 1,
     },
+    themeSection: {
+        marginHorizontal: 20,
+        marginTop: 20,
+        borderRadius: 16,
+        overflow: 'hidden',
+    },
+    themeRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        padding: 16,
+    },
     menuSection: {
         margin: 20,
+        marginTop: 12,
         borderRadius: 16,
         overflow: 'hidden',
     },
