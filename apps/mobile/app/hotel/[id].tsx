@@ -179,8 +179,8 @@ export default function HotelDetailScreen() {
                                         👥 Up to {room.maxGuests} guests
                                     </Text>
                                     <View style={[styles.roomPriceRow, { backgroundColor: 'transparent' }]}>
-                                        {/* Show dynamic price if available, else base price */}
-                                        {room.dynamicPrice && room.dynamicPrice !== Number(room.basePrice) ? (
+                                        {/* Only show strikethrough when dynamic price is LOWER (discount) */}
+                                        {room.dynamicPrice && room.dynamicPrice < Number(room.basePrice) ? (
                                             <>
                                                 <Text style={[styles.originalPrice, { color: colors.textSecondary }]}>
                                                     ৳{Number(room.basePrice || 0).toLocaleString()}
