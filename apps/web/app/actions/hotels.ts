@@ -65,16 +65,21 @@ export async function searchHotels(params: SearchParams): Promise<HotelWithPrice
     const { city, minPrice, maxPrice, payAtHotel, sortBy = "rating", latitude, longitude, radiusKm = 10 } = params;
 
     try {
-        // Try to import pricing module
-        let calculateDynamicPrice: ((input: {
+        // Import bookings for occupancy calculation (same as getAvailableRooms)
+        const { bookings } = await import("@repo/db/schema");
+        const { ne, lt, gt, and: drizzleAnd } = await import("drizzle-orm");
+
+        // Try to import pricing module with occupancy support
+        let calculateTotalDynamicPrice: ((input: {
             basePrice: number;
             checkIn: string;
             checkOut: string;
+            hotelOccupancy?: number;
         }) => { finalPrice: number }) | null = null;
 
         try {
             const pricingModule = await import("@repo/api/pricing");
-            calculateDynamicPrice = pricingModule.calculateDynamicPrice;
+            calculateTotalDynamicPrice = pricingModule.calculateTotalDynamicPrice;
         } catch (e) {
             console.log("Pricing module not available for search:", e);
         }
@@ -113,8 +118,8 @@ export async function searchHotels(params: SearchParams): Promise<HotelWithPrice
             .groupBy(hotels.id)
             .orderBy(sortBy === "price" ? sql`MIN(${rooms.basePrice})` : desc(hotels.rating));
 
-        // Transform and filter results
-        let filtered = result.map((h) => {
+        // Transform and filter results with occupancy-based pricing
+        let filtered = await Promise.all(result.map(async (h) => {
             const hotelLat = h.latitude ? parseFloat(h.latitude) : null;
             const hotelLng = h.longitude ? parseFloat(h.longitude) : null;
 
@@ -124,16 +129,47 @@ export async function searchHotels(params: SearchParams): Promise<HotelWithPrice
                 distance = calculateDistance(latitude, longitude, hotelLat, hotelLng);
             }
 
-            // Apply dynamic pricing
+            // Calculate hotel occupancy (same logic as getAvailableRooms)
             const basePrice = h.lowestPrice ?? 0;
             let displayPrice = basePrice;
+            let hotelOccupancy: number | undefined;
 
-            if (calculateDynamicPrice && basePrice > 0) {
+            try {
+                const hotelRooms = await db.query.rooms.findMany({
+                    where: eq(rooms.hotelId, h.id),
+                });
+
+                if (hotelRooms.length > 0) {
+                    let occupiedRooms = 0;
+                    for (const room of hotelRooms) {
+                        try {
+                            const existingBooking = await db.query.bookings.findFirst({
+                                where: drizzleAnd(
+                                    eq(bookings.roomId, room.id),
+                                    ne(bookings.status, "CANCELLED"),
+                                    lt(bookings.checkIn, checkOut),
+                                    gt(bookings.checkOut, checkIn)
+                                ),
+                            });
+                            if (existingBooking) occupiedRooms++;
+                        } catch (e) {
+                            // Skip if booking check fails
+                        }
+                    }
+                    hotelOccupancy = occupiedRooms / hotelRooms.length;
+                }
+            } catch (e) {
+                console.log("Error calculating occupancy for hotel:", h.id, e);
+            }
+
+            // Apply dynamic pricing with occupancy
+            if (calculateTotalDynamicPrice && basePrice > 0) {
                 try {
-                    const priceResult = calculateDynamicPrice({
+                    const priceResult = calculateTotalDynamicPrice({
                         basePrice,
                         checkIn,
                         checkOut,
+                        hotelOccupancy,
                     });
                     displayPrice = priceResult.finalPrice;
                 } catch (e) {
@@ -156,7 +192,7 @@ export async function searchHotels(params: SearchParams): Promise<HotelWithPrice
                 lowestPrice: displayPrice,
                 distance,
             };
-        });
+        }));
 
         // Apply geo filter if location provided
         if (latitude && longitude) {
@@ -218,6 +254,10 @@ export async function getHotelById(hotelId: string) {
  */
 const _getFeaturedHotels = async (limit: number): Promise<HotelWithPrice[]> => {
     try {
+        // Import bookings for occupancy calculation (same as getAvailableRooms)
+        const { bookings } = await import("@repo/db/schema");
+        const { ne, lt, gt, and: drizzleAnd } = await import("drizzle-orm");
+
         // Try to import pricing module - use the same function as room details
         let calculateTotalDynamicPrice: ((input: {
             basePrice: number;
@@ -263,40 +303,75 @@ const _getFeaturedHotels = async (limit: number): Promise<HotelWithPrice[]> => {
             .orderBy(desc(hotels.rating))
             .limit(limit);
 
-        return result.map((h) => {
-            const basePrice = h.lowestPrice ?? 0;
-            let displayPrice = basePrice;
+        // Calculate occupancy and dynamic price for each hotel
+        const hotelsWithPricing = await Promise.all(
+            result.map(async (h) => {
+                const basePrice = h.lowestPrice ?? 0;
+                let displayPrice = basePrice;
 
-            // Apply dynamic pricing if available (same logic as room details)
-            if (calculateTotalDynamicPrice && basePrice > 0) {
+                // Calculate hotel occupancy (same logic as getAvailableRooms)
+                let hotelOccupancy: number | undefined;
                 try {
-                    const priceResult = calculateTotalDynamicPrice({
-                        basePrice,
-                        checkIn,
-                        checkOut,
-                        // No occupancy data for featured hotels listing, but still apply seasonal/date rules
+                    const hotelRooms = await db.query.rooms.findMany({
+                        where: eq(rooms.hotelId, h.id),
                     });
-                    displayPrice = priceResult.finalPrice;
-                } catch (e) {
-                    console.log("Error calculating dynamic price:", e);
-                }
-            }
 
-            return {
-                id: h.id,
-                name: h.name,
-                location: h.location,
-                city: h.city,
-                latitude: h.latitude ? parseFloat(h.latitude) : null,
-                longitude: h.longitude ? parseFloat(h.longitude) : null,
-                rating: h.rating ? parseFloat(h.rating) : 0,
-                reviewCount: h.reviewCount,
-                imageUrl: h.imageUrl ?? "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800&h=600&fit=crop",
-                amenities: h.amenities ?? [],
-                payAtHotel: h.payAtHotel,
-                lowestPrice: displayPrice,
-            };
-        });
+                    if (hotelRooms.length > 0) {
+                        let occupiedRooms = 0;
+                        for (const room of hotelRooms) {
+                            try {
+                                const existingBooking = await db.query.bookings.findFirst({
+                                    where: drizzleAnd(
+                                        eq(bookings.roomId, room.id),
+                                        ne(bookings.status, "CANCELLED"),
+                                        lt(bookings.checkIn, checkOut),
+                                        gt(bookings.checkOut, checkIn)
+                                    ),
+                                });
+                                if (existingBooking) occupiedRooms++;
+                            } catch (e) {
+                                // Skip if booking check fails
+                            }
+                        }
+                        hotelOccupancy = occupiedRooms / hotelRooms.length;
+                    }
+                } catch (e) {
+                    console.log("Error calculating occupancy for hotel:", h.id, e);
+                }
+
+                // Apply dynamic pricing if available (now includes occupancy like getAvailableRooms)
+                if (calculateTotalDynamicPrice && basePrice > 0) {
+                    try {
+                        const priceResult = calculateTotalDynamicPrice({
+                            basePrice,
+                            checkIn,
+                            checkOut,
+                            hotelOccupancy, // Now includes occupancy data for consistent pricing
+                        });
+                        displayPrice = priceResult.finalPrice;
+                    } catch (e) {
+                        console.log("Error calculating dynamic price:", e);
+                    }
+                }
+
+                return {
+                    id: h.id,
+                    name: h.name,
+                    location: h.location,
+                    city: h.city,
+                    latitude: h.latitude ? parseFloat(h.latitude) : null,
+                    longitude: h.longitude ? parseFloat(h.longitude) : null,
+                    rating: h.rating ? parseFloat(h.rating) : 0,
+                    reviewCount: h.reviewCount,
+                    imageUrl: h.imageUrl ?? "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800&h=600&fit=crop",
+                    amenities: h.amenities ?? [],
+                    payAtHotel: h.payAtHotel,
+                    lowestPrice: displayPrice,
+                };
+            })
+        );
+
+        return hotelsWithPricing;
     } catch (error) {
         console.error("Error fetching featured hotels:", error);
         return [];
