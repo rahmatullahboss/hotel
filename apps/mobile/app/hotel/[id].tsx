@@ -14,19 +14,22 @@ interface Hotel {
     name: string;
     city: string;
     address: string;
-    rating: number;
+    rating: string | number;
     description: string;
-    imageUrl: string;
+    coverImage: string;
+    images: string[];
     amenities: string[];
+    rooms?: Room[];
 }
 
 interface Room {
     id: string;
+    name: string;
     type: string;
     description: string;
-    price: number;
-    capacity: number;
-    imageUrl: string;
+    basePrice: string | number;
+    maxGuests: number;
+    photos: string[];
 }
 
 export default function HotelDetailScreen() {
@@ -47,19 +50,25 @@ export default function HotelDetailScreen() {
     }, [id]);
 
     const fetchHotelData = async () => {
-        const [hotelRes, roomsRes] = await Promise.all([
-            api.getHotel(id!),
-            api.getRooms(id!),
-        ]);
+        const hotelRes = await api.getHotel(id!);
 
         if (hotelRes.error) {
             setError(hotelRes.error);
-        } else {
-            setHotel(hotelRes.data);
+            setLoading(false);
+            return;
         }
 
-        if (roomsRes.data) {
-            setRooms(roomsRes.data);
+        setHotel(hotelRes.data);
+
+        // Use rooms from hotel response if available
+        if (hotelRes.data?.rooms && hotelRes.data.rooms.length > 0) {
+            setRooms(hotelRes.data.rooms);
+        } else {
+            // Fallback: fetch rooms separately
+            const roomsRes = await api.getRooms(id!);
+            if (roomsRes.data) {
+                setRooms(roomsRes.data);
+            }
         }
 
         setLoading(false);
@@ -100,7 +109,7 @@ export default function HotelDetailScreen() {
             <ScrollView style={[styles.container, { backgroundColor: colors.background }]}>
                 {/* Hero Image */}
                 <Image
-                    source={{ uri: hotel.imageUrl || 'https://via.placeholder.com/400x300' }}
+                    source={{ uri: hotel.coverImage || hotel.images?.[0] || 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800' }}
                     style={styles.heroImage}
                 />
 
@@ -158,17 +167,17 @@ export default function HotelDetailScreen() {
                                 style={[styles.roomCard, { backgroundColor: colors.backgroundSecondary }]}
                             >
                                 <Image
-                                    source={{ uri: room.imageUrl || 'https://via.placeholder.com/200x150' }}
+                                    source={{ uri: room.photos?.[0] || 'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=400' }}
                                     style={styles.roomImage}
                                 />
                                 <View style={[styles.roomInfo, { backgroundColor: 'transparent' }]}>
-                                    <Text style={[styles.roomType, { color: colors.text }]}>{room.type}</Text>
+                                    <Text style={[styles.roomType, { color: colors.text }]}>{room.name || room.type}</Text>
                                     <Text style={[styles.roomCapacity, { color: colors.textSecondary }]}>
-                                        👥 Up to {room.capacity} guests
+                                        👥 Up to {room.maxGuests} guests
                                     </Text>
                                     <View style={[styles.roomPriceRow, { backgroundColor: 'transparent' }]}>
                                         <Text style={[styles.roomPrice, { color: Colors.primary }]}>
-                                            ৳{room.price?.toLocaleString()}
+                                            ৳{Number(room.basePrice || 0).toLocaleString()}
                                         </Text>
                                         <Text style={[styles.perNight, { color: colors.textSecondary }]}>/night</Text>
                                     </View>
