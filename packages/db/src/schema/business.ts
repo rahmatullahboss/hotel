@@ -397,7 +397,8 @@ export type WalletTransactionReason =
     | "BOOKING_FEE"      // Deducted for booking
     | "REFUND"           // Refunded amount
     | "REWARD"           // Loyalty reward
-    | "CASHBACK";        // Promotional cashback
+    | "CASHBACK"         // Promotional cashback
+    | "REFERRAL";        // Referral bonus
 
 export const walletTransactions = pgTable("walletTransactions", {
     id: text("id")
@@ -409,7 +410,7 @@ export const walletTransactions = pgTable("walletTransactions", {
     type: text("type", { enum: ["CREDIT", "DEBIT"] }).notNull(),
     amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
     reason: text("reason", {
-        enum: ["TOP_UP", "BOOKING_FEE", "REFUND", "REWARD", "CASHBACK"],
+        enum: ["TOP_UP", "BOOKING_FEE", "REFUND", "REWARD", "CASHBACK", "REFERRAL"],
     }).notNull(),
     bookingId: text("bookingId").references(() => bookings.id, { onDelete: "set null" }),
     description: text("description"),

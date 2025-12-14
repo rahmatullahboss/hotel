@@ -247,6 +247,24 @@ export default async function ProfilePage() {
                         <LanguageSwitcher />
                     </div>
                     <Link
+                        href="/profile/referral"
+                        style={{
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "space-between",
+                            padding: "1rem",
+                            color: "var(--color-text-primary)",
+                            textDecoration: "none",
+                            borderBottom: "1px solid var(--color-border)",
+                            background: "linear-gradient(135deg, rgba(230, 57, 70, 0.05), rgba(69, 123, 157, 0.05))",
+                        }}
+                    >
+                        <span style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                            🎁 {t("referEarn")}
+                        </span>
+                        <span>→</span>
+                    </Link>
+                    <Link
                         href="/help"
                         style={{
                             display: "flex",

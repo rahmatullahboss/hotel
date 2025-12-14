@@ -207,7 +207,8 @@
         "signInDesc": "Sign in to access all features",
         "upcomingTrips": "Upcoming Trips",
         "pastBookings": "Past Bookings",
-        "languageSwitch": "Language / ভাষা"
+        "languageSwitch": "Language / ভাষা",
+        "referEarn": "Refer & Earn"
     },
     "language": {
         "title": "Language",
@@ -396,5 +397,34 @@
         "bestPricesDesc": "Competitive rates with price match guarantee",
         "payAtHotel": "Pay at Hotel",
         "payAtHotelDesc": "Only 20% advance, pay the rest at check-in"
+    },
+    "referral": {
+        "title": "Refer & Earn",
+        "subtitle": "Invite friends and earn rewards when they book",
+        "loading": "Loading...",
+        "yourCode": "Your Referral Code",
+        "copied": "Copied!",
+        "copy": "Copy",
+        "share": "Share",
+        "shareHint": "Share your code with friends to earn ৳100 for each successful booking",
+        "shareTitle": "Join Vibe Hotels",
+        "shareMessage": "Use my referral code {code} when you sign up on Vibe Hotels and get ৳50 off your first booking!",
+        "totalReferrals": "Total Referrals",
+        "pending": "Pending",
+        "earned": "Earned",
+        "howItWorks": "How It Works",
+        "step1": "Share your unique referral code with friends",
+        "step2": "They sign up and complete their first booking",
+        "step3": "You both earn wallet credits - ৳100 for you, ৳50 for them",
+        "haveCode": "Have a Referral Code?",
+        "enterCode": "Enter code...",
+        "apply": "Apply",
+        "applying": "Applying...",
+        "codeApplied": "Code applied successfully!",
+        "invalidCode": "Invalid referral code",
+        "history": "Referral History",
+        "statusPENDING": "Pending",
+        "statusCOMPLETED": "Completed",
+        "statusEXPIRED": "Expired"
     }
 }
