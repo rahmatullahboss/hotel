@@ -2,8 +2,8 @@ name: Apply Dynamic Pricing
 
 on:
   schedule:
-    # Run daily at 3:00 AM Bangladesh Time (UTC 21:00 previous day)
-    - cron: '0 21 * * *'
+    # Run every hour at minute 0
+    - cron: '0 * * * *'
   workflow_dispatch: # Allow manual trigger
     inputs:
       partner_url:

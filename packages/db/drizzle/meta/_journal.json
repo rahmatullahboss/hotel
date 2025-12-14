@@ -64,6 +64,13 @@
       "when": 1765686435809,
       "tag": "0008_volatile_may_parker",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1765728593883,
+      "tag": "0009_add_lowest_dynamic_price",
+      "breakpoints": true
     }
   ]
 }

@@ -142,6 +142,7 @@ async function applyDynamicPricing() {
                 const occupancy = totalRoomNights > 0 ? bookedNights / totalRoomNights : 0;
 
                 // Generate prices for next 90 days
+                const todayPrices: number[] = [];
                 for (const room of hotelRooms) {
                     const basePrice = parseFloat(room.basePrice);
 
@@ -162,6 +163,11 @@ async function applyDynamicPricing() {
                             hotelOccupancy: occupancy,
                             seasonalRules: seasonalRulesForPricing,
                         });
+
+                        // Track today's prices for hotel-level cache
+                        if (i === 0) {
+                            todayPrices.push(priceBreakdown.finalPrice);
+                        }
 
                         // Upsert into roomInventory
                         await db
@@ -184,6 +190,19 @@ async function applyDynamicPricing() {
                     }
 
                     result.roomsUpdated++;
+                }
+
+                // Update hotel's cached lowest price (single source of truth for listings)
+                if (todayPrices.length > 0) {
+                    const lowestPrice = Math.min(...todayPrices);
+                    await db
+                        .update(hotels)
+                        .set({
+                            lowestDynamicPrice: lowestPrice.toFixed(2),
+                            lowestDynamicPriceUpdatedAt: new Date(),
+                        })
+                        .where(eq(hotels.id, hotel.id));
+                    console.log(`[Pricing] Hotel ${hotel.name}: lowestDynamicPrice = ৳${lowestPrice}`);
                 }
             } catch (error) {
                 console.error(`[Pricing] Error for hotel ${hotel.name}:`, error);

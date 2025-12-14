@@ -61,6 +61,9 @@ export const hotels = pgTable("hotels", {
     commissionRate: decimal("commissionRate", { precision: 5, scale: 2 })
         .default("12.00")
         .notNull(),
+    // Pre-computed dynamic price (updated by cron job) - single source of truth
+    lowestDynamicPrice: decimal("lowestDynamicPrice", { precision: 10, scale: 2 }),
+    lowestDynamicPriceUpdatedAt: timestamp("lowestDynamicPriceUpdatedAt", { mode: "date" }),
     createdAt: timestamp("createdAt", { mode: "date" }).defaultNow().notNull(),
     updatedAt: timestamp("updatedAt", { mode: "date" }).defaultNow().notNull(),
 });
