@@ -494,5 +494,17 @@
         "invoices": "Invoices",
         "recentBookings": "Recent Bookings",
         "rooms": "rooms"
+    },
+    "whyChooseUs": {
+        "title": "Why Choose Us",
+        "titleWithCity": "Why Book in {city}",
+        "verifiedTitle": "Verified Hotels",
+        "verifiedDesc": "All properties personally inspected for quality",
+        "priceTitle": "Best Prices",
+        "priceDesc": "Competitive rates with price match guarantee",
+        "payAtHotelTitle": "Pay at Hotel",
+        "payAtHotelDesc": "Only 20% advance, rest at check-in",
+        "instantTitle": "Instant Booking",
+        "instantDesc": "Book instantly, no waiting for confirmation"
     }
 }
