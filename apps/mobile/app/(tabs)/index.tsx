@@ -183,7 +183,7 @@ export default function HomeScreen() {
                       <Text style={[styles.hotelPrice, { color: Colors.primary }]}>
                         ৳{Number(hotel.lowestPrice || 0).toLocaleString()}
                       </Text>
-                      <Text style={{ fontSize: 12, color: '#717171' }}> /night</Text>
+                      <Text style={{ fontSize: 14, color: '#666' }}> /night</Text>
                     </Text>
                   </View>
                 </View>

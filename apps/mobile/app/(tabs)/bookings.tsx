@@ -10,6 +10,7 @@ import { Text, View } from '@/components/Themed';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
+import { useTranslation } from 'react-i18next';
 import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
 import api from '@/lib/api';
@@ -24,18 +25,19 @@ interface Booking {
     totalPrice: number;
 }
 
-const STATUS_CONFIG = {
-    CONFIRMED: { color: '#00A699', icon: 'check-circle' as const, label: 'Confirmed' },
-    PENDING: { color: '#FFB400', icon: 'clock-o' as const, label: 'Pending' },
-    CANCELLED: { color: '#FF5A5F', icon: 'times-circle' as const, label: 'Cancelled' },
-    COMPLETED: { color: '#717171', icon: 'check' as const, label: 'Completed' },
-};
-
 export default function BookingsScreen() {
     const router = useRouter();
     const colorScheme = useColorScheme() ?? 'light';
     const colors = Colors[colorScheme];
     const insets = useSafeAreaInsets();
+    const { t } = useTranslation();
+
+    const STATUS_CONFIG = {
+        CONFIRMED: { color: '#00A699', icon: 'check-circle' as const, label: t('bookings.status.confirmed') },
+        PENDING: { color: '#FFB400', icon: 'clock-o' as const, label: t('bookings.status.pending') },
+        CANCELLED: { color: '#FF5A5F', icon: 'times-circle' as const, label: t('bookings.status.cancelled') },
+        COMPLETED: { color: '#717171', icon: 'check' as const, label: t('bookings.status.completed') },
+    };
 
     const [bookings, setBookings] = useState<Booking[]>([]);
     const [loading, setLoading] = useState(true);
@@ -78,9 +80,9 @@ export default function BookingsScreen() {
         <View style={[styles.container, { backgroundColor: colors.background }]}>
             {/* Header */}
             <View style={[styles.header, { paddingTop: insets.top + 10, backgroundColor: Colors.primary }]}>
-                <Text style={styles.headerTitle}>My Trips</Text>
+                <Text style={styles.headerTitle}>{t('bookings.title')}</Text>
                 <Text style={styles.headerSubtitle}>
-                    {bookings.length} booking{bookings.length !== 1 ? 's' : ''}
+                    {bookings.length} {bookings.length !== 1 ? t('bookings.bookings') : t('bookings.booking')}
                 </Text>
             </View>
 
@@ -96,15 +98,15 @@ export default function BookingsScreen() {
                         <View style={[styles.emptyIcon, { backgroundColor: `${Colors.primary}15` }]}>
                             <FontAwesome name="suitcase" size={40} color={Colors.primary} />
                         </View>
-                        <Text style={[styles.emptyTitle, { color: colors.text }]}>No trips yet</Text>
+                        <Text style={[styles.emptyTitle, { color: colors.text }]}>{t('bookings.noTrips')}</Text>
                         <Text style={[styles.emptyText, { color: colors.textSecondary }]}>
-                            Start exploring and book your first stay!
+                            {t('bookings.exploreText')}
                         </Text>
                         <TouchableOpacity
                             style={[styles.exploreButton, { backgroundColor: Colors.primary }]}
                             onPress={() => router.push('/(tabs)/search')}
                         >
-                            <Text style={styles.exploreButtonText}>Find Hotels</Text>
+                            <Text style={styles.exploreButtonText}>{t('bookings.findHotels')}</Text>
                         </TouchableOpacity>
                     </View>
                 ) : (
@@ -139,20 +141,20 @@ export default function BookingsScreen() {
 
                                         <View style={[styles.dateRow, { backgroundColor: 'transparent' }]}>
                                             <View style={[styles.dateItem, { backgroundColor: 'transparent' }]}>
-                                                <Text style={[styles.dateLabel, { color: colors.textSecondary }]}>Check-in</Text>
+                                                <Text style={[styles.dateLabel, { color: colors.textSecondary }]}>{t('bookings.checkIn')}</Text>
                                                 <Text style={[styles.dateValue, { color: colors.text }]}>{formatDate(booking.checkIn)}</Text>
                                             </View>
                                             <View style={[styles.dateArrow, { backgroundColor: 'transparent' }]}>
                                                 <FontAwesome name="arrow-right" size={12} color={colors.textSecondary} />
                                             </View>
                                             <View style={[styles.dateItem, { backgroundColor: 'transparent' }]}>
-                                                <Text style={[styles.dateLabel, { color: colors.textSecondary }]}>Check-out</Text>
+                                                <Text style={[styles.dateLabel, { color: colors.textSecondary }]}>{t('bookings.checkOut')}</Text>
                                                 <Text style={[styles.dateValue, { color: colors.text }]}>{formatDate(booking.checkOut)}</Text>
                                             </View>
                                         </View>
 
                                         <View style={[styles.bookingFooter, { borderTopColor: colors.border, backgroundColor: 'transparent' }]}>
-                                            <Text style={[styles.priceLabel, { color: colors.textSecondary }]}>Total Paid</Text>
+                                            <Text style={[styles.priceLabel, { color: colors.textSecondary }]}>{t('bookings.totalPaid')}</Text>
                                             <Text style={[styles.priceValue, { color: Colors.primary }]}>
                                                 ৳{booking.totalPrice?.toLocaleString()}
                                             </Text>
