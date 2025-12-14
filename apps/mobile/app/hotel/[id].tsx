@@ -46,7 +46,7 @@ export default function HotelDetailScreen() {
     const router = useRouter();
     const colorScheme = useColorScheme() ?? 'light';
     const colors = Colors[colorScheme];
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
 
     const [hotel, setHotel] = useState<Hotel | null>(null);
     const [rooms, setRooms] = useState<Room[]>([]);
@@ -86,6 +86,13 @@ export default function HotelDetailScreen() {
             </View>
         );
     }
+
+    const formatPrice = (price: number) => {
+        if (i18n.language === 'bn') {
+            return price.toString().replace(/[0-9]/g, (d) => '০১২৩৪৫৬৭৮৯'[parseInt(d)]);
+        }
+        return Number(price).toLocaleString('en-US');
+    };
 
     if (error || !hotel) {
         return (
@@ -184,12 +191,12 @@ export default function HotelDetailScreen() {
                                         {/* Show strikethrough only when there's a discount */}
                                         {room.dynamicPrice && room.dynamicPrice < Number(room.basePrice) && (
                                             <Text style={[styles.originalPrice, { color: '#999', marginRight: 8 }]}>
-                                                ৳{Number(room.basePrice).toLocaleString()}
+                                                {t('common.currency')}{formatPrice(Number(room.basePrice))}
                                             </Text>
                                         )}
                                         <Text>
                                             <Text style={[styles.roomPrice, { color: Colors.primary }]}>
-                                                ৳{Number(room.dynamicPrice || room.basePrice || 0).toLocaleString()}
+                                                {t('common.currency')}{formatPrice(Number(room.dynamicPrice || room.basePrice || 0))}
                                             </Text>
                                             <Text style={{ fontSize: 14, color: '#666' }}> {t('common.perNight')}</Text>
                                         </Text>
