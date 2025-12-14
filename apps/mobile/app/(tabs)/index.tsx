@@ -6,13 +6,13 @@ import {
   Image,
   ActivityIndicator,
   RefreshControl,
-  TextInput,
   Dimensions,
 } from 'react-native';
 import { Text, View } from '@/components/Themed';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
+import { useTranslation } from 'react-i18next';
 import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
 import api from '@/lib/api';
@@ -29,18 +29,19 @@ interface Hotel {
   lowestPrice?: number;
 }
 
-const QUICK_FILTERS = [
-  { id: 'nearby', label: 'Near Me', icon: 'location-arrow' as const },
-  { id: 'budget', label: 'Budget', icon: 'tag' as const },
-  { id: 'luxury', label: 'Premium', icon: 'star' as const },
-  { id: 'couple', label: 'Couple', icon: 'heart' as const },
-];
-
 export default function HomeScreen() {
   const router = useRouter();
   const colorScheme = useColorScheme() ?? 'light';
   const colors = Colors[colorScheme];
   const insets = useSafeAreaInsets();
+  const { t } = useTranslation();
+
+  const QUICK_FILTERS = [
+    { id: 'nearby', label: t('home.filters.nearMe'), icon: 'location-arrow' as const },
+    { id: 'budget', label: t('home.filters.budget'), icon: 'tag' as const },
+    { id: 'luxury', label: t('home.filters.premium'), icon: 'star' as const },
+    { id: 'couple', label: t('home.filters.couple'), icon: 'heart' as const },
+  ];
 
   const [hotels, setHotels] = useState<Hotel[]>([]);
   const [loading, setLoading] = useState(true);
@@ -69,7 +70,7 @@ export default function HomeScreen() {
       <View style={[styles.centered, { paddingTop: insets.top }]}>
         <ActivityIndicator size="large" color={Colors.primary} />
         <Text style={[styles.loadingText, { color: colors.textSecondary }]}>
-          Finding best hotels...
+          {t('home.loading')}
         </Text>
       </View>
     );
@@ -81,8 +82,8 @@ export default function HomeScreen() {
       <View style={[styles.header, { paddingTop: insets.top + 10, backgroundColor: Colors.primary }]}>
         <View style={[styles.headerTop, { backgroundColor: 'transparent' }]}>
           <View style={{ backgroundColor: 'transparent' }}>
-            <Text style={styles.headerGreeting}>Hello! 👋</Text>
-            <Text style={styles.headerTitle}>Find your perfect stay</Text>
+            <Text style={styles.headerGreeting}>{t('home.greeting')}</Text>
+            <Text style={styles.headerTitle}>{t('home.heroTitle')}</Text>
           </View>
           <TouchableOpacity style={styles.notificationBtn}>
             <FontAwesome name="bell-o" size={22} color="#fff" />
@@ -96,7 +97,7 @@ export default function HomeScreen() {
           activeOpacity={0.9}
         >
           <FontAwesome name="search" size={18} color="#999" />
-          <Text style={styles.searchPlaceholder}>Search city, hotel, or landmark</Text>
+          <Text style={styles.searchPlaceholder}>{t('home.searchPlaceholder')}</Text>
         </TouchableOpacity>
       </View>
 
@@ -122,10 +123,10 @@ export default function HomeScreen() {
         {/* Promotional Banner */}
         <View style={[styles.promoBanner, { backgroundColor: Colors.primary }]}>
           <View style={[styles.promoContent, { backgroundColor: 'transparent' }]}>
-            <Text style={styles.promoTitle}>First Booking Offer!</Text>
-            <Text style={styles.promoSubtitle}>Get 20% OFF on your first stay</Text>
+            <Text style={styles.promoTitle}>{t('home.promo.title')}</Text>
+            <Text style={styles.promoSubtitle}>{t('home.promo.subtitle')}</Text>
             <TouchableOpacity style={styles.promoButton}>
-              <Text style={styles.promoButtonText}>Book Now</Text>
+              <Text style={styles.promoButtonText}>{t('home.promo.button')}</Text>
             </TouchableOpacity>
           </View>
           <Text style={styles.promoEmoji}>🎉</Text>
@@ -135,10 +136,10 @@ export default function HomeScreen() {
         <View style={[styles.section, { backgroundColor: 'transparent' }]}>
           <View style={[styles.sectionHeader, { backgroundColor: 'transparent' }]}>
             <Text style={[styles.sectionTitle, { color: colors.text }]}>
-              Top Rated Hotels
+              {t('home.topRated')}
             </Text>
             <TouchableOpacity>
-              <Text style={[styles.seeAll, { color: Colors.primary }]}>See All</Text>
+              <Text style={[styles.seeAll, { color: Colors.primary }]}>{t('home.seeAll')}</Text>
             </TouchableOpacity>
           </View>
 
@@ -146,7 +147,7 @@ export default function HomeScreen() {
             <View style={[styles.emptyState, { backgroundColor: colors.backgroundSecondary }]}>
               <FontAwesome name="building-o" size={40} color={colors.textSecondary} />
               <Text style={[styles.emptyStateText, { color: colors.textSecondary }]}>
-                No hotels available
+                {t('home.noHotels')}
               </Text>
             </View>
           ) : (
@@ -178,12 +179,12 @@ export default function HomeScreen() {
                     </Text>
                   </View>
                   <View style={[styles.priceRow, { backgroundColor: 'transparent' }]}>
-                    <Text style={[styles.priceLabel, { color: colors.textSecondary }]}>Starting from</Text>
+                    <Text style={[styles.priceLabel, { color: colors.textSecondary }]}>{t('home.startingFrom')}</Text>
                     <Text>
                       <Text style={[styles.hotelPrice, { color: Colors.primary }]}>
                         ৳{Number(hotel.lowestPrice || 0).toLocaleString()}
                       </Text>
-                      <Text style={{ fontSize: 14, color: '#666' }}> /night</Text>
+                      <Text style={{ fontSize: 14, color: '#666' }}> {t('common.perNight')}</Text>
                     </Text>
                   </View>
                 </View>
