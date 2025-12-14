@@ -18,7 +18,7 @@
     "@repo/ui": "*",
     "@sentry/nextjs": "^10.30.0",
     "leaflet": "^1.9.4",
-    "next": "^16.0.7",
+    "next": "^16.0.10",
     "next-auth": "^5.0.0-beta.30",
     "next-intl": "^4.5.8",
     "qrcode.react": "^4.2.0",
