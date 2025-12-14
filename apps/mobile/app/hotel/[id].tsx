@@ -107,7 +107,7 @@ export default function HotelDetailScreen() {
                 {/* Hotel Info */}
                 <View style={[styles.infoSection, { backgroundColor: colors.background }]}>
                     <View style={[styles.ratingBadge, { backgroundColor: Colors.primary }]}>
-                        <Text style={styles.ratingText}>⭐ {hotel.rating?.toFixed(1)}</Text>
+                        <Text style={styles.ratingText}>⭐ {Number(hotel.rating || 0).toFixed(1)}</Text>
                     </View>
 
                     <Text style={[styles.hotelName, { color: colors.text }]}>{hotel.name}</Text>

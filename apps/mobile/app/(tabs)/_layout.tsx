@@ -37,9 +37,9 @@ export default function TabLayout() {
           borderTopColor: colors.border,
           borderTopWidth: 1,
           paddingTop: 8,
-          // Add safe area padding for bottom to avoid system navbar overlap
-          paddingBottom: Platform.OS === 'ios' ? insets.bottom : 12,
-          height: Platform.OS === 'ios' ? 60 + insets.bottom : 65,
+          // Use safe area insets for both iOS and Android (edge-to-edge mode)
+          paddingBottom: Math.max(insets.bottom, 10),
+          height: 60 + Math.max(insets.bottom, 10),
           elevation: 8,
           shadowColor: '#000',
           shadowOffset: { width: 0, height: -2 },
