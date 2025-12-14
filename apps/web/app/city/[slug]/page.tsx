@@ -65,7 +65,11 @@ export default async function CityPage({ params }: CityPageProps) {
                 className="city-hero"
                 style={
                     city.coverImage
-                        ? { backgroundImage: `linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.6)), url(${city.coverImage})`, backgroundSize: 'cover', backgroundPosition: 'center' }
+                        ? {
+                            backgroundImage: `linear-gradient(rgba(26,26,46,0.85), rgba(22,33,62,0.9)), url(${city.coverImage})`,
+                            backgroundSize: 'cover',
+                            backgroundPosition: 'center'
+                        }
                         : undefined
                 }
             >

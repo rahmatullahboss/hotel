@@ -1,9 +1,10 @@
-/* City Selector Component Styles */
+/* City Selector Component Styles - OYO Inspired */
+
 .city-selector {
     padding: 1.5rem;
-    background: white;
-    border-radius: 1rem;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+    background: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%);
+    border-radius: 1.25rem;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
 }
 
 .city-selector-title {
@@ -11,7 +12,7 @@
     font-weight: 700;
     margin-bottom: 1.25rem;
     text-align: center;
-    color: var(--color-text-primary);
+    color: white;
 }
 
 /* Detect Location Button */
@@ -22,7 +23,7 @@
     justify-content: center;
     gap: 0.625rem;
     padding: 1rem 1.25rem;
-    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+    background: linear-gradient(135deg, #ee2a7b 0%, #ff6b6b 100%);
     color: white;
     border: none;
     border-radius: 0.875rem;
@@ -35,7 +36,7 @@
 
 .detect-location-btn:hover:not(:disabled) {
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(var(--color-primary-rgb), 0.35);
+    box-shadow: 0 8px 24px rgba(238, 42, 123, 0.4);
 }
 
 .detect-location-btn:active:not(:disabled) {
@@ -63,10 +64,10 @@
     align-items: center;
     gap: 0.875rem;
     padding: 1rem 1.25rem;
-    background: linear-gradient(135deg, rgba(16, 185, 129, 0.12), rgba(16, 185, 129, 0.04));
-    border: 2px solid rgba(16, 185, 129, 0.3);
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(16, 185, 129, 0.1));
+    border: 2px solid rgba(16, 185, 129, 0.5);
     border-radius: 0.875rem;
-    color: var(--color-text-primary);
+    color: white;
     text-decoration: none;
     margin-bottom: 1.25rem;
     font-weight: 500;
@@ -74,13 +75,13 @@
 }
 
 .detected-city-card:hover {
-    background: linear-gradient(135deg, rgba(16, 185, 129, 0.18), rgba(16, 185, 129, 0.08));
-    border-color: rgba(16, 185, 129, 0.5);
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.3), rgba(16, 185, 129, 0.15));
+    border-color: rgba(16, 185, 129, 0.7);
     transform: translateY(-1px);
 }
 
 .detected-city-card svg:first-child {
-    color: var(--color-success);
+    color: #10b981;
     font-size: 1.25rem;
 }
 
@@ -90,8 +91,8 @@
 }
 
 .detected-city-card svg:last-child {
-    color: var(--color-success);
-    opacity: 0.7;
+    color: #10b981;
+    opacity: 0.8;
 }
 
 /* City Grid */
@@ -106,14 +107,15 @@
     align-items: center;
     gap: 0.625rem;
     padding: 1rem;
-    background: white;
-    border: 1.5px solid var(--color-border);
+    background: rgba(255, 255, 255, 0.08);
+    border: 1.5px solid rgba(255, 255, 255, 0.12);
     border-radius: 0.875rem;
     text-decoration: none;
-    color: inherit;
+    color: white;
     transition: all 0.2s ease;
     position: relative;
     overflow: hidden;
+    backdrop-filter: blur(8px);
 }
 
 .city-card::before {
@@ -123,14 +125,15 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: linear-gradient(135deg, transparent, rgba(var(--color-primary-rgb), 0.03));
+    background: linear-gradient(135deg, rgba(238, 42, 123, 0.1), transparent);
     opacity: 0;
     transition: opacity 0.2s ease;
 }
 
 .city-card:hover {
-    border-color: var(--color-primary);
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+    border-color: rgba(238, 42, 123, 0.5);
+    background: rgba(255, 255, 255, 0.12);
+    box-shadow: 0 4px 20px rgba(238, 42, 123, 0.2);
     transform: translateY(-2px);
 }
 
@@ -139,19 +142,21 @@
 }
 
 .city-card.detected {
-    border-color: var(--color-success);
-    background: rgba(16, 185, 129, 0.04);
+    border-color: rgba(16, 185, 129, 0.5);
+    background: rgba(16, 185, 129, 0.1);
 }
 
 .city-card.detected::before {
-    background: linear-gradient(135deg, transparent, rgba(16, 185, 129, 0.05));
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), transparent);
     opacity: 1;
 }
 
 .city-icon {
-    color: var(--color-primary);
+    color: #ee2a7b;
     flex-shrink: 0;
-    font-size: 1.125rem;
+    font-size: 1.25rem;
+    position: relative;
+    z-index: 1;
 }
 
 .city-info {
@@ -159,28 +164,32 @@
     display: flex;
     flex-direction: column;
     gap: 0.125rem;
+    position: relative;
+    z-index: 1;
 }
 
 .city-name {
     font-weight: 600;
     font-size: 0.9375rem;
-    color: var(--color-text-primary);
+    color: white;
 }
 
 .city-name-bn {
     font-size: 0.75rem;
-    color: var(--color-text-secondary);
+    color: rgba(255, 255, 255, 0.6);
 }
 
 .popular-badge {
     font-size: 0.625rem;
     padding: 0.1875rem 0.5rem;
-    background: linear-gradient(135deg, var(--color-warning), #f59e0b);
-    color: white;
+    background: linear-gradient(135deg, #f59e0b, #fbbf24);
+    color: #1a1a2e;
     border-radius: 0.375rem;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.02em;
+    position: relative;
+    z-index: 1;
 }
 
 /* Show More Button */
@@ -189,9 +198,9 @@
     margin-top: 1rem;
     padding: 0.875rem;
     background: transparent;
-    border: 2px dashed var(--color-border);
+    border: 2px dashed rgba(255, 255, 255, 0.25);
     border-radius: 0.75rem;
-    color: var(--color-primary);
+    color: rgba(255, 255, 255, 0.8);
     font-weight: 600;
     font-size: 0.875rem;
     cursor: pointer;
@@ -199,9 +208,9 @@
 }
 
 .show-more-btn:hover {
-    background: var(--color-bg-secondary);
-    border-color: var(--color-primary);
-    border-style: solid;
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(238, 42, 123, 0.5);
+    color: white;
 }
 
 /* Responsive */

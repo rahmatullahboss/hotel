@@ -1,31 +1,15 @@
-/* City Landing Page Styles */
+/* City Landing Page Styles - OYO Inspired */
 
 /* Hero Section */
 .city-hero {
     position: relative;
     padding: 2.5rem 1rem 3.5rem;
     color: white;
-    min-height: 220px;
+    min-height: 240px;
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
-    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
-}
-
-.city-hero-bg {
-    position: absolute;
-    inset: 0;
-    background-size: cover;
-    background-position: center;
-}
-
-.city-hero-bg::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(to bottom,
-            rgba(0, 0, 0, 0.35) 0%,
-            rgba(0, 0, 0, 0.65) 100%);
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
 }
 
 .city-hero .container {
@@ -37,25 +21,27 @@
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
-    color: white;
+    color: rgba(255, 255, 255, 0.85);
     text-decoration: none;
-    opacity: 0.9;
     margin-bottom: 1rem;
     font-size: 0.875rem;
     font-weight: 500;
-    transition: opacity 0.2s ease;
+    transition: color 0.2s ease;
 }
 
 .city-back-link:hover {
-    opacity: 1;
+    color: white;
+}
+
+.city-back-link svg {
+    font-size: 1rem;
 }
 
 .city-hero-title {
     font-size: clamp(1.75rem, 5vw, 2.75rem);
     font-weight: 800;
-    margin-bottom: 0.625rem;
+    margin-bottom: 0.75rem;
     line-height: 1.2;
-    text-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
     color: white;
 }
 
@@ -64,19 +50,18 @@
     align-items: center;
     gap: 0.5rem;
     font-size: 1rem;
-    opacity: 0.95;
-    color: white;
+    color: rgba(255, 255, 255, 0.85);
 }
 
 .city-hero-subtitle svg {
     font-size: 1.125rem;
+    color: #ee2a7b;
 }
 
 /* City Description */
 .city-description {
     padding: 1.5rem 1rem;
     background: white;
-    margin-bottom: 0.5rem;
 }
 
 .city-description p {
@@ -87,7 +72,8 @@
 
 /* City Content */
 .city-content {
-    padding: 1.5rem 1rem 6rem;
+    padding: 1.5rem 1rem 2rem;
+    background: var(--color-bg-secondary);
 }
 
 .city-empty-state {
@@ -107,7 +93,7 @@
 /* Why Book Section */
 .city-why-book {
     padding: 2.5rem 1rem 6rem;
-    background: var(--color-bg-secondary);
+    background: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%);
 }
 
 .city-why-book-title {
@@ -115,7 +101,7 @@
     font-weight: 700;
     margin-bottom: 1.5rem;
     text-align: center;
-    color: var(--color-text-primary);
+    color: white;
 }
 
 .city-features-grid {
@@ -125,17 +111,19 @@
 }
 
 .city-feature-card {
-    background: white;
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(8px);
     padding: 1.5rem;
     border-radius: 1rem;
     text-align: center;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.1);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .city-feature-card:hover {
     transform: translateY(-4px);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 8px 32px rgba(238, 42, 123, 0.15);
+    border-color: rgba(238, 42, 123, 0.3);
 }
 
 .city-feature-icon {
@@ -144,19 +132,19 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    color: var(--color-primary);
+    color: #ee2a7b;
 }
 
 .city-feature-card h3 {
     font-size: 1.0625rem;
     font-weight: 600;
     margin-bottom: 0.5rem;
-    color: var(--color-text-primary);
+    color: white;
 }
 
 .city-feature-card p {
     font-size: 0.875rem;
-    color: var(--color-text-secondary);
+    color: rgba(255, 255, 255, 0.7);
     line-height: 1.5;
 }
 
@@ -171,7 +159,7 @@
 @media (min-width: 640px) {
     .city-hero {
         padding: 3rem 2rem 4rem;
-        min-height: 280px;
+        min-height: 300px;
     }
 
     .city-content {
@@ -191,7 +179,7 @@
 @media (min-width: 1024px) {
     .city-hero {
         padding: 4rem 2rem 5rem;
-        min-height: 320px;
+        min-height: 340px;
     }
 
     .city-feature-card {
