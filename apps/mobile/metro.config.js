@@ -1,4 +1,5 @@
-const { getDefaultConfig } = require('expo/metro-config');
+// Use the local @expo/metro-config package
+const { getDefaultConfig } = require('@expo/metro-config');
 const path = require('path');
 
 // Find the project and workspace directories
@@ -11,13 +12,10 @@ const config = getDefaultConfig(projectRoot);
 // 1. Watch all files within the monorepo
 config.watchFolders = [monorepoRoot];
 
-// 2. Let Metro know where to resolve packages and in what order
+// 2. Let Metro know where to resolve packages - mobile app first, then root
 config.resolver.nodeModulesPaths = [
     path.resolve(projectRoot, 'node_modules'),
     path.resolve(monorepoRoot, 'node_modules'),
 ];
-
-// 3. Reset the default source extensions  
-config.resolver.sourceExts = ['js', 'jsx', 'json', 'ts', 'tsx', 'cjs', 'mjs'];
 
 module.exports = config;
