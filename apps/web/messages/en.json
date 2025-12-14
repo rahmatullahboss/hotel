@@ -208,7 +208,8 @@
         "upcomingTrips": "Upcoming Trips",
         "pastBookings": "Past Bookings",
         "languageSwitch": "Language / ভাষা",
-        "referEarn": "Refer & Earn"
+        "referEarn": "Refer & Earn",
+        "achievements": "Achievements"
     },
     "language": {
         "title": "Language",
@@ -426,5 +427,23 @@
         "statusPENDING": "Pending",
         "statusCOMPLETED": "Completed",
         "statusEXPIRED": "Expired"
+    },
+    "achievements": {
+        "title": "Achievements",
+        "subtitle": "Track your progress and earn rewards",
+        "loading": "Loading...",
+        "dayStreak": "day streak",
+        "nextReward": "{days} more days for ৳{reward} reward!",
+        "bestStreak": "Best Streak",
+        "totalDays": "Total Days",
+        "badgesEarned": "Badges",
+        "earned": "Earned",
+        "points": "pts",
+        "categoryStreak": "Streak Badges",
+        "categoryBooking": "Travel Milestones",
+        "categoryExplorer": "Explorer",
+        "categoryReferral": "Referral",
+        "categoryLoyalty": "Loyalty",
+        "categoryReviewer": "Reviewer"
     }
 }

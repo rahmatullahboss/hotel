@@ -6,8 +6,38 @@
  */
 
 import { db } from "./index";
-import { hotels, rooms, users, cities } from "./schema";
+import { hotels, rooms, users, cities, badges } from "./schema";
 import { eq } from "drizzle-orm";
+
+// Default badge data for gamification
+const DEMO_BADGES = [
+    // Streak badges
+    { code: "STREAK_3", name: "Warming Up", nameBn: "শুরু হচ্ছে", description: "Logged in 3 days in a row", descriptionBn: "৩ দিন পরপর লগইন করেছেন", category: "STREAK" as const, icon: "🔥", requirement: 3, points: 10 },
+    { code: "STREAK_7", name: "On Fire", nameBn: "আগুনে আছেন", description: "Logged in 7 days in a row", descriptionBn: "৭ দিন পরপর লগইন করেছেন", category: "STREAK" as const, icon: "🔥", requirement: 7, points: 25 },
+    { code: "STREAK_14", name: "Dedicated", nameBn: "নিবেদিত", description: "Logged in 14 days in a row", descriptionBn: "১৪ দিন পরপর লগইন করেছেন", category: "STREAK" as const, icon: "⭐", requirement: 14, points: 50 },
+    { code: "STREAK_30", name: "Committed", nameBn: "প্রতিশ্রুতিবদ্ধ", description: "Logged in 30 days in a row", descriptionBn: "৩০ দিন পরপর লগইন করেছেন", category: "STREAK" as const, icon: "🏆", requirement: 30, points: 100 },
+    { code: "STREAK_60", name: "Streak Master", nameBn: "স্ট্রিক মাস্টার", description: "Logged in 60 days in a row", descriptionBn: "৬০ দিন পরপর লগইন করেছেন", category: "STREAK" as const, icon: "👑", requirement: 60, points: 200 },
+    { code: "STREAK_90", name: "Legend", nameBn: "কিংবদন্তি", description: "Logged in 90 days in a row", descriptionBn: "৯০ দিন পরপর লগইন করেছেন", category: "STREAK" as const, icon: "🌟", requirement: 90, points: 300 },
+    // Booking badges
+    { code: "FIRST_BOOKING", name: "First Adventure", nameBn: "প্রথম অ্যাডভেঞ্চার", description: "Completed your first booking", descriptionBn: "প্রথম বুকিং সম্পন্ন করেছেন", category: "BOOKING" as const, icon: "🎉", requirement: 1, points: 20 },
+    { code: "BOOKING_5", name: "Regular Traveler", nameBn: "নিয়মিত ভ্রমণকারী", description: "Completed 5 bookings", descriptionBn: "৫টি বুকিং সম্পন্ন করেছেন", category: "BOOKING" as const, icon: "✈️", requirement: 5, points: 50 },
+    { code: "BOOKING_10", name: "Frequent Flyer", nameBn: "ঘন ঘন ভ্রমণকারী", description: "Completed 10 bookings", descriptionBn: "১০টি বুকিং সম্পন্ন করেছেন", category: "BOOKING" as const, icon: "🛫", requirement: 10, points: 100 },
+    { code: "BOOKING_25", name: "Road Warrior", nameBn: "রোড ওয়ারিয়র", description: "Completed 25 bookings", descriptionBn: "২৫টি বুকিং সম্পন্ন করেছেন", category: "BOOKING" as const, icon: "🗺️", requirement: 25, points: 250 },
+    // Explorer badges
+    { code: "EXPLORER_3", name: "City Hopper", nameBn: "শহর ভ্রমণকারী", description: "Visited 3 different cities", descriptionBn: "৩টি ভিন্ন শহর ভ্রমণ করেছেন", category: "EXPLORER" as const, icon: "🏙️", requirement: 3, points: 30 },
+    { code: "EXPLORER_5", name: "Explorer", nameBn: "অভিযাত্রী", description: "Visited 5 different cities", descriptionBn: "৫টি ভিন্ন শহর ভ্রমণ করেছেন", category: "EXPLORER" as const, icon: "🧭", requirement: 5, points: 75 },
+    // Referral badges
+    { code: "REFERRAL_1", name: "Ambassador", nameBn: "অ্যাম্বাসেডর", description: "Referred 1 friend who booked", descriptionBn: "১ জন বন্ধুকে রেফার করেছেন যিনি বুক করেছেন", category: "REFERRAL" as const, icon: "👥", requirement: 1, points: 50 },
+    { code: "REFERRAL_5", name: "Super Referrer", nameBn: "সুপার রেফারার", description: "Referred 5 friends who booked", descriptionBn: "৫ জন বন্ধুকে রেফার করেছেন", category: "REFERRAL" as const, icon: "🌟", requirement: 5, points: 150 },
+    // Loyalty badges
+    { code: "TIER_SILVER", name: "Silver Member", nameBn: "সিলভার সদস্য", description: "Reached Silver loyalty tier", descriptionBn: "সিলভার লয়ালটি টায়ারে পৌঁছেছেন", category: "LOYALTY" as const, icon: "🥈", requirement: 1, points: 50 },
+    { code: "TIER_GOLD", name: "Gold Member", nameBn: "গোল্ড সদস্য", description: "Reached Gold loyalty tier", descriptionBn: "গোল্ড লয়ালটি টায়ারে পৌঁছেছেন", category: "LOYALTY" as const, icon: "🥇", requirement: 1, points: 100 },
+    { code: "TIER_PLATINUM", name: "Platinum Elite", nameBn: "প্লাটিনাম এলিট", description: "Reached Platinum loyalty tier", descriptionBn: "প্লাটিনাম লয়ালটি টায়ারে পৌঁছেছেন", category: "LOYALTY" as const, icon: "💎", requirement: 1, points: 200 },
+    // Reviewer badges
+    { code: "FIRST_REVIEW", name: "Voice Heard", nameBn: "প্রথম রিভিউ", description: "Left your first review", descriptionBn: "প্রথম রিভিউ দিয়েছেন", category: "REVIEWER" as const, icon: "📝", requirement: 1, points: 15 },
+    { code: "REVIEW_5", name: "Critic", nameBn: "সমালোচক", description: "Left 5 reviews", descriptionBn: "৫টি রিভিউ দিয়েছেন", category: "REVIEWER" as const, icon: "🎭", requirement: 5, points: 50 },
+];
+
 
 // Major Bangladesh cities for SEO landing pages
 const DEMO_CITIES = [
@@ -187,6 +217,23 @@ async function seed() {
 
         await db.insert(cities).values(cityData);
         console.log(`  ✓ Created city: ${cityData.name}`);
+    }
+    console.log("");
+
+    // Seed badges for gamification
+    console.log("🏆 Seeding badges...");
+    for (const badgeData of DEMO_BADGES) {
+        const existingBadge = await db.query.badges.findFirst({
+            where: eq(badges.code, badgeData.code),
+        });
+
+        if (existingBadge) {
+            console.log(`  ⏭️  Badge "${badgeData.name}" already exists, skipping...`);
+            continue;
+        }
+
+        await db.insert(badges).values(badgeData);
+        console.log(`  ✓ Created badge: ${badgeData.name}`);
     }
     console.log("");
 

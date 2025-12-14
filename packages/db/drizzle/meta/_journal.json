@@ -50,6 +50,13 @@
       "when": 1765684473132,
       "tag": "0006_equal_eternals",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1765686138466,
+      "tag": "0007_great_ares",
+      "breakpoints": true
     }
   ]
 }

@@ -208,7 +208,8 @@
         "upcomingTrips": "আসন্ন ট্রিপ",
         "pastBookings": "অতীত বুকিং",
         "languageSwitch": "Language / ভাষা",
-        "referEarn": "রেফার করুন ও পুরস্কার পান"
+        "referEarn": "রেফার করুন ও পুরস্কার পান",
+        "achievements": "অ্যাচিভমেন্ট"
     },
     "language": {
         "title": "ভাষা",
@@ -426,5 +427,23 @@
         "statusPENDING": "পেন্ডিং",
         "statusCOMPLETED": "সম্পন্ন",
         "statusEXPIRED": "মেয়াদ শেষ"
+    },
+    "achievements": {
+        "title": "অ্যাচিভমেন্ট",
+        "subtitle": "আপনার অগ্রগতি ট্র্যাক করুন এবং পুরস্কার অর্জন করুন",
+        "loading": "লোড হচ্ছে...",
+        "dayStreak": "দিনের স্ট্রিক",
+        "nextReward": "আরও {days} দিনে ৳{reward} পুরস্কার!",
+        "bestStreak": "সেরা স্ট্রিক",
+        "totalDays": "মোট দিন",
+        "badgesEarned": "ব্যাজ",
+        "earned": "অর্জিত",
+        "points": "পয়েন্ট",
+        "categoryStreak": "স্ট্রিক ব্যাজ",
+        "categoryBooking": "ভ্রমণ মাইলস্টোন",
+        "categoryExplorer": "অভিযাত্রী",
+        "categoryReferral": "রেফারেল",
+        "categoryLoyalty": "লয়ালটি",
+        "categoryReviewer": "রিভিউয়ার"
     }
 }

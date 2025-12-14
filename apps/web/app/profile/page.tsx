@@ -265,6 +265,24 @@ export default async function ProfilePage() {
                         <span>→</span>
                     </Link>
                     <Link
+                        href="/profile/achievements"
+                        style={{
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "space-between",
+                            padding: "1rem",
+                            color: "var(--color-text-primary)",
+                            textDecoration: "none",
+                            borderBottom: "1px solid var(--color-border)",
+                            background: "linear-gradient(135deg, rgba(245, 158, 11, 0.05), rgba(217, 119, 6, 0.05))",
+                        }}
+                    >
+                        <span style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                            🏆 {t("achievements")}
+                        </span>
+                        <span>→</span>
+                    </Link>
+                    <Link
                         href="/help"
                         style={{
                             display: "flex",

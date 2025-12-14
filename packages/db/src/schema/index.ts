@@ -30,3 +30,6 @@ export * from "./cities";
 
 // Referrals exports
 export * from "./referrals";
+
+// Gamification exports
+export * from "./gamification";
