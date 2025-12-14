@@ -3,10 +3,12 @@ import { notFound } from "next/navigation";
 import { Metadata } from "next";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
-import { FiArrowLeft, FiMapPin } from "react-icons/fi";
+import { FiArrowLeft, FiMapPin, FiCheck, FiDollarSign, FiHome } from "react-icons/fi";
 import { BottomNav, HotelCard } from "@/app/components";
 import { getCityBySlug, getAllCitySlugs } from "@/app/actions/cities";
 import { searchHotels } from "@/app/actions/hotels";
+
+import "../city.css";
 
 interface CityPageProps {
     params: Promise<{ slug: string }>;
@@ -59,51 +61,23 @@ export default async function CityPage({ params }: CityPageProps) {
     return (
         <>
             {/* Hero Section */}
-            <section
-                className="city-hero"
-                style={{
-                    background: city.coverImage
-                        ? `linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.7)), url(${city.coverImage})`
-                        : "linear-gradient(135deg, var(--color-primary), var(--color-primary-dark))",
-                    backgroundSize: "cover",
-                    backgroundPosition: "center",
-                    padding: "2rem 1rem 3rem",
-                    color: "white",
-                    minHeight: "200px",
-                }}
-            >
+            <section className="city-hero">
+                <div
+                    className={`city-hero-bg ${city.coverImage ? "" : "city-hero-gradient"}`}
+                    style={
+                        city.coverImage
+                            ? { backgroundImage: `url(${city.coverImage})` }
+                            : undefined
+                    }
+                />
                 <div className="container">
-                    <Link
-                        href="/hotels"
-                        style={{
-                            color: "white",
-                            display: "inline-flex",
-                            alignItems: "center",
-                            gap: "0.5rem",
-                            marginBottom: "1rem",
-                            opacity: 0.9,
-                        }}
-                    >
+                    <Link href="/hotels" className="city-back-link">
                         <FiArrowLeft /> {t("allHotels")}
                     </Link>
-                    <h1
-                        style={{
-                            fontSize: "clamp(1.75rem, 5vw, 2.5rem)",
-                            fontWeight: 700,
-                            marginBottom: "0.5rem",
-                        }}
-                    >
+                    <h1 className="city-hero-title">
                         {t("hotelsIn", { city: city.name })}
                     </h1>
-                    <p
-                        style={{
-                            fontSize: "1rem",
-                            opacity: 0.9,
-                            display: "flex",
-                            alignItems: "center",
-                            gap: "0.5rem",
-                        }}
-                    >
+                    <p className="city-hero-subtitle">
                         <FiMapPin />
                         {t("propertiesFound", { count: city.hotelCount })}
                     </p>
@@ -112,45 +86,17 @@ export default async function CityPage({ params }: CityPageProps) {
 
             {/* City Description (SEO content) */}
             {city.description && (
-                <section
-                    className="container"
-                    style={{ padding: "1.5rem 1rem 0" }}
-                >
-                    <p
-                        style={{
-                            color: "var(--color-text-secondary)",
-                            lineHeight: 1.6,
-                            fontSize: "0.95rem",
-                        }}
-                    >
-                        {city.description}
-                    </p>
+                <section className="city-description container">
+                    <p>{city.description}</p>
                 </section>
             )}
 
             {/* Hotels Grid */}
-            <main className="container page-content" style={{ paddingTop: "1.5rem" }}>
-                <Suspense
-                    fallback={
-                        <div
-                            style={{
-                                textAlign: "center",
-                                padding: "3rem",
-                            }}
-                        >
-                            {tCommon("loadingHotels")}
-                        </div>
-                    }
-                >
+            <main className="city-content container">
+                <Suspense fallback={<div className="city-loading">{tCommon("loadingHotels")}</div>}>
                     {hotels.length === 0 ? (
-                        <div
-                            style={{
-                                textAlign: "center",
-                                padding: "3rem",
-                                color: "var(--color-text-secondary)",
-                            }}
-                        >
-                            <p style={{ marginBottom: "1rem" }}>{t("noHotels")}</p>
+                        <div className="city-empty-state">
+                            <p>{t("noHotels")}</p>
                             <Link href="/hotels" className="btn btn-primary">
                                 {t("browseAllHotels")}
                             </Link>
@@ -177,84 +123,31 @@ export default async function CityPage({ params }: CityPageProps) {
             </main>
 
             {/* SEO Content Section */}
-            <section
-                className="container"
-                style={{
-                    padding: "2rem 1rem 6rem",
-                }}
-            >
-                <h2
-                    style={{
-                        fontSize: "1.25rem",
-                        fontWeight: 600,
-                        marginBottom: "1rem",
-                    }}
-                >
+            <section className="city-why-book">
+                <h2 className="city-why-book-title">
                     {t("whyBook", { city: city.name })}
                 </h2>
-                <div
-                    style={{
-                        display: "grid",
-                        gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
-                        gap: "1rem",
-                    }}
-                >
-                    <div
-                        className="card"
-                        style={{ padding: "1rem", textAlign: "center" }}
-                    >
-                        <div style={{ fontSize: "2rem", marginBottom: "0.5rem" }}>
-                            ✓
+                <div className="city-features-grid container">
+                    <div className="city-feature-card">
+                        <div className="city-feature-icon">
+                            <FiCheck />
                         </div>
-                        <h3 style={{ fontSize: "1rem", fontWeight: 600 }}>
-                            {t("verifiedHotels")}
-                        </h3>
-                        <p
-                            style={{
-                                fontSize: "0.875rem",
-                                color: "var(--color-text-secondary)",
-                            }}
-                        >
-                            {t("verifiedHotelsDesc")}
-                        </p>
+                        <h3>{t("verifiedHotels")}</h3>
+                        <p>{t("verifiedHotelsDesc")}</p>
                     </div>
-                    <div
-                        className="card"
-                        style={{ padding: "1rem", textAlign: "center" }}
-                    >
-                        <div style={{ fontSize: "2rem", marginBottom: "0.5rem" }}>
-                            💰
+                    <div className="city-feature-card">
+                        <div className="city-feature-icon">
+                            <FiDollarSign />
                         </div>
-                        <h3 style={{ fontSize: "1rem", fontWeight: 600 }}>
-                            {t("bestPrices")}
-                        </h3>
-                        <p
-                            style={{
-                                fontSize: "0.875rem",
-                                color: "var(--color-text-secondary)",
-                            }}
-                        >
-                            {t("bestPricesDesc")}
-                        </p>
+                        <h3>{t("bestPrices")}</h3>
+                        <p>{t("bestPricesDesc")}</p>
                     </div>
-                    <div
-                        className="card"
-                        style={{ padding: "1rem", textAlign: "center" }}
-                    >
-                        <div style={{ fontSize: "2rem", marginBottom: "0.5rem" }}>
-                            🏨
+                    <div className="city-feature-card">
+                        <div className="city-feature-icon">
+                            <FiHome />
                         </div>
-                        <h3 style={{ fontSize: "1rem", fontWeight: 600 }}>
-                            {t("payAtHotel")}
-                        </h3>
-                        <p
-                            style={{
-                                fontSize: "0.875rem",
-                                color: "var(--color-text-secondary)",
-                            }}
-                        >
-                            {t("payAtHotelDesc")}
-                        </p>
+                        <h3>{t("payAtHotel")}</h3>
+                        <p>{t("payAtHotelDesc")}</p>
                     </div>
                 </div>
             </section>

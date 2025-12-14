@@ -1,0 +1,201 @@
+/* City Landing Page Styles */
+
+/* Hero Section */
+.city-hero {
+    position: relative;
+    padding: 2.5rem 1rem 3.5rem;
+    color: white;
+    min-height: 220px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+}
+
+.city-hero-bg {
+    position: absolute;
+    inset: 0;
+    background-size: cover;
+    background-position: center;
+    z-index: -1;
+}
+
+.city-hero-bg::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom,
+            rgba(0, 0, 0, 0.3) 0%,
+            rgba(0, 0, 0, 0.6) 100%);
+}
+
+.city-hero-gradient {
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+}
+
+.city-hero .container {
+    position: relative;
+    z-index: 1;
+}
+
+.city-back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: white;
+    text-decoration: none;
+    opacity: 0.9;
+    margin-bottom: 1rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: opacity 0.2s ease;
+}
+
+.city-back-link:hover {
+    opacity: 1;
+}
+
+.city-hero-title {
+    font-size: clamp(1.75rem, 5vw, 2.75rem);
+    font-weight: 800;
+    margin-bottom: 0.625rem;
+    line-height: 1.2;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.city-hero-subtitle {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1rem;
+    opacity: 0.9;
+}
+
+.city-hero-subtitle svg {
+    font-size: 1.125rem;
+}
+
+/* City Description */
+.city-description {
+    padding: 1.5rem 1rem;
+    background: white;
+    margin-bottom: 0.5rem;
+}
+
+.city-description p {
+    color: var(--color-text-secondary);
+    line-height: 1.7;
+    font-size: 0.9375rem;
+}
+
+/* City Content */
+.city-content {
+    padding: 1.5rem 1rem 6rem;
+}
+
+.city-empty-state {
+    text-align: center;
+    padding: 3rem 1rem;
+    background: white;
+    border-radius: 1rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.city-empty-state p {
+    color: var(--color-text-secondary);
+    margin-bottom: 1.25rem;
+    font-size: 1rem;
+}
+
+/* Why Book Section */
+.city-why-book {
+    padding: 2.5rem 1rem 6rem;
+    background: var(--color-bg-secondary);
+}
+
+.city-why-book-title {
+    font-size: 1.375rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    text-align: center;
+    color: var(--color-text-primary);
+}
+
+.city-features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+}
+
+.city-feature-card {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 1rem;
+    text-align: center;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.city-feature-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+
+.city-feature-icon {
+    font-size: 2.5rem;
+    margin-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.city-feature-card h3 {
+    font-size: 1.0625rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: var(--color-text-primary);
+}
+
+.city-feature-card p {
+    font-size: 0.875rem;
+    color: var(--color-text-secondary);
+    line-height: 1.5;
+}
+
+/* Loading State */
+.city-loading {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: var(--color-text-secondary);
+}
+
+/* Responsive */
+@media (min-width: 640px) {
+    .city-hero {
+        padding: 3rem 2rem 4rem;
+        min-height: 280px;
+    }
+
+    .city-content {
+        padding: 2rem;
+    }
+
+    .city-why-book {
+        padding: 3rem 2rem 4rem;
+    }
+
+    .city-features-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1.25rem;
+    }
+}
+
+@media (min-width: 1024px) {
+    .city-hero {
+        padding: 4rem 2rem 5rem;
+        min-height: 320px;
+    }
+
+    .city-feature-card {
+        padding: 2rem;
+    }
+}
