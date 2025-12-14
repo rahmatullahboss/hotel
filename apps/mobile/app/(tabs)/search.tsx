@@ -1,115 +1,110 @@
 import { useState } from 'react';
-import { StyleSheet, TextInput, ScrollView, TouchableOpacity as RNTouchableOpacity } from 'react-native';
+import {
+    StyleSheet,
+    TextInput,
+    ScrollView,
+    TouchableOpacity,
+    Dimensions,
+} from 'react-native';
 import { Text, View } from '@/components/Themed';
 import { useRouter } from 'expo-router';
-import Colors from '@/constants/Colors';
-import { useColorScheme } from '@/components/useColorScheme';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
+import Colors from '@/constants/Colors';
 
-const TouchableOpacity = RNTouchableOpacity;
+const { width } = Dimensions.get('window');
 
 const POPULAR_CITIES = [
-    { name: 'Dhaka', icon: '🏙️' },
-    { name: 'Chittagong', icon: '⛵' },
-    { name: "Cox's Bazar", icon: '🏖️' },
-    { name: 'Sylhet', icon: '🌿' },
-    { name: 'Rajshahi', icon: '🏛️' },
-    { name: 'Khulna', icon: '🌊' },
+    { name: 'Dhaka', image: '🏙️', hotels: '250+ hotels' },
+    { name: 'Chittagong', image: '⛵', hotels: '120+ hotels' },
+    { name: "Cox's Bazar", image: '🏖️', hotels: '180+ hotels' },
+    { name: 'Sylhet', image: '🌿', hotels: '90+ hotels' },
+    { name: 'Rajshahi', image: '🏛️', hotels: '45+ hotels' },
+    { name: 'Khulna', image: '🌊', hotels: '35+ hotels' },
 ];
 
 export default function SearchScreen() {
     const router = useRouter();
-    const colorScheme = useColorScheme() ?? 'light';
-    const colors = Colors[colorScheme];
+    const colors = Colors.light; // Force light theme
+    const insets = useSafeAreaInsets();
 
     const [searchQuery, setSearchQuery] = useState('');
-    const [checkIn, setCheckIn] = useState('');
-    const [checkOut, setCheckOut] = useState('');
 
-    const handleSearch = () => {
-        // Navigate to search results with query params
+    const handleCitySelect = (city: string) => {
         router.push({
             pathname: '/search-results',
-            params: { city: searchQuery, checkIn, checkOut },
+            params: { city },
         });
     };
 
-    const handleCitySelect = (city: string) => {
-        setSearchQuery(city);
-    };
-
     return (
-        <ScrollView style={[styles.container, { backgroundColor: colors.background }]}>
-            {/* Search Header */}
-            <View style={[styles.searchHeader, { backgroundColor: Colors.primary }]}>
-                <Text style={styles.searchTitle}>Find Hotels</Text>
-                <Text style={styles.searchSubtitle}>Search from thousands of hotels</Text>
+        <View style={[styles.container, { backgroundColor: colors.background }]}>
+            {/* Header */}
+            <View style={[styles.header, { paddingTop: insets.top + 10, backgroundColor: Colors.primary }]}>
+                <Text style={styles.headerTitle}>Search</Text>
+                <Text style={styles.headerSubtitle}>Find hotels in any city</Text>
             </View>
 
-            {/* Search Form */}
-            <View style={[styles.searchForm, { backgroundColor: colors.backgroundSecondary }]}>
-                <View style={[styles.inputContainer, { backgroundColor: colors.background }]}>
-                    <FontAwesome name="map-marker" size={20} color={colors.textSecondary} style={styles.inputIcon} />
-                    <TextInput
-                        style={[styles.input, { color: colors.text }]}
-                        placeholder="Where do you want to go?"
-                        placeholderTextColor={colors.textSecondary}
-                        value={searchQuery}
-                        onChangeText={setSearchQuery}
-                    />
-                </View>
-
-                <View style={[styles.dateRow, { backgroundColor: 'transparent' }]}>
-                    <View style={[styles.dateInput, { backgroundColor: colors.background }]}>
-                        <FontAwesome name="calendar" size={16} color={colors.textSecondary} style={styles.inputIcon} />
+            <ScrollView
+                style={styles.scrollView}
+                showsVerticalScrollIndicator={false}
+            >
+                {/* Search Bar */}
+                <View style={styles.searchContainer}>
+                    <View style={[styles.searchBar, { backgroundColor: colors.card }]}>
+                        <FontAwesome name="search" size={18} color={colors.textSecondary} />
                         <TextInput
-                            style={[styles.input, { color: colors.text }]}
-                            placeholder="Check-in"
+                            style={[styles.searchInput, { color: colors.text }]}
+                            placeholder="City, hotel, or landmark"
                             placeholderTextColor={colors.textSecondary}
-                            value={checkIn}
-                            onChangeText={setCheckIn}
+                            value={searchQuery}
+                            onChangeText={setSearchQuery}
                         />
-                    </View>
-                    <View style={[styles.dateInput, { backgroundColor: colors.background }]}>
-                        <FontAwesome name="calendar" size={16} color={colors.textSecondary} style={styles.inputIcon} />
-                        <TextInput
-                            style={[styles.input, { color: colors.text }]}
-                            placeholder="Check-out"
-                            placeholderTextColor={colors.textSecondary}
-                            value={checkOut}
-                            onChangeText={setCheckOut}
-                        />
+                        {searchQuery.length > 0 && (
+                            <TouchableOpacity onPress={() => setSearchQuery('')}>
+                                <FontAwesome name="times-circle" size={18} color={colors.textSecondary} />
+                            </TouchableOpacity>
+                        )}
                     </View>
                 </View>
 
-                <TouchableOpacity
-                    style={[styles.searchButton, { backgroundColor: Colors.primary }]}
-                    onPress={handleSearch}
-                >
-                    <FontAwesome name="search" size={18} color="#fff" style={{ marginRight: 8 }} />
-                    <Text style={styles.searchButtonText}>Search Hotels</Text>
-                </TouchableOpacity>
-            </View>
-
-            {/* Popular Cities */}
-            <View style={[styles.section, { backgroundColor: colors.background }]}>
-                <Text style={[styles.sectionTitle, { color: colors.text }]}>
-                    Popular Destinations
-                </Text>
-                <View style={[styles.citiesGrid, { backgroundColor: 'transparent' }]}>
-                    {POPULAR_CITIES.map((city) => (
-                        <TouchableOpacity
-                            key={city.name}
-                            style={[styles.cityCard, { backgroundColor: colors.backgroundSecondary }]}
-                            onPress={() => handleCitySelect(city.name)}
-                        >
-                            <Text style={styles.cityIcon}>{city.icon}</Text>
-                            <Text style={[styles.cityName, { color: colors.text }]}>{city.name}</Text>
-                        </TouchableOpacity>
-                    ))}
+                {/* Popular Cities */}
+                <View style={styles.section}>
+                    <Text style={[styles.sectionTitle, { color: colors.text }]}>
+                        Popular Destinations
+                    </Text>
+                    <View style={styles.citiesGrid}>
+                        {POPULAR_CITIES.map((city) => (
+                            <TouchableOpacity
+                                key={city.name}
+                                style={[styles.cityCard, { backgroundColor: colors.card }]}
+                                onPress={() => handleCitySelect(city.name)}
+                                activeOpacity={0.8}
+                            >
+                                <Text style={styles.cityEmoji}>{city.image}</Text>
+                                <Text style={[styles.cityName, { color: colors.text }]}>{city.name}</Text>
+                                <Text style={[styles.cityHotels, { color: colors.textSecondary }]}>{city.hotels}</Text>
+                            </TouchableOpacity>
+                        ))}
+                    </View>
                 </View>
-            </View>
-        </ScrollView>
+
+                {/* Recent Searches */}
+                <View style={styles.section}>
+                    <Text style={[styles.sectionTitle, { color: colors.text }]}>
+                        Recent Searches
+                    </Text>
+                    <View style={[styles.emptyRecent, { backgroundColor: colors.backgroundSecondary }]}>
+                        <FontAwesome name="history" size={24} color={colors.textSecondary} />
+                        <Text style={[styles.emptyText, { color: colors.textSecondary }]}>
+                            Your recent searches will appear here
+                        </Text>
+                    </View>
+                </View>
+
+                <View style={{ height: 20 }} />
+            </ScrollView>
+        </View>
     );
 }
 
@@ -117,78 +112,52 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
     },
-    searchHeader: {
-        padding: 24,
-        paddingTop: 60,
-        paddingBottom: 32,
+    header: {
+        paddingHorizontal: 20,
+        paddingBottom: 20,
         borderBottomLeftRadius: 24,
         borderBottomRightRadius: 24,
     },
-    searchTitle: {
-        fontSize: 28,
+    headerTitle: {
+        fontSize: 24,
         fontWeight: 'bold',
         color: '#fff',
     },
-    searchSubtitle: {
-        fontSize: 16,
+    headerSubtitle: {
+        fontSize: 14,
         color: 'rgba(255,255,255,0.8)',
         marginTop: 4,
     },
-    searchForm: {
-        margin: 16,
-        marginTop: -20,
+    scrollView: {
+        flex: 1,
+    },
+    searchContainer: {
         padding: 20,
-        borderRadius: 16,
+        marginTop: -30,
+    },
+    searchBar: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: 16,
+        paddingVertical: 14,
+        borderRadius: 12,
+        gap: 12,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.1,
         shadowRadius: 8,
-        elevation: 3,
+        elevation: 4,
     },
-    inputContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        borderRadius: 12,
-        paddingHorizontal: 16,
-        marginBottom: 12,
-    },
-    inputIcon: {
-        marginRight: 12,
-    },
-    input: {
+    searchInput: {
         flex: 1,
-        paddingVertical: 14,
-        fontSize: 16,
-    },
-    dateRow: {
-        flexDirection: 'row',
-        gap: 12,
-        marginBottom: 16,
-    },
-    dateInput: {
-        flex: 1,
-        flexDirection: 'row',
-        alignItems: 'center',
-        borderRadius: 12,
-        paddingHorizontal: 12,
-    },
-    searchButton: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: 16,
-        borderRadius: 12,
-    },
-    searchButtonText: {
-        color: '#fff',
-        fontSize: 16,
-        fontWeight: '600',
+        fontSize: 15,
     },
     section: {
-        padding: 16,
+        paddingHorizontal: 20,
+        marginTop: 10,
     },
     sectionTitle: {
-        fontSize: 20,
+        fontSize: 18,
         fontWeight: 'bold',
         marginBottom: 16,
     },
@@ -198,18 +167,35 @@ const styles = StyleSheet.create({
         gap: 12,
     },
     cityCard: {
-        width: '30%',
-        aspectRatio: 1,
-        alignItems: 'center',
-        justifyContent: 'center',
+        width: (width - 52) / 2,
+        padding: 16,
         borderRadius: 16,
+        alignItems: 'center',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.05,
+        shadowRadius: 4,
+        elevation: 2,
     },
-    cityIcon: {
-        fontSize: 32,
+    cityEmoji: {
+        fontSize: 36,
         marginBottom: 8,
     },
     cityName: {
-        fontSize: 14,
-        fontWeight: '500',
+        fontSize: 15,
+        fontWeight: '600',
+        marginBottom: 2,
+    },
+    cityHotels: {
+        fontSize: 12,
+    },
+    emptyRecent: {
+        padding: 30,
+        borderRadius: 12,
+        alignItems: 'center',
+        gap: 8,
+    },
+    emptyText: {
+        fontSize: 13,
     },
 });

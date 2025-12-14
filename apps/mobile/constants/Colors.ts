@@ -1,33 +1,37 @@
-// Vibe Hospitality Brand Colors
-const primaryColor = '#6366f1'; // Indigo-500
-const primaryDark = '#4f46e5'; // Indigo-600
+// OYO-style Hotel Booking App Colors
+// Using a vibrant red/coral theme similar to OYO
+
+const primaryColor = '#E23744'; // OYO Red
+const primaryDark = '#C41E3A';  // Darker Red
 
 export default {
   light: {
-    text: '#1f2937',
-    textSecondary: '#6b7280',
-    background: '#ffffff',
-    backgroundSecondary: '#f3f4f6',
+    text: '#222222',
+    textSecondary: '#717171',
+    background: '#FFFFFF',
+    backgroundSecondary: '#F7F7F7',
     tint: primaryColor,
-    tabIconDefault: '#9ca3af',
+    tabIconDefault: '#B0B0B0',
     tabIconSelected: primaryColor,
-    border: '#e5e7eb',
-    success: '#10b981',
-    error: '#ef4444',
-    warning: '#f59e0b',
+    border: '#EBEBEB',
+    success: '#00A699',
+    error: '#FF5A5F',
+    warning: '#FFB400',
+    card: '#FFFFFF',
   },
   dark: {
-    text: '#f9fafb',
-    textSecondary: '#9ca3af',
-    background: '#111827',
-    backgroundSecondary: '#1f2937',
-    tint: '#818cf8',
-    tabIconDefault: '#6b7280',
-    tabIconSelected: '#818cf8',
-    border: '#374151',
-    success: '#34d399',
-    error: '#f87171',
-    warning: '#fbbf24',
+    text: '#FFFFFF',
+    textSecondary: '#A0A0A0',
+    background: '#1A1A1A',
+    backgroundSecondary: '#262626',
+    tint: '#FF6B6B',
+    tabIconDefault: '#6B6B6B',
+    tabIconSelected: '#FF6B6B',
+    border: '#333333',
+    success: '#00D9C0',
+    error: '#FF6B6B',
+    warning: '#FFD166',
+    card: '#262626',
   },
   primary: primaryColor,
   primaryDark: primaryDark,

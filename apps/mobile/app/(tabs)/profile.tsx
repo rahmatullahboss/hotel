@@ -1,10 +1,16 @@
 import { useState, useEffect } from 'react';
-import { StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
+import {
+    StyleSheet,
+    ScrollView,
+    TouchableOpacity,
+    ActivityIndicator,
+    Image,
+} from 'react-native';
 import { Text, View } from '@/components/Themed';
 import { useRouter } from 'expo-router';
-import Colors from '@/constants/Colors';
-import { useColorScheme } from '@/components/useColorScheme';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
+import Colors from '@/constants/Colors';
 import api, { removeToken } from '@/lib/api';
 
 interface User {
@@ -13,10 +19,20 @@ interface User {
     image?: string;
 }
 
+const MENU_ITEMS = [
+    { icon: 'suitcase' as const, label: 'My Trips', route: '/(tabs)/bookings' },
+    { icon: 'heart-o' as const, label: 'Saved Hotels', route: '/saved' },
+    { icon: 'credit-card' as const, label: 'Payment Methods', route: '/payment-methods' },
+    { icon: 'bell-o' as const, label: 'Notifications', route: '/notifications' },
+    { icon: 'gift' as const, label: 'Offers & Rewards', route: '/offers' },
+    { icon: 'question-circle-o' as const, label: 'Help & Support', route: '/help' },
+    { icon: 'cog' as const, label: 'Settings', route: '/settings' },
+];
+
 export default function ProfileScreen() {
     const router = useRouter();
-    const colorScheme = useColorScheme() ?? 'light';
-    const colors = Colors[colorScheme];
+    const colors = Colors.light; // Force light theme
+    const insets = useSafeAreaInsets();
 
     const [user, setUser] = useState<User | null>(null);
     const [loading, setLoading] = useState(true);
@@ -26,8 +42,8 @@ export default function ProfileScreen() {
     }, []);
 
     const fetchProfile = async () => {
-        const { data, error } = await api.getProfile();
-        if (!error && data) {
+        const { data } = await api.getProfile();
+        if (data) {
             setUser(data);
         }
         setLoading(false);
@@ -35,104 +51,105 @@ export default function ProfileScreen() {
 
     const handleLogout = async () => {
         await removeToken();
-        // Navigate to login or home
         router.replace('/');
     };
 
-    const menuItems = [
-        { icon: 'history' as const, label: 'Booking History', route: '/(tabs)/bookings' },
-        { icon: 'heart' as const, label: 'Saved Hotels', route: '/saved' },
-        { icon: 'credit-card' as const, label: 'Payment Methods', route: '/payment-methods' },
-        { icon: 'bell' as const, label: 'Notifications', route: '/notifications' },
-        { icon: 'cog' as const, label: 'Settings', route: '/settings' },
-        { icon: 'question-circle' as const, label: 'Help & Support', route: '/help' },
-    ];
-
     if (loading) {
         return (
-            <View style={styles.centered}>
+            <View style={[styles.centered, { paddingTop: insets.top }]}>
                 <ActivityIndicator size="large" color={Colors.primary} />
             </View>
         );
     }
 
     return (
-        <ScrollView style={[styles.container, { backgroundColor: colors.background }]}>
-            {/* Profile Header */}
-            <View style={[styles.profileHeader, { backgroundColor: Colors.primary }]}>
-                <View style={styles.avatarContainer}>
-                    {user?.image ? (
-                        <View style={styles.avatar}>
-                            <Text style={styles.avatarText}>
-                                {user.name?.charAt(0).toUpperCase() || 'U'}
-                            </Text>
-                        </View>
-                    ) : (
-                        <View style={styles.avatar}>
-                            <FontAwesome name="user" size={40} color="#fff" />
-                        </View>
-                    )}
-                </View>
+        <View style={[styles.container, { backgroundColor: colors.background }]}>
+            {/* Header */}
+            <View style={[styles.header, { paddingTop: insets.top + 10, backgroundColor: Colors.primary }]}>
                 {user ? (
                     <>
+                        <View style={styles.avatarContainer}>
+                            {user.image ? (
+                                <Image source={{ uri: user.image }} style={styles.avatar} />
+                            ) : (
+                                <View style={styles.avatarPlaceholder}>
+                                    <Text style={styles.avatarText}>
+                                        {user.name?.charAt(0).toUpperCase() || 'U'}
+                                    </Text>
+                                </View>
+                            )}
+                        </View>
                         <Text style={styles.userName}>{user.name}</Text>
                         <Text style={styles.userEmail}>{user.email}</Text>
                     </>
                 ) : (
                     <>
-                        <Text style={styles.userName}>Guest User</Text>
+                        <View style={styles.avatarContainer}>
+                            <View style={styles.avatarPlaceholder}>
+                                <FontAwesome name="user" size={32} color="#fff" />
+                            </View>
+                        </View>
+                        <Text style={styles.userName}>Guest</Text>
                         <TouchableOpacity
                             style={styles.loginButton}
-                            onPress={() => router.push('/login')}
+                            onPress={() => router.push('/auth/login')}
                         >
-                            <Text style={styles.loginButtonText}>Sign In</Text>
+                            <Text style={styles.loginButtonText}>Sign In / Register</Text>
                         </TouchableOpacity>
                     </>
                 )}
             </View>
 
-            {/* Menu Items */}
-            <View style={[styles.menuSection, { backgroundColor: colors.background }]}>
-                {menuItems.map((item, index) => (
+            <ScrollView
+                style={styles.scrollView}
+                showsVerticalScrollIndicator={false}
+            >
+                {/* Menu Items */}
+                <View style={styles.menuSection}>
+                    {MENU_ITEMS.map((item, index) => (
+                        <TouchableOpacity
+                            key={item.label}
+                            style={[
+                                styles.menuItem,
+                                {
+                                    backgroundColor: colors.card,
+                                    borderBottomColor: colors.border,
+                                    borderBottomWidth: index < MENU_ITEMS.length - 1 ? 1 : 0,
+                                }
+                            ]}
+                            onPress={() => router.push(item.route as any)}
+                            activeOpacity={0.7}
+                        >
+                            <View style={[styles.menuIconContainer, { backgroundColor: `${Colors.primary}10` }]}>
+                                <FontAwesome name={item.icon} size={18} color={Colors.primary} />
+                            </View>
+                            <Text style={[styles.menuLabel, { color: colors.text }]}>{item.label}</Text>
+                            <FontAwesome name="chevron-right" size={14} color={colors.textSecondary} />
+                        </TouchableOpacity>
+                    ))}
+                </View>
+
+                {/* Logout Button */}
+                {user && (
                     <TouchableOpacity
-                        key={item.label}
-                        style={[
-                            styles.menuItem,
-                            {
-                                backgroundColor: colors.backgroundSecondary,
-                                borderBottomColor: colors.border,
-                                borderBottomWidth: index < menuItems.length - 1 ? 1 : 0,
-                            }
-                        ]}
-                        onPress={() => router.push(item.route as any)}
+                        style={[styles.logoutButton, { backgroundColor: colors.backgroundSecondary }]}
+                        onPress={handleLogout}
                     >
-                        <View style={[styles.menuIconContainer, { backgroundColor: `${Colors.primary}20` }]}>
-                            <FontAwesome name={item.icon} size={18} color={Colors.primary} />
-                        </View>
-                        <Text style={[styles.menuLabel, { color: colors.text }]}>{item.label}</Text>
-                        <FontAwesome name="chevron-right" size={14} color={colors.textSecondary} />
+                        <FontAwesome name="sign-out" size={18} color={Colors.light.error} />
+                        <Text style={[styles.logoutText, { color: Colors.light.error }]}>Log Out</Text>
                     </TouchableOpacity>
-                ))}
-            </View>
+                )}
 
-            {/* Logout Button */}
-            {user && (
-                <TouchableOpacity
-                    style={[styles.logoutButton, { backgroundColor: colors.backgroundSecondary }]}
-                    onPress={handleLogout}
-                >
-                    <FontAwesome name="sign-out" size={18} color={colors.error} />
-                    <Text style={[styles.logoutText, { color: colors.error }]}>Log Out</Text>
-                </TouchableOpacity>
-            )}
+                {/* App Info */}
+                <View style={styles.appInfo}>
+                    <Text style={[styles.appVersion, { color: colors.textSecondary }]}>
+                        Vibe Hospitality v1.0.0
+                    </Text>
+                </View>
 
-            {/* App Info */}
-            <View style={[styles.appInfo, { backgroundColor: 'transparent' }]}>
-                <Text style={[styles.appVersion, { color: colors.textSecondary }]}>
-                    Vibe Hospitality v1.0.0
-                </Text>
-            </View>
-        </ScrollView>
+                <View style={{ height: 20 }} />
+            </ScrollView>
+        </View>
     );
 }
 
@@ -145,20 +162,27 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
     },
-    profileHeader: {
-        paddingTop: 60,
-        paddingBottom: 32,
+    header: {
+        paddingHorizontal: 20,
+        paddingBottom: 24,
         alignItems: 'center',
         borderBottomLeftRadius: 24,
         borderBottomRightRadius: 24,
     },
     avatarContainer: {
-        marginBottom: 16,
+        marginBottom: 12,
     },
     avatar: {
-        width: 88,
-        height: 88,
-        borderRadius: 44,
+        width: 80,
+        height: 80,
+        borderRadius: 40,
+        borderWidth: 3,
+        borderColor: 'rgba(255,255,255,0.4)',
+    },
+    avatarPlaceholder: {
+        width: 80,
+        height: 80,
+        borderRadius: 40,
         backgroundColor: 'rgba(255,255,255,0.2)',
         alignItems: 'center',
         justifyContent: 'center',
@@ -166,34 +190,37 @@ const styles = StyleSheet.create({
         borderColor: 'rgba(255,255,255,0.4)',
     },
     avatarText: {
-        fontSize: 36,
+        fontSize: 32,
         fontWeight: 'bold',
         color: '#fff',
     },
     userName: {
-        fontSize: 24,
+        fontSize: 20,
         fontWeight: 'bold',
         color: '#fff',
     },
     userEmail: {
         fontSize: 14,
         color: 'rgba(255,255,255,0.8)',
-        marginTop: 4,
+        marginTop: 2,
     },
     loginButton: {
         marginTop: 12,
-        backgroundColor: 'rgba(255,255,255,0.2)',
+        backgroundColor: '#fff',
         paddingHorizontal: 24,
         paddingVertical: 10,
-        borderRadius: 20,
+        borderRadius: 25,
     },
     loginButtonText: {
-        color: '#fff',
+        color: Colors.primary,
         fontWeight: '600',
+        fontSize: 14,
+    },
+    scrollView: {
+        flex: 1,
     },
     menuSection: {
-        marginTop: 20,
-        marginHorizontal: 16,
+        margin: 20,
         borderRadius: 16,
         overflow: 'hidden',
     },
@@ -203,29 +230,29 @@ const styles = StyleSheet.create({
         padding: 16,
     },
     menuIconContainer: {
-        width: 36,
-        height: 36,
-        borderRadius: 10,
+        width: 40,
+        height: 40,
+        borderRadius: 12,
         alignItems: 'center',
         justifyContent: 'center',
-        marginRight: 12,
+        marginRight: 14,
     },
     menuLabel: {
         flex: 1,
-        fontSize: 16,
+        fontSize: 15,
+        fontWeight: '500',
     },
     logoutButton: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        marginTop: 20,
-        marginHorizontal: 16,
+        marginHorizontal: 20,
         padding: 16,
         borderRadius: 12,
-        gap: 8,
+        gap: 10,
     },
     logoutText: {
-        fontSize: 16,
+        fontSize: 15,
         fontWeight: '600',
     },
     appInfo: {
