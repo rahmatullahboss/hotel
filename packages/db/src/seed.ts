@@ -6,8 +6,109 @@
  */
 
 import { db } from "./index";
-import { hotels, rooms, users } from "./schema";
+import { hotels, rooms, users, cities } from "./schema";
 import { eq } from "drizzle-orm";
+
+// Major Bangladesh cities for SEO landing pages
+const DEMO_CITIES = [
+    {
+        name: "Dhaka",
+        nameBn: "ঢাকা",
+        slug: "dhaka",
+        description: "Discover the best hotels in Dhaka, Bangladesh's vibrant capital. From luxury stays in Gulshan to budget-friendly options in Dhanmondi, find your perfect accommodation.",
+        descriptionBn: "ঢাকার সেরা হোটেলগুলো খুঁজুন। গুলশানে বিলাসবহুল থেকে ধানমন্ডিতে বাজেট-ফ্রেন্ডলি অপশন।",
+        metaTitle: "Hotels in Dhaka - Best Verified Hotels | Vibe Hotels",
+        metaDescription: "Book verified hotels in Dhaka with free cancellation. Pay at hotel option available. Best prices guaranteed.",
+        latitude: "23.8103",
+        longitude: "90.4125",
+        isPopular: true,
+    },
+    {
+        name: "Cox's Bazar",
+        nameBn: "কক্সবাজার",
+        slug: "cox-bazar",
+        description: "Experience the world's longest natural sea beach. Book hotels in Cox's Bazar for an unforgettable beach vacation with stunning ocean views.",
+        descriptionBn: "বিশ্বের দীর্ঘতম প্রাকৃতিক সমুদ্র সৈকতে থাকার জন্য কক্সবাজারের হোটেল বুক করুন।",
+        metaTitle: "Hotels in Cox's Bazar - Beach Resorts & Hotels | Vibe Hotels",
+        metaDescription: "Book beach hotels and resorts in Cox's Bazar. Ocean view rooms, best prices, and free cancellation.",
+        latitude: "21.4272",
+        longitude: "92.0058",
+        isPopular: true,
+    },
+    {
+        name: "Chittagong",
+        nameBn: "চট্টগ্রাম",
+        slug: "chittagong",
+        description: "Find the best hotels in Chittagong, Bangladesh's port city. Perfect for business travelers and tourists exploring the hill tracts.",
+        descriptionBn: "চট্টগ্রামের সেরা হোটেল খুঁজুন। ব্যবসায়িক ভ্রমণকারী এবং পর্যটকদের জন্য আদর্শ।",
+        metaTitle: "Hotels in Chittagong - Business & Leisure Hotels | Vibe Hotels",
+        metaDescription: "Book verified hotels in Chittagong. Business hotels, hill view stays, and budget options available.",
+        latitude: "22.3569",
+        longitude: "91.7832",
+        isPopular: true,
+    },
+    {
+        name: "Sylhet",
+        nameBn: "সিলেট",
+        slug: "sylhet",
+        description: "Explore Sylhet's tea gardens and natural beauty. Book hotels near Ratargul, Jaflong, and the city center.",
+        descriptionBn: "সিলেটের চা বাগান এবং প্রাকৃতিক সৌন্দর্য উপভোগ করুন। রাতারগুল, জাফলং এর কাছে হোটেল।",
+        metaTitle: "Hotels in Sylhet - Tea Garden Hotels | Vibe Hotels",
+        metaDescription: "Book hotels in Sylhet near tea gardens and tourist spots. Best prices and verified properties.",
+        latitude: "24.8949",
+        longitude: "91.8687",
+        isPopular: true,
+    },
+    {
+        name: "Rajshahi",
+        nameBn: "রাজশাহী",
+        slug: "rajshahi",
+        description: "Stay in Rajshahi, the city of education and mangoes. Hotels near Varendra Museum, Padma River, and university area.",
+        descriptionBn: "শিক্ষা ও আমের শহর রাজশাহীতে থাকুন। বরেন্দ্র জাদুঘর এবং পদ্মা নদীর কাছে হোটেল।",
+        metaTitle: "Hotels in Rajshahi - Affordable Stays | Vibe Hotels",
+        metaDescription: "Find affordable hotels in Rajshahi. Near university, Padma River, and tourist attractions.",
+        latitude: "24.3745",
+        longitude: "88.6042",
+        isPopular: false,
+    },
+    {
+        name: "Khulna",
+        nameBn: "খুলনা",
+        slug: "khulna",
+        description: "Gateway to the Sundarbans. Book hotels in Khulna for your next adventure to the world's largest mangrove forest.",
+        descriptionBn: "সুন্দরবনের প্রবেশদ্বার। বিশ্বের বৃহত্তম ম্যানগ্রোভ বনে অ্যাডভেঞ্চারের জন্য হোটেল বুক করুন।",
+        metaTitle: "Hotels in Khulna - Sundarbans Gateway | Vibe Hotels",
+        metaDescription: "Book hotels in Khulna near Sundarbans. Perfect base for mangrove forest tours.",
+        latitude: "22.8456",
+        longitude: "89.5403",
+        isPopular: false,
+    },
+    {
+        name: "Rangpur",
+        nameBn: "রংপুর",
+        slug: "rangpur",
+        description: "Discover Rangpur in northern Bangladesh. Hotels for business and leisure travelers exploring the region.",
+        descriptionBn: "উত্তর বাংলাদেশের রংপুর আবিষ্কার করুন। ব্যবসা ও অবসর ভ্রমণকারীদের জন্য হোটেল।",
+        metaTitle: "Hotels in Rangpur - Northern Bangladesh | Vibe Hotels",
+        metaDescription: "Book verified hotels in Rangpur. Affordable stays in northern Bangladesh.",
+        latitude: "25.7439",
+        longitude: "89.2752",
+        isPopular: false,
+    },
+    {
+        name: "Mymensingh",
+        nameBn: "ময়মনসিংহ",
+        slug: "mymensingh",
+        description: "Stay in Mymensingh, home to Bangladesh Agricultural University. Hotels near the city center and university campus.",
+        descriptionBn: "বাংলাদেশ কৃষি বিশ্ববিদ্যালয়ের শহর ময়মনসিংহে থাকুন।",
+        metaTitle: "Hotels in Mymensingh - University City | Vibe Hotels",
+        metaDescription: "Find hotels in Mymensingh near university and city center. Best prices guaranteed.",
+        latitude: "24.7471",
+        longitude: "90.4203",
+        isPopular: false,
+    },
+];
+
 
 const DEMO_HOTELS = [
     {
@@ -71,6 +172,23 @@ const DEMO_HOTELS = [
 
 async function seed() {
     console.log("🌱 Starting database seed...\n");
+
+    // Seed cities for SEO landing pages
+    console.log("📍 Seeding cities...");
+    for (const cityData of DEMO_CITIES) {
+        const existingCity = await db.query.cities.findFirst({
+            where: eq(cities.slug, cityData.slug),
+        });
+
+        if (existingCity) {
+            console.log(`  ⏭️  City "${cityData.name}" already exists, skipping...`);
+            continue;
+        }
+
+        await db.insert(cities).values(cityData);
+        console.log(`  ✓ Created city: ${cityData.name}`);
+    }
+    console.log("");
 
     // First, ensure we have a demo partner user
     let demoPartner = await db.query.users.findFirst({

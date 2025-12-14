@@ -382,5 +382,19 @@
     "privacy": {
         "title": "গোপনীয়তা নীতি",
         "lastUpdated": "সর্বশেষ আপডেট: ডিসেম্বর ২০২৪"
+    },
+    "cityPage": {
+        "allHotels": "সব হোটেল",
+        "hotelsIn": "{city} এ হোটেল",
+        "propertiesFound": "{count} টি হোটেল পাওয়া গেছে",
+        "noHotels": "এই শহরে এখনও কোনো হোটেল পাওয়া যায়নি।",
+        "browseAllHotels": "সব হোটেল দেখুন",
+        "whyBook": "{city} এ কেন হোটেল বুক করবেন",
+        "verifiedHotels": "যাচাইকৃত হোটেল",
+        "verifiedHotelsDesc": "সব প্রপার্টি ব্যক্তিগতভাবে মান যাচাই করা",
+        "bestPrices": "সেরা মূল্য",
+        "bestPricesDesc": "মূল্য ম্যাচ গ্যারান্টি সহ প্রতিযোগিতামূলক রেট",
+        "payAtHotel": "হোটেলে পেমেন্ট",
+        "payAtHotelDesc": "মাত্র ২০% অগ্রিম, বাকি চেক-ইনে পরিশোধ করুন"
     }
 }

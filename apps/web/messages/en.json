@@ -382,5 +382,19 @@
     "privacy": {
         "title": "Privacy Policy",
         "lastUpdated": "Last updated: December 2024"
+    },
+    "cityPage": {
+        "allHotels": "All Hotels",
+        "hotelsIn": "Hotels in {city}",
+        "propertiesFound": "{count} properties found",
+        "noHotels": "No hotels found in this city yet.",
+        "browseAllHotels": "Browse All Hotels",
+        "whyBook": "Why Book Hotels in {city}",
+        "verifiedHotels": "Verified Hotels",
+        "verifiedHotelsDesc": "All properties personally inspected for quality",
+        "bestPrices": "Best Prices",
+        "bestPricesDesc": "Competitive rates with price match guarantee",
+        "payAtHotel": "Pay at Hotel",
+        "payAtHotelDesc": "Only 20% advance, pay the rest at check-in"
     }
 }

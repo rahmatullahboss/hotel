@@ -36,6 +36,13 @@
       "when": 1765612869781,
       "tag": "0004_curvy_iron_man",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1765683879298,
+      "tag": "0005_black_goliath",
+      "breakpoints": true
     }
   ]
 }

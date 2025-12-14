@@ -136,36 +136,7 @@ export default async function SuspensionPage() {
                 </h2>
                 <HotelStatusTable hotels={hotels} />
             </section>
-
-            <style jsx>{`
-                .stat-card {
-                    display: flex;
-                    align-items: center;
-                    gap: 1rem;
-                    padding: 1rem;
-                }
-                .stat-icon {
-                    width: 48px;
-                    height: 48px;
-                    border-radius: 12px;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    font-size: 1.5rem;
-                }
-                .stat-content {
-                    display: flex;
-                    flex-direction: column;
-                }
-                .stat-value {
-                    font-size: 1.25rem;
-                    font-weight: 700;
-                }
-                .stat-label {
-                    font-size: 0.875rem;
-                    color: var(--color-text-muted);
-                }
-            `}</style>
         </div>
     );
 }
+

@@ -24,3 +24,6 @@ export * from "./systemSettings";
 
 // Support Tickets exports
 export * from "./support";
+
+// Cities (SEO) exports
+export * from "./cities";
