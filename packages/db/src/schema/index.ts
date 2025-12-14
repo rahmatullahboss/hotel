@@ -33,3 +33,6 @@ export * from "./referrals";
 
 // Gamification exports
 export * from "./gamification";
+
+// Corporate exports
+export * from "./corporate";
