@@ -68,15 +68,10 @@ export default function HotelDetailScreen() {
 
         setHotel(hotelRes.data);
 
-        // Use rooms from hotel response if available
-        if (hotelRes.data?.rooms && hotelRes.data.rooms.length > 0) {
-            setRooms(hotelRes.data.rooms);
-        } else {
-            // Fallback: fetch rooms separately
-            const roomsRes = await api.getRooms(id!);
-            if (roomsRes.data) {
-                setRooms(roomsRes.data);
-            }
+        // Always fetch rooms from API endpoint to get dynamic pricing
+        const roomsRes = await api.getRooms(id!);
+        if (roomsRes.data) {
+            setRooms(roomsRes.data);
         }
 
         setLoading(false);
