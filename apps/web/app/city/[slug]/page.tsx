@@ -66,7 +66,7 @@ export default async function CityPage({ params }: CityPageProps) {
                 style={
                     city.coverImage
                         ? {
-                            backgroundImage: `linear-gradient(rgba(26,26,46,0.85), rgba(22,33,62,0.9)), url(${city.coverImage})`,
+                            backgroundImage: `linear-gradient(135deg, rgba(13, 148, 136, 0.9), rgba(15, 118, 110, 0.95)), url(${city.coverImage})`,
                             backgroundSize: 'cover',
                             backgroundPosition: 'center'
                         }
