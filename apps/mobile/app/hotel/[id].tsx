@@ -194,7 +194,7 @@ export default function HotelDetailScreen() {
                                                 ৳{Number(room.dynamicPrice || room.basePrice || 0).toLocaleString()}
                                             </Text>
                                         )}
-                                        <Text style={[styles.perNight, { color: colors.textSecondary }]}>/night</Text>
+                                        <Text style={[styles.perNight, { color: '#717171' }]}>/night</Text>
                                     </View>
                                     <TouchableOpacity
                                         style={[styles.bookButton, { backgroundColor: Colors.primary }]}
