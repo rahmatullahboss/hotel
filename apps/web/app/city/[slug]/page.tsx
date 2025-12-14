@@ -4,26 +4,26 @@ import { Metadata } from "next";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { FiArrowLeft, FiMapPin } from "react-icons/fi";
-import { BottomNav, HotelCard } from "../../components";
-import { getCityBySlug, getAllCitySlugs } from "../../actions/cities";
-import { searchHotels } from "../../actions/hotels";
+import { BottomNav, HotelCard } from "@/app/components";
+import { getCityBySlug, getAllCitySlugs } from "@/app/actions/cities";
+import { searchHotels } from "@/app/actions/hotels";
 
 interface CityPageProps {
-    params: Promise<{ city: string }>;
+    params: Promise<{ slug: string }>;
 }
 
 // Generate static params for popular cities
 export async function generateStaticParams() {
     const slugs = await getAllCitySlugs();
-    return slugs.map((city) => ({ city }));
+    return slugs.map((slug) => ({ slug }));
 }
 
 // Generate dynamic metadata for SEO
 export async function generateMetadata({
     params,
 }: CityPageProps): Promise<Metadata> {
-    const { city: citySlug } = await params;
-    const city = await getCityBySlug(citySlug);
+    const { slug } = await params;
+    const city = await getCityBySlug(slug);
 
     if (!city) {
         return {
@@ -45,8 +45,8 @@ export async function generateMetadata({
 }
 
 export default async function CityPage({ params }: CityPageProps) {
-    const { city: citySlug } = await params;
-    const city = await getCityBySlug(citySlug);
+    const { slug } = await params;
+    const city = await getCityBySlug(slug);
 
     if (!city) {
         notFound();
