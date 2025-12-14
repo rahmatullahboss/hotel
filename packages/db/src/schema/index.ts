@@ -21,3 +21,6 @@ export * from "./pricing";
 
 // System Settings exports
 export * from "./systemSettings";
+
+// Support Tickets exports
+export * from "./support";
