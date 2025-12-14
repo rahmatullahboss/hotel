@@ -214,20 +214,22 @@ export async function getHotelById(hotelId: string) {
 
 /**
  * Get featured hotels for home page (cached for 60 seconds)
- * Applies dynamic pricing for today's date
+ * Applies dynamic pricing for today's date (same logic as room details)
  */
 const _getFeaturedHotels = async (limit: number): Promise<HotelWithPrice[]> => {
     try {
-        // Try to import pricing module
-        let calculateDynamicPrice: ((input: {
+        // Try to import pricing module - use the same function as room details
+        let calculateTotalDynamicPrice: ((input: {
             basePrice: number;
             checkIn: string;
             checkOut: string;
-        }) => { finalPrice: number }) | null = null;
+            hotelOccupancy?: number;
+            seasonalRules?: Array<{ id: string; name: string; startDate: string; endDate: string; multiplier: number }>;
+        }) => { finalPrice: number; totalPrice: number; nights: number; totalMultiplier: number; appliedRules: Array<{ name: string; description: string }> }) | null = null;
 
         try {
             const pricingModule = await import("@repo/api/pricing");
-            calculateDynamicPrice = pricingModule.calculateDynamicPrice;
+            calculateTotalDynamicPrice = pricingModule.calculateTotalDynamicPrice;
         } catch (e) {
             console.log("Pricing module not available for featured hotels:", e);
         }
@@ -265,13 +267,14 @@ const _getFeaturedHotels = async (limit: number): Promise<HotelWithPrice[]> => {
             const basePrice = h.lowestPrice ?? 0;
             let displayPrice = basePrice;
 
-            // Apply dynamic pricing if available
-            if (calculateDynamicPrice && basePrice > 0) {
+            // Apply dynamic pricing if available (same logic as room details)
+            if (calculateTotalDynamicPrice && basePrice > 0) {
                 try {
-                    const priceResult = calculateDynamicPrice({
+                    const priceResult = calculateTotalDynamicPrice({
                         basePrice,
                         checkIn,
                         checkOut,
+                        // No occupancy data for featured hotels listing, but still apply seasonal/date rules
                     });
                     displayPrice = priceResult.finalPrice;
                 } catch (e) {
