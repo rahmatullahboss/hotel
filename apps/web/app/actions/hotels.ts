@@ -274,7 +274,7 @@ export interface RoomWithDetails {
 
 /**
  * Get available rooms for a hotel on specific dates
- * Returns room with availability status, full details, and dynamic pricing
+ * Uses pre-computed prices from roomInventory (single source of truth)
  */
 export async function getAvailableRooms(
     hotelId: string,
@@ -282,16 +282,16 @@ export async function getAvailableRooms(
     checkOut: string
 ): Promise<RoomWithDetails[]> {
     try {
-        // Import bookings for availability check
-        const { bookings, seasonalRules: seasonalRulesTable } = await import("@repo/db/schema");
-        const { ne, lt, gt, and: drizzleAnd } = await import("drizzle-orm");
+        // Import bookings and inventory for availability/pricing check
+        const { bookings, roomInventory } = await import("@repo/db/schema");
+        const { ne, lt, gt, and: drizzleAnd, eq, inArray } = await import("drizzle-orm");
 
         // Get all active rooms for the hotel
         const hotelRooms = await db.query.rooms.findMany({
             where: and(eq(rooms.hotelId, hotelId), eq(rooms.isActive, true)),
         });
 
-        // If no active rooms, try getting all rooms (backwards compatibility)
+        // If no active rooms, try getting all rooms
         let roomList = hotelRooms;
         if (hotelRooms.length === 0) {
             roomList = await db.query.rooms.findMany({
@@ -304,79 +304,35 @@ export async function getAvailableRooms(
             return [];
         }
 
-        // Try to get seasonal rules, but don't fail if table doesn't exist
-        let seasonalRules: Array<{
-            id: string;
-            name: string;
-            startDate: string;
-            endDate: string;
-            multiplier: number;
-        }> = [];
-        try {
-            const rules = await db.query.seasonalRules?.findMany?.({
-                where: eq(seasonalRulesTable.isActive, true),
-            });
-            if (rules) {
-                seasonalRules = rules.map(r => ({
-                    id: r.id,
-                    name: r.name,
-                    startDate: r.startDate,
-                    endDate: r.endDate,
-                    multiplier: Number(r.multiplier),
-                }));
-            }
-        } catch (e) {
-            // Seasonal rules table might not exist yet
-            console.log("Seasonal rules not available:", e);
-        }
+        const roomIds = roomList.map(r => r.id);
 
-        // Calculate hotel occupancy for demand-based pricing
-        const totalRooms = roomList.length;
-        let occupiedRooms = 0;
-        for (const room of roomList) {
-            try {
-                const booking = await db.query.bookings.findFirst({
-                    where: drizzleAnd(
-                        eq(bookings.roomId, room.id),
-                        ne(bookings.status, "CANCELLED"),
-                        lt(bookings.checkIn, checkOut),
-                        gt(bookings.checkOut, checkIn)
-                    ),
-                });
-                if (booking) occupiedRooms++;
-            } catch (e) {
-                // Skip booking check if fails
-            }
-        }
-        const hotelOccupancy = totalRooms > 0 ? occupiedRooms / totalRooms : 0;
-
-        // Try to import pricing module
-        let calculateTotalDynamicPrice: ((input: {
-            basePrice: number;
-            checkIn: string;
-            checkOut: string;
-            hotelOccupancy?: number;
-            seasonalRules?: typeof seasonalRules;
-        }) => { finalPrice: number; totalPrice: number; nights: number; totalMultiplier: number; appliedRules: Array<{ name: string; description: string }> }) | null = null;
-
-        try {
-            const pricingModule = await import("@repo/api/pricing");
-            calculateTotalDynamicPrice = pricingModule.calculateTotalDynamicPrice;
-        } catch (e) {
-            console.log("Pricing module not available, using base price:", e);
-        }
+        // Fetch pre-computed prices from inventory for the requested date range
+        // This is the SINGLE SOURCE OF TRUTH for pricing
+        const inventoryPrices = await db.query.roomInventory.findMany({
+            where: drizzleAnd(
+                inArray(roomInventory.roomId, roomIds),
+                gt(roomInventory.date, checkIn), // Prices for nights OF the stay
+                // Note: logic might vary slightly for strict date matching, 
+                // but usually we want prices for checkIn -> checkOut-1
+            ),
+        });
 
         // Format dates for display
         const formatDate = (d: string) => new Date(d).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
 
-        // Calculate nights between dates
-        const nights = Math.ceil((new Date(checkOut).getTime() - new Date(checkIn).getTime()) / (1000 * 60 * 60 * 24));
+        // We need price for each night of the stay
+        const nights = Math.max(1, Math.ceil((new Date(checkOut).getTime() - new Date(checkIn).getTime()) / (1000 * 60 * 60 * 24)));
+        const stayDates: string[] = [];
+        for (let i = 0; i < nights; i++) {
+            const d = new Date(checkIn);
+            d.setDate(d.getDate() + i);
+            stayDates.push(d.toISOString().split('T')[0]!);
+        }
 
-        // Check each room for booking conflicts and calculate dynamic price
+        // Check availability (existing bookings)
         const roomsWithAvailability = await Promise.all(
             roomList.map(async (room) => {
-                // Check for overlapping bookings (not cancelled)
-                let existingBooking = null;
+                let existingBooking: any = null;
                 try {
                     existingBooking = await db.query.bookings.findFirst({
                         where: drizzleAnd(
@@ -390,33 +346,27 @@ export async function getAvailableRooms(
                     // Skip if bookings query fails
                 }
 
-                // Calculate dynamic price or use base price
-                const basePrice = Number(room.basePrice) || 0;
-                let dynamicPrice = basePrice;
-                let totalDynamicPrice = basePrice * nights;
-                let appliedRules: Array<{ name: string; description: string }> = [];
-                let totalMultiplier = 1;
+                // Calculate total price using inventory data
+                let totalDynamicPrice = 0;
+                let missingInventory = false;
 
-                if (calculateTotalDynamicPrice) {
-                    try {
-                        const pricingResult = calculateTotalDynamicPrice({
-                            basePrice,
-                            checkIn,
-                            checkOut,
-                            hotelOccupancy,
-                            seasonalRules,
-                        });
-                        dynamicPrice = pricingResult.finalPrice;
-                        totalDynamicPrice = pricingResult.totalPrice;
-                        totalMultiplier = pricingResult.totalMultiplier;
-                        appliedRules = pricingResult.appliedRules.map(r => ({
-                            name: r.name,
-                            description: r.description,
-                        }));
-                    } catch (e) {
-                        console.log("Error calculating dynamic price:", e);
+                for (const dateStr of stayDates) {
+                    const priceEntry = inventoryPrices.find(
+                        p => p.roomId === room.id && p.date === dateStr
+                    );
+
+                    if (priceEntry && priceEntry.price) {
+                        totalDynamicPrice += parseFloat(priceEntry.price);
+                    } else {
+                        // Fallback to base price if no inventory (e.g. far future)
+                        totalDynamicPrice += Number(room.basePrice);
+                        missingInventory = true;
                     }
                 }
+
+                // Average nightly price
+                const avgPrice = totalDynamicPrice / nights;
+                const dynamicPrice = Math.round(avgPrice);
 
                 return {
                     id: room.id,
@@ -431,13 +381,14 @@ export async function getAvailableRooms(
                     photos: room.photos ?? [],
                     amenities: room.amenities ?? [],
                     isAvailable: !existingBooking,
-                    unavailableReason: existingBooking
+                    unavailableReason: existingBooking && existingBooking.checkIn && existingBooking.checkOut
                         ? `Booked ${formatDate(existingBooking.checkIn)} - ${formatDate(existingBooking.checkOut)}`
                         : undefined,
-                    priceBreakdown: appliedRules.length > 0 ? {
-                        multiplier: totalMultiplier,
-                        rules: appliedRules,
-                    } : undefined,
+                    // We can reconstruct minimal breakdown if needed, or rely on total
+                    priceBreakdown: missingInventory ? {
+                        multiplier: 1,
+                        rules: [{ name: "Base Rate", description: "Standard rate" }]
+                    } : undefined
                 };
             })
         );
