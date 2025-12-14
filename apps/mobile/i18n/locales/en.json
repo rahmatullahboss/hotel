@@ -1,0 +1,87 @@
+{
+    "common": {
+        "loading": "Loading...",
+        "error": "Error",
+        "currency": "৳",
+        "perNight": "/night"
+    },
+    "nav": {
+        "home": "Home",
+        "search": "Search",
+        "myTrips": "My Trips",
+        "account": "Account"
+    },
+    "home": {
+        "loading": "Finding best hotels...",
+        "greeting": "Hello! 👋",
+        "heroTitle": "Find your perfect stay",
+        "searchPlaceholder": "Search city, hotel, or landmark",
+        "filters": {
+            "nearMe": "Near Me",
+            "budget": "Budget",
+            "premium": "Premium",
+            "couple": "Couple"
+        },
+        "promo": {
+            "title": "First Booking Offer!",
+            "subtitle": "Get 20% OFF on your first stay",
+            "button": "Book Now"
+        },
+        "topRated": "Top Rated Hotels",
+        "seeAll": "See All",
+        "noHotels": "No hotels available",
+        "startingFrom": "Starting from"
+    },
+    "search": {
+        "title": "Search",
+        "subtitle": "Find hotels in any city",
+        "placeholder": "City, hotel, or landmark",
+        "popularDestinations": "Popular Destinations",
+        "recentSearches": "Recent Searches",
+        "recentEmpty": "Your recent searches will appear here",
+        "hotels": "hotels"
+    },
+    "bookings": {
+        "title": "My Trips",
+        "booking": "booking",
+        "bookings": "bookings",
+        "noTrips": "No trips yet",
+        "exploreText": "Start exploring and book your first stay!",
+        "findHotels": "Find Hotels",
+        "checkIn": "Check-in",
+        "checkOut": "Check-out",
+        "totalPaid": "Total Paid",
+        "status": {
+            "confirmed": "Confirmed",
+            "pending": "Pending",
+            "cancelled": "Cancelled",
+            "completed": "Completed"
+        }
+    },
+    "profile": {
+        "guest": "Guest",
+        "signIn": "Sign In / Register",
+        "darkMode": "Dark Mode",
+        "menu": {
+            "myTrips": "My Trips",
+            "savedHotels": "Saved Hotels",
+            "paymentMethods": "Payment Methods",
+            "notifications": "Notifications",
+            "offersRewards": "Offers & Rewards",
+            "helpSupport": "Help & Support"
+        },
+        "logout": "Log Out",
+        "language": "Language",
+        "english": "English",
+        "bengali": "বাংলা"
+    },
+    "hotel": {
+        "notFound": "Hotel not found",
+        "goBack": "Go Back",
+        "amenities": "Amenities",
+        "availableRooms": "Available Rooms",
+        "noRooms": "No rooms available for selected dates",
+        "upToGuests": "Up to {{count}} guests",
+        "bookNow": "Book Now"
+    }
+}
