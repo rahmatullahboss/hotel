@@ -179,10 +179,12 @@ export default function HomeScreen() {
                   </View>
                   <View style={[styles.priceRow, { backgroundColor: 'transparent' }]}>
                     <Text style={[styles.priceLabel, { color: colors.textSecondary }]}>Starting from</Text>
-                    <Text style={[styles.hotelPrice, { color: Colors.primary }]}>
-                      ৳{Number(hotel.lowestPrice || 0).toLocaleString()}
+                    <Text>
+                      <Text style={[styles.hotelPrice, { color: Colors.primary }]}>
+                        ৳{Number(hotel.lowestPrice || 0).toLocaleString()}
+                      </Text>
+                      <Text style={{ fontSize: 12, color: '#666' }}> /night</Text>
                     </Text>
-                    <Text style={[styles.perNight, { color: colors.textSecondary }]}>/night</Text>
                   </View>
                 </View>
               </TouchableOpacity>
