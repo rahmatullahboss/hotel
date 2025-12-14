@@ -1,11 +1,16 @@
 import { BottomNav, SearchForm, HotelCard, Footer } from "./components";
 import { WhyBookGrid } from "./components/WhyBook";
+import { CitySelectorWrapper } from "./components/CitySelectorWrapper";
 import { getFeaturedHotels } from "./actions/hotels";
+import { getPopularCities } from "./actions/cities";
 import { getTranslations } from "next-intl/server";
 
 export default async function HomePage() {
-  // Fetch real hotels from database
-  const featuredHotels = await getFeaturedHotels(4);
+  // Fetch real hotels and cities from database
+  const [featuredHotels, cities] = await Promise.all([
+    getFeaturedHotels(4),
+    getPopularCities(8),
+  ]);
   const t = await getTranslations("home");
   const tCommon = await getTranslations("common");
 
@@ -31,8 +36,22 @@ export default async function HomePage() {
         {/* Search Form */}
         <SearchForm />
 
+        {/* City Selector - Browse by location */}
+        {cities.length > 0 && (
+          <section style={{ marginTop: "2rem" }}>
+            <CitySelectorWrapper
+              cities={cities.map((c) => ({
+                name: c.name,
+                nameBn: c.nameBn || c.name,
+                slug: c.slug,
+                isPopular: c.isPopular,
+              }))}
+            />
+          </section>
+        )}
+
         {/* Featured Hotels */}
-        <section style={{ marginTop: "3rem" }}>
+        <section style={{ marginTop: "2rem" }}>
           <div className="section-header">
             <h2 className="section-title">{t("featuredHotels")}</h2>
             <a href="/hotels" className="section-link">

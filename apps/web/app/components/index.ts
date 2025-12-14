@@ -9,3 +9,5 @@ export { CancelBookingModal } from "./CancelBookingModal";
 export { default as RoomCard } from "./RoomCard";
 export { default as RoomDetailModal } from "./RoomDetailModal";
 export { LanguageSwitcher } from "./LanguageSwitcher";
+export { LocationDetector, useLocationDetection } from "./LocationDetector";
+export { CitySelector } from "./CitySelector";
