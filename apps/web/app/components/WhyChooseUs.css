@@ -1,8 +1,8 @@
-/* Why Choose Us Component Styles */
+/* Why Choose Us Component Styles - OYO Inspired Dark Theme */
 
 .why-choose-us {
     padding: 2rem 1rem 6rem;
-    background: var(--color-bg-secondary);
+    background: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%);
 }
 
 .why-choose-us-title {
@@ -10,7 +10,7 @@
     font-weight: 700;
     margin-bottom: 1.25rem;
     text-align: center;
-    color: var(--color-text-primary);
+    color: white;
 }
 
 .why-choose-us-grid {
@@ -20,17 +20,19 @@
 }
 
 .why-choose-us-card {
-    background: white;
+    background: rgba(255, 255, 255, 0.06);
+    backdrop-filter: blur(4px);
     padding: 1.25rem;
     border-radius: 0.875rem;
     text-align: center;
-    border: 1px solid var(--color-border);
+    border: 1px solid rgba(255, 255, 255, 0.1);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .why-choose-us-card:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+    box-shadow: 0 8px 24px rgba(238, 42, 123, 0.15);
+    border-color: rgba(238, 42, 123, 0.3);
 }
 
 .why-choose-us-icon {
@@ -40,7 +42,7 @@
     width: 48px;
     height: 48px;
     margin: 0 auto 0.75rem;
-    background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));
+    background: linear-gradient(135deg, #ee2a7b 0%, #ff6b6b 100%);
     border-radius: 0.75rem;
     color: white;
     font-size: 1.5rem;
@@ -50,12 +52,12 @@
     font-size: 0.9375rem;
     font-weight: 600;
     margin-bottom: 0.375rem;
-    color: var(--color-text-primary);
+    color: white;
 }
 
 .why-choose-us-card p {
     font-size: 0.8125rem;
-    color: var(--color-text-secondary);
+    color: rgba(255, 255, 255, 0.7);
     line-height: 1.5;
 }
 
