@@ -1,11 +1,12 @@
 import { useState } from 'react';
-import { StyleSheet, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform, Image } from 'react-native';
+import { StyleSheet, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform, Image, ActivityIndicator } from 'react-native';
 import { Text, View } from '@/components/Themed';
 import { useRouter, Stack } from 'expo-router';
 import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { setToken } from '@/lib/api';
+import { useGoogleAuth } from '@/hooks/useGoogleAuth';
 
 export default function LoginScreen() {
     const router = useRouter();
@@ -17,6 +18,9 @@ export default function LoginScreen() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [showPassword, setShowPassword] = useState(false);
+
+    // Google auth hook
+    const { signInWithGoogle, loading: googleLoading, error: googleError, isReady } = useGoogleAuth();
 
     const handleLogin = async () => {
         if (!email || !password) {
@@ -55,9 +59,12 @@ export default function LoginScreen() {
         }
     };
 
-    const handleGoogleLogin = () => {
-        // TODO: Implement Google OAuth for mobile
-        setError('Google login coming soon!');
+    const handleGoogleLogin = async () => {
+        if (!isReady) {
+            setError('Google Sign-In is not configured yet');
+            return;
+        }
+        await signInWithGoogle();
     };
 
     return (
@@ -139,11 +146,18 @@ export default function LoginScreen() {
                     </View>
 
                     <TouchableOpacity
-                        style={[styles.googleButton, { backgroundColor: colors.backgroundSecondary }]}
+                        style={[styles.googleButton, { backgroundColor: colors.backgroundSecondary }, googleLoading && styles.disabledButton]}
                         onPress={handleGoogleLogin}
+                        disabled={googleLoading || loading}
                     >
-                        <FontAwesome name="google" size={20} color="#DB4437" />
-                        <Text style={[styles.googleButtonText, { color: colors.text }]}>Continue with Google</Text>
+                        {googleLoading ? (
+                            <ActivityIndicator size="small" color="#DB4437" />
+                        ) : (
+                            <FontAwesome name="google" size={20} color="#DB4437" />
+                        )}
+                        <Text style={[styles.googleButtonText, { color: colors.text }]}>
+                            {googleLoading ? 'Signing in...' : 'Continue with Google'}
+                        </Text>
                     </TouchableOpacity>
                 </View>
 
