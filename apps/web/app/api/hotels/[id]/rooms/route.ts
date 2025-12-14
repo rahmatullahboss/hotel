@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getRoomsWithAvailability } from "@/app/actions/hotels";
+import { getAvailableRooms } from "@/app/actions/hotels";
 
 /**
  * GET /api/hotels/[id]/rooms
@@ -21,7 +21,7 @@ export async function GET(
         const tomorrow = new Date(today);
         tomorrow.setDate(tomorrow.getDate() + 1);
 
-        const rooms = await getRoomsWithAvailability(
+        const rooms = await getAvailableRooms(
             hotelId,
             checkIn || today.toISOString().split("T")[0]!,
             checkOut || tomorrow.toISOString().split("T")[0]!

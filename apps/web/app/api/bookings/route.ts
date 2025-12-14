@@ -49,9 +49,9 @@ export async function POST(request: NextRequest) {
         const body = await request.json();
 
         // Validate required fields
-        const { roomId, checkIn, checkOut, guestName, guestEmail, guestPhone, guests, paymentMethod } = body;
+        const { hotelId, roomId, checkIn, checkOut, guestName, guestEmail, guestPhone, totalAmount, paymentMethod } = body;
 
-        if (!roomId || !checkIn || !checkOut || !guestName || !guestEmail) {
+        if (!hotelId || !roomId || !checkIn || !checkOut || !guestName || !guestEmail || !totalAmount) {
             return NextResponse.json(
                 { error: "Missing required fields" },
                 { status: 400 }
@@ -60,14 +60,15 @@ export async function POST(request: NextRequest) {
 
         const result = await createBooking({
             userId: session.user.id,
+            hotelId,
             roomId,
-            checkIn: new Date(checkIn),
-            checkOut: new Date(checkOut),
+            checkIn,
+            checkOut,
             guestName,
-            guestEmail,
+            guestEmail: guestEmail || "",
             guestPhone: guestPhone || "",
-            guests: guests || 1,
-            paymentMethod: paymentMethod || "CASH",
+            totalAmount,
+            paymentMethod: paymentMethod || "PAY_AT_HOTEL",
         });
 
         if (!result.success) {
