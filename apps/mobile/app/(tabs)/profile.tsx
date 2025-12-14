@@ -11,9 +11,11 @@ import { Text, View } from '@/components/Themed';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
+import { useTranslation } from 'react-i18next';
 import Colors from '@/constants/Colors';
 import { useTheme } from '@/context/ThemeContext';
 import api, { removeToken } from '@/lib/api';
+import { changeLanguage } from '@/i18n';
 
 interface User {
     name: string;
@@ -21,20 +23,21 @@ interface User {
     image?: string;
 }
 
-const MENU_ITEMS = [
-    { icon: 'suitcase' as const, label: 'My Trips', route: '/(tabs)/bookings' },
-    { icon: 'heart-o' as const, label: 'Saved Hotels', route: '/saved' },
-    { icon: 'credit-card' as const, label: 'Payment Methods', route: '/payment-methods' },
-    { icon: 'bell-o' as const, label: 'Notifications', route: '/notifications' },
-    { icon: 'gift' as const, label: 'Offers & Rewards', route: '/offers' },
-    { icon: 'question-circle-o' as const, label: 'Help & Support', route: '/help' },
-];
-
 export default function ProfileScreen() {
     const router = useRouter();
     const { theme, toggleTheme } = useTheme();
     const colors = Colors[theme];
     const insets = useSafeAreaInsets();
+    const { t, i18n } = useTranslation();
+
+    const MENU_ITEMS = [
+        { icon: 'suitcase' as const, label: t('profile.menu.myTrips'), route: '/(tabs)/bookings' },
+        { icon: 'heart-o' as const, label: t('profile.menu.savedHotels'), route: '/saved' },
+        { icon: 'credit-card' as const, label: t('profile.menu.paymentMethods'), route: '/payment-methods' },
+        { icon: 'bell-o' as const, label: t('profile.menu.notifications'), route: '/notifications' },
+        { icon: 'gift' as const, label: t('profile.menu.offersRewards'), route: '/offers' },
+        { icon: 'question-circle-o' as const, label: t('profile.menu.helpSupport'), route: '/help' },
+    ];
 
     const [user, setUser] = useState<User | null>(null);
     const [loading, setLoading] = useState(true);
@@ -54,6 +57,10 @@ export default function ProfileScreen() {
     const handleLogout = async () => {
         await removeToken();
         router.replace('/');
+    };
+
+    const handleLanguageChange = async (lang: 'en' | 'bn') => {
+        await changeLanguage(lang);
     };
 
     if (loading) {
@@ -91,12 +98,12 @@ export default function ProfileScreen() {
                                 <FontAwesome name="user" size={32} color="#fff" />
                             </View>
                         </View>
-                        <Text style={styles.userName}>Guest</Text>
+                        <Text style={styles.userName}>{t('profile.guest')}</Text>
                         <TouchableOpacity
                             style={styles.loginButton}
                             onPress={() => router.push('/auth/login')}
                         >
-                            <Text style={styles.loginButtonText}>Sign In / Register</Text>
+                            <Text style={styles.loginButtonText}>{t('profile.signIn')}</Text>
                         </TouchableOpacity>
                     </>
                 )}
@@ -106,13 +113,53 @@ export default function ProfileScreen() {
                 style={styles.scrollView}
                 showsVerticalScrollIndicator={false}
             >
+                {/* Language Selector */}
+                <View style={[styles.themeSection, { backgroundColor: colors.card }]}>
+                    <View style={[styles.languageRow, { backgroundColor: 'transparent' }]}>
+                        <View style={[styles.menuIconContainer, { backgroundColor: `${Colors.primary}10` }]}>
+                            <FontAwesome name="language" size={18} color={Colors.primary} />
+                        </View>
+                        <Text style={[styles.menuLabel, { color: colors.text }]}>{t('profile.language')}</Text>
+                    </View>
+                    <View style={[styles.languageOptions, { backgroundColor: 'transparent' }]}>
+                        <TouchableOpacity
+                            style={[
+                                styles.languageOption,
+                                i18n.language === 'en' && styles.languageOptionActive
+                            ]}
+                            onPress={() => handleLanguageChange('en')}
+                        >
+                            <Text style={[
+                                styles.languageText,
+                                { color: i18n.language === 'en' ? Colors.primary : colors.textSecondary }
+                            ]}>
+                                {t('profile.english')}
+                            </Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                            style={[
+                                styles.languageOption,
+                                i18n.language === 'bn' && styles.languageOptionActive
+                            ]}
+                            onPress={() => handleLanguageChange('bn')}
+                        >
+                            <Text style={[
+                                styles.languageText,
+                                { color: i18n.language === 'bn' ? Colors.primary : colors.textSecondary }
+                            ]}>
+                                {t('profile.bengali')}
+                            </Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+
                 {/* Theme Toggle */}
                 <View style={[styles.themeSection, { backgroundColor: colors.card }]}>
                     <View style={[styles.themeRow, { backgroundColor: 'transparent' }]}>
                         <View style={[styles.menuIconContainer, { backgroundColor: `${Colors.primary}10` }]}>
                             <FontAwesome name="moon-o" size={18} color={Colors.primary} />
                         </View>
-                        <Text style={[styles.menuLabel, { color: colors.text }]}>Dark Mode</Text>
+                        <Text style={[styles.menuLabel, { color: colors.text }]}>{t('profile.darkMode')}</Text>
                         <Switch
                             value={theme === 'dark'}
                             onValueChange={toggleTheme}
@@ -154,7 +201,7 @@ export default function ProfileScreen() {
                         onPress={handleLogout}
                     >
                         <FontAwesome name="sign-out" size={18} color={Colors.light.error} />
-                        <Text style={[styles.logoutText, { color: Colors.light.error }]}>Log Out</Text>
+                        <Text style={[styles.logoutText, { color: Colors.light.error }]}>{t('profile.logout')}</Text>
                     </TouchableOpacity>
                 )}
 
@@ -247,6 +294,35 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         padding: 16,
+    },
+    languageRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        padding: 16,
+        paddingBottom: 8,
+    },
+    languageOptions: {
+        flexDirection: 'row',
+        paddingHorizontal: 16,
+        paddingBottom: 16,
+        gap: 12,
+    },
+    languageOption: {
+        flex: 1,
+        paddingVertical: 10,
+        paddingHorizontal: 16,
+        borderRadius: 8,
+        borderWidth: 1,
+        borderColor: '#E5E5E5',
+        alignItems: 'center',
+    },
+    languageOptionActive: {
+        borderColor: Colors.primary,
+        backgroundColor: `${Colors.primary}10`,
+    },
+    languageText: {
+        fontSize: 14,
+        fontWeight: '600',
     },
     menuSection: {
         margin: 20,

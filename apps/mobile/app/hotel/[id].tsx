@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { StyleSheet, ScrollView, Image, TouchableOpacity, ActivityIndicator, Dimensions } from 'react-native';
 import { Text, View } from '@/components/Themed';
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
+import { useTranslation } from 'react-i18next';
 import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
@@ -45,6 +46,7 @@ export default function HotelDetailScreen() {
     const router = useRouter();
     const colorScheme = useColorScheme() ?? 'light';
     const colors = Colors[colorScheme];
+    const { t } = useTranslation();
 
     const [hotel, setHotel] = useState<Hotel | null>(null);
     const [rooms, setRooms] = useState<Room[]>([]);
@@ -89,10 +91,10 @@ export default function HotelDetailScreen() {
         return (
             <View style={styles.centered}>
                 <Text style={[styles.errorText, { color: colors.text }]}>
-                    {error || 'Hotel not found'}
+                    {error || t('hotel.notFound')}
                 </Text>
                 <TouchableOpacity onPress={() => router.back()}>
-                    <Text style={{ color: Colors.primary }}>Go Back</Text>
+                    <Text style={{ color: Colors.primary }}>{t('hotel.goBack')}</Text>
                 </TouchableOpacity>
             </View>
         );
@@ -105,7 +107,7 @@ export default function HotelDetailScreen() {
                     headerShown: true,
                     headerTitle: '',
                     headerTransparent: true,
-                    headerBackTitle: 'Back',
+                    headerBackTitle: t('hotel.goBack'),
                     headerTintColor: '#fff',
                 }}
             />
@@ -138,7 +140,7 @@ export default function HotelDetailScreen() {
                     {/* Amenities */}
                     {hotel.amenities && hotel.amenities.length > 0 && (
                         <>
-                            <Text style={[styles.sectionTitle, { color: colors.text }]}>Amenities</Text>
+                            <Text style={[styles.sectionTitle, { color: colors.text }]}>{t('hotel.amenities')}</Text>
                             <View style={[styles.amenitiesRow, { backgroundColor: 'transparent' }]}>
                                 {hotel.amenities.slice(0, 6).map((amenity, index) => (
                                     <View
@@ -155,12 +157,12 @@ export default function HotelDetailScreen() {
 
                 {/* Rooms Section */}
                 <View style={[styles.roomsSection, { backgroundColor: colors.background }]}>
-                    <Text style={[styles.sectionTitle, { color: colors.text }]}>Available Rooms</Text>
+                    <Text style={[styles.sectionTitle, { color: colors.text }]}>{t('hotel.availableRooms')}</Text>
 
                     {rooms.length === 0 ? (
                         <View style={[styles.noRooms, { backgroundColor: colors.backgroundSecondary }]}>
                             <Text style={[styles.noRoomsText, { color: colors.textSecondary }]}>
-                                No rooms available for selected dates
+                                {t('hotel.noRooms')}
                             </Text>
                         </View>
                     ) : (
@@ -176,7 +178,7 @@ export default function HotelDetailScreen() {
                                 <View style={[styles.roomInfo, { backgroundColor: 'transparent' }]}>
                                     <Text style={[styles.roomType, { color: colors.text }]}>{room.name || room.type}</Text>
                                     <Text style={[styles.roomCapacity, { color: colors.textSecondary }]}>
-                                        👥 Up to {room.maxGuests} guests
+                                        👥 {t('hotel.upToGuests', { count: room.maxGuests })}
                                     </Text>
                                     <View style={[styles.roomPriceRow, { backgroundColor: 'transparent' }]}>
                                         {/* Show strikethrough only when there's a discount */}
@@ -189,14 +191,14 @@ export default function HotelDetailScreen() {
                                             <Text style={[styles.roomPrice, { color: Colors.primary }]}>
                                                 ৳{Number(room.dynamicPrice || room.basePrice || 0).toLocaleString()}
                                             </Text>
-                                            <Text style={{ fontSize: 14, color: '#666' }}> /night</Text>
+                                            <Text style={{ fontSize: 14, color: '#666' }}> {t('common.perNight')}</Text>
                                         </Text>
                                     </View>
                                     <TouchableOpacity
                                         style={[styles.bookButton, { backgroundColor: Colors.primary }]}
                                         onPress={() => router.push(`/booking/${room.id}`)}
                                     >
-                                        <Text style={styles.bookButtonText}>Book Now</Text>
+                                        <Text style={styles.bookButtonText}>{t('hotel.bookNow')}</Text>
                                     </TouchableOpacity>
                                 </View>
                             </View>
