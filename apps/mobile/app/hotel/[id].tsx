@@ -28,8 +28,16 @@ interface Room {
     type: string;
     description: string;
     basePrice: string | number;
+    dynamicPrice?: number;       // Calculated dynamic price per night
+    totalDynamicPrice?: number;  // Total for all nights
+    nights?: number;
     maxGuests: number;
     photos: string[];
+    isAvailable?: boolean;
+    priceBreakdown?: {
+        multiplier: number;
+        rules: Array<{ name: string; description: string }>;
+    };
 }
 
 export default function HotelDetailScreen() {
@@ -176,9 +184,21 @@ export default function HotelDetailScreen() {
                                         👥 Up to {room.maxGuests} guests
                                     </Text>
                                     <View style={[styles.roomPriceRow, { backgroundColor: 'transparent' }]}>
-                                        <Text style={[styles.roomPrice, { color: Colors.primary }]}>
-                                            ৳{Number(room.basePrice || 0).toLocaleString()}
-                                        </Text>
+                                        {/* Show dynamic price if available, else base price */}
+                                        {room.dynamicPrice && room.dynamicPrice !== Number(room.basePrice) ? (
+                                            <>
+                                                <Text style={[styles.originalPrice, { color: colors.textSecondary }]}>
+                                                    ৳{Number(room.basePrice || 0).toLocaleString()}
+                                                </Text>
+                                                <Text style={[styles.roomPrice, { color: Colors.primary }]}>
+                                                    ৳{Number(room.dynamicPrice).toLocaleString()}
+                                                </Text>
+                                            </>
+                                        ) : (
+                                            <Text style={[styles.roomPrice, { color: Colors.primary }]}>
+                                                ৳{Number(room.dynamicPrice || room.basePrice || 0).toLocaleString()}
+                                            </Text>
+                                        )}
                                         <Text style={[styles.perNight, { color: colors.textSecondary }]}>/night</Text>
                                     </View>
                                     <TouchableOpacity
@@ -304,6 +324,11 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'baseline',
         marginBottom: 12,
+        gap: 6,
+    },
+    originalPrice: {
+        fontSize: 14,
+        textDecorationLine: 'line-through',
     },
     roomPrice: {
         fontSize: 22,
