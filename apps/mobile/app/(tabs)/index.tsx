@@ -34,7 +34,7 @@ export default function HomeScreen() {
   const colorScheme = useColorScheme() ?? 'light';
   const colors = Colors[colorScheme];
   const insets = useSafeAreaInsets();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   const QUICK_FILTERS = [
     { id: 'nearby', label: t('home.filters.nearMe'), icon: 'location-arrow' as const },
@@ -63,6 +63,13 @@ export default function HomeScreen() {
   const onRefresh = () => {
     setRefreshing(true);
     fetchHotels();
+  };
+
+  const formatPrice = (price: number) => {
+    if (i18n.language === 'bn') {
+      return price.toString().replace(/[0-9]/g, (d) => '০১২৩৪৫৬৭৮৯'[parseInt(d)]);
+    }
+    return Number(price).toLocaleString('en-US');
   };
 
   if (loading) {
@@ -115,7 +122,13 @@ export default function HomeScreen() {
               <View style={[styles.filterIcon, { backgroundColor: `${Colors.primary}15` }]}>
                 <FontAwesome name={filter.icon} size={18} color={Colors.primary} />
               </View>
-              <Text style={[styles.filterLabel, { color: colors.text }]}>{filter.label}</Text>
+              <Text
+                style={[styles.filterLabel, { color: colors.text }]}
+                numberOfLines={1}
+                adjustsFontSizeToFit
+              >
+                {filter.label}
+              </Text>
             </TouchableOpacity>
           ))}
         </View>
@@ -180,12 +193,15 @@ export default function HomeScreen() {
                   </View>
                   <View style={[styles.priceRow, { backgroundColor: 'transparent' }]}>
                     <Text style={[styles.priceLabel, { color: colors.textSecondary }]}>{t('home.startingFrom')}</Text>
-                    <Text>
+                    <View style={styles.priceContainer}>
                       <Text style={[styles.hotelPrice, { color: Colors.primary }]}>
-                        ৳{Number(hotel.lowestPrice || 0).toLocaleString()}
+                        {t('common.currency')}{formatPrice(hotel.lowestPrice || 0)}
                       </Text>
-                      <Text style={{ fontSize: 14, color: '#666' }}> {t('common.perNight')}</Text>
-                    </Text>
+                      {/* Explicitly using separate Text components to avoid truncation issues */}
+                      <Text style={[styles.perNight, { color: '#666' }]}>
+                        {t('common.perNight')}
+                      </Text>
+                    </View>
                   </View>
                 </View>
               </TouchableOpacity>
@@ -280,6 +296,7 @@ const styles = StyleSheet.create({
   filterLabel: {
     fontSize: 12,
     fontWeight: '500',
+    textAlign: 'center', // Ensure text centers if adjusted
   },
   promoBanner: {
     marginHorizontal: 20,
@@ -406,6 +423,10 @@ const styles = StyleSheet.create({
   priceLabel: {
     fontSize: 12,
     marginRight: 6,
+  },
+  priceContainer: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
   },
   hotelPrice: {
     fontSize: 18,
