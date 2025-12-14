@@ -1879,9 +1879,9 @@ main.page-with-book-bar {
    ================================================ */
 
 .site-footer {
-  background: var(--color-secondary);
+  background: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%);
   color: white;
-  padding: 1.25rem 1rem;
+  padding: 2.5rem 1rem 1.25rem;
   padding-bottom: calc(1.25rem + 80px);
   /* Extra padding for bottom nav on mobile */
   margin-top: 0;
@@ -1981,19 +1981,21 @@ main.page-with-book-bar {
 
 .social-link {
   font-size: 1.25rem;
-  opacity: 0.7;
-  transition: opacity 0.2s ease;
+  color: #ee2a7b;
+  opacity: 0.85;
+  transition: all 0.2s ease;
 }
 
 .social-link:hover {
   opacity: 1;
+  color: #ff6b6b;
 }
 
 /* Desktop Footer Enhancements */
 @media (min-width: 1024px) {
   .site-footer {
-    padding: 4rem 2rem 2rem;
-    margin-top: 1rem;
+    padding: 3rem 2rem 2rem;
+    margin-top: 0;
   }
 
   .footer-container {
@@ -2079,11 +2081,12 @@ main.page-with-book-bar {
 
   .social-link {
     font-size: 1.5rem;
-    transition: transform 0.2s ease, opacity 0.2s ease;
+    transition: transform 0.2s ease, opacity 0.2s ease, color 0.2s ease;
   }
 
   .social-link:hover {
     opacity: 1;
+    color: #ff6b6b;
     transform: scale(1.1);
   }
 }
