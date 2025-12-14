@@ -61,15 +61,14 @@ export default async function CityPage({ params }: CityPageProps) {
     return (
         <>
             {/* Hero Section */}
-            <section className="city-hero">
-                <div
-                    className={`city-hero-bg ${city.coverImage ? "" : "city-hero-gradient"}`}
-                    style={
-                        city.coverImage
-                            ? { backgroundImage: `url(${city.coverImage})` }
-                            : undefined
-                    }
-                />
+            <section
+                className="city-hero"
+                style={
+                    city.coverImage
+                        ? { backgroundImage: `linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.6)), url(${city.coverImage})`, backgroundSize: 'cover', backgroundPosition: 'center' }
+                        : undefined
+                }
+            >
                 <div className="container">
                     <Link href="/hotels" className="city-back-link">
                         <FiArrowLeft /> {t("allHotels")}
