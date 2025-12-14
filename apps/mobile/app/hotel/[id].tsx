@@ -320,6 +320,7 @@ const styles = StyleSheet.create({
         alignItems: 'baseline',
         marginBottom: 12,
         gap: 6,
+        flexWrap: 'wrap',
     },
     originalPrice: {
         fontSize: 14,
