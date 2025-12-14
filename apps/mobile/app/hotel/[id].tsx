@@ -181,14 +181,16 @@ export default function HotelDetailScreen() {
                                     <View style={[styles.roomPriceRow, { backgroundColor: 'transparent' }]}>
                                         {/* Show strikethrough only when there's a discount */}
                                         {room.dynamicPrice && room.dynamicPrice < Number(room.basePrice) && (
-                                            <Text style={[styles.originalPrice, { color: '#999' }]}>
+                                            <Text style={[styles.originalPrice, { color: '#999', marginRight: 8 }]}>
                                                 ৳{Number(room.basePrice).toLocaleString()}
                                             </Text>
                                         )}
-                                        <Text style={[styles.roomPrice, { color: Colors.primary }]}>
-                                            ৳{Number(room.dynamicPrice || room.basePrice || 0).toLocaleString()}
+                                        <Text>
+                                            <Text style={[styles.roomPrice, { color: Colors.primary }]}>
+                                                ৳{Number(room.dynamicPrice || room.basePrice || 0).toLocaleString()}
+                                            </Text>
+                                            <Text style={{ fontSize: 14, color: '#666' }}> /night</Text>
                                         </Text>
-                                        <Text style={{ fontSize: 14, color: '#666', marginLeft: 4, backgroundColor: 'transparent' }}>/night</Text>
                                     </View>
                                     <TouchableOpacity
                                         style={[styles.bookButton, { backgroundColor: Colors.primary }]}
