@@ -446,6 +446,17 @@
         "categoryLoyalty": "লয়ালটি",
         "categoryReviewer": "রিভিউয়ার"
     },
+    "citySelector": {
+        "title": "আপনার শহরে হোটেল খুঁজুন",
+        "detecting": "খুঁজছি...",
+        "useMyLocation": "আমার লোকেশন ব্যবহার করুন",
+        "near": "কাছে",
+        "yourLocation": "আপনার লোকেশন",
+        "hotelsNearYou": "{city} এর কাছে হোটেল",
+        "popular": "জনপ্রিয়",
+        "showLess": "কম দেখুন",
+        "showAll": "সব {count}টি শহর দেখুন"
+    },
     "corporate": {
         "title": "কর্পোরেট বুকিং",
         "subtitle": "আপনার ব্যবসার জন্য এক্সক্লুসিভ রেট এবং সুবিধা",

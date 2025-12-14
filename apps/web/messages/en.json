@@ -446,6 +446,17 @@
         "categoryLoyalty": "Loyalty",
         "categoryReviewer": "Reviewer"
     },
+    "citySelector": {
+        "title": "Find Hotels in Your City",
+        "detecting": "Detecting...",
+        "useMyLocation": "Use My Location",
+        "near": "Near",
+        "yourLocation": "your location",
+        "hotelsNearYou": "Hotels near you in {city}",
+        "popular": "Popular",
+        "showLess": "Show Less",
+        "showAll": "Show All {count} Cities"
+    },
     "corporate": {
         "title": "Corporate Booking",
         "subtitle": "Exclusive rates and benefits for your business",

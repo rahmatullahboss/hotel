@@ -14,5 +14,5 @@ interface CitySelectorWrapperProps {
 }
 
 export function CitySelectorWrapper({ cities }: CitySelectorWrapperProps) {
-    return <CitySelector cities={cities} title="Find Hotels in Your City" showDetect={true} />;
+    return <CitySelector cities={cities} showDetect={true} />;
 }

@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useState } from "react";
 import Link from "next/link";
 import { FiMapPin, FiNavigation, FiChevronRight } from "react-icons/fi";
+import { useTranslations } from "next-intl";
 import { useLocationDetection } from "./LocationDetector";
 
 import "./CitySelector.css";
@@ -17,13 +17,12 @@ interface City {
 
 interface CitySelectorProps {
     cities: City[];
-    title?: string;
     showDetect?: boolean;
 }
 
-export function CitySelector({ cities, title = "Select Your City", showDetect = true }: CitySelectorProps) {
-    const router = useRouter();
-    const { city: detectedCity, loading, error, detectLocation } = useLocationDetection();
+export function CitySelector({ cities, showDetect = true }: CitySelectorProps) {
+    const t = useTranslations("citySelector");
+    const { city: detectedCity, loading, detectLocation } = useLocationDetection();
     const [showAll, setShowAll] = useState(false);
 
     // Popular cities first, then others
@@ -33,7 +32,7 @@ export function CitySelector({ cities, title = "Select Your City", showDetect = 
 
     return (
         <div className="city-selector">
-            <h2 className="city-selector-title">{title}</h2>
+            <h2 className="city-selector-title">{t("title")}</h2>
 
             {/* Detect Location Button */}
             {showDetect && (
@@ -44,18 +43,17 @@ export function CitySelector({ cities, title = "Select Your City", showDetect = 
                 >
                     <FiNavigation className={loading ? "spin" : ""} />
                     {loading
-                        ? "Detecting..."
+                        ? t("detecting")
                         : detectedCity
-                            ? `📍 Near ${cities.find((c) => c.slug === detectedCity)?.name || "your location"}`
-                            : "Use My Location"}
+                            ? `📍 ${t("near")} ${cities.find((c) => c.slug === detectedCity)?.name || t("yourLocation")}`
+                            : t("useMyLocation")}
                 </button>
             )}
 
-            {/* Detected City Card */}
             {detectedCity && (
                 <Link href={`/city/${detectedCity}`} className="detected-city-card">
                     <FiMapPin />
-                    <span>Hotels near you in {cities.find((c) => c.slug === detectedCity)?.name}</span>
+                    <span>{t("hotelsNearYou", { city: cities.find((c) => c.slug === detectedCity)?.name || "" })}</span>
                     <FiChevronRight />
                 </Link>
             )}
@@ -73,7 +71,7 @@ export function CitySelector({ cities, title = "Select Your City", showDetect = 
                             <span className="city-name">{city.name}</span>
                             <span className="city-name-bn">{city.nameBn}</span>
                         </div>
-                        {city.isPopular && <span className="popular-badge">Popular</span>}
+                        {city.isPopular && <span className="popular-badge">{t("popular")}</span>}
                     </Link>
                 ))}
             </div>
@@ -84,7 +82,7 @@ export function CitySelector({ cities, title = "Select Your City", showDetect = 
                     className="show-more-btn"
                     onClick={() => setShowAll(!showAll)}
                 >
-                    {showAll ? "Show Less" : `Show All ${cities.length} Cities`}
+                    {showAll ? t("showLess") : t("showAll", { count: cities.length })}
                 </button>
             )}
         </div>
