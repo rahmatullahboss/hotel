@@ -1,8 +1,8 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { MdEmojiEvents, MdTrendingUp, MdCheckCircle, MdAccessTime } from "react-icons/md";
+import { MdEmojiEvents, MdTrendingUp, MdCheckCircle, MdAccessTime, MdLock } from "react-icons/md";
 import { getPartnerRole } from "../actions/getPartnerRole";
-import { getActivePrograms, getIncentiveStats, refreshIncentiveProgress } from "../actions/incentives";
+import { getActivePrograms, getIncentiveStats, refreshIncentiveProgress, isIncentivesEnabled } from "../actions/incentives";
 import { BottomNav } from "../components";
 import { IncentiveCard } from "./IncentiveCard";
 
@@ -13,6 +13,50 @@ export default async function IncentivesPage() {
 
     if (!roleInfo) {
         redirect("/auth/signin");
+    }
+
+    // Check if incentives are enabled
+    const enabled = await isIncentivesEnabled();
+
+    if (!enabled) {
+        return (
+            <>
+                <header className="page-header">
+                    <Link
+                        href="/"
+                        style={{
+                            background: "none",
+                            border: "none",
+                            fontSize: "1.5rem",
+                            textDecoration: "none",
+                            color: "inherit",
+                            display: "block",
+                            marginBottom: "0.5rem",
+                        }}
+                    >
+                        ←
+                    </Link>
+                    <h1 className="page-title">Incentives & Bonuses</h1>
+                </header>
+                <main>
+                    <div
+                        className="card"
+                        style={{
+                            padding: "3rem 2rem",
+                            textAlign: "center",
+                            marginTop: "2rem",
+                        }}
+                    >
+                        <MdLock style={{ fontSize: "3rem", color: "var(--color-text-muted)", marginBottom: "1rem" }} />
+                        <h2 style={{ margin: "0 0 0.5rem 0", fontSize: "1.25rem" }}>Coming Soon</h2>
+                        <p style={{ color: "var(--color-text-secondary)", margin: 0 }}>
+                            Incentive programs are not available yet. Check back soon for exciting bonus opportunities!
+                        </p>
+                    </div>
+                </main>
+                <BottomNav role={roleInfo.role} />
+            </>
+        );
     }
 
     // Refresh progress on page load

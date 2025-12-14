@@ -18,3 +18,6 @@ export * from "./incentives";
 
 // Pricing Intelligence schema exports
 export * from "./pricing";
+
+// System Settings exports
+export * from "./systemSettings";

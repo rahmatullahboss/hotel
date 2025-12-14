@@ -1,9 +1,20 @@
 "use server";
 
 import { auth } from "../../auth";
-import { db, incentivePrograms, hotelIncentives, incentiveHistory, hotels, bookings } from "@repo/db";
+import { db, incentivePrograms, hotelIncentives, incentiveHistory, hotels, bookings, systemSettings } from "@repo/db";
 import { eq, and, desc, gte, lte, sql, count } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
+import { SETTING_KEYS } from "@repo/db/schema";
+
+/**
+ * Check if hotel owner incentives are enabled
+ */
+export async function isIncentivesEnabled(): Promise<boolean> {
+    const setting = await db.query.systemSettings.findFirst({
+        where: eq(systemSettings.key, SETTING_KEYS.HOTEL_INCENTIVES_ENABLED),
+    });
+    return setting?.value === "true";
+}
 
 // ==================
 // Types
