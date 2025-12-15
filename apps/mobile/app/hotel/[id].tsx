@@ -200,6 +200,9 @@ export default function HotelDetailScreen() {
                                                 style={{
                                                     fontSize: 14,
                                                     color: '#374151',
+                                                    includeFontPadding: false,
+                                                    textAlignVertical: 'center',
+                                                    paddingHorizontal: 4
                                                 }}
                                             >
                                                 {amenity}
