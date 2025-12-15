@@ -8,11 +8,14 @@ import {
     ActivityIndicator,
     Alert,
     Image,
+    Platform,
+    Modal,
 } from 'react-native';
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { useTranslation } from 'react-i18next';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import api from '@/lib/api';
 
 export default function BookingScreen() {
@@ -49,6 +52,10 @@ export default function BookingScreen() {
     // Booking form state
     const [checkIn, setCheckIn] = useState('');
     const [checkOut, setCheckOut] = useState('');
+    const [checkInDate, setCheckInDate] = useState(new Date());
+    const [checkOutDate, setCheckOutDate] = useState(new Date());
+    const [showCheckInPicker, setShowCheckInPicker] = useState(false);
+    const [showCheckOutPicker, setShowCheckOutPicker] = useState(false);
     const [guests, setGuests] = useState(1);
     const [nights, setNights] = useState(1);
     const [specialRequests, setSpecialRequests] = useState('');
@@ -61,6 +68,8 @@ export default function BookingScreen() {
         const dayAfter = new Date(today);
         dayAfter.setDate(dayAfter.getDate() + 2);
 
+        setCheckInDate(tomorrow);
+        setCheckOutDate(dayAfter);
         setCheckIn(formatDate(tomorrow));
         setCheckOut(formatDate(dayAfter));
     }, []);
@@ -77,6 +86,37 @@ export default function BookingScreen() {
 
     const formatDate = (date: Date) => {
         return date.toISOString().split('T')[0];
+    };
+
+    const formatDisplayDate = (date: Date) => {
+        return date.toLocaleDateString(i18n.language === 'bn' ? 'bn-BD' : 'en-US', {
+            weekday: 'short',
+            day: 'numeric',
+            month: 'short',
+        });
+    };
+
+    const handleCheckInChange = (event: any, selectedDate?: Date) => {
+        setShowCheckInPicker(Platform.OS === 'ios');
+        if (selectedDate) {
+            setCheckInDate(selectedDate);
+            setCheckIn(formatDate(selectedDate));
+            // Auto-adjust checkout if it's before or same as checkin
+            if (selectedDate >= checkOutDate) {
+                const nextDay = new Date(selectedDate);
+                nextDay.setDate(nextDay.getDate() + 1);
+                setCheckOutDate(nextDay);
+                setCheckOut(formatDate(nextDay));
+            }
+        }
+    };
+
+    const handleCheckOutChange = (event: any, selectedDate?: Date) => {
+        setShowCheckOutPicker(Platform.OS === 'ios');
+        if (selectedDate) {
+            setCheckOutDate(selectedDate);
+            setCheckOut(formatDate(selectedDate));
+        }
     };
 
     const formatPrice = (price: number) => {
@@ -200,27 +240,115 @@ export default function BookingScreen() {
                     </Text>
 
                     <View className="flex-row gap-4">
+                        {/* Check-in Date Picker */}
                         <View className="flex-1">
-                            <Text className="text-sm text-gray-500 mb-2">Check-in</Text>
-                            <TextInput
-                                className="bg-gray-100 dark:bg-gray-700 px-4 py-3 rounded-xl text-gray-900 dark:text-white"
-                                value={checkIn}
-                                onChangeText={setCheckIn}
-                                placeholder="YYYY-MM-DD"
-                                placeholderTextColor="#9CA3AF"
-                            />
+                            <Text className="text-sm text-gray-500 dark:text-gray-400 mb-2">
+                                {t('bookings.checkIn', 'Check-in')}
+                            </Text>
+                            <TouchableOpacity
+                                className="bg-gray-100 dark:bg-gray-700 px-4 py-3.5 rounded-xl flex-row items-center justify-between"
+                                onPress={() => setShowCheckInPicker(true)}
+                                activeOpacity={0.7}
+                            >
+                                <View className="flex-row items-center gap-2">
+                                    <FontAwesome name="calendar" size={16} color="#E63946" />
+                                    <Text className="text-gray-900 dark:text-white font-medium">
+                                        {formatDisplayDate(checkInDate)}
+                                    </Text>
+                                </View>
+                                <FontAwesome name="chevron-down" size={12} color="#9CA3AF" />
+                            </TouchableOpacity>
                         </View>
+
+                        {/* Check-out Date Picker */}
                         <View className="flex-1">
-                            <Text className="text-sm text-gray-500 mb-2">Check-out</Text>
-                            <TextInput
-                                className="bg-gray-100 dark:bg-gray-700 px-4 py-3 rounded-xl text-gray-900 dark:text-white"
-                                value={checkOut}
-                                onChangeText={setCheckOut}
-                                placeholder="YYYY-MM-DD"
-                                placeholderTextColor="#9CA3AF"
-                            />
+                            <Text className="text-sm text-gray-500 dark:text-gray-400 mb-2">
+                                {t('bookings.checkOut', 'Check-out')}
+                            </Text>
+                            <TouchableOpacity
+                                className="bg-gray-100 dark:bg-gray-700 px-4 py-3.5 rounded-xl flex-row items-center justify-between"
+                                onPress={() => setShowCheckOutPicker(true)}
+                                activeOpacity={0.7}
+                            >
+                                <View className="flex-row items-center gap-2">
+                                    <FontAwesome name="calendar" size={16} color="#E63946" />
+                                    <Text className="text-gray-900 dark:text-white font-medium">
+                                        {formatDisplayDate(checkOutDate)}
+                                    </Text>
+                                </View>
+                                <FontAwesome name="chevron-down" size={12} color="#9CA3AF" />
+                            </TouchableOpacity>
                         </View>
                     </View>
+
+                    {/* Native Date Pickers */}
+                    {showCheckInPicker && (
+                        Platform.OS === 'ios' ? (
+                            <Modal transparent animationType="slide">
+                                <View className="flex-1 justify-end bg-black/50">
+                                    <View className="bg-white dark:bg-gray-800 rounded-t-3xl p-4">
+                                        <View className="flex-row justify-between items-center mb-4">
+                                            <Text className="text-lg font-bold text-gray-900 dark:text-white">
+                                                Select Check-in Date
+                                            </Text>
+                                            <TouchableOpacity onPress={() => setShowCheckInPicker(false)}>
+                                                <Text className="text-primary font-semibold">Done</Text>
+                                            </TouchableOpacity>
+                                        </View>
+                                        <DateTimePicker
+                                            value={checkInDate}
+                                            mode="date"
+                                            display="spinner"
+                                            minimumDate={new Date()}
+                                            onChange={handleCheckInChange}
+                                        />
+                                    </View>
+                                </View>
+                            </Modal>
+                        ) : (
+                            <DateTimePicker
+                                value={checkInDate}
+                                mode="date"
+                                display="default"
+                                minimumDate={new Date()}
+                                onChange={handleCheckInChange}
+                            />
+                        )
+                    )}
+
+                    {showCheckOutPicker && (
+                        Platform.OS === 'ios' ? (
+                            <Modal transparent animationType="slide">
+                                <View className="flex-1 justify-end bg-black/50">
+                                    <View className="bg-white dark:bg-gray-800 rounded-t-3xl p-4">
+                                        <View className="flex-row justify-between items-center mb-4">
+                                            <Text className="text-lg font-bold text-gray-900 dark:text-white">
+                                                Select Check-out Date
+                                            </Text>
+                                            <TouchableOpacity onPress={() => setShowCheckOutPicker(false)}>
+                                                <Text className="text-primary font-semibold">Done</Text>
+                                            </TouchableOpacity>
+                                        </View>
+                                        <DateTimePicker
+                                            value={checkOutDate}
+                                            mode="date"
+                                            display="spinner"
+                                            minimumDate={new Date(checkInDate.getTime() + 86400000)}
+                                            onChange={handleCheckOutChange}
+                                        />
+                                    </View>
+                                </View>
+                            </Modal>
+                        ) : (
+                            <DateTimePicker
+                                value={checkOutDate}
+                                mode="date"
+                                display="default"
+                                minimumDate={new Date(checkInDate.getTime() + 86400000)}
+                                onChange={handleCheckOutChange}
+                            />
+                        )
+                    )}
 
                     <View className="mt-3 bg-primary/10 p-3 rounded-xl">
                         <Text className="text-center text-primary font-semibold">
