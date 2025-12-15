@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useColorScheme as useNativeWindColorScheme } from 'nativewind';
 
 type Theme = 'light' | 'dark';
 
@@ -18,13 +19,17 @@ const ThemeContext = createContext<ThemeContextType>({
 const THEME_STORAGE_KEY = '@app_theme';
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-    // Default to light theme
     const [theme, setThemeState] = useState<Theme>('light');
+    const { setColorScheme } = useNativeWindColorScheme();
 
     useEffect(() => {
-        // Load saved theme on mount
         loadTheme();
     }, []);
+
+    // Sync NativeWind color scheme with our theme
+    useEffect(() => {
+        setColorScheme(theme);
+    }, [theme, setColorScheme]);
 
     const loadTheme = async () => {
         try {
