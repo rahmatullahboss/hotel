@@ -7,7 +7,8 @@ import { revalidatePath } from "next/cache";
 
 export interface CreateBookingInput {
     hotelId: string;
-    roomId: string;
+    roomId: string;                 // Can be specific room or first available from roomIds
+    roomIds?: string[];             // Optional: available room IDs for auto-assignment (room type booking)
     guestName: string;
     guestPhone: string;
     guestEmail?: string;
@@ -78,23 +79,52 @@ export async function createBooking(input: CreateBookingInput): Promise<BookingR
     try {
         // Use a serializable transaction to prevent race conditions
         const result = await db.transaction(async (tx) => {
+            // Auto room assignment logic for room type booking
+            let actualRoomId = roomId;
+
+            // If roomIds is provided (room type booking), find first truly available room
+            if (input.roomIds && input.roomIds.length > 0) {
+                let foundAvailableRoom = false;
+
+                // Try each room in the list until we find one that's available
+                for (const candidateRoomId of input.roomIds) {
+                    const existingBookingForCandidate = await tx.query.bookings.findFirst({
+                        where: and(
+                            eq(bookings.roomId, candidateRoomId),
+                            ne(bookings.status, "CANCELLED"),
+                            lt(bookings.checkIn, checkOut),
+                            gt(bookings.checkOut, checkIn)
+                        ),
+                    });
+
+                    if (!existingBookingForCandidate) {
+                        // This room is available!
+                        actualRoomId = candidateRoomId;
+                        foundAvailableRoom = true;
+                        break;
+                    }
+                }
+
+                if (!foundAvailableRoom) {
+                    throw new Error("No rooms of this type available for selected dates. Please try different dates.");
+                }
+            }
+
             // Get room with FOR UPDATE lock to prevent concurrent bookings
-            // This locks the room row until the transaction completes
             const room = await tx.query.rooms.findFirst({
-                where: eq(rooms.id, roomId),
+                where: eq(rooms.id, actualRoomId),
             });
 
             if (!room) {
                 throw new Error("Room not found");
             }
 
-            // CRITICAL: Check if room is already booked for these dates
-            // This check happens within the transaction, so it's atomic
+            // CRITICAL: Double-check if room is already booked for these dates
+            // This handles race conditions when roomIds was not provided
             const existingBooking = await tx.query.bookings.findFirst({
                 where: and(
-                    eq(bookings.roomId, roomId),
+                    eq(bookings.roomId, actualRoomId),
                     ne(bookings.status, "CANCELLED"),
-                    // Date overlap: existing starts before new ends AND existing ends after new starts
                     lt(bookings.checkIn, checkOut),
                     gt(bookings.checkOut, checkIn)
                 ),
@@ -104,6 +134,9 @@ export async function createBooking(input: CreateBookingInput): Promise<BookingR
                 const formatDate = (d: string) => new Date(d).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
                 throw new Error(`This room is booked ${formatDate(existingBooking.checkIn)} - ${formatDate(existingBooking.checkOut)}. Please select different dates.`);
             }
+
+            // Use actualRoomId for the rest of the booking
+            const finalRoomId = actualRoomId;
 
             // Calculate commission (20%) and advance payment
             const commissionAmount = Math.round(totalAmount * 0.20);
@@ -202,7 +235,7 @@ export async function createBooking(input: CreateBookingInput): Promise<BookingR
 
             // Create booking with QR code
             const bookingId = crypto.randomUUID();
-            const qrCodeData = JSON.stringify({ bookingId, hotelId, roomId });
+            const qrCodeData = JSON.stringify({ bookingId, hotelId, roomId: finalRoomId });
 
             // Set expiry time for unpaid bookings (20 minutes from now)
             const expiresAt = bookingFeeStatus === "PENDING"
@@ -218,7 +251,7 @@ export async function createBooking(input: CreateBookingInput): Promise<BookingR
             const [booking] = await tx.insert(bookings).values({
                 id: bookingId,
                 hotelId,
-                roomId,
+                roomId: finalRoomId,  // Use auto-assigned room ID
                 userId: userId ?? undefined,
                 guestName,
                 guestPhone,

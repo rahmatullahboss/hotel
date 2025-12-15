@@ -38,6 +38,9 @@ function BookingContent() {
     const checkIn = searchParams.get("checkIn") || "";
     const checkOut = searchParams.get("checkOut") || "";
     const roomPhoto = searchParams.get("roomPhoto") || "";
+    // Room IDs for auto room assignment (room type booking)
+    const roomIdsParam = searchParams.get("roomIds");
+    const roomIds: string[] = roomIdsParam ? JSON.parse(decodeURIComponent(roomIdsParam)) : [];
 
     // Calculate nights and amounts
     const nights = checkIn && checkOut
@@ -136,6 +139,7 @@ function BookingContent() {
                 const result = await createBooking({
                     hotelId,
                     roomId,
+                    roomIds: roomIds.length > 0 ? roomIds : undefined,  // Pass for auto room assignment
                     guestName,
                     guestPhone,
                     guestEmail: guestEmail || undefined,

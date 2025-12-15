@@ -233,7 +233,7 @@ export default function HotelDetailScreen() {
                                     key={room.id}
                                     className="rounded-2xl mb-4 overflow-hidden bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700"
                                 >
-                                    {/* Image with badge */}
+                                    {/* Image with badges */}
                                     <View className="relative">
                                         <Image
                                             source={{
@@ -248,21 +248,41 @@ export default function HotelDetailScreen() {
                                                 {room.type}
                                             </Text>
                                         </View>
-                                        {/* Guest Badge */}
-                                        <View className="absolute top-3 right-3 flex-row items-center bg-white dark:bg-gray-900 px-2.5 py-1.5 rounded-lg gap-1.5">
-                                            <FontAwesome name="users" size={11} color="#E63946" />
-                                            <Text className="text-gray-900 dark:text-white text-sm font-bold">
-                                                {room.maxGuests}
-                                            </Text>
-                                        </View>
+                                        {/* Available Count Badge - OYO/Booking.com style */}
+                                        {room.availableCount !== undefined && room.availableCount > 0 && (
+                                            <View className="absolute top-3 right-3 bg-orange-500 px-2.5 py-1.5 rounded-lg">
+                                                <Text className="text-white text-xs font-bold">
+                                                    {room.availableCount} {room.availableCount === 1 ? 'room' : 'rooms'} left
+                                                </Text>
+                                            </View>
+                                        )}
+                                        {/* Guest Badge - move below if available count shown */}
+                                        {(room.availableCount === undefined || room.availableCount === 0) && (
+                                            <View className="absolute top-3 right-3 flex-row items-center bg-white dark:bg-gray-900 px-2.5 py-1.5 rounded-lg gap-1.5">
+                                                <FontAwesome name="users" size={11} color="#E63946" />
+                                                <Text className="text-gray-900 dark:text-white text-sm font-bold">
+                                                    {room.maxGuests}
+                                                </Text>
+                                            </View>
+                                        )}
                                     </View>
 
                                     {/* Content */}
                                     <View className="p-4">
-                                        {/* Room Name */}
-                                        <Text className="text-lg font-bold text-gray-900 dark:text-white mb-3">
-                                            {room.name || room.type}
-                                        </Text>
+                                        {/* Room Name & Guest Count */}
+                                        <View className="flex-row items-center justify-between mb-3">
+                                            <Text className="text-lg font-bold text-gray-900 dark:text-white">
+                                                {room.name || room.type}
+                                            </Text>
+                                            {room.availableCount !== undefined && room.availableCount > 0 && (
+                                                <View className="flex-row items-center gap-1">
+                                                    <FontAwesome name="users" size={11} color="#6B7280" />
+                                                    <Text className="text-gray-500 text-sm">
+                                                        {t('hotel.upToGuests', { count: room.maxGuests })}
+                                                    </Text>
+                                                </View>
+                                            )}
+                                        </View>
 
                                         {/* Price and Book Section */}
                                         <View className="flex-row items-center justify-between">
@@ -282,7 +302,8 @@ export default function HotelDetailScreen() {
 
                                             {/* Book Button */}
                                             <TouchableOpacity
-                                                className="bg-primary px-5 py-2.5 rounded-full"
+                                                className={`px-5 py-2.5 rounded-full ${room.isAvailable !== false ? 'bg-primary' : 'bg-gray-400'}`}
+                                                disabled={room.isAvailable === false}
                                                 onPress={() => router.push({
                                                     pathname: '/booking/[id]',
                                                     params: {
@@ -295,12 +316,14 @@ export default function HotelDetailScreen() {
                                                         hotelCity: hotel.city,
                                                         roomImage: room.photos?.[0] || '',
                                                         hotelId: hotel.id,
+                                                        // Pass roomIds for auto room assignment
+                                                        roomIds: room.roomIds ? JSON.stringify(room.roomIds) : '',
                                                     }
                                                 } as any)}
                                                 activeOpacity={0.85}
                                             >
                                                 <Text className="text-white font-bold text-sm">
-                                                    {t('hotel.bookNow')}
+                                                    {room.isAvailable !== false ? t('hotel.bookNow') : t('bookings.status.booked')}
                                                 </Text>
                                             </TouchableOpacity>
                                         </View>

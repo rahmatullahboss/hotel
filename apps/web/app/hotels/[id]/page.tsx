@@ -92,8 +92,12 @@ export default function HotelDetailPage() {
         const price = selectedRoom.dynamicPrice ?? Number(selectedRoom.basePrice);
         const nights = selectedRoom.nights ?? 1;
         const total = selectedRoom.totalDynamicPrice ?? price * nights;
+        // Pass roomIds for auto room assignment (room type booking)
+        const roomIdsParam = selectedRoom.roomIds && selectedRoom.roomIds.length > 0
+            ? `&roomIds=${encodeURIComponent(JSON.stringify(selectedRoom.roomIds))}`
+            : "";
         router.push(
-            `/booking?hotelId=${hotel.id}&roomId=${selectedRoom.id}&hotel=${encodeURIComponent(hotel.name)}&room=${encodeURIComponent(selectedRoom.name)}&price=${price}&nights=${nights}&totalPrice=${total}&checkIn=${checkIn}&checkOut=${checkOut}${roomPhotoParam}`
+            `/booking?hotelId=${hotel.id}&roomId=${selectedRoom.id}&hotel=${encodeURIComponent(hotel.name)}&room=${encodeURIComponent(selectedRoom.name)}&price=${price}&nights=${nights}&totalPrice=${total}&checkIn=${checkIn}&checkOut=${checkOut}${roomPhotoParam}${roomIdsParam}`
         );
     };
 

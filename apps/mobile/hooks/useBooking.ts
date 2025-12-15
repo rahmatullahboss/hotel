@@ -31,6 +31,10 @@ interface Room {
         multiplier: number;
         rules: Array<{ name: string; description: string }>;
     };
+    // Room grouping fields (for "X rooms available" display)
+    availableCount?: number;
+    totalCount?: number;
+    roomIds?: string[];
 }
 
 interface UseBookingReturn {
