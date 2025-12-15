@@ -8,12 +8,14 @@ import {
   ActivityIndicator,
   RefreshControl,
   Dimensions,
+  FlatList,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { useTranslation } from 'react-i18next';
 import api from '@/lib/api';
+import HotelCard from '@/components/HotelCard';
 
 const { width } = Dimensions.get('window');
 
@@ -187,60 +189,15 @@ export default function HomeScreen() {
               </Text>
             </View>
           ) : (
-            hotels.slice(0, 5).map((hotel) => (
-              <TouchableOpacity
-                key={hotel.id}
-                className="rounded-2xl mb-4 overflow-hidden bg-white dark:bg-gray-800 shadow-lg"
-                onPress={() => router.push(`/hotel/${hotel.id}`)}
-                activeOpacity={0.95}
-              >
-                <View className="relative">
-                  <Image
-                    source={{
-                      uri: hotel.imageUrl || 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=400',
-                    }}
-                    className="w-full h-44"
-                    resizeMode="cover"
-                  />
-                  <View className="absolute top-3 right-3 flex-row items-center bg-black/70 px-2.5 py-1 rounded-lg gap-1">
-                    <FontAwesome name="star" size={11} color="#FFD700" />
-                    <Text className="text-white text-sm font-bold">
-                      {Number(hotel.rating || 0).toFixed(1)}
-                    </Text>
-                  </View>
-                </View>
-                <View className="p-4">
-                  <Text
-                    className="text-lg font-bold text-gray-900 dark:text-white mb-1.5 tracking-tight"
-                    numberOfLines={1}
-                  >
-                    {hotel.name}
-                  </Text>
-                  <View className="flex-row items-center gap-1.5 mb-3">
-                    <FontAwesome name="map-marker" size={12} color="#9CA3AF" />
-                    <Text
-                      className="text-sm text-gray-500 dark:text-gray-400 flex-1"
-                      numberOfLines={1}
-                    >
-                      {hotel.city}
-                    </Text>
-                  </View>
-                  <View className="flex-row items-center justify-between">
-                    <Text className="text-xs text-gray-500 dark:text-gray-400">
-                      {t('home.startingFrom')}
-                    </Text>
-                    <View className="flex-row items-baseline gap-1">
-                      <Text className="text-xl font-bold text-primary">
-                        {t('common.currency')}{formatPrice(hotel.lowestPrice || 0)}
-                      </Text>
-                      <Text className="text-xs text-gray-500 dark:text-gray-400">
-                        {t('common.perNight')}
-                      </Text>
-                    </View>
-                  </View>
-                </View>
-              </TouchableOpacity>
-            ))
+            <FlatList
+              data={hotels.slice(0, 5)}
+              keyExtractor={(item) => item.id}
+              renderItem={({ item, index }) => (
+                <HotelCard hotel={item} index={index} />
+              )}
+              scrollEnabled={false}
+              showsVerticalScrollIndicator={false}
+            />
           )}
         </View>
 
