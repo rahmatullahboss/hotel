@@ -13,7 +13,7 @@ import { Text, View } from '@/components/Themed';
 import { useRouter, Stack, useFocusEffect } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
-import { MdPerson, MdPhone, MdCheck } from 'react-icons/md';
+import FontAwesome from '@expo/vector-icons/FontAwesome';
 import Colors from '@/constants/Colors';
 import { useTheme } from '@/context/ThemeContext';
 import api from '@/lib/api';
@@ -126,7 +126,7 @@ export default function EditProfileScreen() {
                             {t('editProfile.name')}
                         </Text>
                         <View style={[styles.inputWrapper, { backgroundColor: colors.card, borderColor: colors.border }]}>
-                            <MdPerson size={20} color={colors.textSecondary} />
+                            <FontAwesome name="user-o" size={18} color={colors.textSecondary} />
                             <TextInput
                                 style={[styles.input, { color: colors.text }]}
                                 value={name}
@@ -144,7 +144,7 @@ export default function EditProfileScreen() {
                             {t('editProfile.phone')}
                         </Text>
                         <View style={[styles.inputWrapper, { backgroundColor: colors.card, borderColor: colors.border }]}>
-                            <MdPhone size={20} color={colors.textSecondary} />
+                            <FontAwesome name="phone" size={18} color={colors.textSecondary} />
                             <TextInput
                                 style={[styles.input, { color: colors.text }]}
                                 value={phone}
@@ -167,7 +167,7 @@ export default function EditProfileScreen() {
                             <ActivityIndicator size="small" color="#fff" />
                         ) : (
                             <>
-                                <MdCheck size={20} color="#fff" />
+                                <FontAwesome name="check" size={18} color="#fff" />
                                 <Text style={styles.saveButtonText}>{t('editProfile.save')}</Text>
                             </>
                         )}

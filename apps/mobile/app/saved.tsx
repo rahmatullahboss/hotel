@@ -12,10 +12,11 @@ import { Text, View } from '@/components/Themed';
 import { useRouter, Stack, useFocusEffect } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
-import { MdFavorite, MdOutlineHotel } from 'react-icons/md';
+import FontAwesome from '@expo/vector-icons/FontAwesome';
 import Colors from '@/constants/Colors';
 import { useTheme } from '@/context/ThemeContext';
 import api from '@/lib/api';
+
 
 const { width } = Dimensions.get('window');
 const CARD_WIDTH = (width - 48) / 2;
@@ -116,14 +117,14 @@ export default function SavedHotelsScreen() {
                                         />
                                     ) : (
                                         <View style={[styles.imagePlaceholder, { backgroundColor: colors.border }]}>
-                                            <MdOutlineHotel size={32} color={colors.textSecondary} />
+                                            <FontAwesome name="building-o" size={32} color={colors.textSecondary} />
                                         </View>
                                     )}
                                     <TouchableOpacity
                                         style={styles.heartButton}
                                         onPress={() => handleUnsave(item.hotelId)}
                                     >
-                                        <MdFavorite size={20} color={Colors.primary} />
+                                        <FontAwesome name="heart" size={16} color={Colors.primary} />
                                     </TouchableOpacity>
                                 </View>
                                 <View style={[styles.cardContent, { backgroundColor: 'transparent' }]}>
@@ -156,7 +157,7 @@ export default function SavedHotelsScreen() {
                     </View>
                 ) : (
                     <View style={[styles.emptyState, { backgroundColor: 'transparent' }]}>
-                        <MdFavorite size={64} color={colors.textSecondary} />
+                        <FontAwesome name="heart-o" size={64} color={colors.textSecondary} />
                         <Text style={[styles.emptyTitle, { color: colors.text }]}>
                             {t('saved.noSavedHotels')}
                         </Text>

@@ -9,7 +9,7 @@ import { Text, View } from '@/components/Themed';
 import { Stack, useFocusEffect } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
-import { MdNotifications, MdEmail, MdLocalOffer, MdCheckCircle } from 'react-icons/md';
+import FontAwesome from '@expo/vector-icons/FontAwesome';
 import Colors from '@/constants/Colors';
 import { useTheme } from '@/context/ThemeContext';
 import api from '@/lib/api';
@@ -79,19 +79,19 @@ export default function NotificationsScreen() {
     const notificationItems = [
         {
             key: 'bookingConfirmation' as const,
-            icon: MdCheckCircle,
+            icon: 'check-circle' as const,
             title: t('notifications.bookingConfirmation'),
             description: t('notifications.bookingConfirmationDesc'),
         },
         {
             key: 'checkInInstructions' as const,
-            icon: MdEmail,
+            icon: 'envelope-o' as const,
             title: t('notifications.checkInInstructions'),
             description: t('notifications.checkInInstructionsDesc'),
         },
         {
             key: 'promotions' as const,
-            icon: MdLocalOffer,
+            icon: 'tag' as const,
             title: t('notifications.promotions'),
             description: t('notifications.promotionsDesc'),
         },
@@ -115,7 +115,7 @@ export default function NotificationsScreen() {
                 {/* Header */}
                 <View style={styles.header}>
                     <View style={styles.iconContainer}>
-                        <MdNotifications size={32} color="#fff" />
+                        <FontAwesome name="bell" size={28} color="#fff" />
                     </View>
                     <Text style={styles.headerTitle}>{t('notifications.headerTitle')}</Text>
                     <Text style={styles.headerSubtitle}>{t('notifications.headerSubtitle')}</Text>
@@ -123,41 +123,38 @@ export default function NotificationsScreen() {
 
                 {/* Settings */}
                 <View style={[styles.section, { backgroundColor: colors.card }]}>
-                    {notificationItems.map((item, index) => {
-                        const Icon = item.icon;
-                        return (
-                            <View
-                                key={item.key}
-                                style={[
-                                    styles.settingItem,
-                                    {
-                                        backgroundColor: 'transparent',
-                                        borderBottomColor: colors.border,
-                                        borderBottomWidth: index < notificationItems.length - 1 ? 1 : 0,
-                                    },
-                                ]}
-                            >
-                                <View style={[styles.iconWrapper, { backgroundColor: `${Colors.primary}15` }]}>
-                                    <Icon size={20} color={Colors.primary} />
-                                </View>
-                                <View style={[styles.settingContent, { backgroundColor: 'transparent' }]}>
-                                    <Text style={[styles.settingTitle, { color: colors.text }]}>
-                                        {item.title}
-                                    </Text>
-                                    <Text style={[styles.settingDesc, { color: colors.textSecondary }]}>
-                                        {item.description}
-                                    </Text>
-                                </View>
-                                <Switch
-                                    value={prefs[item.key]}
-                                    onValueChange={() => handleToggle(item.key)}
-                                    disabled={updating === item.key}
-                                    trackColor={{ false: '#D1D5DB', true: Colors.primary }}
-                                    thumbColor="#FFFFFF"
-                                />
+                    {notificationItems.map((item, index) => (
+                        <View
+                            key={item.key}
+                            style={[
+                                styles.settingItem,
+                                {
+                                    backgroundColor: 'transparent',
+                                    borderBottomColor: colors.border,
+                                    borderBottomWidth: index < notificationItems.length - 1 ? 1 : 0,
+                                },
+                            ]}
+                        >
+                            <View style={[styles.iconWrapper, { backgroundColor: `${Colors.primary}15` }]}>
+                                <FontAwesome name={item.icon} size={18} color={Colors.primary} />
                             </View>
-                        );
-                    })}
+                            <View style={[styles.settingContent, { backgroundColor: 'transparent' }]}>
+                                <Text style={[styles.settingTitle, { color: colors.text }]}>
+                                    {item.title}
+                                </Text>
+                                <Text style={[styles.settingDesc, { color: colors.textSecondary }]}>
+                                    {item.description}
+                                </Text>
+                            </View>
+                            <Switch
+                                value={prefs[item.key]}
+                                onValueChange={() => handleToggle(item.key)}
+                                disabled={updating === item.key}
+                                trackColor={{ false: '#D1D5DB', true: Colors.primary }}
+                                thumbColor="#FFFFFF"
+                            />
+                        </View>
+                    ))}
                 </View>
 
                 {/* Info */}
