@@ -16,6 +16,8 @@ import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { useTranslation } from 'react-i18next';
 import api from '@/lib/api';
 import HotelCard from '@/components/HotelCard';
+import QuickFilterButton from '@/components/QuickFilterButton';
+import Animated, { FadeInRight } from 'react-native-reanimated';
 
 const { width } = Dimensions.get('window');
 
@@ -129,44 +131,42 @@ export default function HomeScreen() {
         }
       >
         {/* Quick Filters */}
-        <View className="flex-row px-5 py-5 justify-between">
-          {QUICK_FILTERS.map((filter) => (
-            <TouchableOpacity
+        <View className="flex-row px-5 py-5 gap-2">
+          {QUICK_FILTERS.map((filter, index) => (
+            <QuickFilterButton
               key={filter.id}
-              className="items-center"
-              style={{ width: (width - 60) / 4 }}
-              activeOpacity={0.7}
+              id={filter.id}
+              label={filter.label}
+              icon={filter.icon}
+              index={index}
               onPress={() => router.push({ pathname: '/(tabs)/search', params: { filter: filter.id } })}
-            >
-              <View className="w-14 h-14 rounded-2xl bg-white dark:bg-gray-800 items-center justify-center mb-2 shadow-sm">
-                <FontAwesome name={filter.icon} size={20} color="#E63946" />
-              </View>
-              <Text
-                className="text-xs font-semibold text-gray-700 dark:text-gray-300 text-center"
-                numberOfLines={1}
-                adjustsFontSizeToFit
-              >
-                {filter.label}
-              </Text>
-            </TouchableOpacity>
+            />
           ))}
         </View>
 
         {/* Promotional Banner */}
-        <View className="mx-5 bg-primary rounded-2xl p-5 flex-row justify-between items-center mb-4">
-          <View className="flex-1">
+        <Animated.View
+          entering={FadeInRight.delay(200).springify().damping(18)}
+          className="mx-5 rounded-2xl p-5 flex-row justify-between items-center mb-4 overflow-hidden"
+        >
+          {/* Background with gradient effect */}
+          <View className="absolute inset-0 bg-primary" />
+          <View className="absolute -right-10 -top-10 w-32 h-32 rounded-full bg-white/10" />
+          <View className="absolute -left-5 -bottom-5 w-24 h-24 rounded-full bg-white/5" />
+
+          <View className="flex-1 z-10">
             <Text className="text-lg font-bold text-white">{t('home.promo.title')}</Text>
             <Text className="text-sm text-white/90 mt-1 mb-3">
               {t('home.promo.subtitle')}
             </Text>
-            <TouchableOpacity className="bg-white px-4 py-2 rounded-full self-start">
+            <TouchableOpacity className="bg-white px-4 py-2 rounded-full self-start shadow-lg">
               <Text className="text-primary font-semibold text-sm">
                 {t('home.promo.button')}
               </Text>
             </TouchableOpacity>
           </View>
-          <Text className="text-5xl">🎉</Text>
-        </View>
+          <Text className="text-5xl z-10">🎉</Text>
+        </Animated.View>
 
         {/* Featured Hotels */}
         <View className="px-5">
