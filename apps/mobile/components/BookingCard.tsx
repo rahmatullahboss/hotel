@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { View, Text, TouchableOpacity, Image } from 'react-native';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
-import Animated, { useAnimatedStyle, withTiming, useSharedValue, interpolate } from 'react-native-reanimated';
+import Animated, { useAnimatedStyle, withTiming, useSharedValue } from 'react-native-reanimated';
 import { useTranslation } from 'react-i18next';
+import QRCode from 'react-native-qrcode-svg';
 
 interface Booking {
     id: string;
@@ -21,6 +22,7 @@ interface Booking {
     bookingFee?: string | number;
     bookingFeeStatus?: string;
     guestName?: string;
+    qrCode?: string; // JSON string with booking/hotel/room IDs for check-in
 }
 
 interface BookingCardProps {
@@ -320,7 +322,7 @@ export default function BookingCard({ booking }: BookingCardProps) {
                             )}
 
                             {/* Booking ID */}
-                            <View>
+                            <View className="mb-4">
                                 <Text className="text-xs text-gray-400 dark:text-gray-500 uppercase font-semibold mb-1">
                                     {t('booking.bookingId', 'Booking ID')}
                                 </Text>
@@ -328,6 +330,26 @@ export default function BookingCard({ booking }: BookingCardProps) {
                                     {booking.id.slice(0, 8).toUpperCase()}
                                 </Text>
                             </View>
+
+                            {/* QR Code for Check-in - Only show for CONFIRMED or PENDING bookings */}
+                            {(booking.status === 'CONFIRMED' || booking.status === 'PENDING') && booking.qrCode && (
+                                <View className="mt-2 pt-4 border-t border-gray-100 dark:border-gray-700">
+                                    <Text className="text-xs text-gray-400 dark:text-gray-500 uppercase font-semibold mb-3 text-center">
+                                        {t('booking.checkInQR', 'Check-in QR Code')}
+                                    </Text>
+                                    <View className="items-center bg-white p-4 rounded-2xl">
+                                        <QRCode
+                                            value={booking.qrCode}
+                                            size={160}
+                                            backgroundColor="white"
+                                            color="#1D3557"
+                                        />
+                                        <Text className="text-[10px] text-gray-400 mt-3 text-center">
+                                            {t('booking.showQRAtHotel', 'Show this QR code at the hotel reception')}
+                                        </Text>
+                                    </View>
+                                </View>
+                            )}
                         </View>
                     )}
                 </View>

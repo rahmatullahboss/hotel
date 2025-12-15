@@ -239,7 +239,7 @@ export default function BookingScreen() {
                 );
             }
         } catch (err) {
-            Alert.alert('Error', 'Something went wrong. Please try again.');
+            Alert.alert(t('common.error'), t('booking.somethingWentWrong'));
         } finally {
             setBooking(false);
         }

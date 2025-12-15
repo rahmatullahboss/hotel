@@ -3,7 +3,8 @@
         "loading": "Loading...",
         "error": "Error",
         "currency": "৳",
-        "perNight": "/night"
+        "perNight": "/night",
+        "comingSoon": "Coming Soon"
     },
     "nav": {
         "home": "Home",
@@ -107,7 +108,25 @@
         "confirmedMessage": "Your booking at {{hotel}} has been confirmed.",
         "viewBookings": "View My Bookings",
         "selectCheckInDate": "Select Check-in Date",
-        "selectCheckOutDate": "Select Check-out Date"
+        "selectCheckOutDate": "Select Check-out Date",
+        "useWalletBalance": "Use Wallet Balance",
+        "walletAvailable": "Available",
+        "walletDeduction": "Wallet Deduction",
+        "remainingToPay": "Remaining to pay",
+        "fullyCoveredByWallet": "Fully covered by wallet!",
+        "payRemaining": "Pay Remaining Amount",
+        "paymentMethod": "Payment Method",
+        "payAtHotel": "Pay at Hotel",
+        "bKash": "bKash",
+        "nagad": "Nagad",
+        "card": "Card",
+        "advanceRequired": "20% advance required",
+        "fullPayment": "Full payment required",
+        "remainingTotal": "Remaining Total",
+        "payNow": "Pay Now (20%)",
+        "payRemainingAtHotel": "Pay remaining {{amount}} at hotel",
+        "advanceCoveredByWallet": "Advance covered by wallet!",
+        "somethingWentWrong": "Something went wrong. Please try again."
     },
     "wallet": {
         "title": "Wallet",

@@ -3,7 +3,8 @@
         "loading": "লোড হচ্ছে...",
         "error": "ত্রুটি",
         "currency": "৳",
-        "perNight": "/রাত"
+        "perNight": "/রাত",
+        "comingSoon": "শীঘ্রই আসছে"
     },
     "nav": {
         "home": "হোম",
@@ -107,7 +108,25 @@
         "confirmedMessage": "{{hotel}}-এ আপনার বুকিং নিশ্চিত হয়েছে।",
         "viewBookings": "আমার বুকিং দেখুন",
         "selectCheckInDate": "চেক-ইন তারিখ নির্বাচন করুন",
-        "selectCheckOutDate": "চেক-আউট তারিখ নির্বাচন করুন"
+        "selectCheckOutDate": "চেক-আউট তারিখ নির্বাচন করুন",
+        "useWalletBalance": "ওয়ালেট ব্যালেন্স ব্যবহার করুন",
+        "walletAvailable": "উপলব্ধ",
+        "walletDeduction": "ওয়ালেট থেকে কাটা",
+        "remainingToPay": "বাকি পরিশোধ করতে হবে",
+        "fullyCoveredByWallet": "সম্পূর্ণ ওয়ালেট দিয়ে!",
+        "payRemaining": "বাকি টাকা পরিশোধ করুন",
+        "paymentMethod": "পেমেন্ট পদ্ধতি",
+        "payAtHotel": "হোটেলে পরিশোধ",
+        "bKash": "বিকাশ",
+        "nagad": "নগদ",
+        "card": "কার্ড",
+        "advanceRequired": "২০% অগ্রিম প্রয়োজন",
+        "fullPayment": "সম্পূর্ণ পেমেন্ট প্রয়োজন",
+        "remainingTotal": "বাকি মোট",
+        "payNow": "এখন পরিশোধ (২০%)",
+        "payRemainingAtHotel": "হোটেলে বাকি {{amount}} পরিশোধ করুন",
+        "advanceCoveredByWallet": "অগ্রিম ওয়ালেট দিয়ে!",
+        "somethingWentWrong": "কিছু ভুল হয়েছে। আবার চেষ্টা করুন।"
     },
     "wallet": {
         "title": "ওয়ালেট",
