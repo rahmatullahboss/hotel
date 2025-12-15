@@ -236,6 +236,7 @@ export async function createBooking(input: CreateBookingInput): Promise<BookingR
                 status: bookingStatus,
                 qrCode: qrCodeData,
                 expiresAt,
+                walletAmountUsed: actualWalletDeduction.toString(),
             }).returning();
 
             // Record wallet transaction if fee was paid
@@ -374,24 +375,35 @@ export async function cancelBooking(
         const hoursUntilCheckIn = (checkInDate.getTime() - now.getTime()) / (1000 * 60 * 60);
 
         let isLateCancellation = false;
+        let isVeryLateCancellation = false;
         let refundAmount = 0;
         const bookingFee = Number(booking.bookingFee) || 0;
 
-        // All bookings now have advance payment
-        // Late cancellation: within 24 hours of check-in
+        // Cancellation policy:
+        // - > 24 hours before check-in: Full refund
+        // - 2-24 hours before check-in: Forfeit 20% advance, refund excess
+        // - < 2 hours before check-in: ALL forfeited (no refund)
         isLateCancellation = hoursUntilCheckIn < 24;
+        isVeryLateCancellation = hoursUntilCheckIn < 2;
 
         // Handle refund for partial payment bookings
-        if (booking.bookingFeeStatus === "PAID" && bookingFee > 0) {
-            if (!isLateCancellation) {
-                // Refund to wallet
-                refundAmount = bookingFee;
+        const walletAmountUsed = Number(booking.walletAmountUsed) || 0;
+        const totalAmount = Number(booking.totalAmount) || 0;
+        const advanceAmount = Math.round(totalAmount * 0.20); // 20% advance that should be forfeited
+
+        if (booking.bookingFeeStatus === "PAID" && (bookingFee > 0 || walletAmountUsed > 0)) {
+            if (isVeryLateCancellation) {
+                // Very late cancellation (< 2 hours): ALL forfeited, no refund
+                refundAmount = 0;
+            } else if (!isLateCancellation) {
+                // Early cancellation (> 24 hours): Full refund of wallet amount used
+                refundAmount = walletAmountUsed > 0 ? walletAmountUsed : bookingFee;
 
                 const wallet = await db.query.wallets.findFirst({
                     where: eq(wallets.userId, userId),
                 });
 
-                if (wallet) {
+                if (wallet && refundAmount > 0) {
                     // Credit wallet
                     await db
                         .update(wallets)
@@ -411,8 +423,36 @@ export async function cancelBooking(
                         description: `Booking cancellation refund`,
                     });
                 }
+            } else if (walletAmountUsed > advanceAmount) {
+                // Late cancellation (2-24 hours): Forfeit 20% advance, refund excess wallet balance
+                refundAmount = walletAmountUsed - advanceAmount;
+
+                const wallet = await db.query.wallets.findFirst({
+                    where: eq(wallets.userId, userId),
+                });
+
+                if (wallet && refundAmount > 0) {
+                    // Credit excess back to wallet
+                    await db
+                        .update(wallets)
+                        .set({
+                            balance: (Number(wallet.balance) + refundAmount).toString(),
+                            updatedAt: new Date(),
+                        })
+                        .where(eq(wallets.id, wallet.id));
+
+                    // Record partial refund transaction
+                    await db.insert(walletTransactions).values({
+                        walletId: wallet.id,
+                        type: "CREDIT",
+                        amount: refundAmount.toString(),
+                        reason: "REFUND",
+                        bookingId: booking.id,
+                        description: `Partial refund (20% advance forfeited)`,
+                    });
+                }
             }
-            // If late, advance payment is forfeited (no refund)
+            // If walletAmountUsed <= advanceAmount and 2-24h late cancellation, no refund (20% forfeited)
         }
 
         // Update booking status
@@ -459,18 +499,40 @@ export async function getCancellationInfo(bookingId: string, userId: string) {
         const now = new Date();
         const hoursUntilCheckIn = (checkInDate.getTime() - now.getTime()) / (1000 * 60 * 60);
         const bookingFee = Number(booking.bookingFee) || 0;
+        const walletAmountUsed = Number(booking.walletAmountUsed) || 0;
+        const totalAmount = Number(booking.totalAmount) || 0;
+        const advanceAmount = Math.round(totalAmount * 0.20);
+        const amountPaid = walletAmountUsed > 0 ? walletAmountUsed : bookingFee;
 
-        // All bookings now require advance payment
-        // Late cancellation: within 24 hours of check-in
+        // 3-tier cancellation policy
+        const isVeryLate = hoursUntilCheckIn < 2;
         const isLate = hoursUntilCheckIn < 24;
         const advanceLabel = booking.paymentStatus === "PAY_AT_HOTEL" ? "advance payment" : "booking fee";
+
+        let penalty: string | null = null;
+        let refund = 0;
+
+        if (isVeryLate) {
+            // < 2 hours: All forfeited
+            penalty = `৳${amountPaid} will be forfeited (less than 2 hours before check-in)`;
+            refund = 0;
+        } else if (isLate) {
+            // 2-24 hours: Forfeit 20% advance, refund excess
+            const forfeitAmount = Math.min(advanceAmount, amountPaid);
+            refund = Math.max(0, amountPaid - advanceAmount);
+            penalty = `৳${forfeitAmount} ${advanceLabel} will be forfeited`;
+        } else {
+            // > 24 hours: Full refund
+            refund = amountPaid;
+        }
 
         return {
             type: "ADVANCE_PAYMENT" as const,
             isLate,
+            isVeryLate,
             hoursRemaining: Math.max(0, hoursUntilCheckIn),
-            penalty: isLate ? `৳${bookingFee} ${advanceLabel} will be forfeited` : null,
-            refund: isLate ? 0 : bookingFee,
+            penalty,
+            refund,
         };
     } catch (error) {
         console.error("Error getting cancellation info:", error);

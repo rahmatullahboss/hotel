@@ -241,6 +241,9 @@ export const bookings = pgTable("bookings", {
     cancelledAt: timestamp("cancelledAt", { mode: "date" }),
     refundAmount: decimal("refundAmount", { precision: 10, scale: 2 }),
 
+    // Track wallet amount used for proper refund on cancellation
+    walletAmountUsed: decimal("walletAmountUsed", { precision: 10, scale: 2 }).default("0"),
+
     // Guest ID photo for security/verification (stored as URL)
     guestIdPhoto: text("guestIdPhoto"),
 
