@@ -3,7 +3,7 @@
 import { Suspense, useState, useEffect, useCallback, useMemo, lazy } from "react";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { BottomNav, HotelCard, Footer } from "../components";
+import { BottomNav, HotelCard, Footer, SearchForm } from "../components";
 import { WhyChooseUs } from "../components/WhyChooseUs";
 import { searchHotels, type HotelWithPrice } from "../actions/hotels";
 import { FiMapPin, FiX } from "react-icons/fi";
@@ -149,6 +149,11 @@ function HotelsContent() {
                             {t("mapView")}
                         </button>
                     </div>
+                </div>
+
+                {/* Search Form - Same as homepage */}
+                <div style={{ marginBottom: "1rem" }}>
+                    <SearchForm />
                 </div>
 
                 {/* Filters */}
