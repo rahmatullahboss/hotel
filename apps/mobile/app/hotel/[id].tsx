@@ -189,10 +189,19 @@ export default function HotelDetailScreen() {
                                     {hotel.amenities.map((amenity, index) => (
                                         <View
                                             key={index}
-                                            className="rounded-full bg-gray-100 dark:bg-gray-800"
-                                            style={{ paddingHorizontal: 14, paddingVertical: 8 }}
+                                            style={{
+                                                paddingHorizontal: 14,
+                                                paddingVertical: 8,
+                                                borderRadius: 999,
+                                                backgroundColor: '#f3f4f6',
+                                            }}
                                         >
-                                            <Text className="text-sm text-gray-700 dark:text-gray-300">
+                                            <Text
+                                                style={{
+                                                    fontSize: 14,
+                                                    color: '#374151',
+                                                }}
+                                            >
                                                 {amenity}
                                             </Text>
                                         </View>
