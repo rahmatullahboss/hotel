@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { StyleSheet, ScrollView, Image, TouchableOpacity, ActivityIndicator, Dimensions, Platform } from 'react-native';
+import { StyleSheet, ScrollView, Image, TouchableOpacity, ActivityIndicator, Dimensions, Platform, Alert } from 'react-native';
 import { Text, View } from '@/components/Themed';
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 import { useTranslation } from 'react-i18next';
@@ -92,12 +92,27 @@ export default function HotelDetailScreen() {
         if (savingState) return;
         setSavingState(true);
 
-        if (isSaved) {
-            await api.unsaveHotel(id!);
-            setIsSaved(false);
-        } else {
-            await api.saveHotel(id!);
-            setIsSaved(true);
+        try {
+            if (isSaved) {
+                const { error } = await api.unsaveHotel(id!);
+                if (error) {
+                    console.error('Unsave error:', error);
+                    Alert.alert('Error', 'লগইন করুন হোটেল সেভ করতে');
+                } else {
+                    setIsSaved(false);
+                }
+            } else {
+                const { error } = await api.saveHotel(id!);
+                if (error) {
+                    console.error('Save error:', error);
+                    Alert.alert('Error', 'লগইন করুন হোটেল সেভ করতে');
+                } else {
+                    setIsSaved(true);
+                }
+            }
+        } catch (err) {
+            console.error('Toggle save error:', err);
+            Alert.alert('Error', 'কিছু ভুল হয়েছে');
         }
 
         setSavingState(false);
