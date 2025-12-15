@@ -50,13 +50,39 @@ export async function POST(request: NextRequest) {
         const body = await request.json();
 
         // Validate required fields
-        const { hotelId, roomId, checkIn, checkOut, guestName, guestEmail, guestPhone, totalAmount, paymentMethod } = body;
+        const { hotelId, roomId, checkIn, checkOut, guestPhone, totalAmount, paymentMethod } = body;
+        let { guestName, guestEmail } = body;
 
-        if (!hotelId || !roomId || !checkIn || !checkOut || !guestName || !guestEmail || !totalAmount) {
+        if (!hotelId || !roomId || !checkIn || !checkOut || !totalAmount) {
             return NextResponse.json(
                 { error: "Missing required fields" },
                 { status: 400 }
             );
+        }
+
+        // If guest info not provided, fetch from user profile
+        if (!guestName || !guestEmail) {
+            const { verifyMobileToken } = await import("@/lib/mobile-auth");
+            const mobileAuth = verifyMobileToken(request);
+
+            if (mobileAuth) {
+                guestName = guestName || mobileAuth.name || "Guest";
+                guestEmail = guestEmail || mobileAuth.email || "";
+            } else {
+                // Fallback: use userId to fetch from DB
+                const { db } = await import("@repo/db");
+                const { users } = await import("@repo/db/schema");
+                const { eq } = await import("drizzle-orm");
+
+                const user = await db.query.users.findFirst({
+                    where: eq(users.id, userId),
+                });
+
+                if (user) {
+                    guestName = guestName || user.name || "Guest";
+                    guestEmail = guestEmail || user.email || "";
+                }
+            }
         }
 
         const result = await createBooking({
@@ -65,7 +91,7 @@ export async function POST(request: NextRequest) {
             roomId,
             checkIn,
             checkOut,
-            guestName,
+            guestName: guestName || "Guest",
             guestEmail: guestEmail || "",
             guestPhone: guestPhone || "",
             totalAmount,

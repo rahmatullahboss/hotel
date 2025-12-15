@@ -93,6 +93,24 @@ To achieve premium quality and scalability, follow these guidelines:
     - Run `npm run dev:mobile` (or `expo start` in `apps/mobile`).
     - Use **EAS Build** and **EAS Update** for cloud builds and OTA updates.
 
+## AI Agent Resources
+
+> [!IMPORTANT]
+> **Always use the `expo-docs` MCP server** for fetching the latest Expo/React Native documentation. Do NOT rely on training data which may be outdated.
+
+Available MCP tools for Expo documentation:
+- `mcp_expo-docs_search_expo_docs` - Search through Expo docs
+- `mcp_expo-docs_get_expo_api_reference` - Get API reference for specific SDK modules (e.g., `expo-camera`, `expo-location`)
+- `mcp_expo-docs_get_expo_doc_content` - Get full content of a documentation page
+- `mcp_expo-docs_get_expo_quick_start` - Get quick start guide
+- `mcp_expo-docs_list_expo_sections` - List available doc sections
+
+**Example usage:**
+```
+When implementing expo-location, first call:
+mcp_expo-docs_get_expo_api_reference(module: "expo-location")
+```
+
 ## Key Project Rules
 
 1.  **Strictly No Inline Styles**: Avoid `style={{ ... }}`. Use Tailwind classes or the defined custom classes in `globals.css`.
