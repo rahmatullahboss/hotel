@@ -576,7 +576,7 @@ function BookingContent() {
                                         <span style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
                                             <span>🎉</span>
                                             <span style={{ color: "#B45309", fontWeight: 600 }}>
-                                                {t("firstBookingDiscount", "First Booking Discount (20%)")}
+                                                {t("firstBookingDiscount")}
                                             </span>
                                         </span>
                                         <span style={{ color: "#B45309", fontWeight: 700 }}>

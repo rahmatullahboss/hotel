@@ -175,7 +175,8 @@
         "payByWallet": "Pay by Wallet",
         "insufficientBalance": "Insufficient balance",
         "instantPayment": "Instant payment from wallet",
-        "walletPaymentFailed": "Wallet payment failed. Please try again."
+        "walletPaymentFailed": "Wallet payment failed. Please try again.",
+        "firstBookingDiscount": "First Booking Discount (20%)"
     },
     "wallet": {
         "title": "Wallet",
