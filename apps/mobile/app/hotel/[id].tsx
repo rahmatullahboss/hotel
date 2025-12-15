@@ -249,9 +249,6 @@ export default function HotelDetailScreen() {
                                         {/* Price and Book Section */}
                                         <View className="flex-row items-center justify-between">
                                             <View>
-                                                <Text className="text-xs text-gray-400 dark:text-gray-500 mb-0.5">
-                                                    {t('home.startingFrom')}
-                                                </Text>
                                                 {room.dynamicPrice && room.dynamicPrice < Number(room.basePrice) && (
                                                     <Text className="text-xs line-through text-gray-400">
                                                         {t('common.currency')}{formatPrice(Number(room.basePrice))}
