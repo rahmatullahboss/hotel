@@ -118,6 +118,7 @@ export default function BookingsPage() {
                         </Link>
                     </div>
                 </main>
+                <BottomNav />
             </>
         );
     }
@@ -136,6 +137,7 @@ export default function BookingsPage() {
                         </p>
                     </div>
                 </main>
+                <BottomNav />
             </>
         );
     }

@@ -88,7 +88,6 @@ export default async function WalletPage() {
                 {/* Transaction History */}
                 <TransactionList transactions={transactions} />
             </main>
-        
 
             <BottomNav />
         </div>

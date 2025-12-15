@@ -106,26 +106,32 @@ export default function CheckOutPage() {
 
     if (status === "loading") {
         return (
-            <main className="page-content" style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "60vh" }}>
-                <div className="skeleton" style={{ width: 200, height: 200, borderRadius: "1rem" }} />
-            </main>
+            <>
+                <main className="page-content" style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "60vh" }}>
+                    <div className="skeleton" style={{ width: 200, height: 200, borderRadius: "1rem" }} />
+                </main>
+                <BottomNav />
+            </>
         );
     }
 
     if (!session?.user) {
         return (
-            <main className="container page-content" style={{ paddingTop: "2rem" }}>
-                <div className="card" style={{ padding: "2rem", textAlign: "center" }}>
-                    <div style={{ fontSize: "3rem", marginBottom: "1rem" }}><FiLock size={48} color="var(--color-text-secondary)" /></div>
-                    <h2 style={{ marginBottom: "0.5rem" }}>Sign In Required</h2>
-                    <p style={{ color: "var(--color-text-secondary)", marginBottom: "1.5rem" }}>
-                        Please sign in to check out of your hotel
-                    </p>
-                    <Link href="/auth/signin?callbackUrl=/checkout" className="btn btn-primary btn-block">
-                        Sign In to Continue
-                    </Link>
-                </div>
-            </main>
+            <>
+                <main className="container page-content" style={{ paddingTop: "2rem" }}>
+                    <div className="card" style={{ padding: "2rem", textAlign: "center" }}>
+                        <div style={{ fontSize: "3rem", marginBottom: "1rem" }}><FiLock size={48} color="var(--color-text-secondary)" /></div>
+                        <h2 style={{ marginBottom: "0.5rem" }}>Sign In Required</h2>
+                        <p style={{ color: "var(--color-text-secondary)", marginBottom: "1.5rem" }}>
+                            Please sign in to check out of your hotel
+                        </p>
+                        <Link href="/auth/signin?callbackUrl=/checkout" className="btn btn-primary btn-block">
+                            Sign In to Continue
+                        </Link>
+                    </div>
+                </main>
+                <BottomNav />
+            </>
         );
     }
 
@@ -138,7 +144,6 @@ export default function CheckOutPage() {
 
                 {/* Result View */}
                 {result && (
-
                     <div className="card" style={{ padding: "2rem", textAlign: "center", marginBottom: "1rem" }}>
                         {result.success ? (
                             <>
@@ -360,7 +365,6 @@ export default function CheckOutPage() {
                     </>
                 )}
             </main>
-        
             <BottomNav />
         </>
     );

@@ -399,8 +399,6 @@ export default function HotelDetailPage() {
                 </div>
             </main>
 
-            <BottomNav />
-
             {/* Sticky Book Now Footer */}
             {selectedRoom && (() => {
                 const displayPrice = selectedRoom.dynamicPrice ?? Number(selectedRoom.basePrice);
@@ -447,7 +445,7 @@ export default function HotelDetailPage() {
                     </div>
                 );
             })()}
-        
+
             <BottomNav />
         </>
     );

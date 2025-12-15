@@ -109,9 +109,12 @@ export default function CheckInPage() {
 
     if (status === "loading") {
         return (
-            <div style={{ padding: "3rem", textAlign: "center" }}>
-                <div className="loading-spinner" style={{ margin: "0 auto" }}></div>
-            </div>
+            <>
+                <div style={{ padding: "3rem", textAlign: "center" }}>
+                    <div className="loading-spinner" style={{ margin: "0 auto" }}></div>
+                </div>
+                <BottomNav />
+            </>
         );
     }
 
@@ -344,7 +347,7 @@ export default function CheckInPage() {
                     </div>
                 </div>
             )}
-        
+
             <BottomNav />
         </>
     );
