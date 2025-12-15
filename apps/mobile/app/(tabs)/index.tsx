@@ -90,36 +90,55 @@ export default function HomeScreen() {
     <View className="flex-1 bg-gray-50 dark:bg-gray-900">
       {/* Header with Search */}
       <View
-        className="px-5 pb-5 bg-primary rounded-b-3xl"
-        style={{ paddingTop: insets.top + 12 }}
+        className="px-6 pb-6 rounded-b-[32px] overflow-hidden"
+        style={{
+          paddingTop: insets.top + 16,
+          backgroundColor: '#E63946',
+        }}
       >
-        <View className="flex-row justify-between items-start mb-4">
+        {/* Decorative Elements */}
+        <View className="absolute -right-12 -top-12 w-40 h-40 rounded-full bg-white/10" />
+        <View className="absolute -left-8 top-20 w-28 h-28 rounded-full bg-white/5" />
+
+        <View className="flex-row justify-between items-start mb-5">
           <View>
-            <Text className="text-sm text-white/80">{t('home.greeting')}</Text>
-            <Text className="text-2xl font-bold text-white mt-0.5">
+            <Text className="text-sm text-white/70 font-medium">{t('home.greeting')}</Text>
+            <Text className="text-2xl font-extrabold text-white mt-1 tracking-tight">
               {t('home.heroTitle')}
             </Text>
           </View>
           <TouchableOpacity
-            className="w-11 h-11 rounded-full bg-white/20 items-center justify-center"
+            className="w-12 h-12 rounded-full bg-white/15 items-center justify-center border border-white/20"
             activeOpacity={0.7}
             onPress={() => router.push('/notifications')}
           >
-            <FontAwesome name="bell-o" size={22} color="#fff" />
-            <View className="absolute top-2.5 right-2.5 w-2 h-2 rounded-full bg-yellow-400 border border-primary" />
+            <FontAwesome name="bell-o" size={20} color="#fff" />
+            <View className="absolute top-2 right-2 w-2.5 h-2.5 rounded-full bg-yellow-400 border-2 border-primary" />
           </TouchableOpacity>
         </View>
 
         {/* Search Bar */}
         <TouchableOpacity
-          className="flex-row items-center bg-white rounded-xl px-4 py-3.5 gap-3"
+          className="flex-row items-center rounded-2xl px-5 py-4 gap-3"
+          style={{
+            backgroundColor: 'rgba(255,255,255,0.95)',
+            shadowColor: '#000',
+            shadowOffset: { width: 0, height: 4 },
+            shadowOpacity: 0.15,
+            shadowRadius: 12,
+          }}
           onPress={() => router.push('/(tabs)/search')}
           activeOpacity={0.9}
         >
-          <FontAwesome name="search" size={18} color="#999" />
-          <Text className="text-gray-400 text-base flex-1">
+          <View className="w-10 h-10 rounded-xl bg-primary/10 items-center justify-center">
+            <FontAwesome name="search" size={16} color="#E63946" />
+          </View>
+          <Text className="text-gray-400 text-base flex-1 font-medium">
             {t('home.searchPlaceholder')}
           </Text>
+          <View className="w-8 h-8 rounded-lg bg-primary items-center justify-center">
+            <FontAwesome name="sliders" size={14} color="#fff" />
+          </View>
         </TouchableOpacity>
       </View>
 
@@ -131,7 +150,7 @@ export default function HomeScreen() {
         }
       >
         {/* Quick Filters */}
-        <View className="flex-row px-5 py-5 gap-2">
+        <View className="flex-row px-5 py-6 gap-2">
           {QUICK_FILTERS.map((filter, index) => (
             <QuickFilterButton
               key={filter.id}
@@ -145,28 +164,44 @@ export default function HomeScreen() {
         </View>
 
         {/* Promotional Banner */}
-        <Animated.View
-          entering={FadeInRight.delay(200).springify().damping(18)}
-          className="mx-5 rounded-2xl p-5 flex-row justify-between items-center mb-4 overflow-hidden"
+        <View
+          className="mx-5 rounded-3xl p-5 flex-row justify-between items-center mb-6 overflow-hidden"
+          style={{
+            backgroundColor: '#1D3557',
+            shadowColor: '#1D3557',
+            shadowOffset: { width: 0, height: 8 },
+            shadowOpacity: 0.3,
+            shadowRadius: 16,
+          }}
         >
-          {/* Background with gradient effect */}
-          <View className="absolute inset-0 bg-primary" />
-          <View className="absolute -right-10 -top-10 w-32 h-32 rounded-full bg-white/10" />
-          <View className="absolute -left-5 -bottom-5 w-24 h-24 rounded-full bg-white/5" />
+          {/* Background Circles */}
+          <View className="absolute -right-8 -top-8 w-28 h-28 rounded-full bg-white/10" />
+          <View className="absolute -left-4 -bottom-4 w-20 h-20 rounded-full bg-primary/20" />
 
           <View className="flex-1 z-10">
-            <Text className="text-lg font-bold text-white">{t('home.promo.title')}</Text>
-            <Text className="text-sm text-white/90 mt-1 mb-3">
+            <View className="bg-primary/20 self-start px-3 py-1 rounded-full mb-2">
+              <Text className="text-primary text-xs font-bold">LIMITED OFFER</Text>
+            </View>
+            <Text className="text-xl font-bold text-white">{t('home.promo.title')}</Text>
+            <Text className="text-sm text-white/70 mt-1 mb-4">
               {t('home.promo.subtitle')}
             </Text>
-            <TouchableOpacity className="bg-white px-4 py-2 rounded-full self-start shadow-lg">
-              <Text className="text-primary font-semibold text-sm">
+            <TouchableOpacity
+              className="bg-primary px-5 py-2.5 rounded-full self-start"
+              style={{
+                shadowColor: '#E63946',
+                shadowOffset: { width: 0, height: 4 },
+                shadowOpacity: 0.4,
+                shadowRadius: 8,
+              }}
+            >
+              <Text className="text-white font-bold text-sm">
                 {t('home.promo.button')}
               </Text>
             </TouchableOpacity>
           </View>
           <Text className="text-5xl z-10">🎉</Text>
-        </Animated.View>
+        </View>
 
         {/* Featured Hotels */}
         <View className="px-5">
