@@ -331,15 +331,15 @@ export default function BookingCard({ booking }: BookingCardProps) {
                                 </Text>
                             </View>
 
-                            {/* QR Code for Check-in - Only show for CONFIRMED or PENDING bookings */}
-                            {(booking.status === 'CONFIRMED' || booking.status === 'PENDING') && booking.qrCode && (
+                            {/* QR Code for Check-in - Show for CONFIRMED or PENDING bookings */}
+                            {(booking.status === 'CONFIRMED' || booking.status === 'PENDING') && (
                                 <View className="mt-2 pt-4 border-t border-gray-100 dark:border-gray-700">
                                     <Text className="text-xs text-gray-400 dark:text-gray-500 uppercase font-semibold mb-3 text-center">
                                         {t('booking.checkInQR', 'Check-in QR Code')}
                                     </Text>
                                     <View className="items-center bg-white p-4 rounded-2xl">
                                         <QRCode
-                                            value={booking.qrCode}
+                                            value={booking.qrCode || JSON.stringify({ bookingId: booking.id })}
                                             size={160}
                                             backgroundColor="white"
                                             color="#1D3557"
