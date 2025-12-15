@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+import { useState, useCallback } from 'react';
+import { useFocusEffect } from 'expo-router';
 import {
     StyleSheet,
     ScrollView,
@@ -44,9 +45,12 @@ export default function ProfileScreen() {
     const [user, setUser] = useState<User | null>(null);
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        fetchProfile();
-    }, []);
+    // Refresh profile when screen comes into focus (e.g., after login)
+    useFocusEffect(
+        useCallback(() => {
+            fetchProfile();
+        }, [])
+    );
 
     const fetchProfile = async () => {
         const { data } = await api.getProfile();
