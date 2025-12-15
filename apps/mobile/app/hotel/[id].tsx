@@ -108,7 +108,7 @@ export default function HotelDetailScreen() {
                 />
                 {/* Save Button */}
                 <TouchableOpacity
-                    className="absolute top-16 right-4 w-11 h-11 rounded-full bg-black/50 items-center justify-center"
+                    className="absolute top-14 right-4 w-11 h-11 rounded-full bg-black/50 items-center justify-center"
                     onPress={handleToggleSave}
                     disabled={savingState}
                     activeOpacity={0.8}

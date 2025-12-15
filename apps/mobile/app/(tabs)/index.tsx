@@ -223,7 +223,7 @@ export default function HomeScreen() {
             <Text className="text-lg font-bold text-gray-900 dark:text-white">
               {t('home.topRated')}
             </Text>
-            <TouchableOpacity>
+            <TouchableOpacity onPress={() => router.push('/(tabs)/search')}>
               <Text className="text-sm font-semibold text-primary">
                 {t('home.seeAll')}
               </Text>
