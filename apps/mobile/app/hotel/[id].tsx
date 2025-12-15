@@ -202,7 +202,7 @@ export default function HotelDetailScreen() {
                                                     color: '#374151',
                                                     includeFontPadding: false,
                                                     textAlignVertical: 'center',
-                                                    paddingHorizontal: 4
+                                                    paddingHorizontal: 8
                                                 }}
                                             >
                                                 {amenity}
