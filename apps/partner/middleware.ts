@@ -26,7 +26,7 @@ export default auth((req) => {
 export const config = {
     matcher: [
         // Match all paths except static files and api routes we want to exclude
-        "/((?!_next/static|_next/image|favicon.ico|manifest.json|icons/|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+        "/((?!_next/static|_next/image|favicon.ico|icons/|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
     ],
 };
 

@@ -20,12 +20,6 @@ const geistMono = localFont({
 export const metadata: Metadata = {
   title: "Vibe - Book Verified Hotels",
   description: "Find and book clean, verified hotels at the best prices. 3-click booking, pay at hotel option available.",
-  manifest: "/manifest.json",
-  appleWebApp: {
-    capable: true,
-    statusBarStyle: "black-translucent",
-    title: "Vibe",
-  },
   openGraph: {
     title: "Vibe - Book Verified Hotels",
     description: "Find and book clean, verified hotels at the best prices.",
@@ -60,21 +54,6 @@ export default async function RootLayout({
             {children}
           </NextIntlClientProvider>
         </Providers>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              if ('serviceWorker' in navigator) {
-                window.addEventListener('load', function() {
-                  navigator.serviceWorker.register('/sw.js').then(function(registration) {
-                    console.log('SW registered: ', registration);
-                  }).catch(function(registrationError) {
-                    console.log('SW registration failed: ', registrationError);
-                  });
-                });
-              }
-            `,
-          }}
-        />
       </body>
     </html>
   );
