@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { FiCalendar, FiUsers, FiFileText, FiPlus, FiClock } from "react-icons/fi";
 
+import { BottomNav } from "@/app/components";
 import { getCorporateAccount, getCorporateBookings, getCorporateInvoices } from "@/app/actions/corporate";
 
 import "../corporate.css";

@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { BottomNav } from "../components";
 import { customerSelfCheckOut } from "../actions/checkin";
 import { FiLock, FiRefreshCw, FiCamera, FiAlertTriangle } from "react-icons/fi";
 import { FaHandPeace } from "react-icons/fa";
@@ -359,6 +360,8 @@ export default function CheckOutPage() {
                     </>
                 )}
             </main>
+        
+            <BottomNav />
         </>
     );
 }

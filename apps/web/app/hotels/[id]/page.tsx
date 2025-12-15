@@ -3,7 +3,7 @@
 import { useState, useEffect, lazy, Suspense } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { RoomCard, RoomDetailModal } from "../../components";
+import { BottomNav, RoomCard, RoomDetailModal } from "../../components";
 import { getHotelById, getAvailableRooms, RoomWithDetails } from "../../actions/hotels";
 import { FiMapPin } from "react-icons/fi";
 
@@ -399,6 +399,8 @@ export default function HotelDetailPage() {
                 </div>
             </main>
 
+            <BottomNav />
+
             {/* Sticky Book Now Footer */}
             {selectedRoom && (() => {
                 const displayPrice = selectedRoom.dynamicPrice ?? Number(selectedRoom.basePrice);
@@ -445,6 +447,8 @@ export default function HotelDetailPage() {
                     </div>
                 );
             })()}
+        
+            <BottomNav />
         </>
     );
 }

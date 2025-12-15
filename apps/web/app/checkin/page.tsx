@@ -5,6 +5,7 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
+import { BottomNav } from "../components";
 import { customerSelfCheckIn } from "../actions/checkin";
 import { FiSmartphone, FiCheckCircle, FiXCircle, FiCalendar, FiLock, FiCamera, FiAlertTriangle } from "react-icons/fi";
 import { FaHotel, FaBed } from "react-icons/fa";
@@ -343,6 +344,8 @@ export default function CheckInPage() {
                     </div>
                 </div>
             )}
+        
+            <BottomNav />
         </>
     );
 }

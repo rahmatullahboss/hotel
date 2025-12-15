@@ -1,4 +1,4 @@
-import { SearchForm, HotelCard, Footer } from "./components";
+import { BottomNav, SearchForm, HotelCard, Footer } from "./components";
 import { WhyBookGrid } from "./components/WhyBook";
 import { CitySelectorWrapper } from "./components/CitySelectorWrapper";
 import { getFeaturedHotels } from "./actions/hotels";
@@ -96,6 +96,9 @@ export default async function HomePage() {
 
       {/* Footer (Desktop only) */}
       <Footer />
+
+      {/* Bottom Navigation (Mobile only) */}
+      <BottomNav />
     </>
   );
 }

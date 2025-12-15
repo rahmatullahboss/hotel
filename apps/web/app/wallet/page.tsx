@@ -5,6 +5,7 @@ import { getWallet, getTransactionHistory, getLoyaltyPoints } from "../actions/w
 import { WalletCard } from "./WalletCard";
 import { TransactionList } from "./TransactionList";
 import { HowItWorks } from "./HowItWorks";
+import { BottomNav } from "../components";
 
 export const dynamic = 'force-dynamic';
 
@@ -87,6 +88,9 @@ export default async function WalletPage() {
                 {/* Transaction History */}
                 <TransactionList transactions={transactions} />
             </main>
+        
+
+            <BottomNav />
         </div>
     );
 }

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { FiBriefcase, FiHome, FiUser, FiMail, FiPhone, FiMapPin, FiCheck } from "react-icons/fi";
 
+import { BottomNav } from "@/app/components";
 import { submitCorporateApplication, getCorporateAccount } from "@/app/actions/corporate";
 import { useEffect, useTransition } from "react";
 

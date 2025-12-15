@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
 import { FiAward, FiTarget, FiTrendingUp, FiGift, FiZap } from "react-icons/fi";
 
+import { BottomNav } from "../../components";
 import { getStreakData, getUserBadges, getAllBadges, recordDailyLogin } from "../../actions/gamification";
 
 import "./achievements.css";

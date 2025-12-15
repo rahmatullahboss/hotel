@@ -8,7 +8,7 @@ import Link from "next/link";
 import { createBooking } from "../actions/bookings";
 import { getUserProfile } from "../actions/profile";
 import { getWalletBalance } from "../actions/wallet";
-import { BookingQRCode } from "../components";
+import { BottomNav, BookingQRCode } from "../components";
 import { FiLock, FiClock, FiCreditCard, FiSmartphone, FiCheck } from "react-icons/fi";
 import { FaHotel, FaWallet } from "react-icons/fa";
 

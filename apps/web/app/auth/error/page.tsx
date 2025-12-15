@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Suspense } from "react";
 
+import { BottomNav } from "../../components";
 
 function ErrorContent() {
     const searchParams = useSearchParams();

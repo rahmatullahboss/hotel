@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { updateProfile, getUserProfile } from "../../actions/profile";
 
+import { BottomNav } from "../../components";
 
 export default function EditProfilePage() {
     const { data: session, status, update } = useSession();

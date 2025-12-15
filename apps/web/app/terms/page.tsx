@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { useTranslations } from "next-intl";
+import { BottomNav } from "../components";
 
 export default function TermsPage() {
     const t = useTranslations("terms");
@@ -140,6 +141,8 @@ export default function TermsPage() {
                     </section>
                 </div>
             </main>
+        
+            <BottomNav />
         </>
     );
 }

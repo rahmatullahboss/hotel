@@ -5,7 +5,7 @@ import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { getUserBookings } from "../actions/bookings";
-import { BookingQRCode, CancelBookingModal } from "../components";
+import { BottomNav, BookingQRCode, CancelBookingModal } from "../components";
 import {
     FiClock, FiCheckCircle, FiXCircle, FiCheck,
     FiCalendar, FiMapPin, FiCreditCard, FiDollarSign,
@@ -744,6 +744,8 @@ export default function BookingsPage() {
                     </div>
                 )}
             </main>
+
+            <BottomNav />
 
             {/* Cancel Booking Modal */}
             {
