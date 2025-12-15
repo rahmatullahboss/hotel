@@ -57,7 +57,13 @@
         "payAtHotel": "Pay at Hotel",
         "payAtHotelDesc": "Just 20% advance, pay rest at hotel",
         "instantBooking": "Instant Booking",
-        "instantBookingDesc": "Confirm your stay in just 3 clicks"
+        "instantBookingDesc": "Confirm your stay in just 3 clicks",
+        "promo": {
+            "badge": "LIMITED OFFER",
+            "title": "First Booking Offer!",
+            "subtitle": "Get 20% OFF on your first stay",
+            "button": "Book Now"
+        }
     },
     "search": {
         "city": "City",

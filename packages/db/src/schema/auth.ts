@@ -80,7 +80,7 @@ export const verificationTokens = pgTable(
 );
 
 // Push Notification Subscriptions
-// Stores Web Push API subscription data for each user's device
+// Stores Web Push API subscription data and Expo push tokens for each user's device
 export const pushSubscriptions = pgTable("pushSubscriptions", {
     id: text("id")
         .primaryKey()
@@ -88,9 +88,14 @@ export const pushSubscriptions = pgTable("pushSubscriptions", {
     userId: text("userId")
         .notNull()
         .references(() => users.id, { onDelete: "cascade" }),
-    endpoint: text("endpoint").notNull(),
-    p256dh: text("p256dh").notNull(), // Public key for encryption
-    auth: text("auth").notNull(), // Authentication secret
+    // Platform discriminator: 'web', 'ios', 'android'
+    platform: text("platform", { enum: ["web", "ios", "android"] }).notNull().default("web"),
+    // Expo push token (for mobile apps)
+    expoPushToken: text("expoPushToken"),
+    // Web Push API fields (for web apps) - nullable for mobile tokens
+    endpoint: text("endpoint"),
+    p256dh: text("p256dh"), // Public key for encryption
+    auth: text("auth"), // Authentication secret
     deviceName: text("deviceName"), // Optional device identifier (browser/OS)
     isActive: boolean("isActive").default(true).notNull(),
     createdAt: timestamp("createdAt", { mode: "date" }).defaultNow().notNull(),

@@ -248,6 +248,23 @@ export const api = {
         method: 'POST',
         body: JSON.stringify({ amount }),
     }),
+
+    // Push Notifications
+    registerPushToken: (expoPushToken: string, platform: 'ios' | 'android') => apiRequest<{
+        success: boolean;
+        message?: string;
+    }>('/api/user/push-token', {
+        method: 'POST',
+        body: JSON.stringify({ expoPushToken, platform }),
+    }),
+
+    unregisterPushToken: (expoPushToken: string) => apiRequest<{
+        success: boolean;
+        message?: string;
+    }>('/api/user/push-token', {
+        method: 'DELETE',
+        body: JSON.stringify({ expoPushToken }),
+    }),
 };
 
 export default api;
