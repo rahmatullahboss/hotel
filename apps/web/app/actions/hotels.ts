@@ -19,6 +19,8 @@ export interface HotelWithPrice {
     payAtHotel: boolean;
     lowestPrice: number;
     distance?: number; // km from search point
+    vibeCode?: string | null;
+    category?: string | null;
 }
 
 export interface SearchParams {
@@ -71,6 +73,8 @@ export async function searchHotels(params: SearchParams): Promise<HotelWithPrice
             .select({
                 id: hotels.id,
                 name: hotels.name,
+                vibeCode: hotels.vibeCode,
+                category: hotels.category,
                 location: hotels.address,
                 city: hotels.city,
                 latitude: hotels.latitude,
@@ -116,6 +120,8 @@ export async function searchHotels(params: SearchParams): Promise<HotelWithPrice
             return {
                 id: h.id,
                 name: h.name,
+                vibeCode: h.vibeCode,
+                category: h.category,
                 location: h.location,
                 city: h.city,
                 latitude: hotelLat,
@@ -195,6 +201,8 @@ const _getFeaturedHotels = async (limit: number): Promise<HotelWithPrice[]> => {
             .select({
                 id: hotels.id,
                 name: hotels.name,
+                vibeCode: hotels.vibeCode,
+                category: hotels.category,
                 location: hotels.address,
                 city: hotels.city,
                 latitude: hotels.latitude,
@@ -225,6 +233,8 @@ const _getFeaturedHotels = async (limit: number): Promise<HotelWithPrice[]> => {
             return {
                 id: h.id,
                 name: h.name,
+                vibeCode: h.vibeCode,
+                category: h.category,
                 location: h.location,
                 city: h.city,
                 latitude: h.latitude ? parseFloat(h.latitude) : null,

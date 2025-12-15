@@ -3,6 +3,8 @@ import { View, Text, Image, TouchableOpacity } from 'react-native';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { useTranslation } from 'react-i18next';
 
+type HotelCategory = 'CLASSIC' | 'PREMIUM' | 'BUSINESS';
+
 interface Hotel {
     id: string;
     name: string;
@@ -10,12 +12,27 @@ interface Hotel {
     rating: string | number;
     imageUrl: string;
     lowestPrice?: number;
+    vibeCode?: string | null;
+    category?: HotelCategory | null;
 }
 
 interface HotelCardProps {
     hotel: Hotel;
     index: number;
 }
+
+// Get category display info
+const getCategoryInfo = (category?: HotelCategory | null) => {
+    switch (category) {
+        case 'PREMIUM':
+            return { label: 'Premium', color: '#F59E0B', bgColor: 'bg-amber-500' };
+        case 'BUSINESS':
+            return { label: 'Business', color: '#3B82F6', bgColor: 'bg-blue-500' };
+        case 'CLASSIC':
+        default:
+            return { label: 'Classic', color: '#10B981', bgColor: 'bg-emerald-500' };
+    }
+};
 
 export default function HotelCard({ hotel, index }: HotelCardProps) {
     const router = useRouter();
@@ -31,6 +48,13 @@ export default function HotelCard({ hotel, index }: HotelCardProps) {
     const handlePress = () => {
         router.push(`/hotel/${hotel.id}`);
     };
+
+    const categoryInfo = getCategoryInfo(hotel.category);
+
+    // Format display name with Vibe branding
+    const displayName = hotel.vibeCode
+        ? `Vibe ${hotel.vibeCode} ${hotel.name}`
+        : hotel.name;
 
     return (
         <TouchableOpacity
@@ -48,6 +72,18 @@ export default function HotelCard({ hotel, index }: HotelCardProps) {
                     resizeMode="cover"
                 />
 
+                {/* Vibe Category Badge */}
+                {hotel.vibeCode && (
+                    <View
+                        className="absolute top-3 left-3 flex-row items-center px-2.5 py-1.5 rounded-lg gap-1.5"
+                        style={{ backgroundColor: categoryInfo.color }}
+                    >
+                        <Text className="text-white text-xs font-bold">
+                            Vibe {categoryInfo.label}
+                        </Text>
+                    </View>
+                )}
+
                 {/* Rating Badge */}
                 <View className="absolute top-3 right-3 flex-row items-center bg-white dark:bg-gray-900 px-2.5 py-1.5 rounded-lg gap-1.5">
                     <FontAwesome name="star" size={12} color="#F59E0B" />
@@ -63,6 +99,15 @@ export default function HotelCard({ hotel, index }: HotelCardProps) {
                         {hotel.city}
                     </Text>
                 </View>
+
+                {/* Vibe Code Badge */}
+                {hotel.vibeCode && (
+                    <View className="absolute bottom-3 right-3 bg-primary/90 px-2 py-1 rounded-md">
+                        <Text className="text-white text-xs font-bold">
+                            {hotel.vibeCode}
+                        </Text>
+                    </View>
+                )}
             </View>
 
             {/* Content Section */}
@@ -72,7 +117,7 @@ export default function HotelCard({ hotel, index }: HotelCardProps) {
                     className="text-lg font-bold text-gray-900 dark:text-white mb-3"
                     numberOfLines={1}
                 >
-                    {hotel.name}
+                    {displayName}
                 </Text>
 
                 {/* Price Section */}
@@ -107,3 +152,4 @@ export default function HotelCard({ hotel, index }: HotelCardProps) {
         </TouchableOpacity>
     );
 }
+
