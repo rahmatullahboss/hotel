@@ -1,45 +1,13 @@
-import { useState, useEffect } from 'react';
-import { StyleSheet, ScrollView, Image, TouchableOpacity, ActivityIndicator, Dimensions, Platform, Alert } from 'react-native';
+import { StyleSheet, ScrollView, Image, TouchableOpacity, ActivityIndicator, Dimensions, Platform } from 'react-native';
 import { Text, View } from '@/components/Themed';
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
-import api from '@/lib/api';
+import { useBooking } from '@/hooks/useBooking';
 
 const { width } = Dimensions.get('window');
-
-interface Hotel {
-    id: string;
-    name: string;
-    city: string;
-    address: string;
-    rating: string | number;
-    description: string;
-    coverImage: string;
-    images: string[];
-    amenities: string[];
-    rooms?: Room[];
-}
-
-interface Room {
-    id: string;
-    name: string;
-    type: string;
-    description: string;
-    basePrice: string | number;
-    dynamicPrice?: number;       // Calculated dynamic price per night
-    totalDynamicPrice?: number;  // Total for all nights
-    nights?: number;
-    maxGuests: number;
-    photos: string[];
-    isAvailable?: boolean;
-    priceBreakdown?: {
-        multiplier: number;
-        rules: Array<{ name: string; description: string }>;
-    };
-}
 
 export default function HotelDetailScreen() {
     const { id } = useLocalSearchParams<{ id: string }>();
@@ -48,79 +16,15 @@ export default function HotelDetailScreen() {
     const colors = Colors[colorScheme];
     const { t, i18n } = useTranslation();
 
-    const [hotel, setHotel] = useState<Hotel | null>(null);
-    const [rooms, setRooms] = useState<Room[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
-    const [isSaved, setIsSaved] = useState(false);
-    const [savingState, setSavingState] = useState(false);
-
-    useEffect(() => {
-        if (id) {
-            fetchHotelData();
-        }
-    }, [id]);
-
-    const fetchHotelData = async () => {
-        const hotelRes = await api.getHotel(id!);
-
-        if (hotelRes.error) {
-            setError(hotelRes.error);
-            setLoading(false);
-            return;
-        }
-
-        setHotel(hotelRes.data);
-
-        // Always fetch rooms from API endpoint to get dynamic pricing
-        const roomsRes = await api.getRooms(id!);
-        if (roomsRes.data) {
-            setRooms(roomsRes.data);
-        }
-
-        // Check if hotel is saved
-        const savedRes = await api.getSavedHotels();
-        if (savedRes.data) {
-            const saved = savedRes.data.savedHotels.some((s: any) => s.hotelId === id);
-            setIsSaved(saved);
-        }
-
-        setLoading(false);
-    };
-
-    const handleToggleSave = async () => {
-        if (savingState) return;
-        setSavingState(true);
-
-        try {
-            if (isSaved) {
-                console.log('Attempting to unsave hotel:', id);
-                const result = await api.unsaveHotel(id!);
-                console.log('Unsave result:', result);
-                if (result.error) {
-                    console.error('Unsave error:', result.error);
-                    Alert.alert('Error', result.error);
-                } else {
-                    setIsSaved(false);
-                }
-            } else {
-                console.log('Attempting to save hotel:', id);
-                const result = await api.saveHotel(id!);
-                console.log('Save result:', result);
-                if (result.error) {
-                    console.error('Save error:', result.error);
-                    Alert.alert('Error', result.error);
-                } else {
-                    setIsSaved(true);
-                }
-            }
-        } catch (err) {
-            console.error('Toggle save error:', err);
-            Alert.alert('Error', 'কিছু ভুল হয়েছে');
-        }
-
-        setSavingState(false);
-    };
+    const {
+        hotel,
+        rooms,
+        loading,
+        error,
+        isSaved,
+        savingState,
+        handleToggleSave,
+    } = useBooking(id);
 
     if (loading) {
         return (
