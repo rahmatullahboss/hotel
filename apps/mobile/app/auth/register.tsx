@@ -1,15 +1,18 @@
 import { useState } from 'react';
-import { StyleSheet, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
-import { Text, View } from '@/components/Themed';
+import {
+    View,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    KeyboardAvoidingView,
+    Platform,
+    ScrollView,
+} from 'react-native';
 import { useRouter, Stack } from 'expo-router';
-import Colors from '@/constants/Colors';
-import { useColorScheme } from '@/components/useColorScheme';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 
 export default function RegisterScreen() {
     const router = useRouter();
-    const colorScheme = useColorScheme() ?? 'light';
-    const colors = Colors[colorScheme];
 
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
@@ -55,7 +58,6 @@ export default function RegisterScreen() {
                 return;
             }
 
-            // Navigate to login
             router.replace('/auth/login');
         } catch (err) {
             setError('Network error. Please try again.');
@@ -71,50 +73,52 @@ export default function RegisterScreen() {
                     headerShown: true,
                     headerTitle: 'Create Account',
                     headerBackTitle: 'Back',
-                    headerTintColor: colors.text,
-                    headerStyle: { backgroundColor: colors.background },
+                    headerTintColor: '#111827',
+                    headerStyle: { backgroundColor: '#fff' },
                 }}
             />
             <KeyboardAvoidingView
-                style={[styles.container, { backgroundColor: colors.background }]}
+                className="flex-1 p-6 bg-white dark:bg-gray-900"
                 behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
             >
                 <ScrollView showsVerticalScrollIndicator={false}>
                     {/* Header */}
-                    <View style={[styles.header, { backgroundColor: 'transparent' }]}>
-                        <Text style={[styles.title, { color: colors.text }]}>Join Vibe Hospitality</Text>
-                        <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
+                    <View className="mb-8">
+                        <Text className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+                            Join Vibe Hospitality
+                        </Text>
+                        <Text className="text-base text-gray-500 dark:text-gray-400">
                             Create an account to start booking amazing stays
                         </Text>
                     </View>
 
                     {/* Form */}
-                    <View style={[styles.form, { backgroundColor: 'transparent' }]}>
+                    <View className="flex-1">
                         {error && (
-                            <View style={[styles.errorContainer, { backgroundColor: `${colors.error}20` }]}>
-                                <FontAwesome name="exclamation-circle" size={16} color={colors.error} />
-                                <Text style={[styles.errorText, { color: colors.error }]}>{error}</Text>
+                            <View className="flex-row items-center p-3 rounded-lg mb-4 bg-red-50 dark:bg-red-900/30 gap-2">
+                                <FontAwesome name="exclamation-circle" size={16} color="#EF4444" />
+                                <Text className="text-sm text-red-500 flex-1">{error}</Text>
                             </View>
                         )}
 
-                        <View style={[styles.inputContainer, { backgroundColor: colors.backgroundSecondary }]}>
-                            <FontAwesome name="user" size={18} color={colors.textSecondary} style={styles.inputIcon} />
+                        <View className="flex-row items-center rounded-xl px-4 mb-4 bg-gray-100 dark:bg-gray-800">
+                            <FontAwesome name="user" size={18} color="#9CA3AF" style={{ width: 24, marginRight: 12 }} />
                             <TextInput
-                                style={[styles.input, { color: colors.text }]}
+                                className="flex-1 py-4 text-base text-gray-900 dark:text-white"
                                 placeholder="Full name"
-                                placeholderTextColor={colors.textSecondary}
+                                placeholderTextColor="#9CA3AF"
                                 value={name}
                                 onChangeText={setName}
                                 autoCapitalize="words"
                             />
                         </View>
 
-                        <View style={[styles.inputContainer, { backgroundColor: colors.backgroundSecondary }]}>
-                            <FontAwesome name="envelope" size={18} color={colors.textSecondary} style={styles.inputIcon} />
+                        <View className="flex-row items-center rounded-xl px-4 mb-4 bg-gray-100 dark:bg-gray-800">
+                            <FontAwesome name="envelope" size={18} color="#9CA3AF" style={{ width: 24, marginRight: 12 }} />
                             <TextInput
-                                style={[styles.input, { color: colors.text }]}
+                                className="flex-1 py-4 text-base text-gray-900 dark:text-white"
                                 placeholder="Email address"
-                                placeholderTextColor={colors.textSecondary}
+                                placeholderTextColor="#9CA3AF"
                                 value={email}
                                 onChangeText={setEmail}
                                 keyboardType="email-address"
@@ -123,24 +127,24 @@ export default function RegisterScreen() {
                             />
                         </View>
 
-                        <View style={[styles.inputContainer, { backgroundColor: colors.backgroundSecondary }]}>
-                            <FontAwesome name="phone" size={18} color={colors.textSecondary} style={styles.inputIcon} />
+                        <View className="flex-row items-center rounded-xl px-4 mb-4 bg-gray-100 dark:bg-gray-800">
+                            <FontAwesome name="phone" size={18} color="#9CA3AF" style={{ width: 24, marginRight: 12 }} />
                             <TextInput
-                                style={[styles.input, { color: colors.text }]}
+                                className="flex-1 py-4 text-base text-gray-900 dark:text-white"
                                 placeholder="Phone number (optional)"
-                                placeholderTextColor={colors.textSecondary}
+                                placeholderTextColor="#9CA3AF"
                                 value={phone}
                                 onChangeText={setPhone}
                                 keyboardType="phone-pad"
                             />
                         </View>
 
-                        <View style={[styles.inputContainer, { backgroundColor: colors.backgroundSecondary }]}>
-                            <FontAwesome name="lock" size={20} color={colors.textSecondary} style={styles.inputIcon} />
+                        <View className="flex-row items-center rounded-xl px-4 mb-4 bg-gray-100 dark:bg-gray-800">
+                            <FontAwesome name="lock" size={20} color="#9CA3AF" style={{ width: 24, marginRight: 12 }} />
                             <TextInput
-                                style={[styles.input, { color: colors.text }]}
+                                className="flex-1 py-4 text-base text-gray-900 dark:text-white"
                                 placeholder="Password"
-                                placeholderTextColor={colors.textSecondary}
+                                placeholderTextColor="#9CA3AF"
                                 value={password}
                                 onChangeText={setPassword}
                                 secureTextEntry={!showPassword}
@@ -149,17 +153,17 @@ export default function RegisterScreen() {
                                 <FontAwesome
                                     name={showPassword ? 'eye-slash' : 'eye'}
                                     size={18}
-                                    color={colors.textSecondary}
+                                    color="#9CA3AF"
                                 />
                             </TouchableOpacity>
                         </View>
 
-                        <View style={[styles.inputContainer, { backgroundColor: colors.backgroundSecondary }]}>
-                            <FontAwesome name="lock" size={20} color={colors.textSecondary} style={styles.inputIcon} />
+                        <View className="flex-row items-center rounded-xl px-4 mb-4 bg-gray-100 dark:bg-gray-800">
+                            <FontAwesome name="lock" size={20} color="#9CA3AF" style={{ width: 24, marginRight: 12 }} />
                             <TextInput
-                                style={[styles.input, { color: colors.text }]}
+                                className="flex-1 py-4 text-base text-gray-900 dark:text-white"
                                 placeholder="Confirm password"
-                                placeholderTextColor={colors.textSecondary}
+                                placeholderTextColor="#9CA3AF"
                                 value={confirmPassword}
                                 onChangeText={setConfirmPassword}
                                 secureTextEntry={!showPassword}
@@ -167,31 +171,29 @@ export default function RegisterScreen() {
                         </View>
 
                         <TouchableOpacity
-                            style={[styles.registerButton, { backgroundColor: Colors.primary }, loading && styles.disabledButton]}
+                            className={`p-4 rounded-xl items-center mt-2 bg-primary ${loading ? 'opacity-70' : ''}`}
                             onPress={handleRegister}
                             disabled={loading}
                         >
-                            {loading ? (
-                                <Text style={styles.registerButtonText}>Creating account...</Text>
-                            ) : (
-                                <Text style={styles.registerButtonText}>Create Account</Text>
-                            )}
+                            <Text className="text-white text-base font-semibold">
+                                {loading ? 'Creating account...' : 'Create Account'}
+                            </Text>
                         </TouchableOpacity>
 
-                        <Text style={[styles.terms, { color: colors.textSecondary }]}>
+                        <Text className="text-xs text-gray-500 dark:text-gray-400 text-center mt-4 leading-5">
                             By creating an account, you agree to our{' '}
-                            <Text style={{ color: Colors.primary }}>Terms of Service</Text> and{' '}
-                            <Text style={{ color: Colors.primary }}>Privacy Policy</Text>
+                            <Text className="text-primary">Terms of Service</Text> and{' '}
+                            <Text className="text-primary">Privacy Policy</Text>
                         </Text>
                     </View>
 
                     {/* Footer */}
-                    <View style={[styles.footer, { backgroundColor: 'transparent' }]}>
-                        <Text style={[styles.footerText, { color: colors.textSecondary }]}>
+                    <View className="flex-row justify-center mt-8 mb-6">
+                        <Text className="text-sm text-gray-500 dark:text-gray-400">
                             Already have an account?{' '}
                         </Text>
                         <TouchableOpacity onPress={() => router.push('/auth/login')}>
-                            <Text style={[styles.linkText, { color: Colors.primary }]}>Sign In</Text>
+                            <Text className="text-sm font-semibold text-primary">Sign In</Text>
                         </TouchableOpacity>
                     </View>
                 </ScrollView>
@@ -199,86 +201,3 @@ export default function RegisterScreen() {
         </>
     );
 }
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        padding: 24,
-    },
-    header: {
-        marginBottom: 32,
-    },
-    title: {
-        fontSize: 28,
-        fontWeight: 'bold',
-        marginBottom: 8,
-    },
-    subtitle: {
-        fontSize: 16,
-    },
-    form: {
-        flex: 1,
-    },
-    errorContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        padding: 12,
-        borderRadius: 8,
-        marginBottom: 16,
-        gap: 8,
-    },
-    errorText: {
-        fontSize: 14,
-        flex: 1,
-    },
-    inputContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        borderRadius: 12,
-        paddingHorizontal: 16,
-        marginBottom: 16,
-    },
-    inputIcon: {
-        width: 24,
-        textAlign: 'center',
-        marginRight: 12,
-    },
-    input: {
-        flex: 1,
-        paddingVertical: 16,
-        fontSize: 16,
-    },
-    registerButton: {
-        padding: 16,
-        borderRadius: 12,
-        alignItems: 'center',
-        marginTop: 8,
-    },
-    disabledButton: {
-        opacity: 0.7,
-    },
-    registerButtonText: {
-        color: '#fff',
-        fontSize: 16,
-        fontWeight: '600',
-    },
-    terms: {
-        fontSize: 12,
-        textAlign: 'center',
-        marginTop: 16,
-        lineHeight: 18,
-    },
-    footer: {
-        flexDirection: 'row',
-        justifyContent: 'center',
-        marginTop: 32,
-        marginBottom: 24,
-    },
-    footerText: {
-        fontSize: 14,
-    },
-    linkText: {
-        fontSize: 14,
-        fontWeight: '600',
-    },
-});

@@ -1,17 +1,15 @@
 import { useState, useCallback } from 'react';
 import {
-    StyleSheet,
+    View,
+    Text,
     ScrollView,
     ActivityIndicator,
     Switch,
 } from 'react-native';
-import { Text, View } from '@/components/Themed';
 import { Stack, useFocusEffect } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
-import Colors from '@/constants/Colors';
-import { useTheme } from '@/context/ThemeContext';
 import api from '@/lib/api';
 
 interface NotificationPrefs {
@@ -21,8 +19,6 @@ interface NotificationPrefs {
 }
 
 export default function NotificationsScreen() {
-    const { theme } = useTheme();
-    const colors = Colors[theme];
     const insets = useSafeAreaInsets();
     const { t } = useTranslation();
 
@@ -69,9 +65,12 @@ export default function NotificationsScreen() {
 
     if (loading) {
         return (
-            <View style={[styles.centered, { paddingTop: insets.top }]}>
+            <View
+                className="flex-1 items-center justify-center bg-white dark:bg-gray-900"
+                style={{ paddingTop: insets.top }}
+            >
                 <Stack.Screen options={{ headerShown: false }} />
-                <ActivityIndicator size="large" color={Colors.primary} />
+                <ActivityIndicator size="large" color="#E63946" />
             </View>
         );
     }
@@ -98,51 +97,46 @@ export default function NotificationsScreen() {
     ];
 
     return (
-        <View style={[styles.container, { backgroundColor: colors.background }]}>
+        <View className="flex-1 bg-gray-50 dark:bg-gray-900">
             <Stack.Screen
                 options={{
                     headerShown: true,
                     title: t('notifications.title'),
-                    headerStyle: { backgroundColor: Colors.primary },
+                    headerStyle: { backgroundColor: '#E63946' },
                     headerTintColor: '#fff',
                 }}
             />
 
-            <ScrollView
-                style={styles.scrollView}
-                showsVerticalScrollIndicator={false}
-            >
+            <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
                 {/* Header */}
-                <View style={styles.header}>
-                    <View style={styles.iconContainer}>
+                <View className="bg-primary py-8 px-5 items-center rounded-b-3xl mb-5">
+                    <View className="w-16 h-16 rounded-full bg-white/20 items-center justify-center mb-4">
                         <FontAwesome name="bell" size={28} color="#fff" />
                     </View>
-                    <Text style={styles.headerTitle}>{t('notifications.headerTitle')}</Text>
-                    <Text style={styles.headerSubtitle}>{t('notifications.headerSubtitle')}</Text>
+                    <Text className="text-white text-xl font-bold mb-2">
+                        {t('notifications.headerTitle')}
+                    </Text>
+                    <Text className="text-white/80 text-sm text-center">
+                        {t('notifications.headerSubtitle')}
+                    </Text>
                 </View>
 
                 {/* Settings */}
-                <View style={[styles.section, { backgroundColor: colors.card }]}>
+                <View className="mx-5 rounded-2xl overflow-hidden bg-white dark:bg-gray-800">
                     {notificationItems.map((item, index) => (
                         <View
                             key={item.key}
-                            style={[
-                                styles.settingItem,
-                                {
-                                    backgroundColor: 'transparent',
-                                    borderBottomColor: colors.border,
-                                    borderBottomWidth: index < notificationItems.length - 1 ? 1 : 0,
-                                },
-                            ]}
+                            className={`flex-row items-center p-4 ${index < notificationItems.length - 1 ? 'border-b border-gray-100 dark:border-gray-700' : ''
+                                }`}
                         >
-                            <View style={[styles.iconWrapper, { backgroundColor: `${Colors.primary}15` }]}>
-                                <FontAwesome name={item.icon} size={18} color={Colors.primary} />
+                            <View className="w-10 h-10 rounded-xl bg-primary/15 items-center justify-center mr-3.5">
+                                <FontAwesome name={item.icon} size={18} color="#E63946" />
                             </View>
-                            <View style={[styles.settingContent, { backgroundColor: 'transparent' }]}>
-                                <Text style={[styles.settingTitle, { color: colors.text }]}>
+                            <View className="flex-1 mr-3">
+                                <Text className="text-base font-semibold text-gray-900 dark:text-white mb-0.5">
                                     {item.title}
                                 </Text>
-                                <Text style={[styles.settingDesc, { color: colors.textSecondary }]}>
+                                <Text className="text-xs text-gray-500 dark:text-gray-400">
                                     {item.description}
                                 </Text>
                             </View>
@@ -150,7 +144,7 @@ export default function NotificationsScreen() {
                                 value={prefs[item.key]}
                                 onValueChange={() => handleToggle(item.key)}
                                 disabled={updating === item.key}
-                                trackColor={{ false: '#D1D5DB', true: Colors.primary }}
+                                trackColor={{ false: '#D1D5DB', true: '#E63946' }}
                                 thumbColor="#FFFFFF"
                             />
                         </View>
@@ -158,98 +152,14 @@ export default function NotificationsScreen() {
                 </View>
 
                 {/* Info */}
-                <View style={[styles.infoCard, { backgroundColor: colors.card }]}>
-                    <Text style={[styles.infoText, { color: colors.textSecondary }]}>
+                <View className="mx-5 mt-5 rounded-xl p-4 bg-white dark:bg-gray-800">
+                    <Text className="text-xs text-gray-500 dark:text-gray-400 text-center leading-5">
                         {t('notifications.infoText')}
                     </Text>
                 </View>
 
-                <View style={{ height: 30 }} />
+                <View className="h-8" />
             </ScrollView>
         </View>
     );
 }
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-    },
-    centered: {
-        flex: 1,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    scrollView: {
-        flex: 1,
-    },
-    header: {
-        backgroundColor: Colors.primary,
-        paddingVertical: 32,
-        paddingHorizontal: 20,
-        alignItems: 'center',
-        borderBottomLeftRadius: 24,
-        borderBottomRightRadius: 24,
-        marginBottom: 20,
-    },
-    iconContainer: {
-        width: 64,
-        height: 64,
-        borderRadius: 32,
-        backgroundColor: 'rgba(255,255,255,0.2)',
-        alignItems: 'center',
-        justifyContent: 'center',
-        marginBottom: 16,
-    },
-    headerTitle: {
-        color: '#fff',
-        fontSize: 20,
-        fontWeight: '700',
-        marginBottom: 8,
-    },
-    headerSubtitle: {
-        color: 'rgba(255,255,255,0.8)',
-        fontSize: 14,
-        textAlign: 'center',
-    },
-    section: {
-        marginHorizontal: 20,
-        borderRadius: 16,
-        overflow: 'hidden',
-    },
-    settingItem: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        padding: 16,
-    },
-    iconWrapper: {
-        width: 40,
-        height: 40,
-        borderRadius: 12,
-        alignItems: 'center',
-        justifyContent: 'center',
-        marginRight: 14,
-    },
-    settingContent: {
-        flex: 1,
-        marginRight: 12,
-    },
-    settingTitle: {
-        fontSize: 15,
-        fontWeight: '600',
-        marginBottom: 2,
-    },
-    settingDesc: {
-        fontSize: 12,
-    },
-    infoCard: {
-        marginHorizontal: 20,
-        marginTop: 20,
-        borderRadius: 12,
-        padding: 16,
-    },
-    infoText: {
-        fontSize: 12,
-        lineHeight: 18,
-        textAlign: 'center',
-    },
-});

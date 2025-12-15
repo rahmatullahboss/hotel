@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react';
 import {
-    StyleSheet,
+    View,
+    Text,
     ScrollView,
     ActivityIndicator,
     TextInput,
@@ -9,13 +10,10 @@ import {
     KeyboardAvoidingView,
     Platform,
 } from 'react-native';
-import { Text, View } from '@/components/Themed';
 import { useRouter, Stack, useFocusEffect } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
-import Colors from '@/constants/Colors';
-import { useTheme } from '@/context/ThemeContext';
 import api from '@/lib/api';
 
 interface UserProfile {
@@ -28,8 +26,6 @@ interface UserProfile {
 
 export default function EditProfileScreen() {
     const router = useRouter();
-    const { theme } = useTheme();
-    const colors = Colors[theme];
     const insets = useSafeAreaInsets();
     const { t } = useTranslation();
 
@@ -80,77 +76,80 @@ export default function EditProfileScreen() {
 
     if (loading) {
         return (
-            <View style={[styles.centered, { paddingTop: insets.top }]}>
+            <View
+                className="flex-1 items-center justify-center bg-white dark:bg-gray-900"
+                style={{ paddingTop: insets.top }}
+            >
                 <Stack.Screen options={{ headerShown: false }} />
-                <ActivityIndicator size="large" color={Colors.primary} />
+                <ActivityIndicator size="large" color="#E63946" />
             </View>
         );
     }
 
     return (
-        <View style={[styles.container, { backgroundColor: colors.background }]}>
+        <View className="flex-1 bg-gray-50 dark:bg-gray-900">
             <Stack.Screen
                 options={{
                     headerShown: true,
                     title: t('editProfile.title'),
-                    headerStyle: { backgroundColor: Colors.primary },
+                    headerStyle: { backgroundColor: '#E63946' },
                     headerTintColor: '#fff',
                 }}
             />
 
             <KeyboardAvoidingView
                 behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-                style={styles.keyboardView}
+                className="flex-1"
             >
                 <ScrollView
-                    style={styles.scrollView}
-                    contentContainerStyle={styles.scrollContent}
+                    className="flex-1"
+                    contentContainerStyle={{ padding: 20 }}
                     showsVerticalScrollIndicator={false}
                     keyboardShouldPersistTaps="handled"
                 >
                     {/* Email (Read-only) */}
-                    <View style={[styles.inputGroup, { backgroundColor: 'transparent' }]}>
-                        <Text style={[styles.label, { color: colors.textSecondary }]}>
+                    <View className="mb-5">
+                        <Text className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">
                             Email
                         </Text>
-                        <View style={[styles.inputWrapper, { backgroundColor: colors.backgroundSecondary, borderColor: colors.border }]}>
-                            <Text style={[styles.emailText, { color: colors.textSecondary }]}>
+                        <View className="flex-row items-center border border-gray-200 dark:border-gray-600 rounded-xl px-3.5 py-3.5 gap-3 bg-gray-100 dark:bg-gray-800">
+                            <Text className="text-base text-gray-500 dark:text-gray-400">
                                 {profile?.email || ''}
                             </Text>
                         </View>
                     </View>
 
                     {/* Name Input */}
-                    <View style={[styles.inputGroup, { backgroundColor: 'transparent' }]}>
-                        <Text style={[styles.label, { color: colors.textSecondary }]}>
+                    <View className="mb-5">
+                        <Text className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">
                             {t('editProfile.name')}
                         </Text>
-                        <View style={[styles.inputWrapper, { backgroundColor: colors.card, borderColor: colors.border }]}>
-                            <FontAwesome name="user-o" size={18} color={colors.textSecondary} />
+                        <View className="flex-row items-center border border-gray-200 dark:border-gray-600 rounded-xl px-3.5 py-3.5 gap-3 bg-white dark:bg-gray-800">
+                            <FontAwesome name="user-o" size={18} color="#9CA3AF" />
                             <TextInput
-                                style={[styles.input, { color: colors.text }]}
+                                className="flex-1 text-base text-gray-900 dark:text-white"
                                 value={name}
                                 onChangeText={setName}
                                 placeholder={t('editProfile.namePlaceholder')}
-                                placeholderTextColor={colors.textSecondary}
+                                placeholderTextColor="#9CA3AF"
                                 autoCapitalize="words"
                             />
                         </View>
                     </View>
 
                     {/* Phone Input */}
-                    <View style={[styles.inputGroup, { backgroundColor: 'transparent' }]}>
-                        <Text style={[styles.label, { color: colors.textSecondary }]}>
+                    <View className="mb-5">
+                        <Text className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">
                             {t('editProfile.phone')}
                         </Text>
-                        <View style={[styles.inputWrapper, { backgroundColor: colors.card, borderColor: colors.border }]}>
-                            <FontAwesome name="phone" size={18} color={colors.textSecondary} />
+                        <View className="flex-row items-center border border-gray-200 dark:border-gray-600 rounded-xl px-3.5 py-3.5 gap-3 bg-white dark:bg-gray-800">
+                            <FontAwesome name="phone" size={18} color="#9CA3AF" />
                             <TextInput
-                                style={[styles.input, { color: colors.text }]}
+                                className="flex-1 text-base text-gray-900 dark:text-white"
                                 value={phone}
                                 onChangeText={setPhone}
                                 placeholder={t('editProfile.phonePlaceholder')}
-                                placeholderTextColor={colors.textSecondary}
+                                placeholderTextColor="#9CA3AF"
                                 keyboardType="phone-pad"
                             />
                         </View>
@@ -158,7 +157,7 @@ export default function EditProfileScreen() {
 
                     {/* Save Button */}
                     <TouchableOpacity
-                        style={[styles.saveButton, saving && styles.saveButtonDisabled]}
+                        className={`flex-row items-center justify-center bg-primary py-4 rounded-xl mt-5 gap-2 ${saving ? 'opacity-70' : ''}`}
                         onPress={handleSave}
                         disabled={saving}
                         activeOpacity={0.8}
@@ -168,7 +167,9 @@ export default function EditProfileScreen() {
                         ) : (
                             <>
                                 <FontAwesome name="check" size={18} color="#fff" />
-                                <Text style={styles.saveButtonText}>{t('editProfile.save')}</Text>
+                                <Text className="text-white text-base font-semibold">
+                                    {t('editProfile.save')}
+                                </Text>
                             </>
                         )}
                     </TouchableOpacity>
@@ -177,65 +178,3 @@ export default function EditProfileScreen() {
         </View>
     );
 }
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-    },
-    centered: {
-        flex: 1,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    keyboardView: {
-        flex: 1,
-    },
-    scrollView: {
-        flex: 1,
-    },
-    scrollContent: {
-        padding: 20,
-    },
-    inputGroup: {
-        marginBottom: 20,
-    },
-    label: {
-        fontSize: 14,
-        fontWeight: '500',
-        marginBottom: 8,
-    },
-    inputWrapper: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        borderWidth: 1,
-        borderRadius: 12,
-        paddingHorizontal: 14,
-        paddingVertical: 14,
-        gap: 12,
-    },
-    input: {
-        flex: 1,
-        fontSize: 16,
-    },
-    emailText: {
-        fontSize: 16,
-    },
-    saveButton: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-        backgroundColor: Colors.primary,
-        paddingVertical: 16,
-        borderRadius: 12,
-        marginTop: 20,
-        gap: 8,
-    },
-    saveButtonDisabled: {
-        opacity: 0.7,
-    },
-    saveButtonText: {
-        color: '#fff',
-        fontSize: 16,
-        fontWeight: '600',
-    },
-});

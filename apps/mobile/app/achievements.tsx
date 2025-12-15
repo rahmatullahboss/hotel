@@ -1,17 +1,15 @@
 import { useState, useEffect, useCallback } from 'react';
 import {
-    StyleSheet,
+    View,
+    Text,
     ScrollView,
     ActivityIndicator,
     RefreshControl,
 } from 'react-native';
-import { Text, View } from '@/components/Themed';
 import { Stack } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { useTranslation } from 'react-i18next';
-import Colors from '@/constants/Colors';
-import { useTheme } from '@/context/ThemeContext';
 import api from '@/lib/api';
 
 interface Badge {
@@ -50,8 +48,6 @@ const CATEGORY_ICONS: Record<string, string> = {
 };
 
 export default function AchievementsScreen() {
-    const { theme } = useTheme();
-    const colors = Colors[theme];
     const insets = useSafeAreaInsets();
     const { t, i18n } = useTranslation();
 
@@ -60,9 +56,7 @@ export default function AchievementsScreen() {
     const [refreshing, setRefreshing] = useState(false);
 
     const fetchAchievements = useCallback(async () => {
-        // Record daily login
         await api.recordDailyLogin();
-        // Get achievements
         const { data: achievementsData } = await api.getAchievements();
         if (achievementsData) {
             setData(achievementsData);
@@ -82,9 +76,12 @@ export default function AchievementsScreen() {
 
     if (loading) {
         return (
-            <View style={[styles.centered, { paddingTop: insets.top }]}>
+            <View
+                className="flex-1 items-center justify-center bg-white dark:bg-gray-900"
+                style={{ paddingTop: insets.top }}
+            >
                 <Stack.Screen options={{ headerShown: false }} />
-                <ActivityIndicator size="large" color={Colors.primary} />
+                <ActivityIndicator size="large" color="#E63946" />
             </View>
         );
     }
@@ -99,34 +96,34 @@ export default function AchievementsScreen() {
     ];
 
     return (
-        <View style={[styles.container, { backgroundColor: colors.background }]}>
+        <View className="flex-1 bg-gray-50 dark:bg-gray-900">
             <Stack.Screen
                 options={{
                     headerShown: true,
                     title: t('achievements.title'),
-                    headerStyle: { backgroundColor: Colors.primary },
+                    headerStyle: { backgroundColor: '#E63946' },
                     headerTintColor: '#fff',
                 }}
             />
 
             <ScrollView
-                style={styles.scrollView}
+                className="flex-1"
                 showsVerticalScrollIndicator={false}
                 refreshControl={
-                    <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+                    <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#E63946" />
                 }
             >
                 {/* Streak Card */}
-                <View style={styles.streakCard}>
-                    <Text style={styles.streakFire}>🔥</Text>
-                    <View style={[styles.streakInfo, { backgroundColor: 'transparent' }]}>
-                        <Text style={styles.streakNumber}>
+                <View className="mx-5 mt-5 p-6 rounded-2xl bg-orange-500 items-center">
+                    <Text className="text-5xl mb-2">🔥</Text>
+                    <View className="items-center">
+                        <Text className="text-white text-5xl font-extrabold">
                             {data?.streak?.currentStreak || 0}
                         </Text>
-                        <Text style={styles.streakLabel}>{t('achievements.dayStreak')}</Text>
+                        <Text className="text-white/90 text-sm">{t('achievements.dayStreak')}</Text>
                     </View>
                     {data?.streak?.nextReward && (
-                        <Text style={styles.streakHint}>
+                        <Text className="text-white/80 text-xs mt-3 text-center">
                             {t('achievements.nextReward', {
                                 days: data.streak.daysUntilReward,
                                 reward: data.streak.nextReward.reward,
@@ -136,28 +133,28 @@ export default function AchievementsScreen() {
                 </View>
 
                 {/* Streak Stats */}
-                <View style={styles.streakStats}>
-                    <View style={[styles.streakStat, { backgroundColor: colors.card }]}>
-                        <Text style={[styles.streakStatValue, { color: colors.text }]}>
+                <View className="flex-row mx-5 mt-5 gap-3">
+                    <View className="flex-1 p-4 rounded-xl bg-white dark:bg-gray-800 items-center">
+                        <Text className="text-xl font-bold text-gray-900 dark:text-white">
                             {data?.streak?.longestStreak || 0}
                         </Text>
-                        <Text style={[styles.streakStatLabel, { color: colors.textSecondary }]}>
+                        <Text className="text-xs text-gray-500 dark:text-gray-400 mt-1 text-center">
                             {t('achievements.bestStreak')}
                         </Text>
                     </View>
-                    <View style={[styles.streakStat, { backgroundColor: colors.card }]}>
-                        <Text style={[styles.streakStatValue, { color: colors.text }]}>
+                    <View className="flex-1 p-4 rounded-xl bg-white dark:bg-gray-800 items-center">
+                        <Text className="text-xl font-bold text-gray-900 dark:text-white">
                             {data?.streak?.totalLoginDays || 0}
                         </Text>
-                        <Text style={[styles.streakStatLabel, { color: colors.textSecondary }]}>
+                        <Text className="text-xs text-gray-500 dark:text-gray-400 mt-1 text-center">
                             {t('achievements.totalDays')}
                         </Text>
                     </View>
-                    <View style={[styles.streakStat, { backgroundColor: colors.card }]}>
-                        <Text style={[styles.streakStatValue, { color: colors.text }]}>
+                    <View className="flex-1 p-4 rounded-xl bg-white dark:bg-gray-800 items-center">
+                        <Text className="text-xl font-bold text-gray-900 dark:text-white">
                             {data?.earnedCount || 0}
                         </Text>
-                        <Text style={[styles.streakStatLabel, { color: colors.textSecondary }]}>
+                        <Text className="text-xs text-gray-500 dark:text-gray-400 mt-1 text-center">
                             {t('achievements.badgesEarned')}
                         </Text>
                     </View>
@@ -171,41 +168,38 @@ export default function AchievementsScreen() {
                     if (categoryBadges.length === 0) return null;
 
                     return (
-                        <View key={category.key} style={[styles.categorySection, { backgroundColor: colors.card }]}>
-                            <View style={[styles.categoryHeader, { backgroundColor: 'transparent' }]}>
+                        <View key={category.key} className="mx-5 mt-4 p-4 rounded-2xl bg-white dark:bg-gray-800">
+                            <View className="flex-row items-center gap-2 mb-4">
                                 <FontAwesome
                                     name={CATEGORY_ICONS[category.key] as any || 'trophy'}
                                     size={18}
-                                    color={Colors.primary}
+                                    color="#E63946"
                                 />
-                                <Text style={[styles.categoryTitle, { color: colors.text }]}>
+                                <Text className="text-base font-semibold text-gray-900 dark:text-white">
                                     {category.label}
                                 </Text>
                             </View>
-                            <View style={[styles.badgeGrid, { backgroundColor: 'transparent' }]}>
+                            <View className="flex-row flex-wrap gap-3">
                                 {categoryBadges.map((badge) => (
                                     <View
                                         key={badge.id}
-                                        style={[
-                                            styles.badgeItem,
-                                            !badge.isEarned && styles.badgeLocked,
-                                            { backgroundColor: badge.isEarned ? `${Colors.primary}15` : colors.backgroundSecondary },
-                                        ]}
+                                        className={`w-[30%] p-3 rounded-xl items-center ${badge.isEarned
+                                                ? 'bg-primary/15'
+                                                : 'bg-gray-100 dark:bg-gray-700 opacity-60'
+                                            }`}
                                     >
-                                        <Text style={styles.badgeIcon}>{badge.icon}</Text>
+                                        <Text className="text-3xl mb-2">{badge.icon}</Text>
                                         <Text
-                                            style={[
-                                                styles.badgeName,
-                                                { color: badge.isEarned ? colors.text : colors.textSecondary },
-                                            ]}
+                                            className={`text-xs font-semibold text-center ${badge.isEarned ? 'text-gray-900 dark:text-white' : 'text-gray-500 dark:text-gray-400'
+                                                }`}
                                             numberOfLines={1}
                                         >
                                             {i18n.language === 'bn' && badge.nameBn ? badge.nameBn : badge.name}
                                         </Text>
                                         {badge.isEarned ? (
-                                            <Text style={styles.badgeEarned}>✓ {t('achievements.earned')}</Text>
+                                            <Text className="text-xs text-green-600 mt-1">✓ {t('achievements.earned')}</Text>
                                         ) : (
-                                            <Text style={[styles.badgePoints, { color: colors.textSecondary }]}>
+                                            <Text className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                                                 +{badge.points} {t('achievements.points')}
                                             </Text>
                                         )}
@@ -216,120 +210,8 @@ export default function AchievementsScreen() {
                     );
                 })}
 
-                <View style={{ height: 30 }} />
+                <View className="h-8" />
             </ScrollView>
         </View>
     );
 }
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-    },
-    centered: {
-        flex: 1,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    scrollView: {
-        flex: 1,
-    },
-    streakCard: {
-        margin: 20,
-        padding: 24,
-        borderRadius: 16,
-        backgroundColor: '#f97316',
-        alignItems: 'center',
-    },
-    streakFire: {
-        fontSize: 48,
-        marginBottom: 8,
-    },
-    streakInfo: {
-        alignItems: 'center',
-    },
-    streakNumber: {
-        color: '#fff',
-        fontSize: 48,
-        fontWeight: '800',
-    },
-    streakLabel: {
-        color: 'rgba(255,255,255,0.9)',
-        fontSize: 14,
-    },
-    streakHint: {
-        color: 'rgba(255,255,255,0.8)',
-        fontSize: 12,
-        marginTop: 12,
-        textAlign: 'center',
-    },
-    streakStats: {
-        flexDirection: 'row',
-        marginHorizontal: 20,
-        gap: 12,
-        marginBottom: 20,
-    },
-    streakStat: {
-        flex: 1,
-        padding: 16,
-        borderRadius: 12,
-        alignItems: 'center',
-    },
-    streakStatValue: {
-        fontSize: 20,
-        fontWeight: '700',
-    },
-    streakStatLabel: {
-        fontSize: 11,
-        marginTop: 4,
-        textAlign: 'center',
-    },
-    categorySection: {
-        marginHorizontal: 20,
-        marginBottom: 16,
-        borderRadius: 16,
-        padding: 16,
-    },
-    categoryHeader: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 8,
-        marginBottom: 16,
-    },
-    categoryTitle: {
-        fontSize: 16,
-        fontWeight: '600',
-    },
-    badgeGrid: {
-        flexDirection: 'row',
-        flexWrap: 'wrap',
-        gap: 12,
-    },
-    badgeItem: {
-        width: '30%',
-        padding: 12,
-        borderRadius: 12,
-        alignItems: 'center',
-    },
-    badgeLocked: {
-        opacity: 0.6,
-    },
-    badgeIcon: {
-        fontSize: 28,
-        marginBottom: 8,
-    },
-    badgeName: {
-        fontSize: 11,
-        fontWeight: '600',
-        textAlign: 'center',
-    },
-    badgeEarned: {
-        color: '#16a34a',
-        fontSize: 10,
-        marginTop: 4,
-    },
-    badgePoints: {
-        fontSize: 10,
-        marginTop: 4,
-    },
-});

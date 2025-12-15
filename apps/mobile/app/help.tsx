@@ -1,11 +1,8 @@
-import { StyleSheet, ScrollView, TouchableOpacity, Linking } from 'react-native';
-import { Text, View } from '@/components/Themed';
+import { View, Text, ScrollView, TouchableOpacity, Linking } from 'react-native';
 import { Stack, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { useTranslation } from 'react-i18next';
-import Colors from '@/constants/Colors';
-import { useTheme } from '@/context/ThemeContext';
 
 const SUPPORT_EMAIL = 'rahmatullahzisan@gmail.com';
 const SUPPORT_PHONE = '+8801570260118';
@@ -14,8 +11,6 @@ const WHATSAPP_URL = 'https://wa.me/8801570260118?text=Hello%2C%20I%20need%20hel
 
 export default function HelpScreen() {
     const router = useRouter();
-    const { theme } = useTheme();
-    const colors = Colors[theme];
     const insets = useSafeAreaInsets();
     const { t } = useTranslation();
 
@@ -39,191 +34,120 @@ export default function HelpScreen() {
     };
 
     return (
-        <View style={[styles.container, { backgroundColor: colors.background }]}>
+        <View className="flex-1 bg-gray-50 dark:bg-gray-900">
             <Stack.Screen
                 options={{
                     headerShown: true,
                     title: t('help.title'),
-                    headerStyle: { backgroundColor: Colors.primary },
+                    headerStyle: { backgroundColor: '#E63946' },
                     headerTintColor: '#fff',
                 }}
             />
 
-            <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+            <ScrollView className="flex-1 px-5" showsVerticalScrollIndicator={false}>
                 {/* Contact Options */}
-                <Text style={[styles.sectionTitle, { color: colors.text }]}>
+                <Text className="text-base font-semibold text-gray-900 dark:text-white mt-5 mb-3">
                     {t('help.contactTitle')}
                 </Text>
 
                 <TouchableOpacity
-                    style={[styles.contactCard, { backgroundColor: colors.card }]}
+                    className="flex-row items-center p-4 rounded-xl mb-3 bg-white dark:bg-gray-800"
                     onPress={handleEmail}
                 >
-                    <View style={[styles.contactIcon, { backgroundColor: `${Colors.primary}15` }]}>
-                        <FontAwesome name="envelope" size={20} color={Colors.primary} />
+                    <View className="w-11 h-11 rounded-full bg-primary/15 items-center justify-center mr-3.5">
+                        <FontAwesome name="envelope" size={20} color="#E63946" />
                     </View>
-                    <View style={[styles.contactDetails, { backgroundColor: 'transparent' }]}>
-                        <Text style={[styles.contactTitle, { color: colors.text }]}>
+                    <View className="flex-1">
+                        <Text className="text-base font-semibold text-gray-900 dark:text-white">
                             {t('help.emailSupport')}
                         </Text>
-                        <Text style={[styles.contactValue, { color: colors.textSecondary }]}>
+                        <Text className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
                             {SUPPORT_EMAIL}
                         </Text>
                     </View>
-                    <FontAwesome name="chevron-right" size={14} color={colors.textSecondary} />
+                    <FontAwesome name="chevron-right" size={14} color="#9CA3AF" />
                 </TouchableOpacity>
 
                 <TouchableOpacity
-                    style={[styles.contactCard, { backgroundColor: colors.card }]}
+                    className="flex-row items-center p-4 rounded-xl mb-3 bg-white dark:bg-gray-800"
                     onPress={handlePhone}
                 >
-                    <View style={[styles.contactIcon, { backgroundColor: `${Colors.primary}15` }]}>
-                        <FontAwesome name="phone" size={20} color={Colors.primary} />
+                    <View className="w-11 h-11 rounded-full bg-primary/15 items-center justify-center mr-3.5">
+                        <FontAwesome name="phone" size={20} color="#E63946" />
                     </View>
-                    <View style={[styles.contactDetails, { backgroundColor: 'transparent' }]}>
-                        <Text style={[styles.contactTitle, { color: colors.text }]}>
+                    <View className="flex-1">
+                        <Text className="text-base font-semibold text-gray-900 dark:text-white">
                             {t('help.phoneSupport')}
                         </Text>
-                        <Text style={[styles.contactValue, { color: colors.textSecondary }]}>
+                        <Text className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
                             {SUPPORT_PHONE_DISPLAY}
                         </Text>
                     </View>
-                    <FontAwesome name="chevron-right" size={14} color={colors.textSecondary} />
+                    <FontAwesome name="chevron-right" size={14} color="#9CA3AF" />
                 </TouchableOpacity>
 
                 <TouchableOpacity
-                    style={[styles.contactCard, { backgroundColor: colors.card }]}
+                    className="flex-row items-center p-4 rounded-xl mb-3 bg-white dark:bg-gray-800"
                     onPress={handleWhatsApp}
                 >
-                    <View style={[styles.contactIcon, { backgroundColor: '#25D366' }]}>
+                    <View className="w-11 h-11 rounded-full bg-green-500 items-center justify-center mr-3.5">
                         <FontAwesome name="whatsapp" size={20} color="#fff" />
                     </View>
-                    <View style={[styles.contactDetails, { backgroundColor: 'transparent' }]}>
-                        <Text style={[styles.contactTitle, { color: colors.text }]}>
+                    <View className="flex-1">
+                        <Text className="text-base font-semibold text-gray-900 dark:text-white">
                             {t('help.whatsapp')}
                         </Text>
-                        <Text style={[styles.contactValue, { color: colors.textSecondary }]}>
+                        <Text className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
                             {t('help.chatInstant')}
                         </Text>
                     </View>
-                    <FontAwesome name="chevron-right" size={14} color={colors.textSecondary} />
+                    <FontAwesome name="chevron-right" size={14} color="#9CA3AF" />
                 </TouchableOpacity>
 
                 {/* FAQ Section */}
-                <Text style={[styles.sectionTitle, { color: colors.text, marginTop: 24 }]}>
+                <Text className="text-base font-semibold text-gray-900 dark:text-white mt-6 mb-3">
                     {t('help.faqTitle')}
                 </Text>
 
                 {faqItems.map((item, index) => (
-                    <View key={index} style={[styles.faqItem, { backgroundColor: colors.card }]}>
-                        <Text style={[styles.faqQuestion, { color: colors.text }]}>
+                    <View key={index} className="p-4 rounded-xl mb-3 bg-white dark:bg-gray-800">
+                        <Text className="text-sm font-semibold text-gray-900 dark:text-white mb-2">
                             {item.question}
                         </Text>
-                        <Text style={[styles.faqAnswer, { color: colors.textSecondary }]}>
+                        <Text className="text-sm text-gray-500 dark:text-gray-400 leading-5">
                             {item.answer}
                         </Text>
                     </View>
                 ))}
 
                 {/* Legal Links */}
-                <Text style={[styles.sectionTitle, { color: colors.text, marginTop: 24 }]}>
+                <Text className="text-base font-semibold text-gray-900 dark:text-white mt-6 mb-3">
                     {t('help.legalTitle')}
                 </Text>
 
-                <View style={[styles.legalSection, { backgroundColor: colors.card }]}>
+                <View className="rounded-xl overflow-hidden bg-white dark:bg-gray-800">
                     <TouchableOpacity
-                        style={[styles.legalItem, { borderBottomColor: colors.border }]}
+                        className="flex-row items-center justify-between p-4 border-b border-gray-100 dark:border-gray-700"
                         onPress={() => Linking.openURL('https://vibe-hotels.vercel.app/terms')}
                     >
-                        <Text style={[styles.legalText, { color: colors.text }]}>
+                        <Text className="text-base text-gray-900 dark:text-white">
                             {t('help.terms')}
                         </Text>
-                        <FontAwesome name="chevron-right" size={14} color={colors.textSecondary} />
+                        <FontAwesome name="chevron-right" size={14} color="#9CA3AF" />
                     </TouchableOpacity>
                     <TouchableOpacity
-                        style={styles.legalItem}
+                        className="flex-row items-center justify-between p-4"
                         onPress={() => Linking.openURL('https://vibe-hotels.vercel.app/privacy')}
                     >
-                        <Text style={[styles.legalText, { color: colors.text }]}>
+                        <Text className="text-base text-gray-900 dark:text-white">
                             {t('help.privacy')}
                         </Text>
-                        <FontAwesome name="chevron-right" size={14} color={colors.textSecondary} />
+                        <FontAwesome name="chevron-right" size={14} color="#9CA3AF" />
                     </TouchableOpacity>
                 </View>
 
-                <View style={{ height: 30 }} />
+                <View className="h-8" />
             </ScrollView>
         </View>
     );
 }
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-    },
-    scrollView: {
-        flex: 1,
-        paddingHorizontal: 20,
-    },
-    sectionTitle: {
-        fontSize: 16,
-        fontWeight: '600',
-        marginTop: 20,
-        marginBottom: 12,
-    },
-    contactCard: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        padding: 16,
-        borderRadius: 12,
-        marginBottom: 12,
-    },
-    contactIcon: {
-        width: 44,
-        height: 44,
-        borderRadius: 22,
-        alignItems: 'center',
-        justifyContent: 'center',
-        marginRight: 14,
-    },
-    contactDetails: {
-        flex: 1,
-    },
-    contactTitle: {
-        fontSize: 15,
-        fontWeight: '600',
-    },
-    contactValue: {
-        fontSize: 13,
-        marginTop: 2,
-    },
-    faqItem: {
-        padding: 16,
-        borderRadius: 12,
-        marginBottom: 12,
-    },
-    faqQuestion: {
-        fontSize: 14,
-        fontWeight: '600',
-        marginBottom: 8,
-    },
-    faqAnswer: {
-        fontSize: 13,
-        lineHeight: 20,
-    },
-    legalSection: {
-        borderRadius: 12,
-        overflow: 'hidden',
-    },
-    legalItem: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        padding: 16,
-        borderBottomWidth: 1,
-        borderBottomColor: 'transparent',
-    },
-    legalText: {
-        fontSize: 15,
-    },
-});

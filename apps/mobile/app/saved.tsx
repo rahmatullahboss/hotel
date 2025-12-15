@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react';
 import {
-    StyleSheet,
+    View,
+    Text,
     ScrollView,
     ActivityIndicator,
     RefreshControl,
@@ -8,15 +9,11 @@ import {
     Image,
     Dimensions,
 } from 'react-native';
-import { Text, View } from '@/components/Themed';
 import { useRouter, Stack, useFocusEffect } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
-import Colors from '@/constants/Colors';
-import { useTheme } from '@/context/ThemeContext';
 import api from '@/lib/api';
-
 
 const { width } = Dimensions.get('window');
 const CARD_WIDTH = (width - 48) / 2;
@@ -38,8 +35,6 @@ interface SavedHotelItem {
 
 export default function SavedHotelsScreen() {
     const router = useRouter();
-    const { theme } = useTheme();
-    const colors = Colors[theme];
     const insets = useSafeAreaInsets();
     const { t } = useTranslation();
 
@@ -74,81 +69,86 @@ export default function SavedHotelsScreen() {
 
     if (loading) {
         return (
-            <View style={[styles.centered, { paddingTop: insets.top }]}>
+            <View
+                className="flex-1 items-center justify-center bg-white dark:bg-gray-900"
+                style={{ paddingTop: insets.top }}
+            >
                 <Stack.Screen options={{ headerShown: false }} />
-                <ActivityIndicator size="large" color={Colors.primary} />
+                <ActivityIndicator size="large" color="#E63946" />
             </View>
         );
     }
 
     return (
-        <View style={[styles.container, { backgroundColor: colors.background }]}>
+        <View className="flex-1 bg-gray-50 dark:bg-gray-900">
             <Stack.Screen
                 options={{
                     headerShown: true,
                     title: t('saved.title'),
-                    headerStyle: { backgroundColor: Colors.primary },
+                    headerStyle: { backgroundColor: '#E63946' },
                     headerTintColor: '#fff',
                 }}
             />
 
             <ScrollView
-                style={styles.scrollView}
-                contentContainerStyle={styles.scrollContent}
+                className="flex-1"
+                contentContainerStyle={{ padding: 16 }}
                 showsVerticalScrollIndicator={false}
                 refreshControl={
-                    <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+                    <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#E63946" />
                 }
             >
                 {savedHotels.length > 0 ? (
-                    <View style={styles.grid}>
+                    <View className="flex-row flex-wrap justify-between">
                         {savedHotels.map((item) => (
                             <TouchableOpacity
                                 key={item.id}
-                                style={[styles.card, { backgroundColor: colors.card }]}
+                                className="rounded-xl mb-4 overflow-hidden bg-white dark:bg-gray-800 shadow-md"
+                                style={{ width: CARD_WIDTH }}
                                 onPress={() => router.push(`/hotel/${item.hotelId}`)}
                                 activeOpacity={0.8}
                             >
-                                <View style={styles.imageContainer}>
+                                <View className="relative">
                                     {item.hotel.coverImage ? (
                                         <Image
                                             source={{ uri: item.hotel.coverImage }}
-                                            style={styles.image}
+                                            className="w-full h-28"
+                                            resizeMode="cover"
                                         />
                                     ) : (
-                                        <View style={[styles.imagePlaceholder, { backgroundColor: colors.border }]}>
-                                            <FontAwesome name="building-o" size={32} color={colors.textSecondary} />
+                                        <View className="w-full h-28 items-center justify-center bg-gray-200 dark:bg-gray-700">
+                                            <FontAwesome name="building-o" size={32} color="#9CA3AF" />
                                         </View>
                                     )}
                                     <TouchableOpacity
-                                        style={styles.heartButton}
+                                        className="absolute top-2 right-2 w-8 h-8 rounded-full bg-white/90 items-center justify-center"
                                         onPress={() => handleUnsave(item.hotelId)}
                                     >
-                                        <FontAwesome name="heart" size={16} color={Colors.primary} />
+                                        <FontAwesome name="heart" size={16} color="#E63946" />
                                     </TouchableOpacity>
                                 </View>
-                                <View style={[styles.cardContent, { backgroundColor: 'transparent' }]}>
+                                <View className="p-3">
                                     <Text
-                                        style={[styles.hotelName, { color: colors.text }]}
+                                        className="text-sm font-semibold text-gray-900 dark:text-white mb-1"
                                         numberOfLines={2}
                                     >
                                         {item.hotel.name}
                                     </Text>
-                                    <Text style={[styles.cityText, { color: colors.textSecondary }]}>
+                                    <Text className="text-xs text-gray-500 dark:text-gray-400 mb-1.5">
                                         {item.hotel.city}
                                     </Text>
                                     {item.hotel.rating && (
-                                        <View style={[styles.ratingRow, { backgroundColor: 'transparent' }]}>
-                                            <Text style={styles.ratingText}>⭐ {item.hotel.rating.toFixed(1)}</Text>
-                                            <Text style={[styles.reviewCount, { color: colors.textSecondary }]}>
+                                        <View className="flex-row items-center mb-1.5">
+                                            <Text className="text-xs font-semibold">⭐ {item.hotel.rating.toFixed(1)}</Text>
+                                            <Text className="text-xs text-gray-500 dark:text-gray-400 ml-1">
                                                 ({item.hotel.reviewCount})
                                             </Text>
                                         </View>
                                     )}
                                     {item.hotel.lowestDynamicPrice && (
-                                        <Text style={[styles.priceText, { color: Colors.primary }]}>
+                                        <Text className="text-sm font-bold text-primary">
                                             {t('common.currency')}{item.hotel.lowestDynamicPrice.toLocaleString()}
-                                            <Text style={styles.perNight}>{t('common.perNight')}</Text>
+                                            <Text className="text-xs font-normal">{t('common.perNight')}</Text>
                                         </Text>
                                     )}
                                 </View>
@@ -156,146 +156,27 @@ export default function SavedHotelsScreen() {
                         ))}
                     </View>
                 ) : (
-                    <View style={[styles.emptyState, { backgroundColor: 'transparent' }]}>
-                        <FontAwesome name="heart-o" size={64} color={colors.textSecondary} />
-                        <Text style={[styles.emptyTitle, { color: colors.text }]}>
+                    <View className="items-center justify-center py-20">
+                        <FontAwesome name="heart-o" size={64} color="#9CA3AF" />
+                        <Text className="text-lg font-semibold text-gray-900 dark:text-white mt-4">
                             {t('saved.noSavedHotels')}
                         </Text>
-                        <Text style={[styles.emptySubtitle, { color: colors.textSecondary }]}>
+                        <Text className="text-sm text-gray-500 dark:text-gray-400 mt-2 text-center px-10">
                             {t('saved.emptyDescription')}
                         </Text>
                         <TouchableOpacity
-                            style={styles.exploreButton}
+                            className="mt-6 bg-primary px-6 py-3 rounded-full"
                             onPress={() => router.push('/(tabs)')}
                         >
-                            <Text style={styles.exploreButtonText}>{t('saved.exploreHotels')}</Text>
+                            <Text className="text-white font-semibold text-sm">
+                                {t('saved.exploreHotels')}
+                            </Text>
                         </TouchableOpacity>
                     </View>
                 )}
 
-                <View style={{ height: 30 }} />
+                <View className="h-8" />
             </ScrollView>
         </View>
     );
 }
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-    },
-    centered: {
-        flex: 1,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    scrollView: {
-        flex: 1,
-    },
-    scrollContent: {
-        padding: 16,
-    },
-    grid: {
-        flexDirection: 'row',
-        flexWrap: 'wrap',
-        justifyContent: 'space-between',
-        backgroundColor: 'transparent',
-    },
-    card: {
-        width: CARD_WIDTH,
-        borderRadius: 12,
-        marginBottom: 16,
-        overflow: 'hidden',
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-        elevation: 3,
-    },
-    imageContainer: {
-        position: 'relative',
-    },
-    image: {
-        width: '100%',
-        height: 120,
-        resizeMode: 'cover',
-    },
-    imagePlaceholder: {
-        width: '100%',
-        height: 120,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    heartButton: {
-        position: 'absolute',
-        top: 8,
-        right: 8,
-        width: 32,
-        height: 32,
-        borderRadius: 16,
-        backgroundColor: 'rgba(255,255,255,0.9)',
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    cardContent: {
-        padding: 12,
-    },
-    hotelName: {
-        fontSize: 14,
-        fontWeight: '600',
-        marginBottom: 4,
-    },
-    cityText: {
-        fontSize: 12,
-        marginBottom: 6,
-    },
-    ratingRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginBottom: 6,
-    },
-    ratingText: {
-        fontSize: 12,
-        fontWeight: '600',
-    },
-    reviewCount: {
-        fontSize: 11,
-        marginLeft: 4,
-    },
-    priceText: {
-        fontSize: 14,
-        fontWeight: '700',
-    },
-    perNight: {
-        fontSize: 11,
-        fontWeight: '400',
-    },
-    emptyState: {
-        flex: 1,
-        alignItems: 'center',
-        justifyContent: 'center',
-        paddingVertical: 80,
-    },
-    emptyTitle: {
-        fontSize: 18,
-        fontWeight: '600',
-        marginTop: 16,
-    },
-    emptySubtitle: {
-        fontSize: 14,
-        marginTop: 8,
-        textAlign: 'center',
-        paddingHorizontal: 40,
-    },
-    exploreButton: {
-        marginTop: 24,
-        backgroundColor: Colors.primary,
-        paddingHorizontal: 24,
-        paddingVertical: 12,
-        borderRadius: 25,
-    },
-    exploreButtonText: {
-        color: '#fff',
-        fontWeight: '600',
-        fontSize: 14,
-    },
-});

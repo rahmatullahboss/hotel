@@ -1,17 +1,20 @@
 import { useState } from 'react';
-import { StyleSheet, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform, Image, ActivityIndicator } from 'react-native';
-import { Text, View } from '@/components/Themed';
+import {
+    View,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    KeyboardAvoidingView,
+    Platform,
+    ActivityIndicator,
+} from 'react-native';
 import { useRouter, Stack } from 'expo-router';
-import Colors from '@/constants/Colors';
-import { useColorScheme } from '@/components/useColorScheme';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { setToken } from '@/lib/api';
 import { useGoogleAuth } from '@/hooks/useGoogleAuth';
 
 export default function LoginScreen() {
     const router = useRouter();
-    const colorScheme = useColorScheme() ?? 'light';
-    const colors = Colors[colorScheme];
 
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -19,7 +22,6 @@ export default function LoginScreen() {
     const [error, setError] = useState<string | null>(null);
     const [showPassword, setShowPassword] = useState(false);
 
-    // Google auth hook
     const { signInWithGoogle, loading: googleLoading, error: googleError, isReady } = useGoogleAuth();
 
     const handleLogin = async () => {
@@ -47,10 +49,7 @@ export default function LoginScreen() {
                 return;
             }
 
-            // Store the token
             await setToken(data.token);
-
-            // Navigate to home
             router.replace('/(tabs)');
         } catch (err) {
             setError('Network error. Please try again.');
@@ -71,35 +70,37 @@ export default function LoginScreen() {
         <>
             <Stack.Screen options={{ headerShown: false }} />
             <KeyboardAvoidingView
-                style={[styles.container, { backgroundColor: colors.background }]}
+                className="flex-1 p-6 bg-white dark:bg-gray-900"
                 behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
             >
                 {/* Header */}
-                <View style={[styles.header, { backgroundColor: 'transparent' }]}>
-                    <View style={[styles.logoContainer, { backgroundColor: Colors.primary }]}>
+                <View className="items-center mt-16 mb-10">
+                    <View className="w-20 h-20 rounded-2xl bg-primary items-center justify-center mb-6">
                         <FontAwesome name="building" size={40} color="#fff" />
                     </View>
-                    <Text style={[styles.title, { color: colors.text }]}>Welcome Back</Text>
-                    <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
+                    <Text className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+                        Welcome Back
+                    </Text>
+                    <Text className="text-base text-gray-500 dark:text-gray-400 text-center">
                         Sign in to continue to Vibe Hospitality
                     </Text>
                 </View>
 
                 {/* Form */}
-                <View style={[styles.form, { backgroundColor: 'transparent' }]}>
+                <View className="flex-1">
                     {error && (
-                        <View style={[styles.errorContainer, { backgroundColor: `${colors.error}20` }]}>
-                            <FontAwesome name="exclamation-circle" size={16} color={colors.error} />
-                            <Text style={[styles.errorText, { color: colors.error }]}>{error}</Text>
+                        <View className="flex-row items-center p-3 rounded-lg mb-4 bg-red-50 dark:bg-red-900/30 gap-2">
+                            <FontAwesome name="exclamation-circle" size={16} color="#EF4444" />
+                            <Text className="text-sm text-red-500 flex-1">{error}</Text>
                         </View>
                     )}
 
-                    <View style={[styles.inputContainer, { backgroundColor: colors.backgroundSecondary }]}>
-                        <FontAwesome name="envelope" size={18} color={colors.textSecondary} style={styles.inputIcon} />
+                    <View className="flex-row items-center rounded-xl px-4 mb-4 bg-gray-100 dark:bg-gray-800">
+                        <FontAwesome name="envelope" size={18} color="#9CA3AF" style={{ width: 24, marginRight: 12 }} />
                         <TextInput
-                            style={[styles.input, { color: colors.text }]}
+                            className="flex-1 py-4 text-base text-gray-900 dark:text-white"
                             placeholder="Email address"
-                            placeholderTextColor={colors.textSecondary}
+                            placeholderTextColor="#9CA3AF"
                             value={email}
                             onChangeText={setEmail}
                             keyboardType="email-address"
@@ -108,12 +109,12 @@ export default function LoginScreen() {
                         />
                     </View>
 
-                    <View style={[styles.inputContainer, { backgroundColor: colors.backgroundSecondary }]}>
-                        <FontAwesome name="lock" size={20} color={colors.textSecondary} style={styles.inputIcon} />
+                    <View className="flex-row items-center rounded-xl px-4 mb-4 bg-gray-100 dark:bg-gray-800">
+                        <FontAwesome name="lock" size={20} color="#9CA3AF" style={{ width: 24, marginRight: 12 }} />
                         <TextInput
-                            style={[styles.input, { color: colors.text }]}
+                            className="flex-1 py-4 text-base text-gray-900 dark:text-white"
                             placeholder="Password"
-                            placeholderTextColor={colors.textSecondary}
+                            placeholderTextColor="#9CA3AF"
                             value={password}
                             onChangeText={setPassword}
                             secureTextEntry={!showPassword}
@@ -122,31 +123,29 @@ export default function LoginScreen() {
                             <FontAwesome
                                 name={showPassword ? 'eye-slash' : 'eye'}
                                 size={18}
-                                color={colors.textSecondary}
+                                color="#9CA3AF"
                             />
                         </TouchableOpacity>
                     </View>
 
                     <TouchableOpacity
-                        style={[styles.loginButton, { backgroundColor: Colors.primary }, loading && styles.disabledButton]}
+                        className={`p-4 rounded-xl items-center mt-2 bg-primary ${loading ? 'opacity-70' : ''}`}
                         onPress={handleLogin}
                         disabled={loading}
                     >
-                        {loading ? (
-                            <Text style={styles.loginButtonText}>Signing in...</Text>
-                        ) : (
-                            <Text style={styles.loginButtonText}>Sign In</Text>
-                        )}
+                        <Text className="text-white text-base font-semibold">
+                            {loading ? 'Signing in...' : 'Sign In'}
+                        </Text>
                     </TouchableOpacity>
 
-                    <View style={[styles.divider, { backgroundColor: 'transparent' }]}>
-                        <View style={[styles.dividerLine, { backgroundColor: colors.border }]} />
-                        <Text style={[styles.dividerText, { color: colors.textSecondary }]}>or</Text>
-                        <View style={[styles.dividerLine, { backgroundColor: colors.border }]} />
+                    <View className="flex-row items-center my-6">
+                        <View className="flex-1 h-px bg-gray-200 dark:bg-gray-700" />
+                        <Text className="mx-4 text-sm text-gray-500 dark:text-gray-400">or</Text>
+                        <View className="flex-1 h-px bg-gray-200 dark:bg-gray-700" />
                     </View>
 
                     <TouchableOpacity
-                        style={[styles.googleButton, { backgroundColor: colors.backgroundSecondary }, googleLoading && styles.disabledButton]}
+                        className={`flex-row items-center justify-center p-4 rounded-xl gap-3 bg-gray-100 dark:bg-gray-800 ${googleLoading ? 'opacity-70' : ''}`}
                         onPress={handleGoogleLogin}
                         disabled={googleLoading || loading}
                     >
@@ -155,150 +154,29 @@ export default function LoginScreen() {
                         ) : (
                             <FontAwesome name="google" size={20} color="#DB4437" />
                         )}
-                        <Text style={[styles.googleButtonText, { color: colors.text }]}>
+                        <Text className="text-base font-medium text-gray-900 dark:text-white">
                             {googleLoading ? 'Signing in...' : 'Continue with Google'}
                         </Text>
                     </TouchableOpacity>
                 </View>
 
                 {/* Footer */}
-                <View style={[styles.footer, { backgroundColor: 'transparent' }]}>
-                    <Text style={[styles.footerText, { color: colors.textSecondary }]}>
+                <View className="flex-row justify-center mb-4">
+                    <Text className="text-sm text-gray-500 dark:text-gray-400">
                         Don't have an account?{' '}
                     </Text>
                     <TouchableOpacity onPress={() => router.push('/auth/register')}>
-                        <Text style={[styles.linkText, { color: Colors.primary }]}>Sign Up</Text>
+                        <Text className="text-sm font-semibold text-primary">Sign Up</Text>
                     </TouchableOpacity>
                 </View>
 
-                {/* Skip for now */}
                 <TouchableOpacity
-                    style={styles.skipButton}
+                    className="items-center py-3 mb-6"
                     onPress={() => router.replace('/(tabs)')}
                 >
-                    <Text style={[styles.skipText, { color: colors.textSecondary }]}>Continue as Guest</Text>
+                    <Text className="text-sm text-gray-500 dark:text-gray-400">Continue as Guest</Text>
                 </TouchableOpacity>
             </KeyboardAvoidingView>
         </>
     );
 }
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        padding: 24,
-    },
-    header: {
-        alignItems: 'center',
-        marginTop: 60,
-        marginBottom: 40,
-    },
-    logoContainer: {
-        width: 80,
-        height: 80,
-        borderRadius: 20,
-        alignItems: 'center',
-        justifyContent: 'center',
-        marginBottom: 24,
-    },
-    title: {
-        fontSize: 28,
-        fontWeight: 'bold',
-        marginBottom: 8,
-    },
-    subtitle: {
-        fontSize: 16,
-        textAlign: 'center',
-    },
-    form: {
-        flex: 1,
-    },
-    errorContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        padding: 12,
-        borderRadius: 8,
-        marginBottom: 16,
-        gap: 8,
-    },
-    errorText: {
-        fontSize: 14,
-        flex: 1,
-    },
-    inputContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        borderRadius: 12,
-        paddingHorizontal: 16,
-        marginBottom: 16,
-    },
-    inputIcon: {
-        width: 24,
-        textAlign: 'center',
-        marginRight: 12,
-    },
-    input: {
-        flex: 1,
-        paddingVertical: 16,
-        fontSize: 16,
-    },
-    loginButton: {
-        padding: 16,
-        borderRadius: 12,
-        alignItems: 'center',
-        marginTop: 8,
-    },
-    disabledButton: {
-        opacity: 0.7,
-    },
-    loginButtonText: {
-        color: '#fff',
-        fontSize: 16,
-        fontWeight: '600',
-    },
-    divider: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginVertical: 24,
-    },
-    dividerLine: {
-        flex: 1,
-        height: 1,
-    },
-    dividerText: {
-        marginHorizontal: 16,
-        fontSize: 14,
-    },
-    googleButton: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: 16,
-        borderRadius: 12,
-        gap: 12,
-    },
-    googleButtonText: {
-        fontSize: 16,
-        fontWeight: '500',
-    },
-    footer: {
-        flexDirection: 'row',
-        justifyContent: 'center',
-        marginBottom: 16,
-    },
-    footerText: {
-        fontSize: 14,
-    },
-    linkText: {
-        fontSize: 14,
-        fontWeight: '600',
-    },
-    skipButton: {
-        alignItems: 'center',
-        paddingVertical: 12,
-        marginBottom: 24,
-    },
-    skipText: {
-        fontSize: 14,
-    },
-});
