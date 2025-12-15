@@ -81,14 +81,12 @@ export default function HotelCard({ hotel, index }: HotelCardProps) {
                         <Text className="text-xs text-gray-400 dark:text-gray-500 mb-0.5">
                             {t('home.startingFrom')}
                         </Text>
-                        <View className="flex-row items-baseline">
-                            <Text className="text-xl font-bold text-primary">
-                                {t('common.currency')}{formatPrice(hotel.lowestPrice || 0)}
+                        <Text className="text-xl font-bold text-primary">
+                            {t('common.currency')}{formatPrice(hotel.lowestPrice || 0)}
+                            <Text className="text-sm font-normal text-gray-500 dark:text-gray-400">
+                                {' '}/night
                             </Text>
-                            <Text className="text-sm text-gray-500 dark:text-gray-400 ml-1">
-                                /night
-                            </Text>
-                        </View>
+                        </Text>
                     </View>
 
                     {/* Book Button */}

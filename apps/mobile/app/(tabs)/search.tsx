@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
     View,
     Text,
@@ -6,36 +6,163 @@ import {
     ScrollView,
     TouchableOpacity,
     Dimensions,
+    FlatList,
+    ActivityIndicator,
+    Alert,
 } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { useTranslation } from 'react-i18next';
+import * as Location from 'expo-location';
 import CityCard from '@/components/CityCard';
+import HotelCard from '@/components/HotelCard';
+import api from '@/lib/api';
 
 const { width } = Dimensions.get('window');
 
+interface Hotel {
+    id: string;
+    name: string;
+    city: string;
+    rating: string | number;
+    imageUrl: string;
+    lowestPrice?: number;
+    latitude?: string;
+    longitude?: string;
+}
+
 const POPULAR_CITIES = [
-    { name: 'Dhaka', image: '🏙️', hotels: '250+' },
-    { name: 'Chittagong', image: '⛵', hotels: '120+' },
-    { name: "Cox's Bazar", image: '🏖️', hotels: '180+' },
-    { name: 'Sylhet', image: '🌿', hotels: '90+' },
-    { name: 'Rajshahi', image: '🏛️', hotels: '45+' },
-    { name: 'Khulna', image: '🌊', hotels: '35+' },
+    { name: 'Dhaka', image: '🏙️', hotels: '6' },
+    { name: 'Chittagong', image: '⛵', hotels: '4' },
+    { name: "Cox's Bazar", image: '🏖️', hotels: '5' },
+    { name: 'Sylhet', image: '🌿', hotels: '4' },
+    { name: 'Rajshahi', image: '🏛️', hotels: '3' },
+    { name: 'Khulna', image: '🌊', hotels: '3' },
 ];
+
+// Price thresholds for filters
+const BUDGET_MAX = 3000;
+const PREMIUM_MIN = 8000;
 
 export default function SearchScreen() {
     const router = useRouter();
     const insets = useSafeAreaInsets();
     const { t } = useTranslation();
+    const { filter } = useLocalSearchParams<{ filter?: string }>();
 
     const [searchQuery, setSearchQuery] = useState('');
+    const [allHotels, setAllHotels] = useState<Hotel[]>([]);
+    const [filteredHotels, setFilteredHotels] = useState<Hotel[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [searching, setSearching] = useState(false);
+    const [activeFilter, setActiveFilter] = useState<string | null>(filter || null);
+    const [locationLoading, setLocationLoading] = useState(false);
+
+    // Fetch all hotels on mount
+    useEffect(() => {
+        const fetchHotels = async () => {
+            const { data, error } = await api.getHotels();
+            if (!error && data) {
+                setAllHotels(data);
+            }
+            setLoading(false);
+        };
+        fetchHotels();
+    }, []);
+
+    // Apply filter when filter param changes
+    useEffect(() => {
+        if (filter && allHotels.length > 0) {
+            handleFilter(filter);
+        }
+    }, [filter, allHotels]);
+
+    // Search as you type
+    useEffect(() => {
+        if (searchQuery.length >= 2) {
+            setSearching(true);
+            const filtered = allHotels.filter((hotel) =>
+                hotel.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                hotel.city.toLowerCase().includes(searchQuery.toLowerCase())
+            );
+            setFilteredHotels(filtered);
+        } else {
+            setSearching(false);
+            setFilteredHotels([]);
+        }
+    }, [searchQuery, allHotels]);
 
     const handleCitySelect = (city: string) => {
         router.push({
             pathname: '/search-results',
             params: { city },
         } as any);
+    };
+
+    const handleSearchSubmit = () => {
+        if (searchQuery.length >= 2) {
+            router.push({
+                pathname: '/search-results',
+                params: { query: searchQuery },
+            } as any);
+        }
+    };
+
+    const handleFilter = async (filterId: string) => {
+        setActiveFilter(filterId);
+        setSearching(true);
+
+        if (filterId === 'nearby') {
+            // Near Me - Get location and sort by distance
+            setLocationLoading(true);
+            try {
+                const { status } = await Location.requestForegroundPermissionsAsync();
+                if (status !== 'granted') {
+                    Alert.alert('Location Permission', 'Please enable location to use Near Me feature');
+                    setLocationLoading(false);
+                    setSearching(false);
+                    return;
+                }
+                const location = await Location.getCurrentPositionAsync({});
+                const userLat = location.coords.latitude;
+                const userLng = location.coords.longitude;
+
+                // Sort by distance
+                const hotelsWithDistance = allHotels.map((hotel) => {
+                    const hotelLat = parseFloat(hotel.latitude || '0');
+                    const hotelLng = parseFloat(hotel.longitude || '0');
+                    const distance = Math.sqrt(
+                        Math.pow(userLat - hotelLat, 2) + Math.pow(userLng - hotelLng, 2)
+                    );
+                    return { ...hotel, distance };
+                });
+
+                hotelsWithDistance.sort((a, b) => a.distance - b.distance);
+                setFilteredHotels(hotelsWithDistance.slice(0, 10));
+            } catch (error) {
+                Alert.alert('Error', 'Could not get your location');
+            }
+            setLocationLoading(false);
+        } else if (filterId === 'budget') {
+            // Budget - price <= 3000
+            const filtered = allHotels.filter((hotel) => (hotel.lowestPrice || 0) <= BUDGET_MAX);
+            setFilteredHotels(filtered);
+        } else if (filterId === 'luxury') {
+            // Premium/Luxury - price >= 8000
+            const filtered = allHotels.filter((hotel) => (hotel.lowestPrice || 0) >= PREMIUM_MIN);
+            setFilteredHotels(filtered);
+        } else if (filterId === 'couple') {
+            // Couple Friendly - rating >= 4.5
+            const filtered = allHotels.filter((hotel) => parseFloat(String(hotel.rating)) >= 4.5);
+            setFilteredHotels(filtered);
+        }
+    };
+
+    const clearFilter = () => {
+        setActiveFilter(null);
+        setSearching(false);
+        setFilteredHotels([]);
     };
 
     return (
@@ -60,6 +187,8 @@ export default function SearchScreen() {
                             placeholderTextColor="#9CA3AF"
                             value={searchQuery}
                             onChangeText={setSearchQuery}
+                            onSubmitEditing={handleSearchSubmit}
+                            returnKeyType="search"
                         />
                         {searchQuery.length > 0 && (
                             <TouchableOpacity onPress={() => setSearchQuery('')}>
@@ -69,37 +198,84 @@ export default function SearchScreen() {
                     </View>
                 </View>
 
-                {/* Popular Cities */}
-                <View className="px-5 mt-6">
-                    <Text className="text-lg font-bold text-gray-900 dark:text-white mb-4">
-                        {t('search.popularDestinations')}
-                    </Text>
-                    <View className="flex-row flex-wrap gap-3">
-                        {POPULAR_CITIES.map((city, index) => (
-                            <CityCard
-                                key={city.name}
-                                name={city.name}
-                                image={city.image}
-                                hotels={city.hotels}
-                                index={index}
-                                onPress={() => handleCitySelect(city.name)}
-                            />
-                        ))}
+                {/* Active Filter Badge */}
+                {activeFilter && (
+                    <View className="px-5 mt-4">
+                        <View className="flex-row items-center">
+                            <View className="flex-row items-center bg-primary/10 px-4 py-2 rounded-full gap-2">
+                                <Text className="text-primary font-semibold">
+                                    {activeFilter === 'nearby' && '📍 Near Me'}
+                                    {activeFilter === 'budget' && '💰 Budget (≤৳3,000)'}
+                                    {activeFilter === 'luxury' && '⭐ Premium (≥৳8,000)'}
+                                    {activeFilter === 'couple' && '❤️ Couple Friendly'}
+                                </Text>
+                                <TouchableOpacity onPress={clearFilter}>
+                                    <FontAwesome name="times" size={14} color="#E63946" />
+                                </TouchableOpacity>
+                            </View>
+                        </View>
                     </View>
-                </View>
+                )}
 
-                {/* Recent Searches */}
-                <View className="px-5 mt-6">
-                    <Text className="text-lg font-bold text-gray-900 dark:text-white mb-4">
-                        {t('search.recentSearches')}
-                    </Text>
-                    <View className="p-8 rounded-xl bg-gray-100 dark:bg-gray-800 items-center gap-2">
-                        <FontAwesome name="history" size={24} color="#9CA3AF" />
-                        <Text className="text-sm text-gray-500 dark:text-gray-400">
-                            {t('search.recentEmpty')}
-                        </Text>
+                {/* Search Results or Filter Results */}
+                {(searching || locationLoading) ? (
+                    <View className="px-5 mt-4">
+                        {locationLoading ? (
+                            <View className="items-center py-8">
+                                <ActivityIndicator size="large" color="#E63946" />
+                                <Text className="text-gray-500 mt-3">Getting your location...</Text>
+                            </View>
+                        ) : filteredHotels.length > 0 ? (
+                            <>
+                                <Text className="text-sm text-gray-500 dark:text-gray-400 mb-3">
+                                    {filteredHotels.length} hotel{filteredHotels.length !== 1 ? 's' : ''} found
+                                </Text>
+                                {filteredHotels.map((hotel, index) => (
+                                    <HotelCard key={hotel.id} hotel={hotel} index={index} />
+                                ))}
+                            </>
+                        ) : (
+                            <View className="items-center py-8">
+                                <FontAwesome name="search" size={40} color="#9CA3AF" />
+                                <Text className="text-gray-500 mt-3">No hotels found</Text>
+                            </View>
+                        )}
                     </View>
-                </View>
+                ) : (
+                    <>
+                        {/* Popular Cities */}
+                        <View className="px-5 mt-6">
+                            <Text className="text-lg font-bold text-gray-900 dark:text-white mb-4">
+                                {t('search.popularDestinations')}
+                            </Text>
+                            <View className="flex-row flex-wrap gap-3">
+                                {POPULAR_CITIES.map((city, index) => (
+                                    <CityCard
+                                        key={city.name}
+                                        name={city.name}
+                                        image={city.image}
+                                        hotels={city.hotels}
+                                        index={index}
+                                        onPress={() => handleCitySelect(city.name)}
+                                    />
+                                ))}
+                            </View>
+                        </View>
+
+                        {/* Recent Searches */}
+                        <View className="px-5 mt-6">
+                            <Text className="text-lg font-bold text-gray-900 dark:text-white mb-4">
+                                {t('search.recentSearches')}
+                            </Text>
+                            <View className="p-8 rounded-xl bg-gray-100 dark:bg-gray-800 items-center gap-2">
+                                <FontAwesome name="history" size={24} color="#9CA3AF" />
+                                <Text className="text-sm text-gray-500 dark:text-gray-400">
+                                    {t('search.recentEmpty')}
+                                </Text>
+                            </View>
+                        </View>
+                    </>
+                )}
 
                 <View className="h-5" />
             </ScrollView>
