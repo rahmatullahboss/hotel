@@ -263,16 +263,20 @@ export async function sendPushNotification(
         let sent = 0;
         const failedEndpoints: string[] = [];
 
-        // Send to all subscriptions
+        // Send to all web subscriptions (filter for valid web push credentials)
+        const webSubscriptions = subscriptions.filter(
+            sub => sub.endpoint && sub.p256dh && sub.auth
+        );
+
         await Promise.all(
-            subscriptions.map(async (sub) => {
+            webSubscriptions.map(async (sub) => {
                 try {
                     await webpush.sendNotification(
                         {
-                            endpoint: sub.endpoint,
+                            endpoint: sub.endpoint!,
                             keys: {
-                                p256dh: sub.p256dh,
-                                auth: sub.auth,
+                                p256dh: sub.p256dh!,
+                                auth: sub.auth!,
                             },
                         },
                         notificationPayload
@@ -282,7 +286,7 @@ export async function sendPushNotification(
                     const webPushError = error as { statusCode?: number };
                     // Handle expired or invalid subscriptions
                     if (webPushError.statusCode === 410 || webPushError.statusCode === 404) {
-                        failedEndpoints.push(sub.endpoint);
+                        failedEndpoints.push(sub.endpoint!);
                     }
                     console.error("Error sending to subscription:", sub.id, error);
                 }
@@ -439,6 +443,97 @@ export async function notifyPaymentReceived(payment: {
     } catch (error) {
         console.error("Error notifying payment:", error);
     }
+}
+
+// ==================
+// Expo Push Notifications (Mobile)
+// ==================
+
+/**
+ * Send push notification to mobile devices via Expo's push notification service
+ */
+export async function sendExpoPushNotification(
+    userId: string,
+    payload: PushPayload,
+    notificationType?: NotificationType
+): Promise<{ success: boolean; sent: number; error?: string }> {
+    try {
+        // Check user preferences if notification type specified
+        if (notificationType) {
+            const prefs = await getNotificationPreferences(userId);
+            if (prefs && !prefs[notificationType]) {
+                return { success: true, sent: 0 }; // User has disabled this type
+            }
+        }
+
+        // Get all active mobile subscriptions with Expo tokens
+        const subscriptions = await db.query.pushSubscriptions.findMany({
+            where: and(
+                eq(pushSubscriptions.userId, userId),
+                eq(pushSubscriptions.isActive, true)
+            ),
+        });
+
+        const mobileTokens = subscriptions
+            .filter(sub => sub.expoPushToken && (sub.platform === 'ios' || sub.platform === 'android'))
+            .map(sub => sub.expoPushToken!);
+
+        if (mobileTokens.length === 0) {
+            return { success: true, sent: 0 };
+        }
+
+        // Prepare messages for Expo push service
+        const messages = mobileTokens.map(token => ({
+            to: token,
+            sound: 'default' as const,
+            title: payload.title,
+            body: payload.body,
+            data: payload.data || {},
+        }));
+
+        // Send via Expo push service
+        const response = await fetch('https://exp.host/--/api/v2/push/send', {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Accept-Encoding': 'gzip, deflate',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(messages),
+        });
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error('Expo push error:', errorText);
+            return { success: false, sent: 0, error: errorText };
+        }
+
+        return { success: true, sent: messages.length };
+    } catch (error) {
+        console.error("Error sending Expo push notification:", error);
+        return { success: false, sent: 0, error: "Failed to send Expo notification" };
+    }
+}
+
+/**
+ * Send push notification to all platforms (Web + Mobile)
+ */
+export async function sendPushNotificationToAllPlatforms(
+    userId: string,
+    payload: PushPayload,
+    notificationType?: NotificationType
+): Promise<{ success: boolean; webSent: number; mobileSent: number; error?: string }> {
+    const [webResult, mobileResult] = await Promise.all([
+        sendPushNotification(userId, payload, notificationType),
+        sendExpoPushNotification(userId, payload, notificationType),
+    ]);
+
+    return {
+        success: webResult.success && mobileResult.success,
+        webSent: webResult.sent,
+        mobileSent: mobileResult.sent,
+        error: webResult.error || mobileResult.error,
+    };
 }
 
 // ==================

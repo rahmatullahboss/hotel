@@ -6,12 +6,27 @@ import * as SplashScreen from 'expo-splash-screen';
 import { useEffect, useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { Platform } from 'react-native';
+import * as Device from 'expo-device';
+import * as Notifications from 'expo-notifications';
+import Constants from 'expo-constants';
 import 'react-native-reanimated';
 import '../global.css';
 
 import { ThemeProvider, useTheme } from '@/context/ThemeContext';
 import Colors from '@/constants/Colors';
 import { initI18n } from '@/i18n';
+import api, { getToken } from '@/lib/api';
+
+// Configure notification handler for foreground notifications
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldPlaySound: true,
+    shouldSetBadge: true,
+    shouldShowBanner: true,
+    shouldShowList: true,
+  }),
+});
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -89,6 +104,69 @@ export default function RootLayout() {
 
 function RootLayoutNav() {
   const { theme } = useTheme();
+
+  // Initialize push notifications
+  useEffect(() => {
+    const initPushNotifications = async () => {
+      try {
+        // Check if user is authenticated
+        const token = await getToken();
+        if (!token) return;
+
+        // Check if running on physical device
+        if (!Device.isDevice) {
+          console.log('Push notifications require a physical device');
+          return;
+        }
+
+        // Check/request permissions
+        const { status: existingStatus } = await Notifications.getPermissionsAsync();
+        let finalStatus = existingStatus;
+
+        if (existingStatus !== 'granted') {
+          const { status } = await Notifications.requestPermissionsAsync();
+          finalStatus = status;
+        }
+
+        if (finalStatus !== 'granted') {
+          console.log('Push notification permission not granted');
+          return;
+        }
+
+        // Set up Android notification channel
+        if (Platform.OS === 'android') {
+          await Notifications.setNotificationChannelAsync('default', {
+            name: 'Default',
+            importance: Notifications.AndroidImportance.MAX,
+            vibrationPattern: [0, 250, 250, 250],
+            lightColor: '#E63946',
+          });
+        }
+
+        // Get Expo push token
+        const projectId = Constants.expoConfig?.extra?.eas?.projectId;
+        if (!projectId) {
+          console.log('Project ID not found in app configuration');
+          return;
+        }
+
+        const tokenData = await Notifications.getExpoPushTokenAsync({ projectId });
+        const expoPushToken = tokenData.data;
+
+        // Register token with backend
+        const { error } = await api.registerPushToken(expoPushToken, Platform.OS as 'ios' | 'android');
+        if (error) {
+          console.warn('Failed to register push token:', error);
+        } else {
+          console.log('Push token registered:', expoPushToken);
+        }
+      } catch (error) {
+        console.error('Error initializing push notifications:', error);
+      }
+    };
+
+    initPushNotifications();
+  }, []);
 
   return (
     <SafeAreaProvider>

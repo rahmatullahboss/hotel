@@ -1,6 +1,7 @@
 import { BottomNav, SearchForm, HotelCard, Footer } from "./components";
 import { WhyBookGrid } from "./components/WhyBook";
 import { CitySelectorWrapper } from "./components/CitySelectorWrapper";
+import { FirstBookingBannerWrapper } from "./components/FirstBookingBannerWrapper";
 import { getFeaturedHotels } from "./actions/hotels";
 import { getPopularCities } from "./actions/cities";
 import { getTranslations } from "next-intl/server";
@@ -35,6 +36,9 @@ export default async function HomePage() {
       <main className="container page-content" style={{ marginTop: "-2rem" }}>
         {/* Search Form */}
         <SearchForm />
+
+        {/* First Booking Offer Banner - Only shows to eligible first-time users */}
+        <FirstBookingBannerWrapper />
 
         {/* City Selector - Browse by location */}
         {cities.length > 0 && (

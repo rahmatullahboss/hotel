@@ -8,6 +8,7 @@ import Link from "next/link";
 import { createBooking } from "../actions/bookings";
 import { getUserProfile } from "../actions/profile";
 import { getWalletBalance } from "../actions/wallet";
+import { checkFirstBookingEligibility, FIRST_BOOKING_DISCOUNT_PERCENT, FIRST_BOOKING_MAX_DISCOUNT } from "../actions/first-booking";
 import { BottomNav, BookingQRCode } from "../components";
 import { FiLock, FiClock, FiCreditCard, FiSmartphone, FiCheck } from "react-icons/fi";
 import { FaHotel, FaWallet } from "react-icons/fa";
@@ -42,11 +43,9 @@ function BookingContent() {
     const roomIdsParam = searchParams.get("roomIds");
     const roomIds: string[] = roomIdsParam ? JSON.parse(decodeURIComponent(roomIdsParam)) : [];
 
-    // Calculate nights and amounts
     const nights = checkIn && checkOut
         ? Math.ceil((new Date(checkOut).getTime() - new Date(checkIn).getTime()) / (1000 * 60 * 60 * 24))
         : 1;
-    const totalAmount = price * nights;
 
     const [step, setStep] = useState<1 | 2 | 3 | 4>(1); // 4 = Advance payment method selection
     const [guestName, setGuestName] = useState("");
@@ -60,6 +59,15 @@ function BookingContent() {
     const [walletBalance, setWalletBalance] = useState<number>(0);
     const [useWalletPartial, setUseWalletPartial] = useState(false); // Use wallet for partial payment
     const [error, setError] = useState("");
+    const [isFirstBooking, setIsFirstBooking] = useState(false); // First booking discount eligibility
+
+    // Calculate amounts (after isFirstBooking state is declared)
+    const subtotalAmount = price * nights;
+    // First booking discount (20% up to ৳1000)
+    const firstBookingDiscount = isFirstBooking
+        ? Math.min(Math.round(subtotalAmount * FIRST_BOOKING_DISCOUNT_PERCENT / 100), FIRST_BOOKING_MAX_DISCOUNT)
+        : 0;
+    const totalAmount = subtotalAmount - firstBookingDiscount;
 
     // Get current payment method's advance requirement (after paymentMethod state is declared)
     const currentMethod = paymentMethods.find(m => m.id === paymentMethod);
@@ -87,6 +95,13 @@ function BookingContent() {
             getWalletBalance().then((balance) => {
                 setWalletBalance(balance);
             });
+
+            // Check first booking eligibility
+            if (session.user.id) {
+                checkFirstBookingEligibility(session.user.id).then((result) => {
+                    setIsFirstBooking(result.eligible);
+                });
+            }
         }
     }, [session]);
 
@@ -543,8 +558,33 @@ function BookingContent() {
                             <div className="card" style={{ padding: "1rem", marginBottom: "1rem" }}>
                                 <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.5rem" }}>
                                     <span>{tCommon("room")} × {nights} {tCommon(nights > 1 ? "nights" : "night")}</span>
-                                    <span>৳{(price * nights).toLocaleString()}</span>
+                                    <span>৳{subtotalAmount.toLocaleString()}</span>
                                 </div>
+
+                                {/* First Booking Discount */}
+                                {isFirstBooking && firstBookingDiscount > 0 && (
+                                    <div style={{
+                                        display: "flex",
+                                        justifyContent: "space-between",
+                                        marginBottom: "0.5rem",
+                                        padding: "0.5rem 0.75rem",
+                                        background: "rgba(255, 193, 7, 0.15)",
+                                        borderRadius: "0.5rem",
+                                        marginLeft: "-0.25rem",
+                                        marginRight: "-0.25rem",
+                                    }}>
+                                        <span style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                                            <span>🎉</span>
+                                            <span style={{ color: "#B45309", fontWeight: 600 }}>
+                                                {t("firstBookingDiscount", "First Booking Discount (20%)")}
+                                            </span>
+                                        </span>
+                                        <span style={{ color: "#B45309", fontWeight: 700 }}>
+                                            -৳{firstBookingDiscount.toLocaleString()}
+                                        </span>
+                                    </div>
+                                )}
+
                                 <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.5rem" }}>
                                     <span>{tCommon("taxesAndFees")}</span>
                                     <span>{tCommon("included")}</span>

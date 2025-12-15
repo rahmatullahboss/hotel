@@ -12,3 +12,4 @@ export { LanguageSwitcher } from "./LanguageSwitcher";
 export { LocationDetector, useLocationDetection } from "./LocationDetector";
 export { CitySelector } from "./CitySelector";
 export { FirstBookingBanner } from "./FirstBookingBanner";
+export { FirstBookingBannerWrapper } from "./FirstBookingBannerWrapper";
