@@ -212,6 +212,22 @@ export const api = {
         method: 'PUT',
         body: JSON.stringify(preferences),
     }),
+
+    // Self Check-in/Check-out
+    selfCheckIn: (hotelId: string, action: 'checkin' | 'checkout') => apiRequest<{
+        success: boolean;
+        error?: string;
+        booking?: {
+            id: string;
+            hotelName: string;
+            roomName: string;
+            checkIn: string;
+            checkOut: string;
+        };
+    }>('/api/checkin', {
+        method: 'POST',
+        body: JSON.stringify({ hotelId, action }),
+    }),
 };
 
 export default api;

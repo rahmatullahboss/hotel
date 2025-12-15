@@ -31,6 +31,7 @@ export default function ProfileScreen() {
 
     const MENU_ITEMS = [
         { icon: 'pencil' as const, label: t('editProfile.title'), route: '/edit-profile' },
+        { icon: 'qrcode' as const, label: t('qrScanner.title'), route: '/qr-scanner' },
         { icon: 'suitcase' as const, label: t('profile.menu.myTrips'), route: '/(tabs)/bookings' },
         { icon: 'credit-card' as const, label: t('profile.menu.wallet'), route: '/wallet' },
         { icon: 'gift' as const, label: t('profile.menu.referral'), route: '/referral' },
@@ -144,8 +145,8 @@ export default function ProfileScreen() {
                     <View className="flex-row px-4 pb-4 gap-3">
                         <TouchableOpacity
                             className={`flex-1 py-2.5 px-4 rounded-lg border items-center ${i18n.language === 'en'
-                                    ? 'border-primary bg-primary/10'
-                                    : 'border-gray-200 dark:border-gray-600'
+                                ? 'border-primary bg-primary/10'
+                                : 'border-gray-200 dark:border-gray-600'
                                 }`}
                             onPress={() => handleLanguageChange('en')}
                         >
@@ -158,8 +159,8 @@ export default function ProfileScreen() {
                         </TouchableOpacity>
                         <TouchableOpacity
                             className={`flex-1 py-2.5 px-4 rounded-lg border items-center ${i18n.language === 'bn'
-                                    ? 'border-primary bg-primary/10'
-                                    : 'border-gray-200 dark:border-gray-600'
+                                ? 'border-primary bg-primary/10'
+                                : 'border-gray-200 dark:border-gray-600'
                                 }`}
                             onPress={() => handleLanguageChange('bn')}
                         >

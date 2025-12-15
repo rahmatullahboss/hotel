@@ -223,5 +223,24 @@
         "saving": "Saving...",
         "success": "Profile updated successfully",
         "error": "Failed to update profile"
+    },
+    "qrScanner": {
+        "title": "Self Check-in/out",
+        "subtitle": "Scan the hotel QR code at reception",
+        "permissionTitle": "Camera Permission Required",
+        "permissionMessage": "Please allow camera access to scan QR codes for check-in and check-out",
+        "grantPermission": "Grant Permission",
+        "scanning": "Point camera at QR code...",
+        "processing": "Processing...",
+        "checkIn": "Check-in",
+        "checkOut": "Check-out",
+        "success": "Success!",
+        "checkedIn": "You are now checked in!",
+        "checkedOut": "You have checked out!",
+        "invalidQR": "Invalid QR code. Please scan the hotel's QR code.",
+        "noBooking": "No booking found for this hotel",
+        "error": "Something went wrong. Please try again.",
+        "scanAgain": "Scan Again",
+        "viewBookings": "View My Bookings"
     }
 }
