@@ -32,6 +32,7 @@ interface Booking {
     bookingFee?: string | number;
     bookingFeeStatus?: string;
     guestName?: string;
+    qrCode?: string; // JSON string with booking/hotel/room IDs for check-in
 }
 
 const STATUS_COLORS = {

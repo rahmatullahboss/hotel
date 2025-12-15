@@ -61,6 +61,8 @@ export async function createBooking(input: CreateBookingInput): Promise<BookingR
         paymentMethod,
         totalAmount,
         userId,
+        useWalletBalance = false,
+        walletAmount = 0,
     } = input;
 
     // Early validation - user must be logged in
@@ -111,9 +113,11 @@ export async function createBooking(input: CreateBookingInput): Promise<BookingR
             let bookingFeeStatus: "PENDING" | "PAID" | "WAIVED" = "PENDING";
             let requiresPayment = false;
             let walletPaymentSuccess = false;
+            let actualWalletDeduction = 0;
 
             // Handle wallet payments within transaction
             if (paymentMethod === "WALLET") {
+                // Full wallet payment
                 const wallet = await tx.query.wallets.findFirst({
                     where: eq(wallets.userId, userId),
                 });
@@ -131,9 +135,44 @@ export async function createBooking(input: CreateBookingInput): Promise<BookingR
                     })
                     .where(eq(wallets.id, wallet.id));
 
+                actualWalletDeduction = totalAmount;
                 bookingFeeStatus = "PAID";
                 walletPaymentSuccess = true;
+            } else if (useWalletBalance && walletAmount > 0) {
+                // Split payment: deduct specified wallet amount first
+                const wallet = await tx.query.wallets.findFirst({
+                    where: eq(wallets.userId, userId),
+                });
+
+                if (wallet && Number(wallet.balance) >= walletAmount) {
+                    await tx
+                        .update(wallets)
+                        .set({
+                            balance: (Number(wallet.balance) - walletAmount).toString(),
+                            updatedAt: new Date(),
+                        })
+                        .where(eq(wallets.id, wallet.id));
+
+                    actualWalletDeduction = walletAmount;
+
+                    // For Pay at Hotel: check if wallet covers the 20% advance
+                    if (paymentMethod === "PAY_AT_HOTEL") {
+                        if (walletAmount >= bookingFee) {
+                            // Wallet covers the 20% advance - no additional payment needed
+                            bookingFeeStatus = "PAID";
+                        } else {
+                            // Wallet doesn't cover full advance - need remaining via bKash
+                            requiresPayment = true;
+                            bookingFeeStatus = "PENDING";
+                        }
+                    } else {
+                        // For bKash/other: remaining needs to be paid
+                        bookingFeeStatus = "PENDING";
+                        requiresPayment = true;
+                    }
+                }
             } else if (paymentMethod === "PAY_AT_HOTEL") {
+                // No wallet usage - check if wallet can auto-pay 20% advance
                 const wallet = await tx.query.wallets.findFirst({
                     where: eq(wallets.userId, userId),
                 });
@@ -148,6 +187,7 @@ export async function createBooking(input: CreateBookingInput): Promise<BookingR
                         })
                         .where(eq(wallets.id, wallet.id));
 
+                    actualWalletDeduction = bookingFee;
                     bookingFeeStatus = "PAID";
                 } else {
                     requiresPayment = true;
@@ -273,6 +313,7 @@ export async function getUserBookings(userId: string) {
                 bookingFee: bookings.bookingFee,
                 bookingFeeStatus: bookings.bookingFeeStatus,
                 guestName: bookings.guestName,
+                qrCode: bookings.qrCode,
                 hotelName: hotels.name,
                 hotelLocation: hotels.address,
                 hotelImage: hotels.coverImage,
