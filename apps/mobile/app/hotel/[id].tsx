@@ -9,7 +9,7 @@ import {
     Dimensions,
     Animated,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
@@ -23,6 +23,7 @@ export default function HotelDetailScreen() {
     const router = useRouter();
     const { t, i18n } = useTranslation();
     const scrollY = useRef(new Animated.Value(0)).current;
+    const insets = useSafeAreaInsets();
 
     const {
         hotel,
@@ -108,7 +109,8 @@ export default function HotelDetailScreen() {
                 />
                 {/* Save Button */}
                 <TouchableOpacity
-                    className="absolute top-14 right-4 w-11 h-11 rounded-full bg-black/50 items-center justify-center"
+                    style={{ position: 'absolute', top: insets.top + 8, right: 16 }}
+                    className="w-11 h-11 rounded-full bg-black/50 items-center justify-center"
                     onPress={handleToggleSave}
                     disabled={savingState}
                     activeOpacity={0.8}
