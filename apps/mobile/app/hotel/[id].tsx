@@ -180,22 +180,24 @@ export default function HotelDetailScreen() {
                                 <Text className="text-xl font-bold text-gray-900 dark:text-white mb-3">
                                     {t('hotel.amenities')}
                                 </Text>
-                                <View className="flex-row flex-wrap gap-2 mb-4">
-                                    {hotel.amenities.slice(0, 6).map((amenity, index) => (
+                                <ScrollView
+                                    horizontal
+                                    showsHorizontalScrollIndicator={false}
+                                    contentContainerStyle={{ gap: 8, paddingRight: 20 }}
+                                    className="mb-4"
+                                >
+                                    {hotel.amenities.map((amenity, index) => (
                                         <View
                                             key={index}
                                             className="rounded-full bg-gray-100 dark:bg-gray-800"
-                                            style={{ paddingHorizontal: 16, paddingVertical: 8 }}
+                                            style={{ paddingHorizontal: 14, paddingVertical: 8 }}
                                         >
-                                            <Text
-                                                className="text-sm text-gray-700 dark:text-gray-300"
-                                                style={{ flexShrink: 0 }}
-                                            >
+                                            <Text className="text-sm text-gray-700 dark:text-gray-300">
                                                 {amenity}
                                             </Text>
                                         </View>
                                     ))}
-                                </View>
+                                </ScrollView>
                             </>
                         )}
                     </View>
