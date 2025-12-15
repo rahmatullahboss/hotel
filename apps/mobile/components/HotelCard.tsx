@@ -90,11 +90,18 @@ export default function HotelCard({ hotel, index }: HotelCardProps) {
                     </View>
 
                     {/* Book Button */}
-                    <View className="bg-primary px-4 py-2 rounded-full">
+                    <TouchableOpacity
+                        className="bg-primary px-4 py-2 rounded-full"
+                        onPress={(e) => {
+                            e.stopPropagation();
+                            router.push(`/hotel/${hotel.id}`);
+                        }}
+                        activeOpacity={0.8}
+                    >
                         <Text className="text-white font-bold text-sm">
                             {t('hotel.bookNow')}
                         </Text>
-                    </View>
+                    </TouchableOpacity>
                 </View>
             </View>
         </TouchableOpacity>
