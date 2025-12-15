@@ -15,7 +15,14 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.vibehospitality.app"
+      "bundleIdentifier": "com.vibehospitality.app",
+      "infoPlist": {
+        "NSCameraUsageDescription": "Allow Vibe Hospitality to access your camera for QR code scanning and ID verification.",
+        "NSPhotoLibraryUsageDescription": "Allow Vibe Hospitality to access your photos for uploading profile pictures.",
+        "NSMicrophoneUsageDescription": "Allow Vibe Hospitality to access your microphone.",
+        "NSCalendarsUsageDescription": "Allow Vibe Hospitality to add your bookings to your calendar.",
+        "NSContactsUsageDescription": "Allow Vibe Hospitality to access your contacts for referral invitations."
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -24,7 +31,17 @@
       },
       "edgeToEdgeEnabled": true,
       "navigationBarColor": "#FFFFFF",
-      "package": "com.vibehospitality.app"
+      "package": "com.vibehospitality.app",
+      "permissions": [
+        "CAMERA",
+        "READ_EXTERNAL_STORAGE",
+        "WRITE_EXTERNAL_STORAGE",
+        "READ_CALENDAR",
+        "WRITE_CALENDAR",
+        "VIBRATE",
+        "RECEIVE_BOOT_COMPLETED",
+        "READ_CONTACTS"
+      ]
     },
     "web": {
       "bundler": "metro",
@@ -49,7 +66,38 @@
         {
           "iosUrlScheme": "com.googleusercontent.apps.104361665388-erqs6259250hkjg13v378jshge11kaht"
         }
-      ]
+      ],
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow Vibe Hospitality to access your camera for QR code scanning and ID verification.",
+          "microphonePermission": "Allow Vibe Hospitality to access your microphone."
+        }
+      ],
+      "expo-barcode-scanner",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Allow Vibe Hospitality to access your photos for uploading profile pictures and ID documents.",
+          "cameraPermission": "Allow Vibe Hospitality to take photos for profile pictures and ID verification."
+        }
+      ],
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/images/notification-icon.png",
+          "color": "#E63946"
+        }
+      ],
+      [
+        "expo-calendar",
+        {
+          "calendarPermission": "Allow Vibe Hospitality to add your bookings to your calendar."
+        }
+      ],
+      "expo-haptics",
+      "expo-sharing",
+      "expo-brightness"
     ],
     "experiments": {
       "typedRoutes": true
