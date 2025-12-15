@@ -17,7 +17,6 @@ import { useTranslation } from 'react-i18next';
 import api from '@/lib/api';
 import HotelCard from '@/components/HotelCard';
 import QuickFilterButton from '@/components/QuickFilterButton';
-import Animated, { FadeInRight } from 'react-native-reanimated';
 
 const { width } = Dimensions.get('window');
 
@@ -43,14 +42,29 @@ export default function HomeScreen() {
     { id: 'couple', label: t('home.filters.couple'), icon: 'heart' as const },
   ];
 
+  // Dummy hotels for testing
+  const DUMMY_HOTELS: Hotel[] = [
+    { id: '1', name: 'Pan Pacific Sonargaon', city: 'Dhaka', rating: 4.8, imageUrl: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=600', lowestPrice: 8500 },
+    { id: '2', name: 'Radisson Blu Chittagong', city: 'Chittagong', rating: 4.6, imageUrl: 'https://images.unsplash.com/photo-1582719508461-905c673771fd?w=600', lowestPrice: 7200 },
+    { id: '3', name: "Cox's Ocean Paradise", city: "Cox's Bazar", rating: 4.5, imageUrl: 'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=600', lowestPrice: 5500 },
+    { id: '4', name: 'Grand Sylhet Resort', city: 'Sylhet', rating: 4.4, imageUrl: 'https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=600', lowestPrice: 4800 },
+    { id: '5', name: 'Rajshahi Heritage Inn', city: 'Rajshahi', rating: 4.3, imageUrl: 'https://images.unsplash.com/photo-1564501049412-61c2a3083791?w=600', lowestPrice: 3200 },
+    { id: '6', name: 'Khulna River View', city: 'Khulna', rating: 4.2, imageUrl: 'https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=600', lowestPrice: 2800 },
+    { id: '7', name: 'The Westin Dhaka', city: 'Dhaka', rating: 4.9, imageUrl: 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=600', lowestPrice: 12000 },
+    { id: '8', name: 'Long Beach Hotel', city: "Cox's Bazar", rating: 4.7, imageUrl: 'https://images.unsplash.com/photo-1445019980597-93fa8acb246c?w=600', lowestPrice: 6800 },
+  ];
+
   const [hotels, setHotels] = useState<Hotel[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
   const fetchHotels = async () => {
     const { data, error } = await api.getHotels();
-    if (!error && data) {
+    if (!error && data && data.length > 0) {
       setHotels(data);
+    } else {
+      // Use dummy data if API returns empty
+      setHotels(DUMMY_HOTELS);
     }
     setLoading(false);
     setRefreshing(false);

@@ -1,10 +1,4 @@
-import { View, Text, Pressable, Dimensions, ImageBackground } from 'react-native';
-import Animated, {
-    FadeIn,
-    useAnimatedStyle,
-    useSharedValue,
-    withSpring,
-} from 'react-native-reanimated';
+import { View, Text, TouchableOpacity, Dimensions, ImageBackground } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 
@@ -28,44 +22,17 @@ const CITY_IMAGES: Record<string, string> = {
     'Khulna': 'https://images.unsplash.com/photo-1544735716-392fe2489ffa?w=400',
 };
 
-const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
-
-export default function CityCard({ name, image, hotels, index, onPress }: CityCardProps) {
+export default function CityCard({ name, image, hotels, onPress }: CityCardProps) {
     const { t } = useTranslation();
-    const scale = useSharedValue(1);
-
-    const animatedStyle = useAnimatedStyle(() => ({
-        transform: [{ scale: scale.value }],
-    }));
-
-    const handlePressIn = () => {
-        scale.value = withSpring(0.96, { damping: 20, stiffness: 300 });
-    };
-
-    const handlePressOut = () => {
-        scale.value = withSpring(1, { damping: 20, stiffness: 300 });
-    };
-
     const cityImage = CITY_IMAGES[name];
 
     return (
-        <AnimatedPressable
-            entering={FadeIn.delay(index * 40).duration(200)}
-            style={[animatedStyle, { width: (width - 52) / 2 }]}
-            onPressIn={handlePressIn}
-            onPressOut={handlePressOut}
+        <TouchableOpacity
+            style={{ width: (width - 52) / 2 }}
             onPress={onPress}
+            activeOpacity={0.8}
         >
-            <View
-                className="rounded-2xl overflow-hidden h-36"
-                style={{
-                    shadowColor: '#000',
-                    shadowOffset: { width: 0, height: 6 },
-                    shadowOpacity: 0.15,
-                    shadowRadius: 16,
-                    elevation: 8,
-                }}
-            >
+            <View className="rounded-2xl overflow-hidden h-32 border border-gray-100 dark:border-gray-700">
                 {cityImage ? (
                     <ImageBackground
                         source={{ uri: cityImage }}
@@ -73,16 +40,16 @@ export default function CityCard({ name, image, hotels, index, onPress }: CityCa
                         resizeMode="cover"
                     >
                         {/* Gradient Overlay */}
-                        <View className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+                        <View className="absolute inset-0 bg-black/40" />
 
                         {/* Content */}
-                        <View className="p-4">
-                            <Text className="text-white text-lg font-bold mb-0.5">
+                        <View className="p-3">
+                            <Text className="text-white text-base font-bold">
                                 {name}
                             </Text>
-                            <View className="flex-row items-center gap-1.5">
+                            <View className="flex-row items-center gap-1">
                                 <FontAwesome name="building-o" size={10} color="rgba(255,255,255,0.8)" />
-                                <Text className="text-white/80 text-xs font-medium">
+                                <Text className="text-white/80 text-xs">
                                     {hotels} {t('search.hotels')}
                                 </Text>
                             </View>
@@ -90,8 +57,8 @@ export default function CityCard({ name, image, hotels, index, onPress }: CityCa
                     </ImageBackground>
                 ) : (
                     <View className="flex-1 bg-gray-100 dark:bg-gray-800 justify-center items-center p-4">
-                        <Text className="text-5xl mb-2">{image}</Text>
-                        <Text className="text-base font-semibold text-gray-900 dark:text-white mb-0.5">
+                        <Text className="text-4xl mb-2">{image}</Text>
+                        <Text className="text-sm font-semibold text-gray-900 dark:text-white">
                             {name}
                         </Text>
                         <Text className="text-xs text-gray-500 dark:text-gray-400">
@@ -100,6 +67,6 @@ export default function CityCard({ name, image, hotels, index, onPress }: CityCa
                     </View>
                 )}
             </View>
-        </AnimatedPressable>
+        </TouchableOpacity>
     );
 }
