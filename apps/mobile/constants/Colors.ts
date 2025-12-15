@@ -3,6 +3,9 @@
 
 const primaryColor = '#E23744'; // OYO Red
 const primaryDark = '#C41E3A';  // Darker Red
+const primaryLight = '#FF6B7A'; // Lighter Red for accents
+const accentGold = '#FFB400';   // Gold accent
+const accentTeal = '#00A699';   // Teal accent
 
 export default {
   light: {
@@ -18,6 +21,8 @@ export default {
     error: '#FF5A5F',
     warning: '#FFB400',
     card: '#FFFFFF',
+    cardElevated: '#FFFFFF',
+    overlay: 'rgba(0,0,0,0.5)',
   },
   dark: {
     text: '#FFFFFF',
@@ -32,7 +37,19 @@ export default {
     error: '#FF6B6B',
     warning: '#FFD166',
     card: '#262626',
+    cardElevated: '#2F2F2F',
+    overlay: 'rgba(0,0,0,0.7)',
   },
   primary: primaryColor,
   primaryDark: primaryDark,
+  primaryLight: primaryLight,
+  accent: {
+    gold: accentGold,
+    teal: accentTeal,
+  },
+  gradient: {
+    primary: [primaryColor, primaryDark],
+    premium: ['#E23744', '#FF6B7A'],
+    overlay: ['transparent', 'rgba(0,0,0,0.7)'],
+  },
 };

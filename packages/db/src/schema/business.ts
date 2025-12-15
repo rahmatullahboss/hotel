@@ -603,6 +603,41 @@ export const seasonalRules = pgTable("seasonalRules", {
     updatedAt: timestamp("updatedAt", { mode: "date" }).defaultNow().notNull(),
 });
 
+// ====================
+// SAVED HOTELS (User Favorites)
+// ====================
+
+export const savedHotels = pgTable(
+    "savedHotels",
+    {
+        id: text("id")
+            .primaryKey()
+            .$defaultFn(() => crypto.randomUUID()),
+        userId: text("userId")
+            .notNull()
+            .references(() => users.id, { onDelete: "cascade" }),
+        hotelId: text("hotelId")
+            .notNull()
+            .references(() => hotels.id, { onDelete: "cascade" }),
+        createdAt: timestamp("createdAt", { mode: "date" }).defaultNow().notNull(),
+    },
+    (table) => [
+        uniqueIndex("user_hotel_saved_unique").on(table.userId, table.hotelId),
+    ]
+);
+
+export const savedHotelsRelations = relations(savedHotels, ({ one }) => ({
+    user: one(users, {
+        fields: [savedHotels.userId],
+        references: [users.id],
+    }),
+    hotel: one(hotels, {
+        fields: [savedHotels.hotelId],
+        references: [hotels.id],
+    }),
+}));
+
+
 // Type exports
 export type Hotel = typeof hotels.$inferSelect;
 export type NewHotel = typeof hotels.$inferInsert;
@@ -630,4 +665,7 @@ export type Review = typeof reviews.$inferSelect;
 export type NewReview = typeof reviews.$inferInsert;
 export type SeasonalRule = typeof seasonalRules.$inferSelect;
 export type NewSeasonalRule = typeof seasonalRules.$inferInsert;
+export type SavedHotel = typeof savedHotels.$inferSelect;
+export type NewSavedHotel = typeof savedHotels.$inferInsert;
+
 

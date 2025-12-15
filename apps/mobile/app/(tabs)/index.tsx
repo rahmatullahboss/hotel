@@ -7,11 +7,13 @@ import {
   ActivityIndicator,
   RefreshControl,
   Dimensions,
+  Platform,
 } from 'react-native';
 import { Text, View } from '@/components/Themed';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useTranslation } from 'react-i18next';
 import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
@@ -86,14 +88,20 @@ export default function HomeScreen() {
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       {/* Header with Search */}
-      <View style={[styles.header, { paddingTop: insets.top + 10, backgroundColor: Colors.primary }]}>
+      <LinearGradient
+        colors={[Colors.primary, Colors.primaryDark]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={[styles.header, { paddingTop: insets.top + 12 }]}
+      >
         <View style={[styles.headerTop, { backgroundColor: 'transparent' }]}>
           <View style={{ backgroundColor: 'transparent' }}>
             <Text style={styles.headerGreeting}>{t('home.greeting')}</Text>
             <Text style={styles.headerTitle}>{t('home.heroTitle')}</Text>
           </View>
-          <TouchableOpacity style={styles.notificationBtn}>
+          <TouchableOpacity style={styles.notificationBtn} activeOpacity={0.7}>
             <FontAwesome name="bell-o" size={22} color="#fff" />
+            <View style={styles.notificationDot} />
           </TouchableOpacity>
         </View>
 
@@ -106,7 +114,7 @@ export default function HomeScreen() {
           <FontAwesome name="search" size={18} color="#999" />
           <Text style={styles.searchPlaceholder}>{t('home.searchPlaceholder')}</Text>
         </TouchableOpacity>
-      </View>
+      </LinearGradient>
 
       <ScrollView
         style={styles.scrollView}
@@ -118,9 +126,9 @@ export default function HomeScreen() {
         {/* Quick Filters */}
         <View style={[styles.quickFilters, { backgroundColor: 'transparent' }]}>
           {QUICK_FILTERS.map((filter) => (
-            <TouchableOpacity key={filter.id} style={styles.filterItem}>
-              <View style={[styles.filterIcon, { backgroundColor: `${Colors.primary}15` }]}>
-                <FontAwesome name={filter.icon} size={18} color={Colors.primary} />
+            <TouchableOpacity key={filter.id} style={styles.filterItem} activeOpacity={0.7}>
+              <View style={[styles.filterIcon, { backgroundColor: colors.backgroundSecondary }]}>
+                <FontAwesome name={filter.icon} size={20} color={Colors.primary} />
               </View>
               <Text
                 style={[styles.filterLabel, { color: colors.text }]}
@@ -169,22 +177,26 @@ export default function HomeScreen() {
                 key={hotel.id}
                 style={[styles.hotelCard, { backgroundColor: colors.card }]}
                 onPress={() => router.push(`/hotel/${hotel.id}`)}
-                activeOpacity={0.9}
+                activeOpacity={0.95}
               >
-                <Image
-                  source={{ uri: hotel.imageUrl || 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=400' }}
-                  style={styles.hotelImage}
-                />
-                <View style={[styles.hotelInfo, { backgroundColor: 'transparent' }]}>
-                  <View style={[styles.hotelHeader, { backgroundColor: 'transparent' }]}>
-                    <Text style={[styles.hotelName, { color: colors.text }]} numberOfLines={1}>
-                      {hotel.name}
-                    </Text>
-                    <View style={styles.ratingBadge}>
-                      <FontAwesome name="star" size={10} color="#fff" />
-                      <Text style={styles.ratingText}>{Number(hotel.rating || 0).toFixed(1)}</Text>
-                    </View>
+                <View style={styles.imageContainer}>
+                  <Image
+                    source={{ uri: hotel.imageUrl || 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=400' }}
+                    style={styles.hotelImage}
+                  />
+                  <LinearGradient
+                    colors={['transparent', 'rgba(0,0,0,0.4)']}
+                    style={styles.imageGradient}
+                  />
+                  <View style={styles.ratingBadge}>
+                    <FontAwesome name="star" size={11} color="#FFD700" />
+                    <Text style={styles.ratingText}>{Number(hotel.rating || 0).toFixed(1)}</Text>
                   </View>
+                </View>
+                <View style={[styles.hotelInfo, { backgroundColor: 'transparent' }]}>
+                  <Text style={[styles.hotelName, { color: colors.text }]} numberOfLines={1}>
+                    {hotel.name}
+                  </Text>
                   <View style={[styles.locationRow, { backgroundColor: 'transparent' }]}>
                     <FontAwesome name="map-marker" size={12} color={colors.textSecondary} />
                     <Text style={[styles.hotelLocation, { color: colors.textSecondary }]} numberOfLines={1}>
@@ -193,12 +205,14 @@ export default function HomeScreen() {
                   </View>
                   <View style={[styles.priceRow, { backgroundColor: 'transparent' }]}>
                     <Text style={[styles.priceLabel, { color: colors.textSecondary }]}>{t('home.startingFrom')}</Text>
-                    <Text>
+                    <View style={styles.priceContainer}>
                       <Text style={[styles.hotelPrice, { color: Colors.primary }]}>
                         {t('common.currency')}{formatPrice(hotel.lowestPrice || 0)}
                       </Text>
-                      <Text style={[styles.perNight, { color: '#666' }]}> {t('common.perNight')}</Text>
-                    </Text>
+                      <Text style={[styles.perNight, { color: colors.textSecondary }]}>
+                        {t('common.perNight')}
+                      </Text>
+                    </View>
                   </View>
                 </View>
               </TouchableOpacity>
@@ -268,6 +282,18 @@ const styles = StyleSheet.create({
   searchPlaceholder: {
     color: '#999',
     fontSize: 15,
+    flex: 1,
+  },
+  notificationDot: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#FFD700',
+    borderWidth: 1.5,
+    borderColor: Colors.primary,
   },
   scrollView: {
     flex: 1,
@@ -283,17 +309,28 @@ const styles = StyleSheet.create({
     width: (width - 60) / 4,
   },
   filterIcon: {
-    width: 52,
-    height: 52,
-    borderRadius: 26,
+    width: 56,
+    height: 56,
+    borderRadius: 16,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 8,
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.08,
+        shadowRadius: 4,
+      },
+      android: {
+        elevation: 2,
+      },
+    }),
   },
   filterLabel: {
     fontSize: 12,
-    fontWeight: '500',
-    textAlign: 'center', // Ensure text centers if adjusted
+    fontWeight: '600',
+    textAlign: 'center',
   },
   promoBanner: {
     marginHorizontal: 20,
@@ -360,53 +397,66 @@ const styles = StyleSheet.create({
     marginTop: 12,
   },
   hotelCard: {
-    borderRadius: 16,
+    borderRadius: 20,
     marginBottom: 16,
     overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 8,
-    elevation: 3,
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.12,
+        shadowRadius: 12,
+      },
+      android: {
+        elevation: 6,
+      },
+    }),
+  },
+  imageContainer: {
+    position: 'relative',
   },
   hotelImage: {
     width: '100%',
-    height: 160,
+    height: 180,
+  },
+  imageGradient: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    height: 60,
   },
   hotelInfo: {
-    padding: 14,
-  },
-  hotelHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 6,
+    padding: 16,
   },
   hotelName: {
-    fontSize: 16,
-    fontWeight: '600',
-    flex: 1,
-    marginRight: 8,
+    fontSize: 17,
+    fontWeight: '700',
+    marginBottom: 6,
+    letterSpacing: 0.2,
   },
   ratingBadge: {
+    position: 'absolute',
+    top: 12,
+    right: 12,
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#00A699',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 6,
+    backgroundColor: 'rgba(0,0,0,0.7)',
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 8,
     gap: 4,
   },
   ratingText: {
     color: '#fff',
-    fontSize: 12,
-    fontWeight: '600',
+    fontSize: 13,
+    fontWeight: '700',
   },
   locationRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    marginBottom: 10,
+    marginBottom: 12,
   },
   hotelLocation: {
     fontSize: 13,
@@ -414,19 +464,22 @@ const styles = StyleSheet.create({
   },
   priceRow: {
     flexDirection: 'row',
-    alignItems: 'baseline',
-    flexWrap: 'wrap',
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
   priceLabel: {
     fontSize: 12,
-    marginRight: 6,
+  },
+  priceContainer: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    gap: 4,
   },
   hotelPrice: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: 'bold',
   },
   perNight: {
     fontSize: 12,
-    marginLeft: 2,
   },
 });

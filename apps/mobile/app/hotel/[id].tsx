@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
-import { StyleSheet, ScrollView, Image, TouchableOpacity, ActivityIndicator, Dimensions } from 'react-native';
+import { StyleSheet, ScrollView, Image, TouchableOpacity, ActivityIndicator, Dimensions, Platform } from 'react-native';
 import { Text, View } from '@/components/Themed';
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
+import { LinearGradient } from 'expo-linear-gradient';
 import api from '@/lib/api';
 
 const { width } = Dimensions.get('window');
@@ -119,22 +120,29 @@ export default function HotelDetailScreen() {
                 }}
             />
             <ScrollView style={[styles.container, { backgroundColor: colors.background }]}>
-                {/* Hero Image */}
-                <Image
-                    source={{ uri: hotel.coverImage || hotel.images?.[0] || 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800' }}
-                    style={styles.heroImage}
-                />
+                {/* Hero Image with Gradient Overlay */}
+                <View style={styles.heroContainer}>
+                    <Image
+                        source={{ uri: hotel.coverImage || hotel.images?.[0] || 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800' }}
+                        style={styles.heroImage}
+                    />
+                    <LinearGradient
+                        colors={['rgba(0,0,0,0.3)', 'transparent', 'rgba(0,0,0,0.5)']}
+                        style={styles.heroGradient}
+                    />
+                </View>
 
                 {/* Hotel Info */}
                 <View style={[styles.infoSection, { backgroundColor: colors.background }]}>
-                    <View style={[styles.ratingBadge, { backgroundColor: Colors.primary }]}>
-                        <Text style={styles.ratingText}>⭐ {Number(hotel.rating || 0).toFixed(1)}</Text>
+                    <View style={styles.ratingBadge}>
+                        <FontAwesome name="star" size={14} color="#FFD700" />
+                        <Text style={styles.ratingText}>{Number(hotel.rating || 0).toFixed(1)}</Text>
                     </View>
 
                     <Text style={[styles.hotelName, { color: colors.text }]}>{hotel.name}</Text>
 
                     <View style={[styles.locationRow, { backgroundColor: 'transparent' }]}>
-                        <FontAwesome name="map-marker" size={16} color={colors.textSecondary} />
+                        <FontAwesome name="map-marker" size={16} color={Colors.primary} />
                         <Text style={[styles.locationText, { color: colors.textSecondary }]}>
                             {hotel.address}, {hotel.city}
                         </Text>
@@ -168,6 +176,7 @@ export default function HotelDetailScreen() {
 
                     {rooms.length === 0 ? (
                         <View style={[styles.noRooms, { backgroundColor: colors.backgroundSecondary }]}>
+                            <FontAwesome name="bed" size={32} color={colors.textSecondary} />
                             <Text style={[styles.noRoomsText, { color: colors.textSecondary }]}>
                                 {t('hotel.noRooms')}
                             </Text>
@@ -176,7 +185,7 @@ export default function HotelDetailScreen() {
                         rooms.map((room) => (
                             <View
                                 key={room.id}
-                                style={[styles.roomCard, { backgroundColor: colors.backgroundSecondary }]}
+                                style={[styles.roomCard, { backgroundColor: colors.card }]}
                             >
                                 <Image
                                     source={{ uri: room.photos?.[0] || 'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=400' }}
@@ -184,28 +193,45 @@ export default function HotelDetailScreen() {
                                 />
                                 <View style={[styles.roomInfo, { backgroundColor: 'transparent' }]}>
                                     <Text style={[styles.roomType, { color: colors.text }]}>{room.name || room.type}</Text>
-                                    <Text style={[styles.roomCapacity, { color: colors.textSecondary }]}>
-                                        👥 {t('hotel.upToGuests', { count: room.maxGuests })}
-                                    </Text>
+                                    <View style={styles.roomFeatures}>
+                                        <View style={[styles.featureBadge, { backgroundColor: colors.backgroundSecondary }]}>
+                                            <FontAwesome name="users" size={12} color={Colors.primary} />
+                                            <Text style={[styles.featureText, { color: colors.text }]}>
+                                                {t('hotel.upToGuests', { count: room.maxGuests })}
+                                            </Text>
+                                        </View>
+                                    </View>
                                     <View style={[styles.roomPriceRow, { backgroundColor: 'transparent' }]}>
-                                        {/* Show strikethrough only when there's a discount */}
-                                        {room.dynamicPrice && room.dynamicPrice < Number(room.basePrice) && (
-                                            <Text style={[styles.originalPrice, { color: '#999', marginRight: 8 }]}>
-                                                {t('common.currency')}{formatPrice(Number(room.basePrice))}
-                                            </Text>
-                                        )}
-                                        <Text>
-                                            <Text style={[styles.roomPrice, { color: Colors.primary }]}>
-                                                {t('common.currency')}{formatPrice(Number(room.dynamicPrice || room.basePrice || 0))}
-                                            </Text>
-                                            <Text style={{ fontSize: 14, color: '#666' }}> {t('common.perNight')}</Text>
-                                        </Text>
+                                        <View style={styles.priceInfo}>
+                                            {/* Show strikethrough only when there's a discount */}
+                                            {room.dynamicPrice && room.dynamicPrice < Number(room.basePrice) && (
+                                                <Text style={styles.originalPrice}>
+                                                    {t('common.currency')}{formatPrice(Number(room.basePrice))}
+                                                </Text>
+                                            )}
+                                            <View style={styles.currentPriceRow}>
+                                                <Text style={[styles.roomPrice, { color: Colors.primary }]}>
+                                                    {t('common.currency')}{formatPrice(Number(room.dynamicPrice || room.basePrice || 0))}
+                                                </Text>
+                                                <Text style={[styles.perNight, { color: colors.textSecondary }]}>
+                                                    {t('common.perNight')}
+                                                </Text>
+                                            </View>
+                                        </View>
                                     </View>
                                     <TouchableOpacity
-                                        style={[styles.bookButton, { backgroundColor: Colors.primary }]}
+                                        style={styles.bookButton}
                                         onPress={() => router.push(`/booking/${room.id}`)}
+                                        activeOpacity={0.85}
                                     >
-                                        <Text style={styles.bookButtonText}>{t('hotel.bookNow')}</Text>
+                                        <LinearGradient
+                                            colors={[Colors.primary, Colors.primaryDark]}
+                                            start={{ x: 0, y: 0 }}
+                                            end={{ x: 1, y: 0 }}
+                                            style={styles.bookButtonGradient}
+                                        >
+                                            <Text style={styles.bookButtonText}>{t('hotel.bookNow')}</Text>
+                                        </LinearGradient>
                                     </TouchableOpacity>
                                 </View>
                             </View>
@@ -231,29 +257,47 @@ const styles = StyleSheet.create({
         fontSize: 16,
         marginBottom: 16,
     },
+    heroContainer: {
+        position: 'relative',
+    },
     heroImage: {
         width: width,
-        height: 300,
+        height: 320,
+    },
+    heroGradient: {
+        position: 'absolute',
+        left: 0,
+        right: 0,
+        top: 0,
+        bottom: 0,
     },
     infoSection: {
         padding: 20,
+        marginTop: -24,
+        borderTopLeftRadius: 24,
+        borderTopRightRadius: 24,
     },
     ratingBadge: {
+        flexDirection: 'row',
+        alignItems: 'center',
         alignSelf: 'flex-start',
+        backgroundColor: 'rgba(0,0,0,0.8)',
         paddingHorizontal: 12,
         paddingVertical: 6,
         borderRadius: 8,
         marginBottom: 12,
+        gap: 6,
     },
     ratingText: {
         color: '#fff',
         fontSize: 14,
-        fontWeight: '600',
+        fontWeight: '700',
     },
     hotelName: {
         fontSize: 28,
         fontWeight: 'bold',
         marginBottom: 8,
+        letterSpacing: 0.3,
     },
     locationRow: {
         flexDirection: 'row',
@@ -300,13 +344,24 @@ const styles = StyleSheet.create({
         fontSize: 14,
     },
     roomCard: {
-        borderRadius: 16,
+        borderRadius: 20,
         marginBottom: 16,
         overflow: 'hidden',
+        ...Platform.select({
+            ios: {
+                shadowColor: '#000',
+                shadowOffset: { width: 0, height: 4 },
+                shadowOpacity: 0.12,
+                shadowRadius: 12,
+            },
+            android: {
+                elevation: 6,
+            },
+        }),
     },
     roomImage: {
         width: '100%',
-        height: 150,
+        height: 160,
     },
     roomInfo: {
         padding: 16,
@@ -314,40 +369,61 @@ const styles = StyleSheet.create({
     roomType: {
         fontSize: 18,
         fontWeight: 'bold',
-        marginBottom: 4,
-    },
-    roomCapacity: {
-        fontSize: 14,
         marginBottom: 8,
     },
-    roomPriceRow: {
+    roomFeatures: {
         flexDirection: 'row',
-        alignItems: 'baseline',
-        marginBottom: 12,
-        gap: 6,
         flexWrap: 'wrap',
+        gap: 8,
+        marginBottom: 12,
+    },
+    featureBadge: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: 10,
+        paddingVertical: 6,
+        borderRadius: 8,
+        gap: 6,
+    },
+    featureText: {
+        fontSize: 13,
+    },
+    roomPriceRow: {
+        marginBottom: 14,
+    },
+    priceInfo: {
+        flexDirection: 'column',
     },
     originalPrice: {
         fontSize: 14,
         textDecorationLine: 'line-through',
+        color: '#999',
+        marginBottom: 2,
+    },
+    currentPriceRow: {
+        flexDirection: 'row',
+        alignItems: 'baseline',
+        gap: 6,
     },
     roomPrice: {
-        fontSize: 22,
+        fontSize: 24,
         fontWeight: 'bold',
     },
     perNight: {
         fontSize: 14,
-        marginLeft: 4,
-        color: '#717171',
     },
     bookButton: {
-        paddingVertical: 12,
-        borderRadius: 8,
+        borderRadius: 12,
+        overflow: 'hidden',
+    },
+    bookButtonGradient: {
+        paddingVertical: 14,
         alignItems: 'center',
     },
     bookButtonText: {
         color: '#fff',
         fontSize: 16,
-        fontWeight: '600',
+        fontWeight: '700',
+        letterSpacing: 0.3,
     },
 });

@@ -71,6 +71,13 @@
       "when": 1765728593883,
       "tag": "0009_add_lowest_dynamic_price",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1765766003246,
+      "tag": "0010_adorable_toad_men",
+      "breakpoints": true
     }
   ]
 }

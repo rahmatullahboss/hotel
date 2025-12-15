@@ -111,6 +111,12 @@ export const api = {
     // User
     getProfile: () => apiRequest<any>('/api/user/profile'),
 
+    updateProfile: (data: { name?: string; phone?: string }) => apiRequest<{ success: boolean; message: string }>('/api/user/profile', {
+        method: 'PATCH',
+        body: JSON.stringify(data),
+    }),
+
+
     // Cities
     getCities: () => apiRequest<any[]>('/api/cities'),
 
@@ -152,6 +158,55 @@ export const api = {
     recordDailyLogin: () => apiRequest<{ success: boolean; currentStreak: number; reward: any }>('/api/user/achievements', {
         method: 'POST',
     }),
+
+    // Saved Hotels
+    getSavedHotels: () => apiRequest<{
+        savedHotels: Array<{
+            id: string;
+            hotelId: string;
+            savedAt: string;
+            hotel: {
+                id: string;
+                name: string;
+                city: string;
+                coverImage: string | null;
+                rating: number | null;
+                reviewCount: number;
+                lowestDynamicPrice: number | null;
+            };
+        }>;
+    }>('/api/user/saved-hotels'),
+
+    saveHotel: (hotelId: string) => apiRequest<{ message: string; id: string }>('/api/user/saved-hotels', {
+        method: 'POST',
+        body: JSON.stringify({ hotelId }),
+    }),
+
+    unsaveHotel: (hotelId: string) => apiRequest<{ message: string }>('/api/user/saved-hotels', {
+        method: 'DELETE',
+        body: JSON.stringify({ hotelId }),
+    }),
+
+    // Notification Preferences
+    getNotificationPreferences: () => apiRequest<{
+        bookingConfirmation: boolean;
+        checkInInstructions: boolean;
+        promotions: boolean;
+    }>('/api/user/notification-preferences'),
+
+    updateNotificationPreferences: (preferences: {
+        bookingConfirmation?: boolean;
+        checkInInstructions?: boolean;
+        promotions?: boolean;
+    }) => apiRequest<{
+        bookingConfirmation: boolean;
+        checkInInstructions: boolean;
+        promotions: boolean;
+    }>('/api/user/notification-preferences', {
+        method: 'PUT',
+        body: JSON.stringify(preferences),
+    }),
 };
 
 export default api;
+

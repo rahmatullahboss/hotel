@@ -152,5 +152,35 @@
         "legalTitle": "Legal",
         "terms": "Terms of Service",
         "privacy": "Privacy Policy"
+    },
+    "saved": {
+        "title": "Saved Hotels",
+        "noSavedHotels": "No saved hotels yet",
+        "emptyDescription": "Tap the heart icon on any hotel to save it for later",
+        "exploreHotels": "Explore Hotels",
+        "unsave": "Remove from saved"
+    },
+    "notifications": {
+        "title": "Notifications",
+        "headerTitle": "Notification Settings",
+        "headerSubtitle": "Choose which notifications you want to receive",
+        "bookingConfirmation": "Booking Confirmation",
+        "bookingConfirmationDesc": "Receive confirmation when you book a hotel",
+        "checkInInstructions": "Check-in Instructions",
+        "checkInInstructionsDesc": "Get check-in details before your stay",
+        "promotions": "Promotions & Offers",
+        "promotionsDesc": "Receive special deals and discounts",
+        "infoText": "You can change these settings at any time. We respect your preferences and will only send notifications you've enabled."
+    },
+    "editProfile": {
+        "title": "Edit Profile",
+        "name": "Full Name",
+        "namePlaceholder": "Enter your full name",
+        "phone": "Phone Number",
+        "phonePlaceholder": "Enter your phone number",
+        "save": "Save Changes",
+        "saving": "Saving...",
+        "success": "Profile updated successfully",
+        "error": "Failed to update profile"
     }
 }

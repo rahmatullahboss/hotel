@@ -7,11 +7,13 @@ import {
     ActivityIndicator,
     Image,
     Switch,
+    Platform,
 } from 'react-native';
 import { Text, View } from '@/components/Themed';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useTranslation } from 'react-i18next';
 import Colors from '@/constants/Colors';
 import { useTheme } from '@/context/ThemeContext';
@@ -32,6 +34,7 @@ export default function ProfileScreen() {
     const { t, i18n } = useTranslation();
 
     const MENU_ITEMS = [
+        { icon: 'pencil' as const, label: t('editProfile.title'), route: '/edit-profile' },
         { icon: 'suitcase' as const, label: t('profile.menu.myTrips'), route: '/(tabs)/bookings' },
         { icon: 'credit-card' as const, label: t('profile.menu.wallet'), route: '/wallet' },
         { icon: 'gift' as const, label: t('profile.menu.referral'), route: '/referral' },
@@ -41,6 +44,7 @@ export default function ProfileScreen() {
         { icon: 'tag' as const, label: t('profile.menu.offersRewards'), route: '/offers' },
         { icon: 'question-circle-o' as const, label: t('profile.menu.helpSupport'), route: '/help' },
     ];
+
 
     const [user, setUser] = useState<User | null>(null);
     const [loading, setLoading] = useState(true);
@@ -79,8 +83,13 @@ export default function ProfileScreen() {
 
     return (
         <View style={[styles.container, { backgroundColor: colors.background }]}>
-            {/* Header */}
-            <View style={[styles.header, { paddingTop: insets.top + 10, backgroundColor: Colors.primary }]}>
+            {/* Header with Gradient */}
+            <LinearGradient
+                colors={[Colors.primary, Colors.primaryDark]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={[styles.header, { paddingTop: insets.top + 16 }]}
+            >
                 {user ? (
                     <>
                         <View style={styles.avatarContainer}>
@@ -93,6 +102,7 @@ export default function ProfileScreen() {
                                     </Text>
                                 </View>
                             )}
+                            <View style={styles.avatarGlow} />
                         </View>
                         <Text style={styles.userName}>{user.name}</Text>
                         <Text style={styles.userEmail}>{user.email}</Text>
@@ -101,19 +111,21 @@ export default function ProfileScreen() {
                     <>
                         <View style={styles.avatarContainer}>
                             <View style={styles.avatarPlaceholder}>
-                                <FontAwesome name="user" size={32} color="#fff" />
+                                <FontAwesome name="user" size={36} color="#fff" />
                             </View>
+                            <View style={styles.avatarGlow} />
                         </View>
                         <Text style={styles.userName}>{t('profile.guest')}</Text>
                         <TouchableOpacity
                             style={styles.loginButton}
                             onPress={() => router.push('/auth/login')}
+                            activeOpacity={0.8}
                         >
                             <Text style={styles.loginButtonText}>{t('profile.signIn')}</Text>
                         </TouchableOpacity>
                     </>
                 )}
-            </View>
+            </LinearGradient>
 
             <ScrollView
                 style={styles.scrollView}
@@ -235,52 +247,85 @@ const styles = StyleSheet.create({
     },
     header: {
         paddingHorizontal: 20,
-        paddingBottom: 24,
+        paddingBottom: 28,
         alignItems: 'center',
-        borderBottomLeftRadius: 24,
-        borderBottomRightRadius: 24,
+        borderBottomLeftRadius: 28,
+        borderBottomRightRadius: 28,
+        ...Platform.select({
+            ios: {
+                shadowColor: '#000',
+                shadowOffset: { width: 0, height: 4 },
+                shadowOpacity: 0.15,
+                shadowRadius: 12,
+            },
+            android: {
+                elevation: 8,
+            },
+        }),
     },
     avatarContainer: {
-        marginBottom: 12,
+        marginBottom: 14,
+        position: 'relative',
+    },
+    avatarGlow: {
+        position: 'absolute',
+        width: 100,
+        height: 100,
+        borderRadius: 50,
+        backgroundColor: 'rgba(255,255,255,0.1)',
+        top: -6,
+        left: -6,
     },
     avatar: {
-        width: 80,
-        height: 80,
-        borderRadius: 40,
-        borderWidth: 3,
-        borderColor: 'rgba(255,255,255,0.4)',
+        width: 88,
+        height: 88,
+        borderRadius: 44,
+        borderWidth: 4,
+        borderColor: 'rgba(255,255,255,0.5)',
     },
     avatarPlaceholder: {
-        width: 80,
-        height: 80,
-        borderRadius: 40,
-        backgroundColor: 'rgba(255,255,255,0.2)',
+        width: 88,
+        height: 88,
+        borderRadius: 44,
+        backgroundColor: 'rgba(255,255,255,0.35)',
         alignItems: 'center',
         justifyContent: 'center',
-        borderWidth: 3,
-        borderColor: 'rgba(255,255,255,0.4)',
+        borderWidth: 4,
+        borderColor: 'rgba(255,255,255,0.5)',
     },
     avatarText: {
-        fontSize: 32,
+        fontSize: 36,
         fontWeight: 'bold',
         color: '#fff',
     },
     userName: {
-        fontSize: 20,
+        fontSize: 22,
         fontWeight: 'bold',
         color: '#fff',
+        letterSpacing: 0.3,
     },
     userEmail: {
         fontSize: 14,
-        color: 'rgba(255,255,255,0.8)',
-        marginTop: 2,
+        color: 'rgba(255,255,255,0.85)',
+        marginTop: 4,
     },
     loginButton: {
-        marginTop: 12,
+        marginTop: 14,
         backgroundColor: '#fff',
-        paddingHorizontal: 24,
-        paddingVertical: 10,
-        borderRadius: 25,
+        paddingHorizontal: 32,
+        paddingVertical: 12,
+        borderRadius: 28,
+        ...Platform.select({
+            ios: {
+                shadowColor: '#000',
+                shadowOffset: { width: 0, height: 2 },
+                shadowOpacity: 0.15,
+                shadowRadius: 4,
+            },
+            android: {
+                elevation: 4,
+            },
+        }),
     },
     loginButtonText: {
         color: Colors.primary,
@@ -340,11 +385,12 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         padding: 16,
+        paddingVertical: 14,
     },
     menuIconContainer: {
-        width: 40,
-        height: 40,
-        borderRadius: 12,
+        width: 44,
+        height: 44,
+        borderRadius: 14,
         alignItems: 'center',
         justifyContent: 'center',
         marginRight: 14,
