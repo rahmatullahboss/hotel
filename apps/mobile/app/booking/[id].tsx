@@ -630,25 +630,50 @@ export default function BookingScreen() {
                             </Text>
                         </View>
 
-                        {/* Show advance amount for Pay at Hotel (on remaining amount) */}
-                        {paymentMethod === 'PAY_AT_HOTEL' && (!useWalletPartial || walletBalance < totalPrice) && (
-                            <View className="bg-green-50 dark:bg-green-900/20 p-3 rounded-xl mt-2">
-                                <View className="flex-row justify-between items-center">
-                                    <Text className="text-green-700 dark:text-green-400 font-semibold">
-                                        {t('booking.payNow', 'Pay Now (20%)')}
-                                    </Text>
-                                    <Text className="text-green-700 dark:text-green-400 font-bold">
-                                        {t('common.currency')}{formatPrice(Math.round((useWalletPartial ? Math.max(0, totalPrice - walletBalance) : totalPrice) * 0.2))}
-                                    </Text>
-                                </View>
-                                <Text className="text-xs text-green-600 dark:text-green-500 mt-1">
-                                    {t('booking.payRemainingAtHotel', { amount: `${t('common.currency')}${formatPrice(Math.round((useWalletPartial ? Math.max(0, totalPrice - walletBalance) : totalPrice) * 0.8))}` })}
-                                </Text>
-                            </View>
-                        )}
+                        {/* Show advance amount for Pay at Hotel - only if wallet doesn't cover 20% */}
+                        {paymentMethod === 'PAY_AT_HOTEL' && (() => {
+                            const requiredAdvance = Math.round(totalPrice * 0.2);
+                            const walletCoversAdvance = useWalletPartial && walletBalance >= requiredAdvance;
+                            const remainingAdvance = useWalletPartial
+                                ? Math.max(0, requiredAdvance - walletBalance)
+                                : requiredAdvance;
+                            const payAtHotelAmount = totalPrice - (useWalletPartial ? Math.min(walletBalance, totalPrice) : 0) - remainingAdvance;
 
-                        {/* Show fully covered message */}
-                        {useWalletPartial && walletBalance >= totalPrice && (
+                            if (walletCoversAdvance) {
+                                // Wallet covers 20% advance - no additional payment needed
+                                return (
+                                    <View className="bg-green-50 dark:bg-green-900/20 p-3 rounded-xl mt-2">
+                                        <Text className="text-green-700 dark:text-green-400 font-semibold text-center">
+                                            ✓ {t('booking.advanceCoveredByWallet', 'Advance covered by wallet!')}
+                                        </Text>
+                                        <Text className="text-xs text-green-600 dark:text-green-500 mt-1 text-center">
+                                            {t('booking.payAtHotelRemaining', { amount: `${t('common.currency')}${formatPrice(totalPrice - walletBalance)}` })}
+                                        </Text>
+                                    </View>
+                                );
+                            } else if (remainingAdvance > 0) {
+                                // Need to pay remaining advance
+                                return (
+                                    <View className="bg-green-50 dark:bg-green-900/20 p-3 rounded-xl mt-2">
+                                        <View className="flex-row justify-between items-center">
+                                            <Text className="text-green-700 dark:text-green-400 font-semibold">
+                                                {t('booking.payNow', 'Pay Now (20%)')}
+                                            </Text>
+                                            <Text className="text-green-700 dark:text-green-400 font-bold">
+                                                {t('common.currency')}{formatPrice(remainingAdvance)}
+                                            </Text>
+                                        </View>
+                                        <Text className="text-xs text-green-600 dark:text-green-500 mt-1">
+                                            {t('booking.payRemainingAtHotel', { amount: `${t('common.currency')}${formatPrice(payAtHotelAmount)}` })}
+                                        </Text>
+                                    </View>
+                                );
+                            }
+                            return null;
+                        })()}
+
+                        {/* Show fully covered message - for non Pay at Hotel methods */}
+                        {paymentMethod !== 'PAY_AT_HOTEL' && useWalletPartial && walletBalance >= totalPrice && (
                             <View className="bg-green-50 dark:bg-green-900/20 p-3 rounded-xl mt-2">
                                 <Text className="text-green-700 dark:text-green-400 font-semibold text-center">
                                     ✓ {t('booking.fullyCoveredByWallet', 'Fully covered by wallet!')}

@@ -561,31 +561,64 @@ function BookingContent() {
                                     </span>
                                 </div>
                                 {/* Show advance payment info only for Pay at Hotel */}
-                                {paymentMethod === "PAY_AT_HOTEL" && (
-                                    <>
-                                        <div
-                                            style={{
-                                                display: "flex",
-                                                justifyContent: "space-between",
-                                                padding: "0.75rem",
-                                                marginTop: "0.75rem",
-                                                background: "rgba(42, 157, 143, 0.1)",
-                                                borderRadius: "0.5rem",
-                                                fontWeight: 600,
-                                            }}
-                                        >
-                                            <span style={{ color: "var(--color-success)" }}>
-                                                {t("payNow20")}
-                                            </span>
-                                            <span style={{ color: "var(--color-success)" }}>
-                                                ৳{advanceAmount.toLocaleString()}
-                                            </span>
-                                        </div>
-                                        <div style={{ fontSize: "0.75rem", color: "var(--color-text-secondary)", marginTop: "0.5rem", textAlign: "center" }}>
-                                            {t("payRemainingAtHotel", { amount: `৳${(totalAmount - advanceAmount).toLocaleString()}` })}
-                                        </div>
-                                    </>
-                                )}
+                                {paymentMethod === "PAY_AT_HOTEL" && (() => {
+                                    const requiredAdvance = Math.round(totalAmount * 0.2);
+                                    const walletCoversAdvance = useWalletPartial && walletBalance >= requiredAdvance;
+                                    const remainingAdvance = useWalletPartial
+                                        ? Math.max(0, requiredAdvance - walletBalance)
+                                        : requiredAdvance;
+                                    const payAtHotelAmount = totalAmount - (useWalletPartial ? Math.min(walletBalance, totalAmount) : 0) - remainingAdvance;
+
+                                    if (walletCoversAdvance) {
+                                        // Wallet covers 20% advance - no additional payment needed
+                                        return (
+                                            <div
+                                                style={{
+                                                    padding: "0.75rem",
+                                                    marginTop: "0.75rem",
+                                                    background: "rgba(42, 157, 143, 0.1)",
+                                                    borderRadius: "0.5rem",
+                                                    textAlign: "center",
+                                                }}
+                                            >
+                                                <span style={{ color: "var(--color-success)", fontWeight: 600 }}>
+                                                    ✓ {t("advanceCoveredByWallet")}
+                                                </span>
+                                                <div style={{ fontSize: "0.75rem", color: "var(--color-success)", marginTop: "0.25rem" }}>
+                                                    {t("payAtHotelRemaining", { amount: `৳${(totalAmount - walletBalance).toLocaleString()}` })}
+                                                </div>
+                                            </div>
+                                        );
+                                    } else if (remainingAdvance > 0) {
+                                        // Need to pay remaining advance
+                                        return (
+                                            <>
+                                                <div
+                                                    style={{
+                                                        display: "flex",
+                                                        justifyContent: "space-between",
+                                                        padding: "0.75rem",
+                                                        marginTop: "0.75rem",
+                                                        background: "rgba(42, 157, 143, 0.1)",
+                                                        borderRadius: "0.5rem",
+                                                        fontWeight: 600,
+                                                    }}
+                                                >
+                                                    <span style={{ color: "var(--color-success)" }}>
+                                                        {t("payNow20")}
+                                                    </span>
+                                                    <span style={{ color: "var(--color-success)" }}>
+                                                        ৳{remainingAdvance.toLocaleString()}
+                                                    </span>
+                                                </div>
+                                                <div style={{ fontSize: "0.75rem", color: "var(--color-text-secondary)", marginTop: "0.5rem", textAlign: "center" }}>
+                                                    {t("payRemainingAtHotel", { amount: `৳${payAtHotelAmount.toLocaleString()}` })}
+                                                </div>
+                                            </>
+                                        );
+                                    }
+                                    return null;
+                                })()}
                             </div>
 
                             <div style={{ display: "flex", gap: "1rem" }}>
