@@ -53,9 +53,18 @@ export async function POST(request: NextRequest) {
         const { hotelId, roomId, checkIn, checkOut, guestPhone, totalAmount, paymentMethod } = body;
         let { guestName, guestEmail } = body;
 
-        if (!hotelId || !roomId || !checkIn || !checkOut || !totalAmount) {
+        // Better error messages for debugging
+        const missingFields: string[] = [];
+        if (!hotelId) missingFields.push('hotelId');
+        if (!roomId) missingFields.push('roomId');
+        if (!checkIn) missingFields.push('checkIn');
+        if (!checkOut) missingFields.push('checkOut');
+        if (totalAmount === undefined || totalAmount === null) missingFields.push('totalAmount');
+
+        if (missingFields.length > 0) {
+            console.error('Missing fields in booking request:', missingFields, 'Body:', body);
             return NextResponse.json(
-                { error: "Missing required fields" },
+                { error: `Missing required fields: ${missingFields.join(', ')}` },
                 { status: 400 }
             );
         }

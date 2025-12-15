@@ -153,21 +153,36 @@ export default function BookingScreen() {
             return;
         }
 
+        if (!hotelId) {
+            Alert.alert('Error', 'Hotel information is missing. Please go back and try again.');
+            console.error('Missing hotelId in booking params:', params);
+            return;
+        }
+
+        if (!roomId) {
+            Alert.alert('Error', 'Room information is missing.');
+            return;
+        }
+
         setBooking(true);
 
+        const bookingData = {
+            hotelId,
+            roomId,
+            checkIn,
+            checkOut,
+            guests,
+            totalAmount: totalPrice,
+            guestName: '',
+            guestEmail: '',
+            guestPhone: '',
+            paymentMethod: 'PAY_AT_HOTEL',
+        };
+
+        console.log('Creating booking with data:', JSON.stringify(bookingData, null, 2));
+
         try {
-            const { data, error } = await api.createBooking({
-                hotelId,
-                roomId,
-                checkIn,
-                checkOut,
-                guests,
-                totalAmount: totalPrice,
-                guestName: '', // Will be filled by API from user session
-                guestEmail: '',
-                guestPhone: '',
-                paymentMethod: 'PAY_AT_HOTEL',
-            });
+            const { data, error } = await api.createBooking(bookingData);
 
             if (error) {
                 Alert.alert('Booking Failed', error);
