@@ -822,10 +822,75 @@ main.page-with-book-bar {
 
   .hotel-grid {
     grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
   }
 
   .hero-title {
     font-size: 3.5rem;
+  }
+
+  /* Wider page container for content pages */
+  .page-container {
+    max-width: 1400px;
+    padding: 2rem 3rem;
+  }
+
+  /* Enhanced page content area */
+  main.page-content {
+    padding: 2rem 3rem;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+
+  /* Larger fonts for better readability */
+  body {
+    font-size: 1.0625rem;
+  }
+
+  /* Better card spacing */
+  .card {
+    padding: 1.5rem;
+  }
+
+  /* Wider sidebar layout */
+  .page-with-sidebar {
+    grid-template-columns: 320px 1fr;
+    gap: 3rem;
+  }
+
+  /* Hotel detail layout improvements */
+  .hotel-detail-layout {
+    gap: 3rem;
+  }
+
+  .hotel-detail-sidebar {
+    min-width: 380px;
+  }
+}
+
+/* Ultra-wide Desktop (1920px+) */
+@media (min-width: 1920px) {
+  .container {
+    max-width: 1600px;
+  }
+
+  .page-container,
+  main.page-content {
+    max-width: 1600px;
+    padding: 2rem 4rem;
+  }
+
+  .hotel-grid {
+    grid-template-columns: repeat(5, 1fr);
+    gap: 2rem;
+  }
+
+  .hero-title {
+    font-size: 4rem;
+  }
+
+  .hero-subtitle {
+    font-size: 1.375rem;
   }
 }
 
