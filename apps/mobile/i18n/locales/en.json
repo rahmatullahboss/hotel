@@ -56,7 +56,9 @@
             "confirmed": "Confirmed",
             "pending": "Pending",
             "cancelled": "Cancelled",
-            "completed": "Completed"
+            "completed": "Completed",
+            "checked_in": "Checked In",
+            "checked_out": "Checked Out"
         }
     },
     "profile": {

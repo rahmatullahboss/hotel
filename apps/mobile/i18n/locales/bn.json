@@ -56,7 +56,9 @@
             "confirmed": "নিশ্চিত",
             "pending": "মুলতুবি",
             "cancelled": "বাতিল",
-            "completed": "সম্পন্ন"
+            "completed": "সম্পন্ন",
+            "checked_in": "চেক-ইন হয়েছে",
+            "checked_out": "চেক-আউট হয়েছে"
         }
     },
     "profile": {
