@@ -105,10 +105,11 @@ export default function HomeScreen() {
     <View className="flex-1 bg-gray-50 dark:bg-gray-900">
       {/* Header with Search */}
       <View
-        className="px-6 pb-6 rounded-b-[32px] overflow-hidden"
+        className="px-6 pb-6 rounded-b-[32px]"
         style={{
           paddingTop: insets.top + 16,
           backgroundColor: '#E63946',
+          zIndex: 100,
         }}
       >
         {/* Decorative Elements */}

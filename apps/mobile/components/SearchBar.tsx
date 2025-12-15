@@ -119,7 +119,7 @@ export default function SearchBar({
     const suggestions = getSuggestions();
 
     return (
-        <View className="relative">
+        <View style={{ zIndex: 999 }}>
             {/* Search Input */}
             <View
                 className="flex-row items-center rounded-2xl px-4 py-3.5 gap-3"
@@ -160,14 +160,14 @@ export default function SearchBar({
             {/* Suggestions Dropdown */}
             {showSuggestions && suggestions.length > 0 && (
                 <View
-                    className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-gray-800 rounded-xl shadow-xl overflow-hidden"
+                    className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-gray-800 rounded-xl overflow-hidden"
                     style={{
-                        zIndex: 100,
+                        zIndex: 9999,
+                        elevation: 50,
                         shadowColor: '#000',
                         shadowOffset: { width: 0, height: 8 },
-                        shadowOpacity: 0.15,
+                        shadowOpacity: 0.25,
                         shadowRadius: 16,
-                        elevation: 8,
                     }}
                 >
                     {suggestions.map((item, index) => (
