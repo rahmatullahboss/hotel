@@ -3,7 +3,7 @@
 import { useState, useEffect, lazy, Suspense } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { BottomNav, RoomCard, RoomDetailModal } from "../../components";
+import { RoomCard, RoomDetailModal } from "../../components";
 import { getHotelById, getAvailableRooms, RoomWithDetails } from "../../actions/hotels";
 import { FiMapPin } from "react-icons/fi";
 
@@ -445,8 +445,6 @@ export default function HotelDetailPage() {
                     </div>
                 );
             })()}
-
-            <BottomNav />
         </>
     );
 }

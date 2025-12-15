@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { BottomNav } from "../components";
 import { useTranslations } from "next-intl";
 import { FiMail, FiPhone, FiMessageCircle, FiArrowRight } from "react-icons/fi";
 import { FaWhatsapp } from "react-icons/fa";
@@ -176,8 +175,6 @@ export default function HelpPage() {
                     </div>
                 </section>
             </main>
-
-            <BottomNav />
         </>
     );
 }

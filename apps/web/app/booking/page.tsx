@@ -8,7 +8,7 @@ import Link from "next/link";
 import { createBooking } from "../actions/bookings";
 import { getUserProfile } from "../actions/profile";
 import { getWalletBalance } from "../actions/wallet";
-import { BookingQRCode, BottomNav } from "../components";
+import { BookingQRCode } from "../components";
 import { FiLock, FiClock, FiCreditCard, FiSmartphone, FiCheck } from "react-icons/fi";
 import { FaHotel, FaWallet } from "react-icons/fa";
 
@@ -753,7 +753,6 @@ function BookingContent() {
                     )}
                 </div>
             </main>
-            <BottomNav />
         </>);
 }
 

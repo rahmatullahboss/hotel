@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { FiCalendar, FiUsers, FiFileText, FiPlus, FiClock } from "react-icons/fi";
-import { BottomNav } from "@/app/components";
+
 import { getCorporateAccount, getCorporateBookings, getCorporateInvoices } from "@/app/actions/corporate";
 
 import "../corporate.css";
@@ -55,7 +55,6 @@ export default function CorporateDashboard() {
                 <div className="corporate-loading">
                     <div className="loading-spinner" />
                 </div>
-                <BottomNav />
             </div>
         );
     }
@@ -146,7 +145,6 @@ export default function CorporateDashboard() {
                 </section>
             )}
 
-            <BottomNav />
         </div>
     );
 }

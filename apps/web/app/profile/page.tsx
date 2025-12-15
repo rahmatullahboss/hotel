@@ -4,7 +4,7 @@ import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { getUserBookings } from "../actions/bookings";
 import { getWallet, getLoyaltyPoints } from "../actions/wallet";
-import { BottomNav, LanguageSwitcher } from "../components";
+import { LanguageSwitcher } from "../components";
 
 export default async function ProfilePage() {
     const session = await auth();
@@ -328,8 +328,6 @@ export default async function ProfilePage() {
                     </Link>
                 </div>
             </main>
-
-            <BottomNav />
         </>
     );
 }

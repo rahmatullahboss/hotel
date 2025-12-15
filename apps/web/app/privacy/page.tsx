@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { BottomNav } from "../components";
 import { useTranslations } from "next-intl";
 
 export default function PrivacyPage() {
@@ -190,8 +189,6 @@ export default function PrivacyPage() {
                     </section>
                 </div>
             </main>
-
-            <BottomNav />
         </>
     );
 }

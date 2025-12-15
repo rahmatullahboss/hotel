@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { useTranslations } from "next-intl";
-import { FiHome, FiSearch, FiCalendar } from "react-icons/fi";
+import { FiHome, FiSearch, FiCalendar, FiLogIn, FiLogOut, FiHelpCircle, FiBriefcase } from "react-icons/fi";
 import { FaHotel, FaWallet } from "react-icons/fa";
 
 export function DesktopHeader() {
@@ -16,7 +16,9 @@ export function DesktopHeader() {
     const navLinks = [
         { href: "/", label: t("home"), icon: <FiHome size={18} /> },
         { href: "/hotels", label: t("searchHotels"), icon: <FiSearch size={18} /> },
-        { href: "/bookings", label: t("myBookings"), icon: <FiCalendar size={18} /> },
+        { href: "/checkin", label: t("checkIn"), icon: <FiLogIn size={18} /> },
+        { href: "/checkout", label: t("checkOut"), icon: <FiLogOut size={18} /> },
+        { href: "/bookings", label: t("bookings"), icon: <FiCalendar size={18} /> },
         { href: "/wallet", label: t("wallet"), icon: <FaWallet size={18} /> },
     ];
 

@@ -4,7 +4,7 @@ import { Metadata } from "next";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { FiArrowLeft, FiMapPin, FiCheck, FiDollarSign, FiHome } from "react-icons/fi";
-import { BottomNav, HotelCard, Footer } from "@/app/components";
+import { HotelCard, Footer } from "@/app/components";
 import { getCityBySlug, getAllCitySlugs } from "@/app/actions/cities";
 import { searchHotels } from "@/app/actions/hotels";
 
@@ -158,7 +158,6 @@ export default async function CityPage({ params }: CityPageProps) {
             {/* Footer */}
             <Footer />
 
-            <BottomNav />
         </>
     );
 }

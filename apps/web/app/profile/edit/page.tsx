@@ -5,7 +5,7 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { updateProfile, getUserProfile } from "../../actions/profile";
-import { BottomNav } from "../../components";
+
 
 export default function EditProfilePage() {
     const { data: session, status, update } = useSession();
@@ -78,7 +78,6 @@ export default function EditProfilePage() {
                         <div className="skeleton" style={{ width: "100%", height: 48 }} />
                     </div>
                 </main>
-                <BottomNav />
             </>
         );
     }
@@ -236,7 +235,6 @@ export default function EditProfilePage() {
                 </form>
             </main>
 
-            <BottomNav />
         </>
     );
 }

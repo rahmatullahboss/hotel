@@ -5,7 +5,7 @@ import { useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
-import { BottomNav } from "../../components";
+
 
 function SignInContent() {
     const searchParams = useSearchParams();
@@ -150,7 +150,6 @@ function SignInContent() {
                 </div>
             </main>
 
-            <BottomNav />
         </>
     );
 }

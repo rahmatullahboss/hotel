@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { FiBriefcase, FiHome, FiUser, FiMail, FiPhone, FiMapPin, FiCheck } from "react-icons/fi";
-import { BottomNav } from "@/app/components";
+
 import { submitCorporateApplication, getCorporateAccount } from "@/app/actions/corporate";
 import { useEffect, useTransition } from "react";
 
@@ -76,7 +76,6 @@ export default function CorporatePage() {
                 <div className="corporate-loading">
                     <div className="loading-spinner" />
                 </div>
-                <BottomNav />
             </div>
         );
     }
@@ -94,7 +93,6 @@ export default function CorporatePage() {
                         {t("backToHome")}
                     </button>
                 </div>
-                <BottomNav />
             </div>
         );
     }
@@ -284,7 +282,6 @@ export default function CorporatePage() {
                 </button>
             </form>
 
-            <BottomNav />
         </div>
     );
 }

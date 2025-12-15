@@ -3,7 +3,7 @@
 import { Suspense, useState, useEffect, useCallback, useMemo, lazy } from "react";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { BottomNav, HotelCard, Footer } from "../components";
+import { HotelCard, Footer } from "../components";
 import { WhyChooseUs } from "../components/WhyChooseUs";
 import { searchHotels, type HotelWithPrice } from "../actions/hotels";
 import { FiMapPin, FiX } from "react-icons/fi";
@@ -296,8 +296,6 @@ function HotelsContent() {
 
             {/* Footer */}
             <Footer />
-
-            <BottomNav />
         </>
     );
 }

@@ -3,7 +3,7 @@
 import { useState, useEffect, useTransition } from "react";
 import { useTranslations } from "next-intl";
 import { FiShare2, FiCopy, FiCheck, FiUsers, FiDollarSign, FiClock, FiGift } from "react-icons/fi";
-import { BottomNav } from "../../components";
+
 import { getOrCreateReferralCode, getReferralStats, applyReferralCode } from "../../actions/referrals";
 
 import "./referral.css";
@@ -106,7 +106,6 @@ export default function ReferralPage() {
                     <div className="loading-spinner" />
                     <p>{t("loading")}</p>
                 </div>
-                <BottomNav />
             </div>
         );
     }
@@ -240,7 +239,6 @@ export default function ReferralPage() {
                 </section>
             )}
 
-            <BottomNav />
         </div>
     );
 }
