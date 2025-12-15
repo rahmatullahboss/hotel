@@ -120,7 +120,21 @@ export default function BookingCard({ booking }: BookingCardProps) {
     };
 
     const handlePress = () => {
-        router.push(`/booking-details/${booking.id}`);
+        // Pass booking data for instant display while fetching fresh data
+        router.push({
+            pathname: '/booking-details/[id]',
+            params: {
+                id: booking.id,
+                hotelName: booking.hotelName,
+                hotelLocation: booking.hotelLocation || '',
+                hotelImage: booking.hotelImage || '',
+                roomName: roomName,
+                checkIn: booking.checkIn,
+                checkOut: booking.checkOut,
+                status: booking.status,
+                totalAmount: String(totalPrice),
+            },
+        });
     };
 
     const status = STATUS_CONFIG[booking.status] || STATUS_CONFIG.COMPLETED;

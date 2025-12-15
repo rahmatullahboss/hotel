@@ -5,6 +5,7 @@ import { hotels, users } from "@repo/db/schema";
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { auth } from "../../auth";
+import { generateVibeCode } from "@repo/db/utils/vibeBranding";
 
 export interface HotelRegistrationInput {
     name: string;
@@ -19,10 +20,11 @@ export interface HotelRegistrationInput {
 
 /**
  * Submit hotel registration - creates hotel with PENDING status
+ * Auto-generates a unique Vibe code (e.g., VB10001)
  */
 export async function submitHotelRegistration(
     input: HotelRegistrationInput
-): Promise<{ success: boolean; hotelId?: string; error?: string }> {
+): Promise<{ success: boolean; hotelId?: string; vibeCode?: string; error?: string }> {
     try {
         const session = await auth();
         if (!session?.user?.id) {
@@ -40,12 +42,24 @@ export async function submitHotelRegistration(
             return { success: false, error: "You already have a hotel registered" };
         }
 
-        // Create hotel with PENDING status
+        // Get all existing vibe codes to generate a unique one
+        const existingCodes = await db
+            .select({ vibeCode: hotels.vibeCode })
+            .from(hotels);
+        const codes = existingCodes
+            .map(h => h.vibeCode)
+            .filter((code): code is string => code !== null);
+
+        const vibeCode = generateVibeCode(codes);
+
+        // Create hotel with PENDING status and auto-generated vibeCode
         const [newHotel] = await db
             .insert(hotels)
             .values({
                 ownerId: userId,
                 name: input.name,
+                vibeCode: vibeCode,
+                category: "CLASSIC", // Default category, can be updated later
                 description: input.description,
                 address: input.address,
                 city: input.city,
@@ -54,7 +68,7 @@ export async function submitHotelRegistration(
                 longitude: input.longitude?.toString(),
                 status: "PENDING",
             })
-            .returning({ id: hotels.id });
+            .returning({ id: hotels.id, vibeCode: hotels.vibeCode });
 
         if (!newHotel) {
             return { success: false, error: "Failed to create hotel" };
@@ -67,7 +81,11 @@ export async function submitHotelRegistration(
             .where(eq(users.id, userId));
 
         revalidatePath("/");
-        return { success: true, hotelId: newHotel.id };
+        return {
+            success: true,
+            hotelId: newHotel.id,
+            vibeCode: newHotel.vibeCode || vibeCode
+        };
     } catch (error) {
         console.error("Error submitting hotel registration:", error);
         return { success: false, error: "Failed to submit registration" };

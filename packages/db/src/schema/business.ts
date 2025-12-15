@@ -44,6 +44,12 @@ export const hotels = pgTable("hotels", {
         .notNull()
         .references(() => users.id, { onDelete: "cascade" }),
     name: text("name").notNull(),
+    // Vibe branding - auto-generated unique code (e.g., VB10001)
+    vibeCode: text("vibeCode").unique(),
+    // Hotel category for branding (Vibe Classic, Vibe Premium, Vibe Business)
+    category: text("category", { enum: ["CLASSIC", "PREMIUM", "BUSINESS"] })
+        .default("CLASSIC")
+        .notNull(),
     description: text("description"),
     address: text("address").notNull(),
     city: text("city").notNull(),

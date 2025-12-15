@@ -40,20 +40,45 @@ const STATUS_CONFIG = {
 };
 
 export default function BookingDetailsScreen() {
-    const { id } = useLocalSearchParams<{ id: string }>();
+    const params = useLocalSearchParams<{
+        id: string;
+        hotelName?: string;
+        hotelLocation?: string;
+        hotelImage?: string;
+        roomName?: string;
+        checkIn?: string;
+        checkOut?: string;
+        status?: string;
+        totalAmount?: string;
+    }>();
     const { t, i18n } = useTranslation();
     const colorScheme = useColorScheme();
     const isDark = colorScheme === 'dark';
 
-    const [booking, setBooking] = useState<BookingDetails | null>(null);
-    const [loading, setLoading] = useState(true);
+    // Initialize with params for instant display (no loading flash)
+    const [booking, setBooking] = useState<BookingDetails | null>(
+        params.hotelName
+            ? {
+                id: params.id,
+                hotelName: params.hotelName,
+                hotelLocation: params.hotelLocation,
+                hotelImage: params.hotelImage,
+                roomName: params.roomName,
+                checkIn: params.checkIn || '',
+                checkOut: params.checkOut || '',
+                status: (params.status as BookingDetails['status']) || 'PENDING',
+                totalAmount: params.totalAmount,
+            }
+            : null
+    );
+    const [loading, setLoading] = useState(!params.hotelName);
 
     useEffect(() => {
-        if (id) fetchBooking();
-    }, [id]);
+        if (params.id) fetchBooking();
+    }, [params.id]);
 
     const fetchBooking = async () => {
-        const { data, error } = await api.getBooking(id!);
+        const { data, error } = await api.getBooking(params.id!);
         if (!error && data) setBooking(data);
         setLoading(false);
     };
@@ -83,22 +108,40 @@ export default function BookingDetailsScreen() {
 
     if (loading) {
         return (
-            <View className="flex-1 items-center justify-center bg-gray-50 dark:bg-gray-900">
-                <ActivityIndicator size="large" color="#E63946" />
-            </View>
+            <>
+                <Stack.Screen
+                    options={{
+                        title: t('bookingDetail.title', 'Booking Details'),
+                        headerStyle: { backgroundColor: isDark ? '#1F2937' : '#FFFFFF' },
+                        headerTintColor: isDark ? '#FFFFFF' : '#1F2937',
+                    }}
+                />
+                <View className="flex-1 items-center justify-center bg-gray-50 dark:bg-gray-900">
+                    <ActivityIndicator size="large" color="#E63946" />
+                </View>
+            </>
         );
     }
 
     if (!booking) {
         return (
-            <View className="flex-1 items-center justify-center bg-gray-50 dark:bg-gray-900 p-8">
-                <Text className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-                    {t('common.error')}
-                </Text>
-                <Text className="text-gray-500 dark:text-gray-400 text-center">
-                    {t('bookingDetail.notFound', 'Booking not found')}
-                </Text>
-            </View>
+            <>
+                <Stack.Screen
+                    options={{
+                        title: t('bookingDetail.title', 'Booking Details'),
+                        headerStyle: { backgroundColor: isDark ? '#1F2937' : '#FFFFFF' },
+                        headerTintColor: isDark ? '#FFFFFF' : '#1F2937',
+                    }}
+                />
+                <View className="flex-1 items-center justify-center bg-gray-50 dark:bg-gray-900 p-8">
+                    <Text className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                        {t('common.error')}
+                    </Text>
+                    <Text className="text-gray-500 dark:text-gray-400 text-center">
+                        {t('bookingDetail.notFound', 'Booking not found')}
+                    </Text>
+                </View>
+            </>
         );
     }
 

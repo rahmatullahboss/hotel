@@ -13,6 +13,10 @@
         "./schema": {
             "types": "./src/schema/index.ts",
             "default": "./src/schema/index.ts"
+        },
+        "./utils/vibeBranding": {
+            "types": "./src/utils/vibeBranding.ts",
+            "default": "./src/utils/vibeBranding.ts"
         }
     },
     "scripts": {
