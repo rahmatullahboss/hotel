@@ -35,7 +35,13 @@
       "expo-router",
       "expo-secure-store",
       "expo-localization",
-      "expo-web-browser"
+      "expo-web-browser",
+      [
+        "@react-native-google-signin/google-signin",
+        {
+          "iosUrlScheme": "com.googleusercontent.apps.104361665388-erqs6259250hkjg13v378jshge11kaht"
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true
