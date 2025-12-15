@@ -7,10 +7,8 @@ import { useRouter } from 'expo-router';
 // Required for web browser auth to complete properly
 WebBrowser.maybeCompleteAuthSession();
 
-// You need to add these to your .env file
+// Environment variables - using only web client ID for OAuth
 const GOOGLE_CLIENT_ID = process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID;
-const GOOGLE_ANDROID_CLIENT_ID = process.env.EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID;
-const GOOGLE_IOS_CLIENT_ID = process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID;
 
 interface GoogleAuthResult {
     success: boolean;
@@ -29,10 +27,9 @@ export function useGoogleAuth() {
     const [error, setError] = useState<string | null>(null);
 
     // Configure Google auth request
+    // Using only web client ID (Android/iOS native clients don't support custom URI schemes)
     const [request, response, promptAsync] = Google.useAuthRequest({
         clientId: GOOGLE_CLIENT_ID,
-        androidClientId: GOOGLE_ANDROID_CLIENT_ID,
-        iosClientId: GOOGLE_IOS_CLIENT_ID,
         scopes: ['profile', 'email'],
     });
 
@@ -42,6 +39,9 @@ export function useGoogleAuth() {
             const { authentication } = response;
             if (authentication?.idToken) {
                 handleGoogleToken(authentication.idToken, authentication.accessToken || undefined);
+            } else if (authentication?.accessToken) {
+                // If no idToken, try to get user info with accessToken
+                fetchUserInfo(authentication.accessToken);
             }
         } else if (response?.type === 'error') {
             setError(response.error?.message || 'Google authentication failed');
@@ -50,6 +50,46 @@ export function useGoogleAuth() {
             setLoading(false);
         }
     }, [response]);
+
+    // Fetch user info using access token
+    const fetchUserInfo = useCallback(async (accessToken: string) => {
+        try {
+            const res = await fetch('https://www.googleapis.com/userinfo/v2/me', {
+                headers: { Authorization: `Bearer ${accessToken}` },
+            });
+            const userInfo = await res.json();
+
+            // Send to our backend
+            const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:3000';
+            const authRes = await fetch(`${API_URL}/api/auth/mobile-google`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    accessToken,
+                    userInfo: {
+                        email: userInfo.email,
+                        name: userInfo.name,
+                        picture: userInfo.picture,
+                        sub: userInfo.id,
+                    }
+                }),
+            });
+
+            const data = await authRes.json();
+
+            if (!authRes.ok) {
+                setError(data.error || 'Authentication failed');
+                setLoading(false);
+                return;
+            }
+
+            await setToken(data.token);
+            router.replace('/(tabs)');
+        } catch (err) {
+            setError('Failed to get user info');
+            setLoading(false);
+        }
+    }, [router]);
 
     // Exchange Google token with backend
     const handleGoogleToken = useCallback(async (idToken: string, accessToken?: string) => {
@@ -90,11 +130,12 @@ export function useGoogleAuth() {
             setError(null);
 
             if (!request) {
-                setError('Google auth not configured');
+                setError('Google auth not configured. Check your EXPO_PUBLIC_GOOGLE_CLIENT_ID');
                 setLoading(false);
                 return { success: false, error: 'Google auth not configured' };
             }
 
+            // Prompt for Google Sign-In
             const result = await promptAsync();
 
             if (result.type === 'cancel') {

@@ -42,8 +42,10 @@
     },
     "extra": {
       "eas": {
-        "projectId": "your-project-id"
-      }
-    }
+        "projectId": "2c7e4a54-1492-4fb5-9495-e5abd677c0df"
+      },
+      "router": {}
+    },
+    "owner": "rahmatullahzisan"
   }
 }

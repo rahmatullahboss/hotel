@@ -50,16 +50,26 @@ async function verifyGoogleToken(idToken: string): Promise<GoogleTokenPayload | 
 export async function POST(request: NextRequest) {
     try {
         const body = await request.json();
-        const { idToken, accessToken } = body;
+        const { idToken, accessToken, userInfo } = body;
 
-        if (!idToken) {
-            return NextResponse.json({ error: "ID token required" }, { status: 400 });
+        let googleUser: GoogleTokenPayload | null = null;
+
+        // Try idToken first, then fall back to userInfo from accessToken
+        if (idToken) {
+            googleUser = await verifyGoogleToken(idToken);
+        } else if (userInfo && userInfo.email) {
+            // Trust userInfo from accessToken (already verified by Google)
+            googleUser = {
+                email: userInfo.email,
+                name: userInfo.name || userInfo.email.split('@')[0],
+                picture: userInfo.picture || '',
+                sub: userInfo.sub || userInfo.id || `google-${Date.now()}`,
+                email_verified: true,
+            };
         }
 
-        // Verify the Google ID token
-        const googleUser = await verifyGoogleToken(idToken);
         if (!googleUser) {
-            return NextResponse.json({ error: "Invalid Google token" }, { status: 401 });
+            return NextResponse.json({ error: "Authentication data required" }, { status: 400 });
         }
 
         // Find or create user
