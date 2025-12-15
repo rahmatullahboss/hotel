@@ -11,6 +11,7 @@ import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { useTranslation } from 'react-i18next';
+import CityCard from '@/components/CityCard';
 
 const { width } = Dimensions.get('window');
 
@@ -74,22 +75,15 @@ export default function SearchScreen() {
                         {t('search.popularDestinations')}
                     </Text>
                     <View className="flex-row flex-wrap gap-3">
-                        {POPULAR_CITIES.map((city) => (
-                            <TouchableOpacity
+                        {POPULAR_CITIES.map((city, index) => (
+                            <CityCard
                                 key={city.name}
-                                className="p-4 rounded-2xl bg-white dark:bg-gray-800 items-center shadow-sm"
-                                style={{ width: (width - 52) / 2 }}
+                                name={city.name}
+                                image={city.image}
+                                hotels={city.hotels}
+                                index={index}
                                 onPress={() => handleCitySelect(city.name)}
-                                activeOpacity={0.8}
-                            >
-                                <Text className="text-4xl mb-2">{city.image}</Text>
-                                <Text className="text-base font-semibold text-gray-900 dark:text-white mb-0.5">
-                                    {city.name}
-                                </Text>
-                                <Text className="text-xs text-gray-500 dark:text-gray-400">
-                                    {city.hotels} {t('search.hotels')}
-                                </Text>
-                            </TouchableOpacity>
+                            />
                         ))}
                     </View>
                 </View>

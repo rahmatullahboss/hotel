@@ -6,12 +6,14 @@ import {
     TouchableOpacity,
     ActivityIndicator,
     RefreshControl,
+    FlatList,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { useTranslation } from 'react-i18next';
 import api from '@/lib/api';
+import BookingCard from '@/components/BookingCard';
 
 interface Booking {
     id: string;
@@ -130,71 +132,15 @@ export default function BookingsScreen() {
                     </View>
                 ) : (
                     <View className="p-5">
-                        {bookings.map((booking) => {
-                            const status = STATUS_CONFIG[booking.status] || { icon: 'question-circle' as const, label: booking.status || 'Unknown' };
-                            const colors = getStatusColor(booking.status);
-                            return (
-                                <TouchableOpacity
-                                    key={booking.id}
-                                    className="rounded-2xl mb-4 overflow-hidden bg-white dark:bg-gray-800 shadow-lg"
-                                    onPress={() => router.push(`/booking/${booking.id}` as any)}
-                                    activeOpacity={0.95}
-                                >
-                                    {/* Status Bar */}
-                                    <View className={`h-1.5 ${colors.bg}`} />
-
-                                    <View className="p-4">
-                                        <View className="flex-row items-start mb-4">
-                                            <View className="flex-1">
-                                                <Text className="text-lg font-bold text-gray-900 dark:text-white mb-1 tracking-tight" numberOfLines={1}>
-                                                    {booking.hotelName}
-                                                </Text>
-                                                <Text className="text-sm text-gray-500 dark:text-gray-400">
-                                                    {booking.roomType}
-                                                </Text>
-                                            </View>
-                                            <View className={`flex-row items-center px-3 py-1.5 rounded-full gap-1.5 ${colors.bgLight}`}>
-                                                <FontAwesome name={status.icon} size={12} color={booking.status === 'CONFIRMED' ? '#0D9488' : booking.status === 'PENDING' ? '#D97706' : booking.status === 'CANCELLED' ? '#EF4444' : '#6B7280'} />
-                                                <Text className={`text-xs font-bold ${colors.text}`}>
-                                                    {status.label}
-                                                </Text>
-                                            </View>
-                                        </View>
-
-                                        <View className="flex-row items-center mb-4 p-3.5 rounded-xl bg-gray-50 dark:bg-gray-700">
-                                            <View className="flex-1 items-center">
-                                                <Text className="text-xs uppercase text-gray-500 dark:text-gray-400 mb-1 font-semibold tracking-wide">
-                                                    {t('bookings.checkIn')}
-                                                </Text>
-                                                <Text className="text-base font-bold text-gray-900 dark:text-white">
-                                                    {formatDate(booking.checkIn)}
-                                                </Text>
-                                            </View>
-                                            <View className="px-4">
-                                                <FontAwesome name="arrow-right" size={14} color="#E63946" />
-                                            </View>
-                                            <View className="flex-1 items-center">
-                                                <Text className="text-xs uppercase text-gray-500 dark:text-gray-400 mb-1 font-semibold tracking-wide">
-                                                    {t('bookings.checkOut')}
-                                                </Text>
-                                                <Text className="text-base font-bold text-gray-900 dark:text-white">
-                                                    {formatDate(booking.checkOut)}
-                                                </Text>
-                                            </View>
-                                        </View>
-
-                                        <View className="flex-row justify-between items-center">
-                                            <Text className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                                                {t('bookings.totalPaid')}
-                                            </Text>
-                                            <Text className="text-xl font-bold text-primary">
-                                                ৳{booking.totalPrice?.toLocaleString()}
-                                            </Text>
-                                        </View>
-                                    </View>
-                                </TouchableOpacity>
-                            );
-                        })}
+                        <FlatList
+                            data={bookings}
+                            keyExtractor={(item) => item.id}
+                            renderItem={({ item, index }) => (
+                                <BookingCard booking={item} index={index} />
+                            )}
+                            scrollEnabled={false}
+                            showsVerticalScrollIndicator={false}
+                        />
                     </View>
                 )}
 
