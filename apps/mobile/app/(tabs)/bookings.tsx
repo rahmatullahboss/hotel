@@ -112,7 +112,8 @@ export default function BookingsScreen() {
                 ) : (
                     <View style={styles.bookingsList}>
                         {bookings.map((booking) => {
-                            const status = STATUS_CONFIG[booking.status];
+                            const status = STATUS_CONFIG[booking.status] ||
+                                { color: '#717171', icon: 'question-circle' as const, label: booking.status || 'Unknown' };
                             return (
                                 <TouchableOpacity
                                     key={booking.id}
