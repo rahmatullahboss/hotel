@@ -523,18 +523,18 @@ body {
   margin-bottom: 0.25rem;
 }
 
-/* Book Now Bar - Mobile (above bottom nav) */
+/* Book Now Bar - positioned at bottom */
 .book-now-bar {
-  bottom: 70px;
+  bottom: 0;
 }
 
-/* Standard page content - accounts for bottom nav on mobile */
+/* Standard page content - desktop-first */
 main.page-content {
   padding: 1rem;
-  padding-bottom: 100px;
+  padding-bottom: 2rem;
 }
 
-/* Pages with book-now-bar need extra padding on mobile */
+/* Pages with book-now-bar get extra bottom padding for the fixed bar */
 main.page-with-book-bar {
   padding: 1rem;
   padding-top: 1rem;

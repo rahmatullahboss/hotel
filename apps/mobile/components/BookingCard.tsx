@@ -1,7 +1,7 @@
 import { View, Text, Pressable } from 'react-native';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import Animated, {
-    FadeInDown,
+    FadeIn,
     useAnimatedStyle,
     useSharedValue,
     withSpring,
@@ -24,108 +24,153 @@ interface BookingCardProps {
     index: number;
 }
 
-const STATUS_COLORS = {
-    CONFIRMED: { bg: 'bg-teal-500', text: 'text-teal-600', bgLight: 'bg-teal-50 dark:bg-teal-900/30', color: '#0D9488' },
-    PENDING: { bg: 'bg-amber-500', text: 'text-amber-600', bgLight: 'bg-amber-50 dark:bg-amber-900/30', color: '#D97706' },
-    CANCELLED: { bg: 'bg-red-500', text: 'text-red-500', bgLight: 'bg-red-50 dark:bg-red-900/30', color: '#EF4444' },
-    COMPLETED: { bg: 'bg-gray-500', text: 'text-gray-600 dark:text-gray-400', bgLight: 'bg-gray-100 dark:bg-gray-700', color: '#6B7280' },
+const STATUS_CONFIG = {
+    CONFIRMED: {
+        icon: 'check-circle' as const,
+        color: '#10B981',
+        bgClass: 'bg-emerald-50 dark:bg-emerald-900/20',
+        textClass: 'text-emerald-600 dark:text-emerald-400',
+        accentClass: 'bg-emerald-500',
+    },
+    PENDING: {
+        icon: 'clock-o' as const,
+        color: '#F59E0B',
+        bgClass: 'bg-amber-50 dark:bg-amber-900/20',
+        textClass: 'text-amber-600 dark:text-amber-400',
+        accentClass: 'bg-amber-500',
+    },
+    CANCELLED: {
+        icon: 'times-circle' as const,
+        color: '#EF4444',
+        bgClass: 'bg-red-50 dark:bg-red-900/20',
+        textClass: 'text-red-500',
+        accentClass: 'bg-red-500',
+    },
+    COMPLETED: {
+        icon: 'check' as const,
+        color: '#6B7280',
+        bgClass: 'bg-gray-100 dark:bg-gray-700',
+        textClass: 'text-gray-600 dark:text-gray-400',
+        accentClass: 'bg-gray-500',
+    },
 };
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
 export default function BookingCard({ booking, index }: BookingCardProps) {
     const router = useRouter();
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
     const scale = useSharedValue(1);
 
-    const STATUS_CONFIG = {
-        CONFIRMED: { icon: 'check-circle' as const, label: t('bookings.status.confirmed') },
-        PENDING: { icon: 'clock-o' as const, label: t('bookings.status.pending') },
-        CANCELLED: { icon: 'times-circle' as const, label: t('bookings.status.cancelled') },
-        COMPLETED: { icon: 'check' as const, label: t('bookings.status.completed') },
-    };
-
     const formatDate = (dateString: string) => {
-        return new Date(dateString).toLocaleDateString('en-US', {
-            day: 'numeric',
-            month: 'short',
-        });
+        const date = new Date(dateString);
+        const day = date.getDate();
+        const month = date.toLocaleDateString(i18n.language === 'bn' ? 'bn-BD' : 'en-US', { month: 'short' });
+        return { day, month };
     };
 
-    const status = STATUS_CONFIG[booking.status] || { icon: 'question-circle' as const, label: booking.status || 'Unknown' };
-    const colors = STATUS_COLORS[booking.status] || STATUS_COLORS.COMPLETED;
+    const status = STATUS_CONFIG[booking.status] || STATUS_CONFIG.COMPLETED;
+    const checkIn = formatDate(booking.checkIn);
+    const checkOut = formatDate(booking.checkOut);
 
     const animatedStyle = useAnimatedStyle(() => ({
         transform: [{ scale: scale.value }],
     }));
 
     const handlePressIn = () => {
-        scale.value = withSpring(0.98, { damping: 15, stiffness: 400 });
+        scale.value = withSpring(0.98, { damping: 20, stiffness: 300 });
     };
 
     const handlePressOut = () => {
-        scale.value = withSpring(1, { damping: 15, stiffness: 400 });
+        scale.value = withSpring(1, { damping: 20, stiffness: 300 });
     };
 
     return (
         <AnimatedPressable
-            entering={FadeInDown.delay(index * 80).springify().damping(18)}
+            entering={FadeIn.delay(index * 50).duration(250)}
             style={animatedStyle}
             onPressIn={handlePressIn}
             onPressOut={handlePressOut}
             onPress={() => router.push(`/booking/${booking.id}` as any)}
-            className="rounded-2xl mb-4 overflow-hidden bg-white dark:bg-gray-800 shadow-lg"
+            className="mb-4"
         >
-            {/* Status Bar */}
-            <View className={`h-1.5 ${colors.bg}`} />
+            <View
+                className="rounded-2xl overflow-hidden bg-white dark:bg-gray-800"
+                style={{
+                    shadowColor: '#000',
+                    shadowOffset: { width: 0, height: 6 },
+                    shadowOpacity: 0.1,
+                    shadowRadius: 16,
+                    elevation: 8,
+                }}
+            >
+                {/* Status Accent Bar */}
+                <View className={`h-1 ${status.accentClass}`} />
 
-            <View className="p-4">
-                <View className="flex-row items-start mb-4">
-                    <View className="flex-1">
-                        <Text className="text-lg font-bold text-gray-900 dark:text-white mb-1 tracking-tight" numberOfLines={1}>
-                            {booking.hotelName}
-                        </Text>
-                        <Text className="text-sm text-gray-500 dark:text-gray-400">
-                            {booking.roomType}
-                        </Text>
+                <View className="p-5">
+                    {/* Header: Hotel Name + Status */}
+                    <View className="flex-row items-start justify-between mb-4">
+                        <View className="flex-1 mr-3">
+                            <Text className="text-lg font-bold text-gray-900 dark:text-white mb-1" numberOfLines={1}>
+                                {booking.hotelName}
+                            </Text>
+                            <Text className="text-sm text-gray-500 dark:text-gray-400">
+                                {booking.roomType}
+                            </Text>
+                        </View>
+                        <View className={`flex-row items-center px-3 py-1.5 rounded-full gap-1.5 ${status.bgClass}`}>
+                            <FontAwesome name={status.icon} size={11} color={status.color} />
+                            <Text className={`text-xs font-bold ${status.textClass}`}>
+                                {t(`bookings.status.${booking.status.toLowerCase()}`)}
+                            </Text>
+                        </View>
                     </View>
-                    <View className={`flex-row items-center px-3 py-1.5 rounded-full gap-1.5 ${colors.bgLight}`}>
-                        <FontAwesome name={status.icon} size={12} color={colors.color} />
-                        <Text className={`text-xs font-bold ${colors.text}`}>
-                            {status.label}
-                        </Text>
-                    </View>
-                </View>
 
-                <View className="flex-row items-center mb-4 p-3.5 rounded-xl bg-gray-50 dark:bg-gray-700">
-                    <View className="flex-1 items-center">
-                        <Text className="text-xs uppercase text-gray-500 dark:text-gray-400 mb-1 font-semibold tracking-wide">
-                            {t('bookings.checkIn')}
-                        </Text>
-                        <Text className="text-base font-bold text-gray-900 dark:text-white">
-                            {formatDate(booking.checkIn)}
-                        </Text>
-                    </View>
-                    <View className="px-4">
-                        <FontAwesome name="arrow-right" size={14} color="#E63946" />
-                    </View>
-                    <View className="flex-1 items-center">
-                        <Text className="text-xs uppercase text-gray-500 dark:text-gray-400 mb-1 font-semibold tracking-wide">
-                            {t('bookings.checkOut')}
-                        </Text>
-                        <Text className="text-base font-bold text-gray-900 dark:text-white">
-                            {formatDate(booking.checkOut)}
-                        </Text>
-                    </View>
-                </View>
+                    {/* Date Cards */}
+                    <View className="flex-row items-center mb-4">
+                        {/* Check In */}
+                        <View className="flex-1 bg-gray-50 dark:bg-gray-700/50 rounded-xl p-3 items-center">
+                            <Text className="text-[10px] uppercase text-gray-400 dark:text-gray-500 font-bold tracking-wider mb-1">
+                                {t('bookings.checkIn')}
+                            </Text>
+                            <Text className="text-2xl font-extrabold text-gray-900 dark:text-white">
+                                {checkIn.day}
+                            </Text>
+                            <Text className="text-xs text-gray-500 dark:text-gray-400 font-medium">
+                                {checkIn.month}
+                            </Text>
+                        </View>
 
-                <View className="flex-row justify-between items-center">
-                    <Text className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                        {t('bookings.totalPaid')}
-                    </Text>
-                    <Text className="text-xl font-bold text-primary">
-                        ৳{booking.totalPrice?.toLocaleString()}
-                    </Text>
+                        {/* Arrow */}
+                        <View className="px-3">
+                            <View className="w-8 h-8 rounded-full bg-primary/10 items-center justify-center">
+                                <FontAwesome name="long-arrow-right" size={14} color="#E63946" />
+                            </View>
+                        </View>
+
+                        {/* Check Out */}
+                        <View className="flex-1 bg-gray-50 dark:bg-gray-700/50 rounded-xl p-3 items-center">
+                            <Text className="text-[10px] uppercase text-gray-400 dark:text-gray-500 font-bold tracking-wider mb-1">
+                                {t('bookings.checkOut')}
+                            </Text>
+                            <Text className="text-2xl font-extrabold text-gray-900 dark:text-white">
+                                {checkOut.day}
+                            </Text>
+                            <Text className="text-xs text-gray-500 dark:text-gray-400 font-medium">
+                                {checkOut.month}
+                            </Text>
+                        </View>
+                    </View>
+
+                    {/* Footer: Price */}
+                    <View className="flex-row justify-between items-center pt-3 border-t border-gray-100 dark:border-gray-700">
+                        <Text className="text-sm text-gray-500 dark:text-gray-400 font-medium">
+                            {t('bookings.totalPaid')}
+                        </Text>
+                        <Text className="text-xl font-extrabold text-primary">
+                            ৳{booking.totalPrice?.toLocaleString()}
+                        </Text>
+                    </View>
                 </View>
             </View>
         </AnimatedPressable>
