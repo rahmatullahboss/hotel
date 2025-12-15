@@ -93,6 +93,7 @@ export const api = {
 
     // Bookings
     createBooking: (data: {
+        hotelId: string;
         roomId: string;
         checkIn: string;
         checkOut: string;
@@ -100,6 +101,7 @@ export const api = {
         guestEmail: string;
         guestPhone: string;
         guests: number;
+        totalAmount: number;
         paymentMethod: string;
     }) => apiRequest<any>('/api/bookings', {
         method: 'POST',

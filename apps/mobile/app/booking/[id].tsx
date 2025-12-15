@@ -25,6 +25,7 @@ export default function BookingScreen() {
         hotelName?: string;
         hotelCity?: string;
         roomImage?: string;
+        hotelId?: string;
     }>();
 
     const router = useRouter();
@@ -43,6 +44,7 @@ export default function BookingScreen() {
     const hotelName = params.hotelName || 'Hotel';
     const hotelCity = params.hotelCity || '';
     const roomImage = params.roomImage || 'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=300';
+    const hotelId = params.hotelId || '';
 
     // Booking form state
     const [checkIn, setCheckIn] = useState('');
@@ -85,8 +87,6 @@ export default function BookingScreen() {
     };
 
     const totalPrice = pricePerNight * nights;
-    const serviceFee = Math.round(totalPrice * 0.05);
-    const grandTotal = totalPrice + serviceFee;
 
     const handleBooking = async () => {
         if (!checkIn || !checkOut) {
@@ -98,11 +98,12 @@ export default function BookingScreen() {
 
         try {
             const { data, error } = await api.createBooking({
+                hotelId,
                 roomId,
                 checkIn,
                 checkOut,
                 guests,
-                specialRequests,
+                totalAmount: totalPrice,
                 guestName: '', // Will be filled by API from user session
                 guestEmail: '',
                 guestPhone: '',
@@ -287,20 +288,12 @@ export default function BookingScreen() {
                                 {t('common.currency')}{formatPrice(totalPrice)}
                             </Text>
                         </View>
-                        <View className="flex-row justify-between">
-                            <Text className="text-gray-600 dark:text-gray-400">
-                                Service fee (5%)
-                            </Text>
-                            <Text className="text-gray-900 dark:text-white font-medium">
-                                {t('common.currency')}{formatPrice(serviceFee)}
-                            </Text>
-                        </View>
                         <View className="border-t border-gray-200 dark:border-gray-700 pt-3 flex-row justify-between">
                             <Text className="text-lg font-bold text-gray-900 dark:text-white">
                                 Total
                             </Text>
                             <Text className="text-xl font-bold text-primary">
-                                {t('common.currency')}{formatPrice(grandTotal)}
+                                {t('common.currency')}{formatPrice(totalPrice)}
                             </Text>
                         </View>
                     </View>

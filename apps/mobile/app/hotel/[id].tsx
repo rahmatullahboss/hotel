@@ -294,6 +294,7 @@ export default function HotelDetailScreen() {
                                                         hotelName: hotel.name,
                                                         hotelCity: hotel.city,
                                                         roomImage: room.photos?.[0] || '',
+                                                        hotelId: hotel.id,
                                                     }
                                                 } as any)}
                                                 activeOpacity={0.85}
