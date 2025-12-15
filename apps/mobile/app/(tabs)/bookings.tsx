@@ -11,7 +11,6 @@ import { Text, View } from '@/components/Themed';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { LinearGradient } from 'expo-linear-gradient';
 import { useTranslation } from 'react-i18next';
 import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
@@ -80,18 +79,15 @@ export default function BookingsScreen() {
 
     return (
         <View style={[styles.container, { backgroundColor: colors.background }]}>
-            {/* Header with Gradient */}
-            <LinearGradient
-                colors={[Colors.primary, Colors.primaryDark]}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-                style={[styles.header, { paddingTop: insets.top + 16 }]}
+            {/* Header */}
+            <View
+                style={[styles.header, { paddingTop: insets.top + 16, backgroundColor: Colors.primary }]}
             >
                 <Text style={styles.headerTitle}>{t('bookings.title')}</Text>
                 <Text style={styles.headerSubtitle}>
                     {bookings.length} {bookings.length !== 1 ? t('bookings.bookings') : t('bookings.booking')}
                 </Text>
-            </LinearGradient>
+            </View>
 
             <ScrollView
                 style={styles.scrollView}

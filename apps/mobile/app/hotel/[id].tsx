@@ -6,7 +6,6 @@ import { useTranslation } from 'react-i18next';
 import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { LinearGradient } from 'expo-linear-gradient';
 import api from '@/lib/api';
 
 const { width } = Dimensions.get('window');
@@ -120,15 +119,11 @@ export default function HotelDetailScreen() {
                 }}
             />
             <ScrollView style={[styles.container, { backgroundColor: colors.background }]}>
-                {/* Hero Image with Gradient Overlay */}
+                {/* Hero Image */}
                 <View style={styles.heroContainer}>
                     <Image
                         source={{ uri: hotel.coverImage || hotel.images?.[0] || 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800' }}
                         style={styles.heroImage}
-                    />
-                    <LinearGradient
-                        colors={['rgba(0,0,0,0.3)', 'transparent', 'rgba(0,0,0,0.5)']}
-                        style={styles.heroGradient}
                     />
                 </View>
 
@@ -220,18 +215,11 @@ export default function HotelDetailScreen() {
                                         </View>
                                     </View>
                                     <TouchableOpacity
-                                        style={styles.bookButton}
+                                        style={[styles.bookButton, { backgroundColor: Colors.primary }]}
                                         onPress={() => router.push(`/booking/${room.id}`)}
                                         activeOpacity={0.85}
                                     >
-                                        <LinearGradient
-                                            colors={[Colors.primary, Colors.primaryDark]}
-                                            start={{ x: 0, y: 0 }}
-                                            end={{ x: 1, y: 0 }}
-                                            style={styles.bookButtonGradient}
-                                        >
-                                            <Text style={styles.bookButtonText}>{t('hotel.bookNow')}</Text>
-                                        </LinearGradient>
+                                        <Text style={styles.bookButtonText}>{t('hotel.bookNow')}</Text>
                                     </TouchableOpacity>
                                 </View>
                             </View>
@@ -414,9 +402,6 @@ const styles = StyleSheet.create({
     },
     bookButton: {
         borderRadius: 12,
-        overflow: 'hidden',
-    },
-    bookButtonGradient: {
         paddingVertical: 14,
         alignItems: 'center',
     },

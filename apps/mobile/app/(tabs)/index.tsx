@@ -13,7 +13,6 @@ import { Text, View } from '@/components/Themed';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { LinearGradient } from 'expo-linear-gradient';
 import { useTranslation } from 'react-i18next';
 import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
@@ -88,11 +87,8 @@ export default function HomeScreen() {
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       {/* Header with Search */}
-      <LinearGradient
-        colors={[Colors.primary, Colors.primaryDark]}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={[styles.header, { paddingTop: insets.top + 12 }]}
+      <View
+        style={[styles.header, { paddingTop: insets.top + 12, backgroundColor: Colors.primary }]}
       >
         <View style={[styles.headerTop, { backgroundColor: 'transparent' }]}>
           <View style={{ backgroundColor: 'transparent' }}>
@@ -114,7 +110,7 @@ export default function HomeScreen() {
           <FontAwesome name="search" size={18} color="#999" />
           <Text style={styles.searchPlaceholder}>{t('home.searchPlaceholder')}</Text>
         </TouchableOpacity>
-      </LinearGradient>
+      </View>
 
       <ScrollView
         style={styles.scrollView}
@@ -183,10 +179,6 @@ export default function HomeScreen() {
                   <Image
                     source={{ uri: hotel.imageUrl || 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=400' }}
                     style={styles.hotelImage}
-                  />
-                  <LinearGradient
-                    colors={['transparent', 'rgba(0,0,0,0.4)']}
-                    style={styles.imageGradient}
                   />
                   <View style={styles.ratingBadge}>
                     <FontAwesome name="star" size={11} color="#FFD700" />
