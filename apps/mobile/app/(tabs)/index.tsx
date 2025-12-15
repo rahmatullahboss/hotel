@@ -95,7 +95,11 @@ export default function HomeScreen() {
             <Text style={styles.headerGreeting}>{t('home.greeting')}</Text>
             <Text style={styles.headerTitle}>{t('home.heroTitle')}</Text>
           </View>
-          <TouchableOpacity style={styles.notificationBtn} activeOpacity={0.7}>
+          <TouchableOpacity
+            style={styles.notificationBtn}
+            activeOpacity={0.7}
+            onPress={() => router.push('/notifications')}
+          >
             <FontAwesome name="bell-o" size={22} color="#fff" />
             <View style={styles.notificationDot} />
           </TouchableOpacity>
@@ -119,10 +123,14 @@ export default function HomeScreen() {
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={Colors.primary} />
         }
       >
-        {/* Quick Filters */}
         <View style={[styles.quickFilters, { backgroundColor: 'transparent' }]}>
           {QUICK_FILTERS.map((filter) => (
-            <TouchableOpacity key={filter.id} style={styles.filterItem} activeOpacity={0.7}>
+            <TouchableOpacity
+              key={filter.id}
+              style={styles.filterItem}
+              activeOpacity={0.7}
+              onPress={() => router.push({ pathname: '/(tabs)/search', params: { filter: filter.id } })}
+            >
               <View style={[styles.filterIcon, { backgroundColor: colors.backgroundSecondary }]}>
                 <FontAwesome name={filter.icon} size={20} color={Colors.primary} />
               </View>

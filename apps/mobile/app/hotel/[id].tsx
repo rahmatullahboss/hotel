@@ -52,6 +52,8 @@ export default function HotelDetailScreen() {
     const [rooms, setRooms] = useState<Room[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [isSaved, setIsSaved] = useState(false);
+    const [savingState, setSavingState] = useState(false);
 
     useEffect(() => {
         if (id) {
@@ -76,7 +78,29 @@ export default function HotelDetailScreen() {
             setRooms(roomsRes.data);
         }
 
+        // Check if hotel is saved
+        const savedRes = await api.getSavedHotels();
+        if (savedRes.data) {
+            const saved = savedRes.data.savedHotels.some((s: any) => s.hotelId === id);
+            setIsSaved(saved);
+        }
+
         setLoading(false);
+    };
+
+    const handleToggleSave = async () => {
+        if (savingState) return;
+        setSavingState(true);
+
+        if (isSaved) {
+            await api.unsaveHotel(id!);
+            setIsSaved(false);
+        } else {
+            await api.saveHotel(id!);
+            setIsSaved(true);
+        }
+
+        setSavingState(false);
     };
 
     if (loading) {
@@ -125,6 +149,19 @@ export default function HotelDetailScreen() {
                         source={{ uri: hotel.coverImage || hotel.images?.[0] || 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800' }}
                         style={styles.heroImage}
                     />
+                    {/* Save Button */}
+                    <TouchableOpacity
+                        style={styles.saveButton}
+                        onPress={handleToggleSave}
+                        disabled={savingState}
+                        activeOpacity={0.8}
+                    >
+                        <FontAwesome
+                            name={isSaved ? 'heart' : 'heart-o'}
+                            size={22}
+                            color={isSaved ? Colors.primary : '#fff'}
+                        />
+                    </TouchableOpacity>
                 </View>
 
                 {/* Hotel Info */}
@@ -251,6 +288,17 @@ const styles = StyleSheet.create({
     heroImage: {
         width: width,
         height: 320,
+    },
+    saveButton: {
+        position: 'absolute',
+        top: 60,
+        right: 16,
+        width: 44,
+        height: 44,
+        borderRadius: 22,
+        backgroundColor: 'rgba(0,0,0,0.5)',
+        alignItems: 'center',
+        justifyContent: 'center',
     },
     heroGradient: {
         position: 'absolute',
