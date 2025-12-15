@@ -1,10 +1,7 @@
-import { useState } from 'react';
 import { View, Text, TouchableOpacity, Image } from 'react-native';
 import { router } from 'expo-router';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
-import Animated, { useAnimatedStyle, withTiming, useSharedValue } from 'react-native-reanimated';
 import { useTranslation } from 'react-i18next';
-import QRCode from 'react-native-qrcode-svg';
 
 interface Booking {
     id: string;
@@ -86,8 +83,6 @@ const PAYMENT_METHOD_LABELS: Record<string, { key: string; icon: string }> = {
 
 export default function BookingCard({ booking }: BookingCardProps) {
     const { t, i18n } = useTranslation();
-    const [expanded, setExpanded] = useState(false);
-    const rotation = useSharedValue(0);
 
     const formatDate = (dateString: string) => {
         const date = new Date(dateString);
@@ -127,10 +122,6 @@ export default function BookingCard({ booking }: BookingCardProps) {
     const handlePress = () => {
         router.push(`/booking-details/${booking.id}`);
     };
-
-    const arrowStyle = useAnimatedStyle(() => ({
-        transform: [{ rotate: `${rotation.value}deg` }],
-    }));
 
     const status = STATUS_CONFIG[booking.status] || STATUS_CONFIG.COMPLETED;
     const isPast = booking.status === 'COMPLETED' || booking.status === 'CANCELLED' || booking.status === 'CHECKED_OUT';
@@ -227,131 +218,8 @@ export default function BookingCard({ booking }: BookingCardProps) {
                             </Text>
                         </View>
 
-                        <Animated.View style={arrowStyle}>
-                            <FontAwesome name="chevron-down" size={14} color="#9CA3AF" />
-                        </Animated.View>
+                        <FontAwesome name="chevron-right" size={14} color="#9CA3AF" />
                     </View>
-
-                    {/* Expanded Details */}
-                    {expanded && (
-                        <View className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700">
-                            {/* Full Dates */}
-                            <View className="mb-4">
-                                <Text className="text-xs text-gray-400 dark:text-gray-500 uppercase font-semibold mb-2">
-                                    {t('booking.dates', 'Dates')}
-                                </Text>
-                                <View className="gap-2">
-                                    <View className="flex-row items-center gap-2">
-                                        <FontAwesome name="calendar-check-o" size={14} color="#10B981" />
-                                        <Text className="text-sm text-gray-700 dark:text-gray-300">
-                                            {formatFullDate(booking.checkIn)}
-                                        </Text>
-                                    </View>
-                                    <View className="flex-row items-center gap-2">
-                                        <FontAwesome name="calendar-times-o" size={14} color="#EF4444" />
-                                        <Text className="text-sm text-gray-700 dark:text-gray-300">
-                                            {formatFullDate(booking.checkOut)}
-                                        </Text>
-                                    </View>
-                                </View>
-                            </View>
-
-                            {/* Payment Info */}
-                            <View className="mb-4">
-                                <Text className="text-xs text-gray-400 dark:text-gray-500 uppercase font-semibold mb-2">
-                                    {t('booking.paymentMethod', 'Payment')}
-                                </Text>
-                                <View className="flex-row items-center gap-2">
-                                    <View className="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-700 items-center justify-center">
-                                        <FontAwesome
-                                            name={paymentInfo?.icon as any || 'building'}
-                                            size={14}
-                                            color="#6B7280"
-                                        />
-                                    </View>
-                                    <View>
-                                        <Text className="text-sm font-medium text-gray-900 dark:text-white">
-                                            {t(`booking.${paymentInfo?.key}`, booking.paymentMethod || 'Pay at Hotel')}
-                                        </Text>
-                                        {booking.paymentStatus && (
-                                            <Text className="text-xs text-gray-500 dark:text-gray-400">
-                                                {booking.paymentStatus === 'PAID'
-                                                    ? t('booking.paid', '✓ Paid')
-                                                    : booking.paymentStatus === 'PAY_AT_HOTEL'
-                                                        ? t('booking.payAtCheckIn', 'Pay at check-in')
-                                                        : t('booking.paymentPending', 'Payment pending')
-                                                }
-                                            </Text>
-                                        )}
-                                    </View>
-                                </View>
-                            </View>
-
-                            {/* Booking Fee Info for Pay at Hotel */}
-                            {booking.paymentMethod === 'PAY_AT_HOTEL' && booking.bookingFee && (
-                                <View className="mb-4">
-                                    <View className="flex-row justify-between items-center bg-green-50 dark:bg-green-900/20 p-3 rounded-xl">
-                                        <View>
-                                            <Text className="text-sm font-semibold text-green-700 dark:text-green-400">
-                                                {t('booking.advancePaid', 'Advance Paid')}
-                                            </Text>
-                                            <Text className="text-xs text-green-600 dark:text-green-500">
-                                                {t('booking.remainingAtHotel', 'Remaining at hotel')}
-                                            </Text>
-                                        </View>
-                                        <Text className="text-lg font-bold text-green-700 dark:text-green-400">
-                                            ৳{formatPrice(booking.bookingFee)}
-                                        </Text>
-                                    </View>
-                                </View>
-                            )}
-
-                            {/* Guest Name */}
-                            {booking.guestName && (
-                                <View className="mb-4">
-                                    <Text className="text-xs text-gray-400 dark:text-gray-500 uppercase font-semibold mb-2">
-                                        {t('booking.guestName', 'Guest')}
-                                    </Text>
-                                    <View className="flex-row items-center gap-2">
-                                        <FontAwesome name="user" size={14} color="#6B7280" />
-                                        <Text className="text-sm text-gray-700 dark:text-gray-300">
-                                            {booking.guestName}
-                                        </Text>
-                                    </View>
-                                </View>
-                            )}
-
-                            {/* Booking ID */}
-                            <View className="mb-4">
-                                <Text className="text-xs text-gray-400 dark:text-gray-500 uppercase font-semibold mb-1">
-                                    {t('booking.bookingId', 'Booking ID')}
-                                </Text>
-                                <Text className="text-xs text-gray-500 dark:text-gray-400 font-mono">
-                                    {booking.id.slice(0, 8).toUpperCase()}
-                                </Text>
-                            </View>
-
-                            {/* QR Code for Check-in - Show for CONFIRMED or PENDING bookings */}
-                            {(booking.status === 'CONFIRMED' || booking.status === 'PENDING') && (
-                                <View className="mt-2 pt-4 border-t border-gray-100 dark:border-gray-700">
-                                    <Text className="text-xs text-gray-400 dark:text-gray-500 uppercase font-semibold mb-3 text-center">
-                                        {t('booking.checkInQR', 'Check-in QR Code')}
-                                    </Text>
-                                    <View className="items-center bg-white p-4 rounded-2xl">
-                                        <QRCode
-                                            value={booking.qrCode || JSON.stringify({ bookingId: booking.id })}
-                                            size={160}
-                                            backgroundColor="white"
-                                            color="#1D3557"
-                                        />
-                                        <Text className="text-[10px] text-gray-400 mt-3 text-center">
-                                            {t('booking.showQRAtHotel', 'Show this QR code at the hotel reception')}
-                                        </Text>
-                                    </View>
-                                </View>
-                            )}
-                        </View>
-                    )}
                 </View>
             </View>
         </TouchableOpacity>
