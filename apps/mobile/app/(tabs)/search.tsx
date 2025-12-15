@@ -14,7 +14,7 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { useTranslation } from 'react-i18next';
-import * as Location from 'expo-location';
+// import * as Location from 'expo-location';
 import HotelCard from '@/components/HotelCard';
 import api from '@/lib/api';
 
@@ -166,48 +166,13 @@ export default function SearchScreen() {
     };
 
     const handleNearMe = async () => {
-        setActiveFilter('nearby');
-        setSearching(true);
-        setLocationLoading(true);
-
-        try {
-            const { status } = await Location.requestForegroundPermissionsAsync();
-            if (status !== 'granted') {
-                Alert.alert(
-                    t('search.locationPermission'),
-                    t('search.locationPermissionDesc'),
-                    [{ text: 'OK' }]
-                );
-                const dhakaHotels = allHotels.filter((h) => h.city === 'Dhaka');
-                setFilteredHotels(dhakaHotels);
-                setLocationLoading(false);
-                return;
-            }
-
-            const location = await Location.getCurrentPositionAsync({
-                accuracy: Location.Accuracy.Balanced,
-            });
-
-            const userLat = location.coords.latitude;
-            const userLng = location.coords.longitude;
-
-            const hotelsWithDistance = allHotels
-                .map((hotel) => {
-                    const hotelLat = parseFloat(hotel.latitude || '0');
-                    const hotelLng = parseFloat(hotel.longitude || '0');
-                    const distance = getDistance(userLat, userLng, hotelLat, hotelLng);
-                    return { ...hotel, distance };
-                })
-                .sort((a, b) => a.distance - b.distance);
-
-            setFilteredHotels(hotelsWithDistance.slice(0, 10));
-        } catch (error: any) {
-            const dhakaHotels = allHotels.filter((h) => h.city === 'Dhaka');
-            setFilteredHotels(dhakaHotels);
-        } finally {
-            setLocationLoading(false);
-        }
+        Alert.alert(
+            'Coming Soon',
+            'Near Me search will be available in the production version.',
+            [{ text: 'OK' }]
+        );
     };
+
 
     const handleFilter = async (filterId: string) => {
         if (filterId === 'nearby') {
@@ -331,8 +296,8 @@ export default function SearchScreen() {
                             <TouchableOpacity
                                 key={filter.id}
                                 className={`flex-row items-center px-4 py-2.5 rounded-full gap-2 ${activeFilter === filter.id
-                                        ? 'bg-primary'
-                                        : 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700'
+                                    ? 'bg-primary'
+                                    : 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700'
                                     }`}
                                 onPress={() => handleFilter(filter.id)}
                                 style={activeFilter === filter.id ? {} : {
@@ -348,8 +313,8 @@ export default function SearchScreen() {
                                     color={activeFilter === filter.id ? '#fff' : filter.color}
                                 />
                                 <Text className={`text-sm font-semibold ${activeFilter === filter.id
-                                        ? 'text-white'
-                                        : 'text-gray-700 dark:text-gray-300'
+                                    ? 'text-white'
+                                    : 'text-gray-700 dark:text-gray-300'
                                     }`}>
                                     {filter.label}
                                 </Text>

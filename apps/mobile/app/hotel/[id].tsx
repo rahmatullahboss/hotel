@@ -190,7 +190,7 @@ export default function HotelDetailScreen() {
                                         <View
                                             key={index}
                                             style={{
-                                                paddingHorizontal: 14,
+                                                paddingHorizontal: 20,
                                                 paddingVertical: 8,
                                                 borderRadius: 999,
                                                 backgroundColor: '#f3f4f6',
