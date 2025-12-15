@@ -4,12 +4,14 @@ import {
     ScrollView,
     TouchableOpacity,
     ActivityIndicator,
-    RefreshControl
+    RefreshControl,
+    Platform,
 } from 'react-native';
 import { Text, View } from '@/components/Themed';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useTranslation } from 'react-i18next';
 import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
@@ -78,13 +80,18 @@ export default function BookingsScreen() {
 
     return (
         <View style={[styles.container, { backgroundColor: colors.background }]}>
-            {/* Header */}
-            <View style={[styles.header, { paddingTop: insets.top + 10, backgroundColor: Colors.primary }]}>
+            {/* Header with Gradient */}
+            <LinearGradient
+                colors={[Colors.primary, Colors.primaryDark]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={[styles.header, { paddingTop: insets.top + 16 }]}
+            >
                 <Text style={styles.headerTitle}>{t('bookings.title')}</Text>
                 <Text style={styles.headerSubtitle}>
                     {bookings.length} {bookings.length !== 1 ? t('bookings.bookings') : t('bookings.booking')}
                 </Text>
-            </View>
+            </LinearGradient>
 
             <ScrollView
                 style={styles.scrollView}
@@ -119,7 +126,7 @@ export default function BookingsScreen() {
                                     key={booking.id}
                                     style={[styles.bookingCard, { backgroundColor: colors.card }]}
                                     onPress={() => router.push(`/booking/${booking.id}`)}
-                                    activeOpacity={0.9}
+                                    activeOpacity={0.95}
                                 >
                                     {/* Status Bar */}
                                     <View style={[styles.statusBar, { backgroundColor: status.color }]} />
@@ -140,13 +147,13 @@ export default function BookingsScreen() {
                                             </View>
                                         </View>
 
-                                        <View style={[styles.dateRow, { backgroundColor: 'transparent' }]}>
+                                        <View style={[styles.dateSection, { backgroundColor: colors.backgroundSecondary }]}>
                                             <View style={[styles.dateItem, { backgroundColor: 'transparent' }]}>
                                                 <Text style={[styles.dateLabel, { color: colors.textSecondary }]}>{t('bookings.checkIn')}</Text>
                                                 <Text style={[styles.dateValue, { color: colors.text }]}>{formatDate(booking.checkIn)}</Text>
                                             </View>
                                             <View style={[styles.dateArrow, { backgroundColor: 'transparent' }]}>
-                                                <FontAwesome name="arrow-right" size={12} color={colors.textSecondary} />
+                                                <FontAwesome name="arrow-right" size={14} color={Colors.primary} />
                                             </View>
                                             <View style={[styles.dateItem, { backgroundColor: 'transparent' }]}>
                                                 <Text style={[styles.dateLabel, { color: colors.textSecondary }]}>{t('bookings.checkOut')}</Text>
@@ -154,7 +161,7 @@ export default function BookingsScreen() {
                                             </View>
                                         </View>
 
-                                        <View style={[styles.bookingFooter, { borderTopColor: colors.border, backgroundColor: 'transparent' }]}>
+                                        <View style={[styles.bookingFooter, { backgroundColor: 'transparent' }]}>
                                             <Text style={[styles.priceLabel, { color: colors.textSecondary }]}>{t('bookings.totalPaid')}</Text>
                                             <Text style={[styles.priceValue, { color: Colors.primary }]}>
                                                 ৳{booking.totalPrice?.toLocaleString()}
@@ -184,19 +191,31 @@ const styles = StyleSheet.create({
     },
     header: {
         paddingHorizontal: 20,
-        paddingBottom: 20,
-        borderBottomLeftRadius: 24,
-        borderBottomRightRadius: 24,
+        paddingBottom: 24,
+        borderBottomLeftRadius: 28,
+        borderBottomRightRadius: 28,
+        ...Platform.select({
+            ios: {
+                shadowColor: '#000',
+                shadowOffset: { width: 0, height: 4 },
+                shadowOpacity: 0.15,
+                shadowRadius: 12,
+            },
+            android: {
+                elevation: 8,
+            },
+        }),
     },
     headerTitle: {
-        fontSize: 24,
+        fontSize: 26,
         fontWeight: 'bold',
         color: '#fff',
+        letterSpacing: 0.3,
     },
     headerSubtitle: {
         fontSize: 14,
-        color: 'rgba(255,255,255,0.8)',
-        marginTop: 4,
+        color: 'rgba(255,255,255,0.85)',
+        marginTop: 6,
     },
     scrollView: {
         flex: 1,
@@ -239,20 +258,26 @@ const styles = StyleSheet.create({
         padding: 20,
     },
     bookingCard: {
-        borderRadius: 16,
+        borderRadius: 20,
         marginBottom: 16,
         overflow: 'hidden',
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.08,
-        shadowRadius: 8,
-        elevation: 3,
+        ...Platform.select({
+            ios: {
+                shadowColor: '#000',
+                shadowOffset: { width: 0, height: 4 },
+                shadowOpacity: 0.1,
+                shadowRadius: 12,
+            },
+            android: {
+                elevation: 5,
+            },
+        }),
     },
     statusBar: {
-        height: 4,
+        height: 5,
     },
     bookingContent: {
-        padding: 16,
+        padding: 18,
     },
     bookingTop: {
         flexDirection: 'row',
@@ -260,9 +285,10 @@ const styles = StyleSheet.create({
         marginBottom: 16,
     },
     hotelName: {
-        fontSize: 16,
-        fontWeight: '600',
-        marginBottom: 2,
+        fontSize: 17,
+        fontWeight: '700',
+        marginBottom: 4,
+        letterSpacing: 0.2,
     },
     roomType: {
         fontSize: 13,
@@ -270,22 +296,25 @@ const styles = StyleSheet.create({
     statusBadge: {
         flexDirection: 'row',
         alignItems: 'center',
-        paddingHorizontal: 10,
-        paddingVertical: 5,
+        paddingHorizontal: 12,
+        paddingVertical: 6,
         borderRadius: 20,
-        gap: 5,
+        gap: 6,
     },
     statusText: {
         fontSize: 12,
-        fontWeight: '600',
+        fontWeight: '700',
     },
-    dateRow: {
+    dateSection: {
         flexDirection: 'row',
         alignItems: 'center',
         marginBottom: 16,
+        padding: 14,
+        borderRadius: 12,
     },
     dateItem: {
         flex: 1,
+        alignItems: 'center',
     },
     dateArrow: {
         paddingHorizontal: 16,
@@ -293,24 +322,25 @@ const styles = StyleSheet.create({
     dateLabel: {
         fontSize: 11,
         textTransform: 'uppercase',
-        marginBottom: 2,
+        marginBottom: 4,
+        fontWeight: '600',
+        letterSpacing: 0.5,
     },
     dateValue: {
-        fontSize: 15,
-        fontWeight: '600',
+        fontSize: 16,
+        fontWeight: '700',
     },
     bookingFooter: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        paddingTop: 16,
-        borderTopWidth: 1,
     },
     priceLabel: {
         fontSize: 13,
+        fontWeight: '500',
     },
     priceValue: {
-        fontSize: 18,
+        fontSize: 20,
         fontWeight: 'bold',
     },
 });
