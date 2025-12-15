@@ -94,18 +94,22 @@ export default function HotelDetailScreen() {
 
         try {
             if (isSaved) {
-                const { error } = await api.unsaveHotel(id!);
-                if (error) {
-                    console.error('Unsave error:', error);
-                    Alert.alert('Error', 'লগইন করুন হোটেল সেভ করতে');
+                console.log('Attempting to unsave hotel:', id);
+                const result = await api.unsaveHotel(id!);
+                console.log('Unsave result:', result);
+                if (result.error) {
+                    console.error('Unsave error:', result.error);
+                    Alert.alert('Error', result.error);
                 } else {
                     setIsSaved(false);
                 }
             } else {
-                const { error } = await api.saveHotel(id!);
-                if (error) {
-                    console.error('Save error:', error);
-                    Alert.alert('Error', 'লগইন করুন হোটেল সেভ করতে');
+                console.log('Attempting to save hotel:', id);
+                const result = await api.saveHotel(id!);
+                console.log('Save result:', result);
+                if (result.error) {
+                    console.error('Save error:', result.error);
+                    Alert.alert('Error', result.error);
                 } else {
                     setIsSaved(true);
                 }
