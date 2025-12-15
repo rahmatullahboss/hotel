@@ -69,12 +69,14 @@ export const api = {
         checkIn?: string;
         checkOut?: string;
         guests?: number;
+        limit?: number;
     }) => {
         const searchParams = new URLSearchParams();
         if (params?.city) searchParams.set('city', params.city);
         if (params?.checkIn) searchParams.set('checkIn', params.checkIn);
         if (params?.checkOut) searchParams.set('checkOut', params.checkOut);
         if (params?.guests) searchParams.set('guests', String(params.guests));
+        if (params?.limit) searchParams.set('limit', String(params.limit));
 
         return apiRequest<any[]>(`/api/hotels?${searchParams.toString()}`);
     },

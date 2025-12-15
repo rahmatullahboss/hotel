@@ -33,7 +33,8 @@ export default function AllHotelsScreen() {
     const [refreshing, setRefreshing] = useState(false);
 
     const fetchHotels = async () => {
-        const { data, error } = await api.getHotels();
+        // Request higher limit to get all hotels
+        const { data, error } = await api.getHotels({ limit: 100 });
         if (!error && data) {
             setHotels(data);
         }
@@ -55,7 +56,7 @@ export default function AllHotelsScreen() {
             <Stack.Screen
                 options={{
                     headerShown: true,
-                    headerTitle: t('home.topRated'),
+                    headerTitle: 'All Hotels',
                     headerBackTitle: '',
                     headerStyle: { backgroundColor: '#E63946' },
                     headerTintColor: '#fff',
