@@ -84,7 +84,7 @@ export default function HotelCard({ hotel, index }: HotelCardProps) {
                         <Text className="text-xl font-bold text-primary">
                             {t('common.currency')}{formatPrice(hotel.lowestPrice || 0)}
                             <Text className="text-sm font-normal text-gray-500 dark:text-gray-400">
-                                {' '}/night
+                                {' '}{t('common.perNight', '/night')}
                             </Text>
                         </Text>
                     </View>

@@ -245,14 +245,12 @@ export default function HotelDetailScreen() {
                                                     {t('common.currency')}{formatPrice(Number(room.basePrice))}
                                                 </Text>
                                             )}
-                                            <View className="flex-row items-baseline gap-1.5">
-                                                <Text className="text-2xl font-bold text-primary">
-                                                    {t('common.currency')}{formatPrice(Number(room.dynamicPrice || room.basePrice || 0))}
+                                            <Text className="text-2xl font-bold text-primary">
+                                                {t('common.currency')}{formatPrice(Number(room.dynamicPrice || room.basePrice || 0))}
+                                                <Text className="text-sm font-normal text-gray-500 dark:text-gray-400">
+                                                    {' '}{t('common.perNight')}
                                                 </Text>
-                                                <Text className="text-sm text-gray-500 dark:text-gray-400">
-                                                    {t('common.perNight')}
-                                                </Text>
-                                            </View>
+                                            </Text>
                                         </View>
 
                                         {/* Book Button */}
