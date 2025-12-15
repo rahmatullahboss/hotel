@@ -184,9 +184,13 @@ export default function HotelDetailScreen() {
                                     {hotel.amenities.slice(0, 6).map((amenity, index) => (
                                         <View
                                             key={index}
-                                            className="px-4 py-2 rounded-full bg-gray-100 dark:bg-gray-800"
+                                            className="rounded-full bg-gray-100 dark:bg-gray-800"
+                                            style={{ paddingHorizontal: 16, paddingVertical: 8 }}
                                         >
-                                            <Text className="text-sm text-gray-700 dark:text-gray-300">
+                                            <Text
+                                                className="text-sm text-gray-700 dark:text-gray-300"
+                                                style={{ flexShrink: 0 }}
+                                            >
                                                 {amenity}
                                             </Text>
                                         </View>
