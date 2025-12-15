@@ -1,25 +1,25 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getUserBookings, createBooking } from "@/app/actions/bookings";
-import { auth } from "@/auth";
+import { getUserIdFromRequest } from "@/lib/mobile-auth";
 
 /**
  * GET /api/bookings
  * 
  * Mobile API endpoint to fetch user's bookings
- * Requires authentication via Bearer token or session
+ * Supports both NextAuth sessions and JWT tokens
  */
 export async function GET(request: NextRequest) {
     try {
-        const session = await auth();
+        const userId = await getUserIdFromRequest(request);
 
-        if (!session?.user?.id) {
+        if (!userId) {
             return NextResponse.json(
                 { error: "Authentication required" },
                 { status: 401 }
             );
         }
 
-        const bookings = await getUserBookings(session.user.id);
+        const bookings = await getUserBookings(userId);
         return NextResponse.json(bookings);
     } catch (error) {
         console.error("Error fetching bookings:", error);
@@ -34,12 +34,13 @@ export async function GET(request: NextRequest) {
  * POST /api/bookings
  * 
  * Mobile API endpoint to create a new booking
+ * Supports both NextAuth sessions and JWT tokens
  */
 export async function POST(request: NextRequest) {
     try {
-        const session = await auth();
+        const userId = await getUserIdFromRequest(request);
 
-        if (!session?.user?.id) {
+        if (!userId) {
             return NextResponse.json(
                 { error: "Authentication required" },
                 { status: 401 }
@@ -59,7 +60,7 @@ export async function POST(request: NextRequest) {
         }
 
         const result = await createBooking({
-            userId: session.user.id,
+            userId,
             hotelId,
             roomId,
             checkIn,

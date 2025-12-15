@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/auth";
 import { db } from "@repo/db";
-import { referralCodes, referrals } from "@repo/db/schema";
+import { referralCodes, referrals, users } from "@repo/db/schema";
 import { eq, and, desc, sql } from "drizzle-orm";
+import { getUserIdFromRequest } from "@/lib/mobile-auth";
 
 export const dynamic = "force-dynamic";
 
@@ -17,12 +17,16 @@ function generateReferralCode(userName: string): string {
 
 export async function GET(request: NextRequest) {
     try {
-        const session = await auth();
-        if (!session?.user?.id) {
+        const userId = await getUserIdFromRequest(request);
+        if (!userId) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
-        const userId = session.user.id;
+        // Get user name for code generation
+        const user = await db.query.users.findFirst({
+            where: eq(users.id, userId),
+            columns: { name: true },
+        });
 
         // Get or create referral code
         let userCode = await db.query.referralCodes.findFirst({
@@ -33,7 +37,7 @@ export async function GET(request: NextRequest) {
         });
 
         if (!userCode) {
-            let code = generateReferralCode(session.user.name || "");
+            let code = generateReferralCode(user?.name || "");
             let attempts = 0;
 
             while (attempts < 5) {
@@ -41,7 +45,7 @@ export async function GET(request: NextRequest) {
                     where: eq(referralCodes.code, code),
                 });
                 if (!existing) break;
-                code = generateReferralCode(session.user.name || "");
+                code = generateReferralCode(user?.name || "");
                 attempts++;
             }
 
@@ -93,8 +97,8 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
     try {
-        const session = await auth();
-        if (!session?.user?.id) {
+        const userId = await getUserIdFromRequest(request);
+        if (!userId) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
@@ -117,13 +121,13 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: "Invalid referral code" }, { status: 400 });
         }
 
-        if (referralCode.userId === session.user.id) {
+        if (referralCode.userId === userId) {
             return NextResponse.json({ error: "You cannot use your own referral code" }, { status: 400 });
         }
 
         // Check if already used a referral
         const existingReferral = await db.query.referrals.findFirst({
-            where: eq(referrals.referredUserId, session.user.id),
+            where: eq(referrals.referredUserId, userId),
         });
 
         if (existingReferral) {
@@ -138,7 +142,7 @@ export async function POST(request: NextRequest) {
         // Create pending referral
         await db.insert(referrals).values({
             referrerCodeId: referralCode.id,
-            referredUserId: session.user.id,
+            referredUserId: userId,
             status: "PENDING",
         });
 

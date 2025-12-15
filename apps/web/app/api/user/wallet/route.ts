@@ -1,19 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/auth";
 import { db } from "@repo/db";
 import { wallets, walletTransactions, loyaltyPoints } from "@repo/db/schema";
 import { eq, desc } from "drizzle-orm";
+import { getUserIdFromRequest } from "@/lib/mobile-auth";
 
 export const dynamic = "force-dynamic";
 
 export async function GET(request: NextRequest) {
     try {
-        const session = await auth();
-        if (!session?.user?.id) {
+        const userId = await getUserIdFromRequest(request);
+        if (!userId) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
-
-        const userId = session.user.id;
 
         // Get or create wallet
         let wallet = await db.query.wallets.findFirst({

@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/auth";
 import { db } from "@repo/db";
 import { loginStreaks, badges, userBadges, wallets, walletTransactions } from "@repo/db/schema";
 import { eq, and, sql } from "drizzle-orm";
+import { getUserIdFromRequest } from "@/lib/mobile-auth";
 
 export const dynamic = "force-dynamic";
 
@@ -17,12 +17,10 @@ const STREAK_REWARDS = [
 
 export async function GET(request: NextRequest) {
     try {
-        const session = await auth();
-        if (!session?.user?.id) {
+        const userId = await getUserIdFromRequest(request);
+        if (!userId) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
-
-        const userId = session.user.id;
 
         // Get streak data
         let streak = await db.query.loginStreaks.findFirst({
@@ -95,12 +93,11 @@ export async function GET(request: NextRequest) {
 // POST to record daily login
 export async function POST(request: NextRequest) {
     try {
-        const session = await auth();
-        if (!session?.user?.id) {
+        const userId = await getUserIdFromRequest(request);
+        if (!userId) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
-        const userId = session.user.id;
         const today = new Date().toISOString().split("T")[0]!;
 
         let streak = await db.query.loginStreaks.findFirst({
