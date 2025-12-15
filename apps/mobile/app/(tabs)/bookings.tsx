@@ -18,11 +18,20 @@ import BookingCard from '@/components/BookingCard';
 interface Booking {
     id: string;
     hotelName: string;
-    roomType: string;
+    hotelLocation?: string;
+    hotelImage?: string;
+    roomName?: string;
+    roomType?: string; // Legacy support
     checkIn: string;
     checkOut: string;
-    status: 'CONFIRMED' | 'PENDING' | 'CANCELLED' | 'COMPLETED';
-    totalPrice: number;
+    status: 'CONFIRMED' | 'PENDING' | 'CANCELLED' | 'COMPLETED' | 'CHECKED_IN' | 'CHECKED_OUT';
+    totalAmount?: string | number;
+    totalPrice?: number; // Legacy support
+    paymentMethod?: string;
+    paymentStatus?: string;
+    bookingFee?: string | number;
+    bookingFeeStatus?: string;
+    guestName?: string;
 }
 
 const STATUS_COLORS = {
@@ -30,6 +39,8 @@ const STATUS_COLORS = {
     PENDING: { bg: 'bg-amber-500', text: 'text-amber-600', bgLight: 'bg-amber-50 dark:bg-amber-900/30' },
     CANCELLED: { bg: 'bg-red-500', text: 'text-red-500', bgLight: 'bg-red-50 dark:bg-red-900/30' },
     COMPLETED: { bg: 'bg-gray-500', text: 'text-gray-600 dark:text-gray-400', bgLight: 'bg-gray-100 dark:bg-gray-700' },
+    CHECKED_IN: { bg: 'bg-blue-500', text: 'text-blue-600', bgLight: 'bg-blue-50 dark:bg-blue-900/30' },
+    CHECKED_OUT: { bg: 'bg-gray-500', text: 'text-gray-600 dark:text-gray-400', bgLight: 'bg-gray-100 dark:bg-gray-700' },
 };
 
 export default function BookingsScreen() {

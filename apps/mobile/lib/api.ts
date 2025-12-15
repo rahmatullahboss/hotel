@@ -103,6 +103,8 @@ export const api = {
         guests: number;
         totalAmount: number;
         paymentMethod: string;
+        useWalletBalance?: boolean;
+        walletAmount?: number;
     }) => apiRequest<any>('/api/bookings', {
         method: 'POST',
         body: JSON.stringify(data),

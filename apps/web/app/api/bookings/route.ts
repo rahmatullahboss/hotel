@@ -50,7 +50,7 @@ export async function POST(request: NextRequest) {
         const body = await request.json();
 
         // Validate required fields
-        const { hotelId, roomId, checkIn, checkOut, guestPhone, totalAmount, paymentMethod } = body;
+        const { hotelId, roomId, checkIn, checkOut, guestPhone, totalAmount, paymentMethod, useWalletBalance, walletAmount } = body;
         let { guestName, guestEmail } = body;
 
         // Better error messages for debugging
@@ -105,6 +105,9 @@ export async function POST(request: NextRequest) {
             guestPhone: guestPhone || "",
             totalAmount,
             paymentMethod: paymentMethod || "PAY_AT_HOTEL",
+            // Split payment support
+            useWalletBalance: useWalletBalance || false,
+            walletAmount: walletAmount || 0,
         });
 
         if (!result.success) {
