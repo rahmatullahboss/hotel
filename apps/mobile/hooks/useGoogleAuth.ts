@@ -1,7 +1,8 @@
-import { useState, useCallback, useEffect } from 'react';
-import { GoogleSignin, statusCodes, isSuccessResponse, isErrorWithCode } from '@react-native-google-signin/google-signin';
+import { useState, useCallback } from 'react';
+import { GoogleSignin, statusCodes } from '@react-native-google-signin/google-signin';
 import { setToken } from '@/lib/api';
 import { useRouter } from 'expo-router';
+import { Alert } from 'react-native';
 
 // Configure Google Sign-In once
 GoogleSignin.configure({
@@ -13,12 +14,6 @@ GoogleSignin.configure({
 interface GoogleAuthResult {
     success: boolean;
     error?: string;
-    user?: {
-        id: string;
-        email: string;
-        name: string;
-        image?: string;
-    };
 }
 
 export function useGoogleAuth() {
@@ -32,91 +27,131 @@ export function useGoogleAuth() {
             setLoading(true);
             setError(null);
 
+            console.log('Starting Google Sign-In...');
+
             // Check if Google Play Services are available
             await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
+            console.log('Play Services OK');
 
-            // Sign in
-            const response = await GoogleSignin.signIn();
+            // Sign in - returns user info directly
+            const signInResult = await GoogleSignin.signIn();
+            console.log('Sign-In Result type:', typeof signInResult);
+            console.log('Sign-In Result:', JSON.stringify(signInResult, null, 2));
 
-            if (isSuccessResponse(response)) {
-                const { data } = response;
-                const idToken = data.idToken;
-                const user = data.user;
+            // Extract user from the response - check different possible structures
+            let user: any = null;
+            let idToken: string | null = null;
 
-                if (!idToken) {
-                    setError('No ID token received');
-                    setLoading(false);
-                    return { success: false, error: 'No ID token received' };
+            // New SDK structure: { type: 'success', data: { user, idToken } }
+            if (signInResult && typeof signInResult === 'object') {
+                if ('data' in signInResult && signInResult.data) {
+                    user = (signInResult as any).data.user;
+                    idToken = (signInResult as any).data.idToken;
+                    console.log('Found user in data.user');
+                } else if ('user' in signInResult) {
+                    // Old SDK structure: { user, idToken }
+                    user = (signInResult as any).user;
+                    idToken = (signInResult as any).idToken;
+                    console.log('Found user in root.user');
                 }
-
-                // Send to backend
-                const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:3000';
-                const res = await fetch(`${API_URL}/api/auth/mobile-google`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        idToken,
-                        userInfo: {
-                            email: user.email,
-                            name: user.name || user.givenName || 'User',
-                            picture: user.photo,
-                            sub: user.id,
-                        }
-                    }),
-                });
-
-                const authData = await res.json();
-
-                if (!res.ok) {
-                    setError(authData.error || 'Authentication failed');
-                    setLoading(false);
-                    return { success: false, error: authData.error };
-                }
-
-                // Store the JWT token
-                await setToken(authData.token);
-
-                // Navigate to home
-                router.replace('/(tabs)');
-
-                return {
-                    success: true,
-                    user: {
-                        id: user.id,
-                        email: user.email,
-                        name: user.name || user.givenName || '',
-                        image: user.photo || undefined,
-                    },
-                };
-            } else {
-                setError('Sign in was cancelled');
-                setLoading(false);
-                return { success: false, error: 'Sign in was cancelled' };
             }
-        } catch (err) {
+
+            // If no idToken from signIn, try getTokens
+            if (!idToken) {
+                console.log('Getting tokens separately...');
+                try {
+                    const tokens = await GoogleSignin.getTokens();
+                    idToken = tokens.idToken;
+                    console.log('Got idToken from getTokens:', idToken ? 'Yes' : 'No');
+                } catch (tokenErr) {
+                    console.error('getTokens error:', tokenErr);
+                }
+            }
+
+            if (!user) {
+                const errorMsg = `No user data. Response: ${JSON.stringify(signInResult)}`;
+                console.error(errorMsg);
+                setError('No user data received');
+                setLoading(false);
+                Alert.alert('Debug Info', errorMsg);
+                return { success: false, error: 'No user data received' };
+            }
+
+            if (!idToken) {
+                const errorMsg = 'No ID token received';
+                console.error(errorMsg);
+                setError(errorMsg);
+                setLoading(false);
+                Alert.alert('Error', errorMsg);
+                return { success: false, error: errorMsg };
+            }
+
+            console.log('User email:', user.email);
+            console.log('User name:', user.name);
+
+            // Send to backend
+            const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:3000';
+            console.log('Sending to backend:', API_URL);
+
+            const res = await fetch(`${API_URL}/api/auth/mobile-google`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    idToken,
+                    userInfo: {
+                        email: user.email,
+                        name: user.name || user.givenName || 'User',
+                        picture: user.photo,
+                        sub: user.id,
+                    }
+                }),
+            });
+
+            console.log('Backend response status:', res.status);
+            const authData = await res.json();
+            console.log('Backend response:', JSON.stringify(authData, null, 2));
+
+            if (!res.ok) {
+                const errorMsg = authData.error || 'Backend authentication failed';
+                console.error('Backend error:', errorMsg);
+                setError(errorMsg);
+                setLoading(false);
+                Alert.alert('Authentication Error', errorMsg);
+                return { success: false, error: errorMsg };
+            }
+
+            // Store the JWT token
+            await setToken(authData.token);
+            console.log('Token stored successfully');
+
+            // Navigate to home
+            setLoading(false);
+            Alert.alert('Success!', 'Signed in successfully!');
+            router.replace('/(tabs)');
+
+            return { success: true };
+
+        } catch (err: any) {
             let errorMessage = 'Unknown error occurred';
 
-            if (isErrorWithCode(err)) {
-                switch (err.code) {
-                    case statusCodes.SIGN_IN_CANCELLED:
-                        errorMessage = 'Sign in cancelled';
-                        break;
-                    case statusCodes.IN_PROGRESS:
-                        errorMessage = 'Sign in already in progress';
-                        break;
-                    case statusCodes.PLAY_SERVICES_NOT_AVAILABLE:
-                        errorMessage = 'Google Play Services not available';
-                        break;
-                    default:
-                        errorMessage = err.message || 'Google Sign-In failed';
-                }
-            } else if (err instanceof Error) {
-                errorMessage = err.message;
+            if (err.code === statusCodes.SIGN_IN_CANCELLED) {
+                errorMessage = 'Sign in cancelled';
+            } else if (err.code === statusCodes.IN_PROGRESS) {
+                errorMessage = 'Sign in already in progress';
+            } else if (err.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
+                errorMessage = 'Google Play Services not available';
+            } else {
+                errorMessage = err.message || 'Google Sign-In failed';
             }
 
             console.error('Google Sign-In error:', err);
             setError(errorMessage);
             setLoading(false);
+
+            if (err.code !== statusCodes.SIGN_IN_CANCELLED) {
+                Alert.alert('Sign-In Error', errorMessage);
+            }
+
             return { success: false, error: errorMessage };
         }
     }, [router]);
@@ -135,6 +170,6 @@ export function useGoogleAuth() {
         signOut,
         loading,
         error,
-        isReady: true, // Native SDK is always ready
+        isReady: true,
     };
 }

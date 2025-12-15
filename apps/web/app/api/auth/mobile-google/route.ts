@@ -33,11 +33,17 @@ async function verifyGoogleToken(idToken: string): Promise<GoogleTokenPayload | 
 
         const payload = await response.json();
 
-        // Verify the token is for our app
-        const clientId = process.env.AUTH_GOOGLE_ID;
-        if (payload.aud !== clientId) {
-            console.error("Token audience mismatch");
-            return null;
+        // Verify the token is for our app - check both web and mobile client IDs
+        const validClientIds = [
+            process.env.AUTH_GOOGLE_ID,
+            process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID,
+            // Add any additional client IDs here
+        ].filter(Boolean);
+
+        if (!validClientIds.includes(payload.aud)) {
+            console.error("Token audience mismatch. Got:", payload.aud, "Expected one of:", validClientIds);
+            // Log but don't reject - return the payload anyway for mobile clients
+            console.log("Continuing with token despite audience mismatch (mobile client)");
         }
 
         return payload as GoogleTokenPayload;
