@@ -37,6 +37,14 @@
       "expo-localization",
       "expo-web-browser",
       [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Allow Vibe Hospitality to use your location to find nearby hotels.",
+          "locationAlwaysPermission": "Allow Vibe Hospitality to use your location to find nearby hotels.",
+          "locationWhenInUsePermission": "Allow Vibe Hospitality to use your location to find nearby hotels."
+        }
+      ],
+      [
         "@react-native-google-signin/google-signin",
         {
           "iosUrlScheme": "com.googleusercontent.apps.104361665388-erqs6259250hkjg13v378jshge11kaht"
