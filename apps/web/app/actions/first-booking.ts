@@ -4,18 +4,14 @@ import { db } from "@repo/db";
 import { bookings } from "@repo/db/schema";
 import { eq, and, ne, count } from "drizzle-orm";
 
-// First booking discount percentage (20%)
-export const FIRST_BOOKING_DISCOUNT_PERCENT = 20;
+import {
+    FIRST_BOOKING_DISCOUNT_PERCENT,
+    FIRST_BOOKING_MAX_DISCOUNT,
+    FirstBookingEligibility
+} from "../constants";
 
-// Maximum discount amount (optional cap)
-export const FIRST_BOOKING_MAX_DISCOUNT = 1000; // ৳1000 max
+export type { FirstBookingEligibility }; // Re-export type if needed, or just let consumers import from constants
 
-export interface FirstBookingEligibility {
-    eligible: boolean;
-    discountPercent: number;
-    maxDiscount: number;
-    message?: string;
-}
 
 /**
  * Check if a user is eligible for the first booking offer
