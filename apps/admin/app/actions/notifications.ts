@@ -143,6 +143,11 @@ export async function broadcastToAllPartners(
         let failed = 0;
 
         for (const sub of subscriptions) {
+            // Skip invalid subscriptions
+            if (!sub.endpoint || !sub.p256dh || !sub.auth) {
+                continue;
+            }
+
             const success = await sendPushToSubscription(
                 {
                     endpoint: sub.endpoint,
@@ -190,6 +195,11 @@ export async function sendToHotelOwner(
         let failed = 0;
 
         for (const sub of subscriptions) {
+            // Skip invalid subscriptions
+            if (!sub.endpoint || !sub.p256dh || !sub.auth) {
+                continue;
+            }
+
             const success = await sendPushToSubscription(
                 {
                     endpoint: sub.endpoint,
