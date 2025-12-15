@@ -80,11 +80,7 @@ export default function HotelDetailScreen() {
         <SafeAreaView className="flex-1 bg-white dark:bg-gray-900" edges={['bottom']}>
             <Stack.Screen
                 options={{
-                    headerShown: true,
-                    headerTitle: '',
-                    headerTransparent: true,
-                    headerBackTitle: t('hotel.goBack'),
-                    headerTintColor: '#fff',
+                    headerShown: false,
                 }}
             />
 
@@ -107,20 +103,35 @@ export default function HotelDetailScreen() {
                     style={{ width, height: HEADER_HEIGHT }}
                     resizeMode="cover"
                 />
-                {/* Save Button */}
-                <TouchableOpacity
-                    style={{ position: 'absolute', top: insets.top + 8, right: 16 }}
-                    className="w-11 h-11 rounded-full bg-black/50 items-center justify-center"
-                    onPress={handleToggleSave}
-                    disabled={savingState}
-                    activeOpacity={0.8}
+
+                {/* Custom Header Buttons */}
+                <View
+                    style={{ position: 'absolute', top: insets.top + 8, left: 16, right: 16 }}
+                    className="flex-row justify-between"
                 >
-                    <FontAwesome
-                        name={isSaved ? 'heart' : 'heart-o'}
-                        size={22}
-                        color={isSaved ? '#E63946' : '#fff'}
-                    />
-                </TouchableOpacity>
+                    {/* Back Button */}
+                    <TouchableOpacity
+                        className="w-11 h-11 rounded-full bg-black/50 items-center justify-center"
+                        onPress={() => router.back()}
+                        activeOpacity={0.8}
+                    >
+                        <FontAwesome name="arrow-left" size={18} color="#fff" />
+                    </TouchableOpacity>
+
+                    {/* Save Button */}
+                    <TouchableOpacity
+                        className="w-11 h-11 rounded-full bg-black/50 items-center justify-center"
+                        onPress={handleToggleSave}
+                        disabled={savingState}
+                        activeOpacity={0.8}
+                    >
+                        <FontAwesome
+                            name={isSaved ? 'heart' : 'heart-o'}
+                            size={22}
+                            color={isSaved ? '#E63946' : '#fff'}
+                        />
+                    </TouchableOpacity>
+                </View>
             </Animated.View>
 
             {/* Scrollable Content */}
