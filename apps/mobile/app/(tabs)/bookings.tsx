@@ -53,6 +53,8 @@ export default function BookingsScreen() {
         PENDING: { icon: 'clock-o' as const, label: t('bookings.status.pending') },
         CANCELLED: { icon: 'times-circle' as const, label: t('bookings.status.cancelled') },
         COMPLETED: { icon: 'check' as const, label: t('bookings.status.completed') },
+        CHECKED_IN: { icon: 'sign-in' as const, label: t('bookings.status.checkedIn', 'Checked In') },
+        CHECKED_OUT: { icon: 'sign-out' as const, label: t('bookings.status.checkedOut', 'Checked Out') },
     };
 
     const [bookings, setBookings] = useState<Booking[]>([]);

@@ -55,6 +55,7 @@ function BookingContent() {
     const [bookingId, setBookingId] = useState("");
     const [pendingAdvanceAmount, setPendingAdvanceAmount] = useState(0);
     const [walletBalance, setWalletBalance] = useState<number>(0);
+    const [useWalletPartial, setUseWalletPartial] = useState(false); // Use wallet for partial payment
     const [error, setError] = useState("");
 
     // Get current payment method's advance requirement (after paymentMethod state is declared)
