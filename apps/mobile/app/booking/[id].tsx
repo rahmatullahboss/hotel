@@ -149,18 +149,18 @@ export default function BookingScreen() {
 
     const handleBooking = async () => {
         if (!checkIn || !checkOut) {
-            Alert.alert('Error', 'Please select check-in and check-out dates');
+            Alert.alert(t('common.error'), t('booking.selectDates'));
             return;
         }
 
         if (!hotelId) {
-            Alert.alert('Error', 'Hotel information is missing. Please go back and try again.');
+            Alert.alert(t('common.error'), t('booking.missingHotelInfo'));
             console.error('Missing hotelId in booking params:', params);
             return;
         }
 
         if (!roomId) {
-            Alert.alert('Error', 'Room information is missing.');
+            Alert.alert(t('common.error'), t('booking.missingRoomInfo'));
             return;
         }
 
@@ -185,14 +185,14 @@ export default function BookingScreen() {
             const { data, error } = await api.createBooking(bookingData);
 
             if (error) {
-                Alert.alert('Booking Failed', error);
+                Alert.alert(t('common.error'), error);
             } else {
                 Alert.alert(
-                    'Booking Confirmed! 🎉',
-                    `Your booking at ${hotelName} has been confirmed.`,
+                    t('booking.confirmed'),
+                    t('booking.confirmedMessage', { hotel: hotelName }),
                     [
                         {
-                            text: 'View My Bookings',
+                            text: t('booking.viewBookings'),
                             onPress: () => router.replace('/(tabs)/bookings'),
                         },
                     ]
@@ -210,13 +210,13 @@ export default function BookingScreen() {
             <View className="flex-1 items-center justify-center p-5 bg-white dark:bg-gray-900">
                 <FontAwesome name="exclamation-circle" size={50} color="#9CA3AF" />
                 <Text className="text-lg font-semibold text-gray-900 dark:text-white mt-4">
-                    Room not found
+                    {t('hotel.roomNotFound')}
                 </Text>
                 <TouchableOpacity
                     className="mt-4 bg-primary px-6 py-3 rounded-full"
                     onPress={() => router.back()}
                 >
-                    <Text className="text-white font-bold">Go Back</Text>
+                    <Text className="text-white font-bold">{t('hotel.goBack')}</Text>
                 </TouchableOpacity>
             </View>
         );
@@ -227,7 +227,7 @@ export default function BookingScreen() {
             <Stack.Screen
                 options={{
                     headerShown: true,
-                    headerTitle: 'Confirm Booking',
+                    headerTitle: t('booking.confirmBooking'),
                     headerBackTitle: '',
                     headerStyle: { backgroundColor: '#E63946' },
                     headerTintColor: '#fff',
@@ -260,7 +260,7 @@ export default function BookingScreen() {
                             <View className="flex-row items-center mt-2 gap-2">
                                 <FontAwesome name="users" size={12} color="#E63946" />
                                 <Text className="text-sm text-gray-600 dark:text-gray-300">
-                                    Up to {maxGuests} guests
+                                    {t('booking.upToGuests', { count: maxGuests })}
                                 </Text>
                             </View>
                         </View>
@@ -326,7 +326,7 @@ export default function BookingScreen() {
                             <View className="bg-white dark:bg-gray-800 rounded-t-3xl max-h-96">
                                 <View className="flex-row justify-between items-center p-4 border-b border-gray-200 dark:border-gray-700">
                                     <Text className="text-lg font-bold text-gray-900 dark:text-white">
-                                        {t('bookings.checkIn', 'Select Check-in Date')}
+                                        {t('booking.selectCheckInDate')}
                                     </Text>
                                     <TouchableOpacity onPress={() => setShowCheckInPicker(false)}>
                                         <FontAwesome name="times" size={20} color="#9CA3AF" />
@@ -362,7 +362,7 @@ export default function BookingScreen() {
                             <View className="bg-white dark:bg-gray-800 rounded-t-3xl max-h-96">
                                 <View className="flex-row justify-between items-center p-4 border-b border-gray-200 dark:border-gray-700">
                                     <Text className="text-lg font-bold text-gray-900 dark:text-white">
-                                        {t('bookings.checkOut', 'Select Check-out Date')}
+                                        {t('booking.selectCheckOutDate')}
                                     </Text>
                                     <TouchableOpacity onPress={() => setShowCheckOutPicker(false)}>
                                         <FontAwesome name="times" size={20} color="#9CA3AF" />
@@ -389,7 +389,7 @@ export default function BookingScreen() {
 
                     <View className="mt-3 bg-primary/10 p-3 rounded-xl">
                         <Text className="text-center text-primary font-semibold">
-                            {nights} night{nights !== 1 ? 's' : ''}
+                            {i18n.language === 'bn' ? nights.toString().replace(/[0-9]/g, (d) => '০১২৩৪৫৬৭৮৯'[parseInt(d)]) : nights} {nights !== 1 ? t('booking.nights') : t('booking.night')}
                         </Text>
                     </View>
                 </View>
@@ -401,7 +401,7 @@ export default function BookingScreen() {
                     </Text>
 
                     <View className="flex-row items-center justify-between">
-                        <Text className="text-gray-700 dark:text-gray-300">Guests</Text>
+                        <Text className="text-gray-700 dark:text-gray-300">{t('booking.guestsLabel')}</Text>
                         <View className="flex-row items-center gap-4">
                             <TouchableOpacity
                                 className="w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-700 items-center justify-center"
@@ -410,7 +410,7 @@ export default function BookingScreen() {
                                 <FontAwesome name="minus" size={14} color="#6B7280" />
                             </TouchableOpacity>
                             <Text className="text-lg font-bold text-gray-900 dark:text-white w-8 text-center">
-                                {guests}
+                                {i18n.language === 'bn' ? guests.toString().replace(/[0-9]/g, (d) => '০১২৩৪৫৬৭৮৯'[parseInt(d)]) : guests}
                             </Text>
                             <TouchableOpacity
                                 className="w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-700 items-center justify-center"
@@ -431,7 +431,7 @@ export default function BookingScreen() {
                         className="bg-gray-100 dark:bg-gray-700 px-4 py-3 rounded-xl text-gray-900 dark:text-white h-24"
                         value={specialRequests}
                         onChangeText={setSpecialRequests}
-                        placeholder="Any special requests? (Optional)"
+                        placeholder={t('booking.specialRequestsPlaceholder')}
                         placeholderTextColor="#9CA3AF"
                         multiline
                         textAlignVertical="top"
@@ -447,7 +447,7 @@ export default function BookingScreen() {
                     <View className="gap-3">
                         <View className="flex-row justify-between">
                             <Text className="text-gray-600 dark:text-gray-400">
-                                {t('common.currency')}{formatPrice(pricePerNight)} × {nights} night{nights !== 1 ? 's' : ''}
+                                {t('common.currency')}{formatPrice(pricePerNight)} × {i18n.language === 'bn' ? nights.toString().replace(/[0-9]/g, (d) => '০১২৩৪৫৬৭৮৯'[parseInt(d)]) : nights} {nights !== 1 ? t('booking.nights') : t('booking.night')}
                             </Text>
                             <Text className="text-gray-900 dark:text-white font-medium">
                                 {t('common.currency')}{formatPrice(totalPrice)}
@@ -455,7 +455,7 @@ export default function BookingScreen() {
                         </View>
                         <View className="border-t border-gray-200 dark:border-gray-700 pt-3 flex-row justify-between">
                             <Text className="text-lg font-bold text-gray-900 dark:text-white">
-                                Total
+                                {t('booking.total')}
                             </Text>
                             <Text className="text-xl font-bold text-primary">
                                 {t('common.currency')}{formatPrice(totalPrice)}
@@ -484,7 +484,7 @@ export default function BookingScreen() {
                         <>
                             <FontAwesome name="check-circle" size={18} color="#fff" />
                             <Text className="text-white text-lg font-bold">
-                                Confirm Booking
+                                {t('booking.confirmBooking')}
                             </Text>
                         </>
                     )}

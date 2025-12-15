@@ -85,7 +85,29 @@
         "availableRooms": "Available Rooms",
         "noRooms": "No rooms available for selected dates",
         "upToGuests": "Up to {{count}} guests",
-        "bookNow": "Book Now"
+        "bookNow": "Book Now",
+        "roomNotFound": "Room not found"
+    },
+    "booking": {
+        "confirmBooking": "Confirm Booking",
+        "dates": "Select Dates",
+        "guests": "Number of Guests",
+        "guestsLabel": "Guests",
+        "night": "night",
+        "nights": "nights",
+        "total": "Total",
+        "specialRequests": "Special Requests",
+        "priceBreakdown": "Price Breakdown",
+        "specialRequestsPlaceholder": "Any special requests? (Optional)",
+        "upToGuests": "Up to {{count}} guests",
+        "selectDates": "Please select check-in and check-out dates",
+        "missingHotelInfo": "Hotel information is missing. Please go back and try again.",
+        "missingRoomInfo": "Room information is missing.",
+        "confirmed": "Booking Confirmed! 🎉",
+        "confirmedMessage": "Your booking at {{hotel}} has been confirmed.",
+        "viewBookings": "View My Bookings",
+        "selectCheckInDate": "Select Check-in Date",
+        "selectCheckOutDate": "Select Check-out Date"
     },
     "wallet": {
         "title": "Wallet",
