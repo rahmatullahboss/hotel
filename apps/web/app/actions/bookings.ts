@@ -16,7 +16,9 @@ export interface CreateBookingInput {
     paymentMethod: "BKASH" | "NAGAD" | "CARD" | "PAY_AT_HOTEL" | "WALLET";
     totalAmount: number;
     userId?: string;
-    useWalletForFee?: boolean; // Use wallet balance for booking fee
+    useWalletForFee?: boolean; // Legacy: Use wallet balance for booking fee
+    useWalletBalance?: boolean; // New: Use wallet for partial payment
+    walletAmount?: number; // Amount to deduct from wallet
 }
 
 export interface BookingResult {

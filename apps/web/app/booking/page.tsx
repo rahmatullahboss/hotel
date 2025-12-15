@@ -390,76 +390,150 @@ function BookingContent() {
                     {/* Step 2: Payment Method */}
                     {step === 2 && (
                         <form onSubmit={handleSubmit}>
-                            <div className="card" style={{ padding: "1.5rem", marginBottom: "1rem" }}>
-                                <h3 style={{ fontWeight: 600, marginBottom: "1rem" }}>{t("selectPayment")}</h3>
-                                <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
-                                    {paymentMethods.map((method) => {
-                                        const isWallet = method.id === "WALLET";
-                                        const hasEnoughBalance = walletBalance >= totalAmount;
-                                        const isDisabled = isWallet && !hasEnoughBalance;
+                            {/* Use Wallet Balance Toggle */}
+                            {walletBalance > 0 && (
+                                <div className="card" style={{ padding: "1.5rem", marginBottom: "1rem" }}>
+                                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                                        <div>
+                                            <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                                                <FaWallet size={18} color="var(--color-primary)" />
+                                                <h3 style={{ fontWeight: 600, margin: 0 }}>{t("useWalletBalance")}</h3>
+                                            </div>
+                                            <p style={{ color: "var(--color-text-secondary)", fontSize: "0.875rem", marginTop: "0.25rem" }}>
+                                                {t("available")}: ৳{walletBalance.toLocaleString()}
+                                            </p>
+                                        </div>
+                                        <button
+                                            type="button"
+                                            onClick={() => setUseWalletPartial(!useWalletPartial)}
+                                            style={{
+                                                width: 56,
+                                                height: 32,
+                                                borderRadius: 16,
+                                                background: useWalletPartial ? "var(--color-primary)" : "var(--color-border)",
+                                                border: "none",
+                                                cursor: "pointer",
+                                                position: "relative",
+                                                transition: "background 0.2s",
+                                            }}
+                                        >
+                                            <div style={{
+                                                width: 24,
+                                                height: 24,
+                                                borderRadius: "50%",
+                                                background: "white",
+                                                position: "absolute",
+                                                top: 4,
+                                                left: useWalletPartial ? 28 : 4,
+                                                transition: "left 0.2s",
+                                                boxShadow: "0 2px 4px rgba(0,0,0,0.2)",
+                                            }} />
+                                        </button>
+                                    </div>
 
-                                        return (
-                                            <label
-                                                key={method.id}
-                                                style={{
-                                                    display: "flex",
-                                                    alignItems: "center",
-                                                    gap: "1rem",
-                                                    padding: "1rem",
-                                                    border: `2px solid ${paymentMethod === method.id ? "var(--color-primary)" : "var(--color-border)"}`,
-                                                    borderRadius: "0.75rem",
-                                                    cursor: isDisabled ? "not-allowed" : "pointer",
-                                                    background: paymentMethod === method.id ? "rgba(230, 57, 70, 0.05)" : "transparent",
-                                                    opacity: isDisabled ? 0.5 : 1,
-                                                }}
-                                            >
-                                                <input
-                                                    type="radio"
-                                                    name="paymentMethod"
-                                                    value={method.id}
-                                                    checked={paymentMethod === method.id}
-                                                    onChange={() => !isDisabled && setPaymentMethod(method.id)}
-                                                    disabled={isDisabled}
-                                                    style={{ width: 20, height: 20 }}
-                                                />
-                                                <span style={{ fontSize: "1.5rem" }}>{method.icon}</span>
-                                                <div style={{ flex: 1 }}>
-                                                    <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                                                        <span style={{ fontWeight: 500 }}>{t(method.nameKey)}</span>
-                                                        {isWallet && (
-                                                            <span style={{
-                                                                fontSize: "0.75rem",
-                                                                padding: "0.125rem 0.5rem",
-                                                                borderRadius: "1rem",
-                                                                background: hasEnoughBalance ? "rgba(42, 157, 143, 0.15)" : "rgba(208, 0, 0, 0.1)",
-                                                                color: hasEnoughBalance ? "var(--color-success)" : "var(--color-error)",
-                                                                fontWeight: 600,
-                                                            }}>
-                                                                ৳{walletBalance.toLocaleString()}
-                                                            </span>
+                                    {useWalletPartial && (
+                                        <div style={{
+                                            marginTop: "1rem",
+                                            padding: "0.75rem",
+                                            background: "rgba(42, 157, 143, 0.1)",
+                                            borderRadius: "0.5rem",
+                                        }}>
+                                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                                                <span style={{ color: "var(--color-success)" }}>{t("walletDeduction")}</span>
+                                                <span style={{ color: "var(--color-success)", fontWeight: 600 }}>
+                                                    -৳{Math.min(walletBalance, totalAmount).toLocaleString()}
+                                                </span>
+                                            </div>
+                                            {walletBalance < totalAmount && (
+                                                <div style={{ fontSize: "0.75rem", color: "var(--color-success)", marginTop: "0.25rem" }}>
+                                                    {t("remainingToPay")}: ৳{(totalAmount - walletBalance).toLocaleString()}
+                                                </div>
+                                            )}
+                                            {walletBalance >= totalAmount && (
+                                                <div style={{ fontSize: "0.75rem", color: "var(--color-success)", marginTop: "0.25rem" }}>
+                                                    ✓ {t("fullyCoveredByWallet")}
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+
+                            {/* Only show payment methods if there's remaining amount */}
+                            {(!useWalletPartial || walletBalance < totalAmount) && (
+                                <div className="card" style={{ padding: "1.5rem", marginBottom: "1rem" }}>
+                                    <h3 style={{ fontWeight: 600, marginBottom: "1rem" }}>
+                                        {useWalletPartial ? t("payRemainingAmount") : t("selectPayment")}
+                                    </h3>
+                                    <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+                                        {paymentMethods.map((method) => {
+                                            const isWallet = method.id === "WALLET";
+                                            const hasEnoughBalance = walletBalance >= totalAmount;
+                                            const isDisabled = isWallet && !hasEnoughBalance;
+
+                                            return (
+                                                <label
+                                                    key={method.id}
+                                                    style={{
+                                                        display: "flex",
+                                                        alignItems: "center",
+                                                        gap: "1rem",
+                                                        padding: "1rem",
+                                                        border: `2px solid ${paymentMethod === method.id ? "var(--color-primary)" : "var(--color-border)"}`,
+                                                        borderRadius: "0.75rem",
+                                                        cursor: isDisabled ? "not-allowed" : "pointer",
+                                                        background: paymentMethod === method.id ? "rgba(230, 57, 70, 0.05)" : "transparent",
+                                                        opacity: isDisabled ? 0.5 : 1,
+                                                    }}
+                                                >
+                                                    <input
+                                                        type="radio"
+                                                        name="paymentMethod"
+                                                        value={method.id}
+                                                        checked={paymentMethod === method.id}
+                                                        onChange={() => !isDisabled && setPaymentMethod(method.id)}
+                                                        disabled={isDisabled}
+                                                        style={{ width: 20, height: 20 }}
+                                                    />
+                                                    <span style={{ fontSize: "1.5rem" }}>{method.icon}</span>
+                                                    <div style={{ flex: 1 }}>
+                                                        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                                                            <span style={{ fontWeight: 500 }}>{t(method.nameKey)}</span>
+                                                            {isWallet && (
+                                                                <span style={{
+                                                                    fontSize: "0.75rem",
+                                                                    padding: "0.125rem 0.5rem",
+                                                                    borderRadius: "1rem",
+                                                                    background: hasEnoughBalance ? "rgba(42, 157, 143, 0.15)" : "rgba(208, 0, 0, 0.1)",
+                                                                    color: hasEnoughBalance ? "var(--color-success)" : "var(--color-error)",
+                                                                    fontWeight: 600,
+                                                                }}>
+                                                                    ৳{walletBalance.toLocaleString()}
+                                                                </span>
+                                                            )}
+                                                        </div>
+                                                        {isWallet && !hasEnoughBalance && (
+                                                            <div style={{ fontSize: "0.75rem", color: "var(--color-error)" }}>
+                                                                {t("insufficientBalance")}
+                                                            </div>
+                                                        )}
+                                                        {isWallet && hasEnoughBalance && (
+                                                            <div style={{ fontSize: "0.75rem", color: "var(--color-success)" }}>
+                                                                {t("instantPayment")}
+                                                            </div>
+                                                        )}
+                                                        {method.id === "PAY_AT_HOTEL" && (
+                                                            <div style={{ fontSize: "0.75rem", color: "var(--color-text-secondary)" }}>
+                                                                {t("advanceRequired")}
+                                                            </div>
                                                         )}
                                                     </div>
-                                                    {isWallet && !hasEnoughBalance && (
-                                                        <div style={{ fontSize: "0.75rem", color: "var(--color-error)" }}>
-                                                            {t("insufficientBalance")}
-                                                        </div>
-                                                    )}
-                                                    {isWallet && hasEnoughBalance && (
-                                                        <div style={{ fontSize: "0.75rem", color: "var(--color-success)" }}>
-                                                            {t("instantPayment")}
-                                                        </div>
-                                                    )}
-                                                    {method.id === "PAY_AT_HOTEL" && (
-                                                        <div style={{ fontSize: "0.75rem", color: "var(--color-text-secondary)" }}>
-                                                            {t("advanceRequired")}
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            </label>
-                                        );
-                                    })}
+                                                </label>
+                                            );
+                                        })}
+                                    </div>
                                 </div>
-                            </div>
+                            )}
 
                             {/* Price Summary */}
                             <div className="card" style={{ padding: "1rem", marginBottom: "1rem" }}>
