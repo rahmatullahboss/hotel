@@ -32,15 +32,11 @@ export default function SearchResultsScreen() {
     const [loading, setLoading] = useState(true);
 
     const fetchHotels = async () => {
-        const { data, error } = await api.getHotels();
+        // Pass city to API for proper server-side filtering
+        const { data, error } = await api.getHotels({ city: city || undefined });
         if (!error && data) {
-            // Filter by city if provided
-            if (city) {
-                const filtered = data.filter((hotel: Hotel) =>
-                    hotel.city.toLowerCase() === city.toLowerCase()
-                );
-                setHotels(filtered);
-            } else if (query) {
+            // Additional client-side filtering if needed
+            if (query && !city) {
                 const filtered = data.filter((hotel: Hotel) =>
                     hotel.name.toLowerCase().includes(query.toLowerCase()) ||
                     hotel.city.toLowerCase().includes(query.toLowerCase())
