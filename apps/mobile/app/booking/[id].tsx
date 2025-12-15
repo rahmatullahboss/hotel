@@ -15,30 +15,34 @@ import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { useTranslation } from 'react-i18next';
 import api from '@/lib/api';
 
-interface Room {
-    id: string;
-    name: string;
-    type: string;
-    basePrice: string;
-    dynamicPrice?: number;
-    maxGuests: number;
-    photos?: string[];
-    hotel?: {
-        id: string;
-        name: string;
-        city: string;
-    };
-}
-
 export default function BookingScreen() {
-    const { id: roomId } = useLocalSearchParams<{ id: string }>();
+    const params = useLocalSearchParams<{
+        id: string;
+        roomName?: string;
+        roomType?: string;
+        price?: string;
+        maxGuests?: string;
+        hotelName?: string;
+        hotelCity?: string;
+        roomImage?: string;
+    }>();
+
     const router = useRouter();
     const insets = useSafeAreaInsets();
     const { t, i18n } = useTranslation();
 
-    const [room, setRoom] = useState<Room | null>(null);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
     const [booking, setBooking] = useState(false);
+
+    // Room data from params
+    const roomId = params.id;
+    const roomName = params.roomName || 'Room';
+    const roomType = params.roomType || 'DOUBLE';
+    const pricePerNight = Number(params.price) || 0;
+    const maxGuests = Number(params.maxGuests) || 2;
+    const hotelName = params.hotelName || 'Hotel';
+    const hotelCity = params.hotelCity || '';
+    const roomImage = params.roomImage || 'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=300';
 
     // Booking form state
     const [checkIn, setCheckIn] = useState('');
@@ -58,20 +62,6 @@ export default function BookingScreen() {
         setCheckIn(formatDate(tomorrow));
         setCheckOut(formatDate(dayAfter));
     }, []);
-
-    // Fetch room details
-    useEffect(() => {
-        const fetchRoom = async () => {
-            const { data, error } = await api.getRoomDetails(roomId);
-            if (!error && data) {
-                setRoom(data);
-            }
-            setLoading(false);
-        };
-        if (roomId) {
-            fetchRoom();
-        }
-    }, [roomId]);
 
     // Calculate nights when dates change
     useEffect(() => {
@@ -94,14 +84,11 @@ export default function BookingScreen() {
         return Number(price).toLocaleString('en-US');
     };
 
-    const pricePerNight = room?.dynamicPrice || Number(room?.basePrice || 0);
     const totalPrice = pricePerNight * nights;
     const serviceFee = Math.round(totalPrice * 0.05);
     const grandTotal = totalPrice + serviceFee;
 
     const handleBooking = async () => {
-        if (!room) return;
-
         if (!checkIn || !checkOut) {
             Alert.alert('Error', 'Please select check-in and check-out dates');
             return;
@@ -111,11 +98,15 @@ export default function BookingScreen() {
 
         try {
             const { data, error } = await api.createBooking({
-                roomId: room.id,
+                roomId,
                 checkIn,
                 checkOut,
                 guests,
                 specialRequests,
+                guestName: '', // Will be filled by API from user session
+                guestEmail: '',
+                guestPhone: '',
+                paymentMethod: 'PAY_AT_HOTEL',
             });
 
             if (error) {
@@ -123,7 +114,7 @@ export default function BookingScreen() {
             } else {
                 Alert.alert(
                     'Booking Confirmed! 🎉',
-                    `Your booking at ${room.hotel?.name || 'the hotel'} has been confirmed.`,
+                    `Your booking at ${hotelName} has been confirmed.`,
                     [
                         {
                             text: 'View My Bookings',
@@ -139,15 +130,7 @@ export default function BookingScreen() {
         }
     };
 
-    if (loading) {
-        return (
-            <View className="flex-1 items-center justify-center bg-white dark:bg-gray-900">
-                <ActivityIndicator size="large" color="#E63946" />
-            </View>
-        );
-    }
-
-    if (!room) {
+    if (!roomId) {
         return (
             <View className="flex-1 items-center justify-center p-5 bg-white dark:bg-gray-900">
                 <FontAwesome name="exclamation-circle" size={50} color="#9CA3AF" />
@@ -182,23 +165,27 @@ export default function BookingScreen() {
                 <View className="bg-white dark:bg-gray-800 p-4 mb-4">
                     <View className="flex-row gap-4">
                         <Image
-                            source={{
-                                uri: room.photos?.[0] || 'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=300',
-                            }}
+                            source={{ uri: roomImage }}
                             className="w-24 h-24 rounded-xl"
                             resizeMode="cover"
                         />
                         <View className="flex-1">
                             <Text className="text-lg font-bold text-gray-900 dark:text-white">
-                                {room.name || room.type}
+                                {roomName}
                             </Text>
                             <Text className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                                {room.hotel?.name}
+                                {hotelName}
                             </Text>
+                            {hotelCity && (
+                                <View className="flex-row items-center mt-1 gap-1">
+                                    <FontAwesome name="map-marker" size={12} color="#9CA3AF" />
+                                    <Text className="text-xs text-gray-400">{hotelCity}</Text>
+                                </View>
+                            )}
                             <View className="flex-row items-center mt-2 gap-2">
                                 <FontAwesome name="users" size={12} color="#E63946" />
                                 <Text className="text-sm text-gray-600 dark:text-gray-300">
-                                    Up to {room.maxGuests} guests
+                                    Up to {maxGuests} guests
                                 </Text>
                             </View>
                         </View>
@@ -261,7 +248,7 @@ export default function BookingScreen() {
                             </Text>
                             <TouchableOpacity
                                 className="w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-700 items-center justify-center"
-                                onPress={() => setGuests(Math.min(room.maxGuests, guests + 1))}
+                                onPress={() => setGuests(Math.min(maxGuests, guests + 1))}
                             >
                                 <FontAwesome name="plus" size={14} color="#6B7280" />
                             </TouchableOpacity>
@@ -275,13 +262,12 @@ export default function BookingScreen() {
                         ✍️ {t('booking.specialRequests', 'Special Requests')}
                     </Text>
                     <TextInput
-                        className="bg-gray-100 dark:bg-gray-700 px-4 py-3 rounded-xl text-gray-900 dark:text-white"
+                        className="bg-gray-100 dark:bg-gray-700 px-4 py-3 rounded-xl text-gray-900 dark:text-white h-24"
                         value={specialRequests}
                         onChangeText={setSpecialRequests}
                         placeholder="Any special requests? (Optional)"
                         placeholderTextColor="#9CA3AF"
                         multiline
-                        numberOfLines={3}
                         textAlignVertical="top"
                     />
                 </View>

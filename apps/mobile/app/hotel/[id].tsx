@@ -184,7 +184,7 @@ export default function HotelDetailScreen() {
                                     {hotel.amenities.slice(0, 6).map((amenity, index) => (
                                         <View
                                             key={index}
-                                            className="px-3 py-1.5 rounded-full bg-gray-100 dark:bg-gray-800"
+                                            className="px-4 py-2 rounded-full bg-gray-100 dark:bg-gray-800"
                                         >
                                             <Text className="text-sm text-gray-700 dark:text-gray-300">
                                                 {amenity}
@@ -268,7 +268,19 @@ export default function HotelDetailScreen() {
                                             {/* Book Button */}
                                             <TouchableOpacity
                                                 className="bg-primary px-5 py-2.5 rounded-full"
-                                                onPress={() => router.push(`/booking/${room.id}` as any)}
+                                                onPress={() => router.push({
+                                                    pathname: '/booking/[id]',
+                                                    params: {
+                                                        id: room.id,
+                                                        roomName: room.name || room.type,
+                                                        roomType: room.type,
+                                                        price: String(room.dynamicPrice || room.basePrice || 0),
+                                                        maxGuests: String(room.maxGuests),
+                                                        hotelName: hotel.name,
+                                                        hotelCity: hotel.city,
+                                                        roomImage: room.photos?.[0] || '',
+                                                    }
+                                                } as any)}
                                                 activeOpacity={0.85}
                                             >
                                                 <Text className="text-white font-bold text-sm">
