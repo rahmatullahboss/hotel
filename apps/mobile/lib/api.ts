@@ -89,6 +89,8 @@ export const api = {
         return apiRequest<any[]>(`/api/hotels/${hotelId}/rooms?${searchParams.toString()}`);
     },
 
+    getRoomDetails: (roomId: string) => apiRequest<any>(`/api/rooms/${roomId}`),
+
     // Bookings
     createBooking: (data: {
         roomId: string;

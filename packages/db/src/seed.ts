@@ -137,6 +137,18 @@ const DEMO_CITIES = [
         longitude: "90.4203",
         isPopular: false,
     },
+    {
+        name: "Barishal",
+        nameBn: "বরিশাল",
+        slug: "barishal",
+        description: "Discover Barishal, the Venice of the East. Beautiful river views and waterways await you in this historic city.",
+        descriptionBn: "প্রাচ্যের ভেনিস বরিশাল আবিষ্কার করুন। সুন্দর নদী দৃশ্য এবং জলপথ আপনার জন্য অপেক্ষা করছে।",
+        metaTitle: "Hotels in Barishal - River City Bangladesh | Vibe Hotels",
+        metaDescription: "Book hotels in Barishal, the Venice of East. Riverside hotels and budget stays available.",
+        latitude: "22.7010",
+        longitude: "90.3535",
+        isPopular: false,
+    },
 ];
 
 
@@ -653,6 +665,59 @@ const DEMO_HOTELS = [
         rooms: [
             { roomNumber: "GL1", name: "River View Room", type: "DOUBLE" as const, basePrice: "2200", maxGuests: 2 },
             { roomNumber: "GL2", name: "Green Suite", type: "SUITE" as const, basePrice: "3800", maxGuests: 4 },
+        ],
+    },
+    // Barishal Hotels (3 new)
+    {
+        name: "Hotel Grand Palace Barishal",
+        description: "Premium hotel in the heart of Barishal. Experience the Venice of the East with river views.",
+        address: "Sadar Road, Barishal",
+        city: "Barishal",
+        latitude: "22.7010",
+        longitude: "90.3535",
+        amenities: ["WiFi", "AC", "Restaurant", "River View", "Conference Hall", "Room Service"],
+        coverImage: "https://images.unsplash.com/photo-1582719508461-905c673771fd?w=800",
+        rating: "4.3",
+        reviewCount: 156,
+        status: "ACTIVE" as const,
+        rooms: [
+            { roomNumber: "GP1", name: "Standard Room", type: "SINGLE" as const, basePrice: "2000", maxGuests: 1 },
+            { roomNumber: "GP2", name: "Deluxe River View", type: "DOUBLE" as const, basePrice: "3500", maxGuests: 2 },
+            { roomNumber: "GP3", name: "Presidential Suite", type: "SUITE" as const, basePrice: "6000", maxGuests: 4 },
+        ],
+    },
+    {
+        name: "Hotel Athena International",
+        description: "Modern comfort in Barishal city center. Close to launch ghat and main attractions.",
+        address: "Band Road, Barishal",
+        city: "Barishal",
+        latitude: "22.6985",
+        longitude: "90.3510",
+        amenities: ["WiFi", "AC", "Restaurant", "Parking", "24/7 Reception"],
+        coverImage: "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800",
+        rating: "4.0",
+        reviewCount: 98,
+        status: "ACTIVE" as const,
+        rooms: [
+            { roomNumber: "AT1", name: "Economy Room", type: "SINGLE" as const, basePrice: "1500", maxGuests: 1 },
+            { roomNumber: "AT2", name: "Superior Room", type: "DOUBLE" as const, basePrice: "2800", maxGuests: 2 },
+        ],
+    },
+    {
+        name: "Rose Garden Resort Barishal",
+        description: "Countryside retreat near Barishal. Beautiful gardens and peaceful environment.",
+        address: "Kawnia Road, Barishal",
+        city: "Barishal",
+        latitude: "22.7120",
+        longitude: "90.3680",
+        amenities: ["WiFi", "AC", "Garden", "Restaurant", "Playground", "BBQ Area"],
+        coverImage: "https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?w=800",
+        rating: "4.2",
+        reviewCount: 67,
+        status: "ACTIVE" as const,
+        rooms: [
+            { roomNumber: "RG1", name: "Garden View", type: "DOUBLE" as const, basePrice: "2500", maxGuests: 2 },
+            { roomNumber: "RG2", name: "Family Cottage", type: "SUITE" as const, basePrice: "4500", maxGuests: 5 },
         ],
     },
 ];

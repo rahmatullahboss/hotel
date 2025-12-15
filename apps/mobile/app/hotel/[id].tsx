@@ -213,56 +213,69 @@ export default function HotelDetailScreen() {
                             rooms.map((room) => (
                                 <View
                                     key={room.id}
-                                    className="rounded-2xl mb-4 overflow-hidden bg-white dark:bg-gray-800 shadow-lg"
+                                    className="rounded-2xl mb-4 overflow-hidden bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700"
                                 >
-                                    <Image
-                                        source={{
-                                            uri: room.photos?.[0] || 'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=400',
-                                        }}
-                                        className="w-full h-40"
-                                        resizeMode="cover"
-                                    />
+                                    {/* Image with badge */}
+                                    <View className="relative">
+                                        <Image
+                                            source={{
+                                                uri: room.photos?.[0] || 'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=400',
+                                            }}
+                                            className="w-full h-44"
+                                            resizeMode="cover"
+                                        />
+                                        {/* Room Type Badge */}
+                                        <View className="absolute top-3 left-3 bg-primary px-3 py-1.5 rounded-lg">
+                                            <Text className="text-white text-xs font-bold">
+                                                {room.type}
+                                            </Text>
+                                        </View>
+                                        {/* Guest Badge */}
+                                        <View className="absolute top-3 right-3 flex-row items-center bg-white dark:bg-gray-900 px-2.5 py-1.5 rounded-lg gap-1.5">
+                                            <FontAwesome name="users" size={11} color="#E63946" />
+                                            <Text className="text-gray-900 dark:text-white text-sm font-bold">
+                                                {room.maxGuests}
+                                            </Text>
+                                        </View>
+                                    </View>
+
+                                    {/* Content */}
                                     <View className="p-4">
-                                        {/* Room Type */}
-                                        <Text className="text-lg font-bold text-gray-900 dark:text-white mb-2">
+                                        {/* Room Name */}
+                                        <Text className="text-lg font-bold text-gray-900 dark:text-white mb-3">
                                             {room.name || room.type}
                                         </Text>
 
-                                        {/* Features */}
-                                        <View className="flex-row flex-wrap gap-2 mb-3">
-                                            <View className="flex-row items-center px-2.5 py-1.5 rounded-lg bg-gray-100 dark:bg-gray-700 gap-1.5">
-                                                <FontAwesome name="users" size={12} color="#E63946" />
-                                                <Text className="text-sm text-gray-700 dark:text-gray-300">
-                                                    {t('hotel.upToGuests', { count: room.maxGuests })}
+                                        {/* Price and Book Section */}
+                                        <View className="flex-row items-center justify-between">
+                                            <View>
+                                                <Text className="text-xs text-gray-400 dark:text-gray-500 mb-0.5">
+                                                    {t('home.startingFrom')}
+                                                </Text>
+                                                {room.dynamicPrice && room.dynamicPrice < Number(room.basePrice) && (
+                                                    <Text className="text-xs line-through text-gray-400">
+                                                        {t('common.currency')}{formatPrice(Number(room.basePrice))}
+                                                    </Text>
+                                                )}
+                                                <Text className="text-xl font-bold text-primary">
+                                                    {t('common.currency')}{formatPrice(Number(room.dynamicPrice || room.basePrice || 0))}
+                                                    <Text className="text-sm font-normal text-gray-500 dark:text-gray-400">
+                                                        {' '}{t('common.perNight')}
+                                                    </Text>
                                                 </Text>
                                             </View>
-                                        </View>
 
-                                        {/* Price */}
-                                        <View className="mb-3">
-                                            {room.dynamicPrice && room.dynamicPrice < Number(room.basePrice) && (
-                                                <Text className="text-sm line-through text-gray-400 mb-0.5">
-                                                    {t('common.currency')}{formatPrice(Number(room.basePrice))}
+                                            {/* Book Button */}
+                                            <TouchableOpacity
+                                                className="bg-primary px-5 py-2.5 rounded-full"
+                                                onPress={() => router.push(`/booking/${room.id}` as any)}
+                                                activeOpacity={0.85}
+                                            >
+                                                <Text className="text-white font-bold text-sm">
+                                                    {t('hotel.bookNow')}
                                                 </Text>
-                                            )}
-                                            <Text className="text-2xl font-bold text-primary">
-                                                {t('common.currency')}{formatPrice(Number(room.dynamicPrice || room.basePrice || 0))}
-                                                <Text className="text-sm font-normal text-gray-500 dark:text-gray-400">
-                                                    {' '}{t('common.perNight')}
-                                                </Text>
-                                            </Text>
+                                            </TouchableOpacity>
                                         </View>
-
-                                        {/* Book Button */}
-                                        <TouchableOpacity
-                                            className="bg-primary py-3.5 rounded-xl items-center"
-                                            onPress={() => router.push(`/booking/${room.id}` as any)}
-                                            activeOpacity={0.85}
-                                        >
-                                            <Text className="text-white text-base font-bold tracking-wide">
-                                                {t('hotel.bookNow')}
-                                            </Text>
-                                        </TouchableOpacity>
                                     </View>
                                 </View>
                             ))
