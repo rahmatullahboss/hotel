@@ -17,6 +17,17 @@ import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { useTranslation } from 'react-i18next';
 import api from '@/lib/api';
 
+// Payment method types
+type PaymentMethod = 'WALLET' | 'PAY_AT_HOTEL' | 'BKASH' | 'NAGAD' | 'CARD';
+
+const PAYMENT_METHODS: { id: PaymentMethod; nameKey: string; icon: string; advancePercent: number; available: boolean }[] = [
+    { id: 'WALLET', nameKey: 'wallet', icon: 'credit-card', advancePercent: 100, available: true },
+    { id: 'PAY_AT_HOTEL', nameKey: 'payAtHotel', icon: 'building', advancePercent: 20, available: true },
+    { id: 'BKASH', nameKey: 'bKash', icon: 'mobile', advancePercent: 100, available: true },
+    { id: 'NAGAD', nameKey: 'nagad', icon: 'mobile', advancePercent: 100, available: false },
+    { id: 'CARD', nameKey: 'card', icon: 'credit-card-alt', advancePercent: 100, available: false },
+];
+
 export default function BookingScreen() {
     const params = useLocalSearchParams<{
         id: string;
@@ -59,6 +70,11 @@ export default function BookingScreen() {
     const [nights, setNights] = useState(1);
     const [specialRequests, setSpecialRequests] = useState('');
 
+    // Payment state
+    const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('PAY_AT_HOTEL');
+    const [walletBalance, setWalletBalance] = useState(0);
+    const [loadingWallet, setLoadingWallet] = useState(true);
+
     // Set default dates
     useEffect(() => {
         const today = new Date();
@@ -82,6 +98,23 @@ export default function BookingScreen() {
             setNights(Math.max(1, diff));
         }
     }, [checkIn, checkOut]);
+
+    // Fetch wallet balance
+    useEffect(() => {
+        const fetchWallet = async () => {
+            try {
+                const { data, error } = await api.getWallet();
+                if (data && !error) {
+                    setWalletBalance(data.balance);
+                }
+            } catch (err) {
+                console.log('Error fetching wallet:', err);
+            } finally {
+                setLoadingWallet(false);
+            }
+        };
+        fetchWallet();
+    }, []);
 
     const formatDate = (date: Date) => {
         return date.toISOString().split('T')[0];
@@ -164,6 +197,15 @@ export default function BookingScreen() {
             return;
         }
 
+        // Validate wallet balance if paying with wallet
+        if (paymentMethod === 'WALLET' && walletBalance < totalPrice) {
+            Alert.alert(
+                t('booking.insufficientBalance'),
+                t('booking.insufficientBalanceMessage', { required: totalPrice, balance: walletBalance })
+            );
+            return;
+        }
+
         setBooking(true);
 
         const bookingData = {
@@ -176,7 +218,7 @@ export default function BookingScreen() {
             guestName: '',
             guestEmail: '',
             guestPhone: '',
-            paymentMethod: 'PAY_AT_HOTEL',
+            paymentMethod,
         };
 
         console.log('Creating booking with data:', JSON.stringify(bookingData, null, 2));
@@ -438,6 +480,81 @@ export default function BookingScreen() {
                     />
                 </View>
 
+                {/* Payment Method Selection */}
+                <View className="bg-white dark:bg-gray-800 p-4 mb-4">
+                    <Text className="text-lg font-bold text-gray-900 dark:text-white mb-4">
+                        💳 {t('booking.paymentMethod', 'Payment Method')}
+                    </Text>
+
+                    <View className="gap-3">
+                        {PAYMENT_METHODS.map((method) => {
+                            const isSelected = paymentMethod === method.id;
+                            const isWallet = method.id === 'WALLET';
+                            const hasEnoughBalance = walletBalance >= totalPrice;
+                            const isDisabled = !method.available || (isWallet && !hasEnoughBalance);
+
+                            return (
+                                <TouchableOpacity
+                                    key={method.id}
+                                    className={`p-4 rounded-xl border-2 ${isSelected
+                                            ? 'border-primary bg-primary/5'
+                                            : 'border-gray-200 dark:border-gray-700'
+                                        } ${isDisabled ? 'opacity-50' : ''}`}
+                                    onPress={() => !isDisabled && setPaymentMethod(method.id)}
+                                    disabled={isDisabled}
+                                    activeOpacity={0.7}
+                                >
+                                    <View className="flex-row items-center gap-3">
+                                        <View className={`w-10 h-10 rounded-full items-center justify-center ${isSelected ? 'bg-primary' : 'bg-gray-100 dark:bg-gray-700'
+                                            }`}>
+                                            <FontAwesome
+                                                name={method.icon as any}
+                                                size={18}
+                                                color={isSelected ? '#fff' : '#6B7280'}
+                                            />
+                                        </View>
+                                        <View className="flex-1">
+                                            <View className="flex-row items-center gap-2">
+                                                <Text className={`font-semibold ${isSelected ? 'text-primary' : 'text-gray-900 dark:text-white'
+                                                    }`}>
+                                                    {t(`booking.${method.nameKey}`, method.nameKey)}
+                                                </Text>
+                                                {isWallet && (
+                                                    <View className={`px-2 py-0.5 rounded-full ${hasEnoughBalance ? 'bg-green-100' : 'bg-red-100'
+                                                        }`}>
+                                                        <Text className={`text-xs font-bold ${hasEnoughBalance ? 'text-green-700' : 'text-red-700'
+                                                            }`}>
+                                                            {t('common.currency')}{formatPrice(walletBalance)}
+                                                        </Text>
+                                                    </View>
+                                                )}
+                                                {!method.available && (
+                                                    <View className="px-2 py-0.5 rounded-full bg-gray-100">
+                                                        <Text className="text-xs text-gray-500">
+                                                            {t('common.comingSoon', 'Coming Soon')}
+                                                        </Text>
+                                                    </View>
+                                                )}
+                                            </View>
+                                            <Text className="text-xs text-gray-500 mt-0.5">
+                                                {method.id === 'PAY_AT_HOTEL'
+                                                    ? t('booking.advanceRequired', '20% advance required')
+                                                    : method.id === 'WALLET'
+                                                        ? t('booking.instantPayment', 'Pay instantly from wallet')
+                                                        : t('booking.fullPayment', 'Full payment required')
+                                                }
+                                            </Text>
+                                        </View>
+                                        {isSelected && (
+                                            <FontAwesome name="check-circle" size={22} color="#E63946" />
+                                        )}
+                                    </View>
+                                </TouchableOpacity>
+                            );
+                        })}
+                    </View>
+                </View>
+
                 {/* Price Breakdown */}
                 <View className="bg-white dark:bg-gray-800 p-4 mb-4">
                     <Text className="text-lg font-bold text-gray-900 dark:text-white mb-4">
@@ -461,6 +578,23 @@ export default function BookingScreen() {
                                 {t('common.currency')}{formatPrice(totalPrice)}
                             </Text>
                         </View>
+
+                        {/* Show advance amount for Pay at Hotel */}
+                        {paymentMethod === 'PAY_AT_HOTEL' && (
+                            <View className="bg-green-50 dark:bg-green-900/20 p-3 rounded-xl mt-2">
+                                <View className="flex-row justify-between items-center">
+                                    <Text className="text-green-700 dark:text-green-400 font-semibold">
+                                        {t('booking.payNow', 'Pay Now (20%)')}
+                                    </Text>
+                                    <Text className="text-green-700 dark:text-green-400 font-bold">
+                                        {t('common.currency')}{formatPrice(Math.round(totalPrice * 0.2))}
+                                    </Text>
+                                </View>
+                                <Text className="text-xs text-green-600 dark:text-green-500 mt-1">
+                                    {t('booking.payRemainingAtHotel', { amount: `${t('common.currency')}${formatPrice(Math.round(totalPrice * 0.8))}` })}
+                                </Text>
+                            </View>
+                        )}
                     </View>
                 </View>
 
