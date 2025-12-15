@@ -308,12 +308,14 @@ export async function getAvailableRooms(
 
         // Fetch pre-computed prices from inventory for the requested date range
         // This is the SINGLE SOURCE OF TRUTH for pricing
+        // We need prices for dates: checkIn (inclusive) to checkOut (exclusive)
+        // e.g., stay from Jan 1 to Jan 3 = need prices for Jan 1 and Jan 2
+        const { gte, lt: drizzleLt } = await import("drizzle-orm");
         const inventoryPrices = await db.query.roomInventory.findMany({
             where: drizzleAnd(
                 inArray(roomInventory.roomId, roomIds),
-                gt(roomInventory.date, checkIn), // Prices for nights OF the stay
-                // Note: logic might vary slightly for strict date matching, 
-                // but usually we want prices for checkIn -> checkOut-1
+                gte(roomInventory.date, checkIn),   // Include check-in date
+                drizzleLt(roomInventory.date, checkOut)  // Exclude check-out date
             ),
         });
 
