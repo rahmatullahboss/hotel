@@ -8,6 +8,12 @@ neonConfig.webSocketConstructor = globalThis.WebSocket;
 
 // Create Neon client with transaction support
 const createClient = () => {
+    // Prevent client-side execution
+    if (typeof window !== "undefined") {
+        console.warn("⚠️ Attempted to initialize database client in browser environment. This is likely a bundling issue.");
+        return null as any;
+    }
+
     const databaseUrl = process.env.DATABASE_URL;
 
     if (!databaseUrl) {
