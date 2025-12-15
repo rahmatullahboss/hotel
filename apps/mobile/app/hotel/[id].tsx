@@ -1,20 +1,28 @@
-import { StyleSheet, ScrollView, Image, TouchableOpacity, ActivityIndicator, Dimensions, Platform } from 'react-native';
-import { Text, View } from '@/components/Themed';
+import { useRef } from 'react';
+import {
+    View,
+    Text,
+    ScrollView,
+    Image,
+    TouchableOpacity,
+    ActivityIndicator,
+    Dimensions,
+    Animated,
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import Colors from '@/constants/Colors';
-import { useColorScheme } from '@/components/useColorScheme';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { useBooking } from '@/hooks/useBooking';
 
 const { width } = Dimensions.get('window');
+const HEADER_HEIGHT = 320;
 
 export default function HotelDetailScreen() {
     const { id } = useLocalSearchParams<{ id: string }>();
     const router = useRouter();
-    const colorScheme = useColorScheme() ?? 'light';
-    const colors = Colors[colorScheme];
     const { t, i18n } = useTranslation();
+    const scrollY = useRef(new Animated.Value(0)).current;
 
     const {
         hotel,
@@ -26,13 +34,18 @@ export default function HotelDetailScreen() {
         handleToggleSave,
     } = useBooking(id);
 
-    if (loading) {
-        return (
-            <View style={styles.centered}>
-                <ActivityIndicator size="large" color={Colors.primary} />
-            </View>
-        );
-    }
+    // Parallax effect
+    const headerTranslate = scrollY.interpolate({
+        inputRange: [0, HEADER_HEIGHT],
+        outputRange: [0, -HEADER_HEIGHT / 2],
+        extrapolate: 'clamp',
+    });
+
+    const headerScale = scrollY.interpolate({
+        inputRange: [-100, 0],
+        outputRange: [1.5, 1],
+        extrapolate: 'clamp',
+    });
 
     const formatPrice = (price: number) => {
         if (i18n.language === 'bn') {
@@ -41,21 +54,29 @@ export default function HotelDetailScreen() {
         return Number(price).toLocaleString('en-US');
     };
 
+    if (loading) {
+        return (
+            <View className="flex-1 items-center justify-center bg-white dark:bg-gray-900">
+                <ActivityIndicator size="large" color="#E63946" />
+            </View>
+        );
+    }
+
     if (error || !hotel) {
         return (
-            <View style={styles.centered}>
-                <Text style={[styles.errorText, { color: colors.text }]}>
+            <View className="flex-1 items-center justify-center p-5 bg-white dark:bg-gray-900">
+                <Text className="text-base mb-4 text-gray-900 dark:text-white">
                     {error || t('hotel.notFound')}
                 </Text>
                 <TouchableOpacity onPress={() => router.back()}>
-                    <Text style={{ color: Colors.primary }}>{t('hotel.goBack')}</Text>
+                    <Text className="text-primary">{t('hotel.goBack')}</Text>
                 </TouchableOpacity>
             </View>
         );
     }
 
     return (
-        <>
+        <SafeAreaView className="flex-1 bg-white dark:bg-gray-900" edges={['bottom']}>
             <Stack.Screen
                 options={{
                     headerShown: true,
@@ -65,321 +86,179 @@ export default function HotelDetailScreen() {
                     headerTintColor: '#fff',
                 }}
             />
-            <ScrollView style={[styles.container, { backgroundColor: colors.background }]}>
-                {/* Hero Image */}
-                <View style={styles.heroContainer}>
-                    <Image
-                        source={{ uri: hotel.coverImage || hotel.images?.[0] || 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800' }}
-                        style={styles.heroImage}
+
+            {/* Parallax Header Image */}
+            <Animated.View
+                style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    height: HEADER_HEIGHT,
+                    transform: [{ translateY: headerTranslate }, { scale: headerScale }],
+                    zIndex: 0,
+                }}
+            >
+                <Image
+                    source={{
+                        uri: hotel.coverImage || hotel.images?.[0] || 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800',
+                    }}
+                    style={{ width, height: HEADER_HEIGHT }}
+                    resizeMode="cover"
+                />
+                {/* Save Button */}
+                <TouchableOpacity
+                    className="absolute top-16 right-4 w-11 h-11 rounded-full bg-black/50 items-center justify-center"
+                    onPress={handleToggleSave}
+                    disabled={savingState}
+                    activeOpacity={0.8}
+                >
+                    <FontAwesome
+                        name={isSaved ? 'heart' : 'heart-o'}
+                        size={22}
+                        color={isSaved ? '#E63946' : '#fff'}
                     />
-                    {/* Save Button */}
-                    <TouchableOpacity
-                        style={styles.saveButton}
-                        onPress={handleToggleSave}
-                        disabled={savingState}
-                        activeOpacity={0.8}
-                    >
-                        <FontAwesome
-                            name={isSaved ? 'heart' : 'heart-o'}
-                            size={22}
-                            color={isSaved ? Colors.primary : '#fff'}
-                        />
-                    </TouchableOpacity>
-                </View>
+                </TouchableOpacity>
+            </Animated.View>
 
-                {/* Hotel Info */}
-                <View style={[styles.infoSection, { backgroundColor: colors.background }]}>
-                    <View style={styles.ratingBadge}>
-                        <FontAwesome name="star" size={14} color="#FFD700" />
-                        <Text style={styles.ratingText}>{Number(hotel.rating || 0).toFixed(1)}</Text>
-                    </View>
-
-                    <Text style={[styles.hotelName, { color: colors.text }]}>{hotel.name}</Text>
-
-                    <View style={[styles.locationRow, { backgroundColor: 'transparent' }]}>
-                        <FontAwesome name="map-marker" size={16} color={Colors.primary} />
-                        <Text style={[styles.locationText, { color: colors.textSecondary }]}>
-                            {hotel.address}, {hotel.city}
-                        </Text>
-                    </View>
-
-                    <Text style={[styles.description, { color: colors.text }]}>
-                        {hotel.description}
-                    </Text>
-
-                    {/* Amenities */}
-                    {hotel.amenities && hotel.amenities.length > 0 && (
-                        <>
-                            <Text style={[styles.sectionTitle, { color: colors.text }]}>{t('hotel.amenities')}</Text>
-                            <View style={[styles.amenitiesRow, { backgroundColor: 'transparent' }]}>
-                                {hotel.amenities.slice(0, 6).map((amenity, index) => (
-                                    <View
-                                        key={index}
-                                        style={[styles.amenityBadge, { backgroundColor: colors.backgroundSecondary }]}
-                                    >
-                                        <Text style={[styles.amenityText, { color: colors.text }]}>{amenity}</Text>
-                                    </View>
-                                ))}
-                            </View>
-                        </>
-                    )}
-                </View>
-
-                {/* Rooms Section */}
-                <View style={[styles.roomsSection, { backgroundColor: colors.background }]}>
-                    <Text style={[styles.sectionTitle, { color: colors.text }]}>{t('hotel.availableRooms')}</Text>
-
-                    {rooms.length === 0 ? (
-                        <View style={[styles.noRooms, { backgroundColor: colors.backgroundSecondary }]}>
-                            <FontAwesome name="bed" size={32} color={colors.textSecondary} />
-                            <Text style={[styles.noRoomsText, { color: colors.textSecondary }]}>
-                                {t('hotel.noRooms')}
+            {/* Scrollable Content */}
+            <Animated.ScrollView
+                className="flex-1"
+                contentContainerStyle={{ paddingTop: HEADER_HEIGHT }}
+                onScroll={Animated.event(
+                    [{ nativeEvent: { contentOffset: { y: scrollY } } }],
+                    { useNativeDriver: true }
+                )}
+                scrollEventThrottle={16}
+            >
+                {/* Content Card */}
+                <View className="bg-white dark:bg-gray-900 -mt-6 rounded-t-3xl min-h-screen">
+                    {/* Hotel Info Section */}
+                    <View className="p-5">
+                        {/* Rating Badge */}
+                        <View className="flex-row items-center self-start bg-black/80 px-3 py-1.5 rounded-lg mb-3 gap-1.5">
+                            <FontAwesome name="star" size={14} color="#FFD700" />
+                            <Text className="text-white text-sm font-bold">
+                                {Number(hotel.rating || 0).toFixed(1)}
                             </Text>
                         </View>
-                    ) : (
-                        rooms.map((room) => (
-                            <View
-                                key={room.id}
-                                style={[styles.roomCard, { backgroundColor: colors.card }]}
-                            >
-                                <Image
-                                    source={{ uri: room.photos?.[0] || 'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=400' }}
-                                    style={styles.roomImage}
-                                />
-                                <View style={[styles.roomInfo, { backgroundColor: 'transparent' }]}>
-                                    <Text style={[styles.roomType, { color: colors.text }]}>{room.name || room.type}</Text>
-                                    <View style={styles.roomFeatures}>
-                                        <View style={[styles.featureBadge, { backgroundColor: colors.backgroundSecondary }]}>
-                                            <FontAwesome name="users" size={12} color={Colors.primary} />
-                                            <Text style={[styles.featureText, { color: colors.text }]}>
-                                                {t('hotel.upToGuests', { count: room.maxGuests })}
+
+                        {/* Hotel Name */}
+                        <Text className="text-3xl font-bold text-gray-900 dark:text-white mb-2 tracking-tight">
+                            {hotel.name}
+                        </Text>
+
+                        {/* Location */}
+                        <View className="flex-row items-center mb-4 gap-2">
+                            <FontAwesome name="map-marker" size={16} color="#E63946" />
+                            <Text className="text-sm text-gray-500 dark:text-gray-400">
+                                {hotel.address}, {hotel.city}
+                            </Text>
+                        </View>
+
+                        {/* Description */}
+                        <Text className="text-base text-gray-700 dark:text-gray-300 leading-6 mb-5">
+                            {hotel.description}
+                        </Text>
+
+                        {/* Amenities */}
+                        {hotel.amenities && hotel.amenities.length > 0 && (
+                            <>
+                                <Text className="text-xl font-bold text-gray-900 dark:text-white mb-3">
+                                    {t('hotel.amenities')}
+                                </Text>
+                                <View className="flex-row flex-wrap gap-2 mb-4">
+                                    {hotel.amenities.slice(0, 6).map((amenity, index) => (
+                                        <View
+                                            key={index}
+                                            className="px-3 py-1.5 rounded-full bg-gray-100 dark:bg-gray-800"
+                                        >
+                                            <Text className="text-sm text-gray-700 dark:text-gray-300">
+                                                {amenity}
                                             </Text>
                                         </View>
-                                    </View>
-                                    <View style={[styles.roomPriceRow, { backgroundColor: 'transparent' }]}>
-                                        <View style={styles.priceInfo}>
-                                            {/* Show strikethrough only when there's a discount */}
+                                    ))}
+                                </View>
+                            </>
+                        )}
+                    </View>
+
+                    {/* Rooms Section */}
+                    <View className="px-5 pb-5">
+                        <Text className="text-xl font-bold text-gray-900 dark:text-white mb-3">
+                            {t('hotel.availableRooms')}
+                        </Text>
+
+                        {rooms.length === 0 ? (
+                            <View className="p-6 rounded-xl bg-gray-100 dark:bg-gray-800 items-center">
+                                <FontAwesome name="bed" size={32} color="#9CA3AF" />
+                                <Text className="text-sm text-gray-500 dark:text-gray-400 mt-2">
+                                    {t('hotel.noRooms')}
+                                </Text>
+                            </View>
+                        ) : (
+                            rooms.map((room) => (
+                                <View
+                                    key={room.id}
+                                    className="rounded-2xl mb-4 overflow-hidden bg-white dark:bg-gray-800 shadow-lg"
+                                >
+                                    <Image
+                                        source={{
+                                            uri: room.photos?.[0] || 'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=400',
+                                        }}
+                                        className="w-full h-40"
+                                        resizeMode="cover"
+                                    />
+                                    <View className="p-4">
+                                        {/* Room Type */}
+                                        <Text className="text-lg font-bold text-gray-900 dark:text-white mb-2">
+                                            {room.name || room.type}
+                                        </Text>
+
+                                        {/* Features */}
+                                        <View className="flex-row flex-wrap gap-2 mb-3">
+                                            <View className="flex-row items-center px-2.5 py-1.5 rounded-lg bg-gray-100 dark:bg-gray-700 gap-1.5">
+                                                <FontAwesome name="users" size={12} color="#E63946" />
+                                                <Text className="text-sm text-gray-700 dark:text-gray-300">
+                                                    {t('hotel.upToGuests', { count: room.maxGuests })}
+                                                </Text>
+                                            </View>
+                                        </View>
+
+                                        {/* Price */}
+                                        <View className="mb-3">
                                             {room.dynamicPrice && room.dynamicPrice < Number(room.basePrice) && (
-                                                <Text style={styles.originalPrice}>
+                                                <Text className="text-sm line-through text-gray-400 mb-0.5">
                                                     {t('common.currency')}{formatPrice(Number(room.basePrice))}
                                                 </Text>
                                             )}
-                                            <View style={styles.currentPriceRow}>
-                                                <Text style={[styles.roomPrice, { color: Colors.primary }]}>
+                                            <View className="flex-row items-baseline gap-1.5">
+                                                <Text className="text-2xl font-bold text-primary">
                                                     {t('common.currency')}{formatPrice(Number(room.dynamicPrice || room.basePrice || 0))}
                                                 </Text>
-                                                <Text style={[styles.perNight, { color: colors.textSecondary }]}>
+                                                <Text className="text-sm text-gray-500 dark:text-gray-400">
                                                     {t('common.perNight')}
                                                 </Text>
                                             </View>
                                         </View>
+
+                                        {/* Book Button */}
+                                        <TouchableOpacity
+                                            className="bg-primary py-3.5 rounded-xl items-center"
+                                            onPress={() => router.push(`/booking/${room.id}` as any)}
+                                            activeOpacity={0.85}
+                                        >
+                                            <Text className="text-white text-base font-bold tracking-wide">
+                                                {t('hotel.bookNow')}
+                                            </Text>
+                                        </TouchableOpacity>
                                     </View>
-                                    <TouchableOpacity
-                                        style={[styles.bookButton, { backgroundColor: Colors.primary }]}
-                                        onPress={() => router.push(`/booking/${room.id}`)}
-                                        activeOpacity={0.85}
-                                    >
-                                        <Text style={styles.bookButtonText}>{t('hotel.bookNow')}</Text>
-                                    </TouchableOpacity>
                                 </View>
-                            </View>
-                        ))
-                    )}
+                            ))
+                        )}
+                    </View>
                 </View>
-            </ScrollView>
-        </>
+            </Animated.ScrollView>
+        </SafeAreaView>
     );
 }
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-    },
-    centered: {
-        flex: 1,
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: 20,
-    },
-    errorText: {
-        fontSize: 16,
-        marginBottom: 16,
-    },
-    heroContainer: {
-        position: 'relative',
-    },
-    heroImage: {
-        width: width,
-        height: 320,
-    },
-    saveButton: {
-        position: 'absolute',
-        top: 60,
-        right: 16,
-        width: 44,
-        height: 44,
-        borderRadius: 22,
-        backgroundColor: 'rgba(0,0,0,0.5)',
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    heroGradient: {
-        position: 'absolute',
-        left: 0,
-        right: 0,
-        top: 0,
-        bottom: 0,
-    },
-    infoSection: {
-        padding: 20,
-        marginTop: -24,
-        borderTopLeftRadius: 24,
-        borderTopRightRadius: 24,
-    },
-    ratingBadge: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        alignSelf: 'flex-start',
-        backgroundColor: 'rgba(0,0,0,0.8)',
-        paddingHorizontal: 12,
-        paddingVertical: 6,
-        borderRadius: 8,
-        marginBottom: 12,
-        gap: 6,
-    },
-    ratingText: {
-        color: '#fff',
-        fontSize: 14,
-        fontWeight: '700',
-    },
-    hotelName: {
-        fontSize: 28,
-        fontWeight: 'bold',
-        marginBottom: 8,
-        letterSpacing: 0.3,
-    },
-    locationRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginBottom: 16,
-        gap: 8,
-    },
-    locationText: {
-        fontSize: 14,
-    },
-    description: {
-        fontSize: 15,
-        lineHeight: 22,
-        marginBottom: 20,
-    },
-    sectionTitle: {
-        fontSize: 20,
-        fontWeight: 'bold',
-        marginBottom: 12,
-    },
-    amenitiesRow: {
-        flexDirection: 'row',
-        flexWrap: 'wrap',
-        gap: 8,
-    },
-    amenityBadge: {
-        paddingHorizontal: 12,
-        paddingVertical: 6,
-        borderRadius: 20,
-    },
-    amenityText: {
-        fontSize: 13,
-    },
-    roomsSection: {
-        padding: 20,
-        paddingTop: 0,
-    },
-    noRooms: {
-        padding: 24,
-        borderRadius: 12,
-        alignItems: 'center',
-    },
-    noRoomsText: {
-        fontSize: 14,
-    },
-    roomCard: {
-        borderRadius: 20,
-        marginBottom: 16,
-        overflow: 'hidden',
-        ...Platform.select({
-            ios: {
-                shadowColor: '#000',
-                shadowOffset: { width: 0, height: 4 },
-                shadowOpacity: 0.12,
-                shadowRadius: 12,
-            },
-            android: {
-                elevation: 6,
-            },
-        }),
-    },
-    roomImage: {
-        width: '100%',
-        height: 160,
-    },
-    roomInfo: {
-        padding: 16,
-    },
-    roomType: {
-        fontSize: 18,
-        fontWeight: 'bold',
-        marginBottom: 8,
-    },
-    roomFeatures: {
-        flexDirection: 'row',
-        flexWrap: 'wrap',
-        gap: 8,
-        marginBottom: 12,
-    },
-    featureBadge: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingHorizontal: 10,
-        paddingVertical: 6,
-        borderRadius: 8,
-        gap: 6,
-    },
-    featureText: {
-        fontSize: 13,
-    },
-    roomPriceRow: {
-        marginBottom: 14,
-    },
-    priceInfo: {
-        flexDirection: 'column',
-    },
-    originalPrice: {
-        fontSize: 14,
-        textDecorationLine: 'line-through',
-        color: '#999',
-        marginBottom: 2,
-    },
-    currentPriceRow: {
-        flexDirection: 'row',
-        alignItems: 'baseline',
-        gap: 6,
-    },
-    roomPrice: {
-        fontSize: 24,
-        fontWeight: 'bold',
-    },
-    perNight: {
-        fontSize: 14,
-    },
-    bookButton: {
-        borderRadius: 12,
-        paddingVertical: 14,
-        alignItems: 'center',
-    },
-    bookButtonText: {
-        color: '#fff',
-        fontSize: 16,
-        fontWeight: '700',
-        letterSpacing: 0.3,
-    },
-});

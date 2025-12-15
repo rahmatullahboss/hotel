@@ -1,20 +1,18 @@
 import { useState, useCallback } from 'react';
 import { useFocusEffect } from 'expo-router';
 import {
-    StyleSheet,
+    View,
+    Text,
     ScrollView,
     TouchableOpacity,
     ActivityIndicator,
     Image,
     Switch,
-    Platform,
 } from 'react-native';
-import { Text, View } from '@/components/Themed';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { useTranslation } from 'react-i18next';
-import Colors from '@/constants/Colors';
 import { useTheme } from '@/context/ThemeContext';
 import api, { removeToken } from '@/lib/api';
 import { changeLanguage } from '@/i18n';
@@ -28,7 +26,6 @@ interface User {
 export default function ProfileScreen() {
     const router = useRouter();
     const { theme, toggleTheme } = useTheme();
-    const colors = Colors[theme];
     const insets = useSafeAreaInsets();
     const { t, i18n } = useTranslation();
 
@@ -44,11 +41,9 @@ export default function ProfileScreen() {
         { icon: 'question-circle-o' as const, label: t('profile.menu.helpSupport'), route: '/help' },
     ];
 
-
     const [user, setUser] = useState<User | null>(null);
     const [loading, setLoading] = useState(true);
 
-    // Refresh profile when screen comes into focus (e.g., after login)
     useFocusEffect(
         useCallback(() => {
             fetchProfile();
@@ -74,93 +69,104 @@ export default function ProfileScreen() {
 
     if (loading) {
         return (
-            <View style={[styles.centered, { paddingTop: insets.top }]}>
-                <ActivityIndicator size="large" color={Colors.primary} />
+            <View
+                className="flex-1 items-center justify-center bg-white dark:bg-gray-900"
+                style={{ paddingTop: insets.top }}
+            >
+                <ActivityIndicator size="large" color="#E63946" />
             </View>
         );
     }
 
     return (
-        <View style={[styles.container, { backgroundColor: colors.background }]}>
+        <View className="flex-1 bg-gray-50 dark:bg-gray-900">
             {/* Header */}
             <View
-                style={[styles.header, { paddingTop: insets.top + 16, backgroundColor: Colors.primary }]}
+                className="px-5 pb-7 items-center bg-primary rounded-b-3xl shadow-lg"
+                style={{ paddingTop: insets.top + 16 }}
             >
                 {user ? (
                     <>
-                        <View style={styles.avatarContainer}>
+                        <View className="mb-3.5 relative">
                             {user.image ? (
-                                <Image source={{ uri: user.image }} style={styles.avatar} />
+                                <Image
+                                    source={{ uri: user.image }}
+                                    className="w-22 h-22 rounded-full border-4 border-white/50"
+                                    style={{ width: 88, height: 88 }}
+                                />
                             ) : (
-                                <View style={styles.avatarPlaceholder}>
-                                    <Text style={styles.avatarText}>
+                                <View className="w-22 h-22 rounded-full bg-white/35 items-center justify-center border-4 border-white/50" style={{ width: 88, height: 88 }}>
+                                    <Text className="text-4xl font-bold text-white">
                                         {user.name?.charAt(0).toUpperCase() || 'U'}
                                     </Text>
                                 </View>
                             )}
-                            <View style={styles.avatarGlow} />
+                            <View className="absolute -top-1.5 -left-1.5 w-24 h-24 rounded-full bg-white/10" style={{ width: 100, height: 100 }} />
                         </View>
-                        <Text style={styles.userName}>{user.name}</Text>
-                        <Text style={styles.userEmail}>{user.email}</Text>
+                        <Text className="text-2xl font-bold text-white tracking-tight">
+                            {user.name}
+                        </Text>
+                        <Text className="text-sm text-white/85 mt-1">{user.email}</Text>
                     </>
                 ) : (
                     <>
-                        <View style={styles.avatarContainer}>
-                            <View style={styles.avatarPlaceholder}>
+                        <View className="mb-3.5 relative">
+                            <View className="w-22 h-22 rounded-full bg-white/35 items-center justify-center border-4 border-white/50" style={{ width: 88, height: 88 }}>
                                 <FontAwesome name="user" size={36} color="#fff" />
                             </View>
-                            <View style={styles.avatarGlow} />
+                            <View className="absolute -top-1.5 -left-1.5 w-24 h-24 rounded-full bg-white/10" style={{ width: 100, height: 100 }} />
                         </View>
-                        <Text style={styles.userName}>{t('profile.guest')}</Text>
+                        <Text className="text-2xl font-bold text-white">{t('profile.guest')}</Text>
                         <TouchableOpacity
-                            style={styles.loginButton}
+                            className="mt-3.5 bg-white px-8 py-3 rounded-full shadow-md"
                             onPress={() => router.push('/auth/login')}
                             activeOpacity={0.8}
                         >
-                            <Text style={styles.loginButtonText}>{t('profile.signIn')}</Text>
+                            <Text className="text-primary font-semibold text-sm">
+                                {t('profile.signIn')}
+                            </Text>
                         </TouchableOpacity>
                     </>
                 )}
             </View>
 
-            <ScrollView
-                style={styles.scrollView}
-                showsVerticalScrollIndicator={false}
-            >
+            <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
                 {/* Language Selector */}
-                <View style={[styles.themeSection, { backgroundColor: colors.card }]}>
-                    <View style={[styles.languageRow, { backgroundColor: 'transparent' }]}>
-                        <View style={[styles.menuIconContainer, { backgroundColor: `${Colors.primary}10` }]}>
-                            <FontAwesome name="language" size={18} color={Colors.primary} />
+                <View className="mx-5 mt-5 bg-white dark:bg-gray-800 rounded-2xl overflow-hidden">
+                    <View className="flex-row items-center p-4 pb-2">
+                        <View className="w-11 h-11 rounded-xl bg-primary/10 items-center justify-center mr-3.5">
+                            <FontAwesome name="language" size={18} color="#E63946" />
                         </View>
-                        <Text style={[styles.menuLabel, { color: colors.text }]}>{t('profile.language')}</Text>
+                        <Text className="text-base font-medium text-gray-900 dark:text-white">
+                            {t('profile.language')}
+                        </Text>
                     </View>
-                    <View style={[styles.languageOptions, { backgroundColor: 'transparent' }]}>
+                    <View className="flex-row px-4 pb-4 gap-3">
                         <TouchableOpacity
-                            style={[
-                                styles.languageOption,
-                                i18n.language === 'en' && styles.languageOptionActive
-                            ]}
+                            className={`flex-1 py-2.5 px-4 rounded-lg border items-center ${i18n.language === 'en'
+                                    ? 'border-primary bg-primary/10'
+                                    : 'border-gray-200 dark:border-gray-600'
+                                }`}
                             onPress={() => handleLanguageChange('en')}
                         >
-                            <Text style={[
-                                styles.languageText,
-                                { color: i18n.language === 'en' ? Colors.primary : colors.textSecondary }
-                            ]}>
+                            <Text
+                                className={`text-sm font-semibold ${i18n.language === 'en' ? 'text-primary' : 'text-gray-500 dark:text-gray-400'
+                                    }`}
+                            >
                                 {t('profile.english')}
                             </Text>
                         </TouchableOpacity>
                         <TouchableOpacity
-                            style={[
-                                styles.languageOption,
-                                i18n.language === 'bn' && styles.languageOptionActive
-                            ]}
+                            className={`flex-1 py-2.5 px-4 rounded-lg border items-center ${i18n.language === 'bn'
+                                    ? 'border-primary bg-primary/10'
+                                    : 'border-gray-200 dark:border-gray-600'
+                                }`}
                             onPress={() => handleLanguageChange('bn')}
                         >
-                            <Text style={[
-                                styles.languageText,
-                                { color: i18n.language === 'bn' ? Colors.primary : colors.textSecondary }
-                            ]}>
+                            <Text
+                                className={`text-sm font-semibold ${i18n.language === 'bn' ? 'text-primary' : 'text-gray-500 dark:text-gray-400'
+                                    }`}
+                            >
                                 {t('profile.bengali')}
                             </Text>
                         </TouchableOpacity>
@@ -168,42 +174,40 @@ export default function ProfileScreen() {
                 </View>
 
                 {/* Theme Toggle */}
-                <View style={[styles.themeSection, { backgroundColor: colors.card }]}>
-                    <View style={[styles.themeRow, { backgroundColor: 'transparent' }]}>
-                        <View style={[styles.menuIconContainer, { backgroundColor: `${Colors.primary}10` }]}>
-                            <FontAwesome name="moon-o" size={18} color={Colors.primary} />
+                <View className="mx-5 mt-3 bg-white dark:bg-gray-800 rounded-2xl overflow-hidden">
+                    <View className="flex-row items-center p-4">
+                        <View className="w-11 h-11 rounded-xl bg-primary/10 items-center justify-center mr-3.5">
+                            <FontAwesome name="moon-o" size={18} color="#E63946" />
                         </View>
-                        <Text style={[styles.menuLabel, { color: colors.text }]}>{t('profile.darkMode')}</Text>
+                        <Text className="flex-1 text-base font-medium text-gray-900 dark:text-white">
+                            {t('profile.darkMode')}
+                        </Text>
                         <Switch
                             value={theme === 'dark'}
                             onValueChange={toggleTheme}
-                            trackColor={{ false: '#D1D5DB', true: Colors.primary }}
+                            trackColor={{ false: '#D1D5DB', true: '#E63946' }}
                             thumbColor="#FFFFFF"
                         />
                     </View>
                 </View>
 
                 {/* Menu Items */}
-                <View style={styles.menuSection}>
+                <View className="mx-5 mt-3 bg-white dark:bg-gray-800 rounded-2xl overflow-hidden">
                     {MENU_ITEMS.map((item, index) => (
                         <TouchableOpacity
                             key={item.label}
-                            style={[
-                                styles.menuItem,
-                                {
-                                    backgroundColor: colors.card,
-                                    borderBottomColor: colors.border,
-                                    borderBottomWidth: index < MENU_ITEMS.length - 1 ? 1 : 0,
-                                }
-                            ]}
+                            className={`flex-row items-center p-4 py-3.5 ${index < MENU_ITEMS.length - 1 ? 'border-b border-gray-100 dark:border-gray-700' : ''
+                                }`}
                             onPress={() => router.push(item.route as any)}
                             activeOpacity={0.7}
                         >
-                            <View style={[styles.menuIconContainer, { backgroundColor: `${Colors.primary}10` }]}>
-                                <FontAwesome name={item.icon} size={18} color={Colors.primary} />
+                            <View className="w-11 h-11 rounded-xl bg-primary/10 items-center justify-center mr-3.5">
+                                <FontAwesome name={item.icon} size={18} color="#E63946" />
                             </View>
-                            <Text style={[styles.menuLabel, { color: colors.text }]}>{item.label}</Text>
-                            <FontAwesome name="chevron-right" size={14} color={colors.textSecondary} />
+                            <Text className="flex-1 text-base font-medium text-gray-900 dark:text-white">
+                                {item.label}
+                            </Text>
+                            <FontAwesome name="chevron-right" size={14} color="#9CA3AF" />
                         </TouchableOpacity>
                     ))}
                 </View>
@@ -211,209 +215,25 @@ export default function ProfileScreen() {
                 {/* Logout Button */}
                 {user && (
                     <TouchableOpacity
-                        style={[styles.logoutButton, { backgroundColor: colors.backgroundSecondary }]}
+                        className="mx-5 mt-4 flex-row items-center justify-center p-4 rounded-xl bg-red-50 dark:bg-red-900/20 gap-2.5"
                         onPress={handleLogout}
                     >
-                        <FontAwesome name="sign-out" size={18} color={Colors.light.error} />
-                        <Text style={[styles.logoutText, { color: Colors.light.error }]}>{t('profile.logout')}</Text>
+                        <FontAwesome name="sign-out" size={18} color="#EF4444" />
+                        <Text className="text-base font-semibold text-red-500">
+                            {t('profile.logout')}
+                        </Text>
                     </TouchableOpacity>
                 )}
 
                 {/* App Info */}
-                <View style={styles.appInfo}>
-                    <Text style={[styles.appVersion, { color: colors.textSecondary }]}>
+                <View className="items-center p-6">
+                    <Text className="text-xs text-gray-400 dark:text-gray-500">
                         Vibe Hospitality v1.0.0
                     </Text>
                 </View>
 
-                <View style={{ height: 20 }} />
+                <View className="h-5" />
             </ScrollView>
         </View>
     );
 }
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-    },
-    centered: {
-        flex: 1,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    header: {
-        paddingHorizontal: 20,
-        paddingBottom: 28,
-        alignItems: 'center',
-        borderBottomLeftRadius: 28,
-        borderBottomRightRadius: 28,
-        ...Platform.select({
-            ios: {
-                shadowColor: '#000',
-                shadowOffset: { width: 0, height: 4 },
-                shadowOpacity: 0.15,
-                shadowRadius: 12,
-            },
-            android: {
-                elevation: 8,
-            },
-        }),
-    },
-    avatarContainer: {
-        marginBottom: 14,
-        position: 'relative',
-    },
-    avatarGlow: {
-        position: 'absolute',
-        width: 100,
-        height: 100,
-        borderRadius: 50,
-        backgroundColor: 'rgba(255,255,255,0.1)',
-        top: -6,
-        left: -6,
-    },
-    avatar: {
-        width: 88,
-        height: 88,
-        borderRadius: 44,
-        borderWidth: 4,
-        borderColor: 'rgba(255,255,255,0.5)',
-    },
-    avatarPlaceholder: {
-        width: 88,
-        height: 88,
-        borderRadius: 44,
-        backgroundColor: 'rgba(255,255,255,0.35)',
-        alignItems: 'center',
-        justifyContent: 'center',
-        borderWidth: 4,
-        borderColor: 'rgba(255,255,255,0.5)',
-    },
-    avatarText: {
-        fontSize: 36,
-        fontWeight: 'bold',
-        color: '#fff',
-    },
-    userName: {
-        fontSize: 22,
-        fontWeight: 'bold',
-        color: '#fff',
-        letterSpacing: 0.3,
-    },
-    userEmail: {
-        fontSize: 14,
-        color: 'rgba(255,255,255,0.85)',
-        marginTop: 4,
-    },
-    loginButton: {
-        marginTop: 14,
-        backgroundColor: '#fff',
-        paddingHorizontal: 32,
-        paddingVertical: 12,
-        borderRadius: 28,
-        ...Platform.select({
-            ios: {
-                shadowColor: '#000',
-                shadowOffset: { width: 0, height: 2 },
-                shadowOpacity: 0.15,
-                shadowRadius: 4,
-            },
-            android: {
-                elevation: 4,
-            },
-        }),
-    },
-    loginButtonText: {
-        color: Colors.primary,
-        fontWeight: '600',
-        fontSize: 14,
-    },
-    scrollView: {
-        flex: 1,
-    },
-    themeSection: {
-        marginHorizontal: 20,
-        marginTop: 20,
-        borderRadius: 16,
-        overflow: 'hidden',
-    },
-    themeRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        padding: 16,
-    },
-    languageRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        padding: 16,
-        paddingBottom: 8,
-    },
-    languageOptions: {
-        flexDirection: 'row',
-        paddingHorizontal: 16,
-        paddingBottom: 16,
-        gap: 12,
-    },
-    languageOption: {
-        flex: 1,
-        paddingVertical: 10,
-        paddingHorizontal: 16,
-        borderRadius: 8,
-        borderWidth: 1,
-        borderColor: '#E5E5E5',
-        alignItems: 'center',
-    },
-    languageOptionActive: {
-        borderColor: Colors.primary,
-        backgroundColor: `${Colors.primary}10`,
-    },
-    languageText: {
-        fontSize: 14,
-        fontWeight: '600',
-    },
-    menuSection: {
-        margin: 20,
-        marginTop: 12,
-        borderRadius: 16,
-        overflow: 'hidden',
-    },
-    menuItem: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        padding: 16,
-        paddingVertical: 14,
-    },
-    menuIconContainer: {
-        width: 44,
-        height: 44,
-        borderRadius: 14,
-        alignItems: 'center',
-        justifyContent: 'center',
-        marginRight: 14,
-    },
-    menuLabel: {
-        flex: 1,
-        fontSize: 15,
-        fontWeight: '500',
-    },
-    logoutButton: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-        marginHorizontal: 20,
-        padding: 16,
-        borderRadius: 12,
-        gap: 10,
-    },
-    logoutText: {
-        fontSize: 15,
-        fontWeight: '600',
-    },
-    appInfo: {
-        alignItems: 'center',
-        padding: 24,
-    },
-    appVersion: {
-        fontSize: 12,
-    },
-});

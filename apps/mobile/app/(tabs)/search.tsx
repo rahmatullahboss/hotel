@@ -1,17 +1,16 @@
 import { useState } from 'react';
 import {
-    StyleSheet,
+    View,
+    Text,
     TextInput,
     ScrollView,
     TouchableOpacity,
     Dimensions,
 } from 'react-native';
-import { Text, View } from '@/components/Themed';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { useTranslation } from 'react-i18next';
-import Colors from '@/constants/Colors';
 
 const { width } = Dimensions.get('window');
 
@@ -26,7 +25,6 @@ const POPULAR_CITIES = [
 
 export default function SearchScreen() {
     const router = useRouter();
-    const colors = Colors.light; // Force light theme
     const insets = useSafeAreaInsets();
     const { t } = useTranslation();
 
@@ -36,56 +34,59 @@ export default function SearchScreen() {
         router.push({
             pathname: '/search-results',
             params: { city },
-        });
+        } as any);
     };
 
     return (
-        <View style={[styles.container, { backgroundColor: colors.background }]}>
+        <View className="flex-1 bg-gray-50 dark:bg-gray-900">
             {/* Header */}
-            <View style={[styles.header, { paddingTop: insets.top + 10, backgroundColor: Colors.primary }]}>
-                <Text style={styles.headerTitle}>{t('search.title')}</Text>
-                <Text style={styles.headerSubtitle}>{t('search.subtitle')}</Text>
+            <View
+                className="px-5 pb-5 bg-primary rounded-b-3xl"
+                style={{ paddingTop: insets.top + 10 }}
+            >
+                <Text className="text-2xl font-bold text-white">{t('search.title')}</Text>
+                <Text className="text-sm text-white/80 mt-1">{t('search.subtitle')}</Text>
             </View>
 
-            <ScrollView
-                style={styles.scrollView}
-                showsVerticalScrollIndicator={false}
-            >
+            <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
                 {/* Search Bar */}
-                <View style={styles.searchContainer}>
-                    <View style={[styles.searchBar, { backgroundColor: colors.card }]}>
-                        <FontAwesome name="search" size={18} color={colors.textSecondary} />
+                <View className="px-5 -mt-7">
+                    <View className="flex-row items-center px-4 py-3.5 rounded-xl bg-white dark:bg-gray-800 gap-3 shadow-lg">
+                        <FontAwesome name="search" size={18} color="#9CA3AF" />
                         <TextInput
-                            style={[styles.searchInput, { color: colors.text }]}
+                            className="flex-1 text-base text-gray-900 dark:text-white"
                             placeholder={t('search.placeholder')}
-                            placeholderTextColor={colors.textSecondary}
+                            placeholderTextColor="#9CA3AF"
                             value={searchQuery}
                             onChangeText={setSearchQuery}
                         />
                         {searchQuery.length > 0 && (
                             <TouchableOpacity onPress={() => setSearchQuery('')}>
-                                <FontAwesome name="times-circle" size={18} color={colors.textSecondary} />
+                                <FontAwesome name="times-circle" size={18} color="#9CA3AF" />
                             </TouchableOpacity>
                         )}
                     </View>
                 </View>
 
                 {/* Popular Cities */}
-                <View style={styles.section}>
-                    <Text style={[styles.sectionTitle, { color: colors.text }]}>
+                <View className="px-5 mt-6">
+                    <Text className="text-lg font-bold text-gray-900 dark:text-white mb-4">
                         {t('search.popularDestinations')}
                     </Text>
-                    <View style={styles.citiesGrid}>
+                    <View className="flex-row flex-wrap gap-3">
                         {POPULAR_CITIES.map((city) => (
                             <TouchableOpacity
                                 key={city.name}
-                                style={[styles.cityCard, { backgroundColor: colors.card }]}
+                                className="p-4 rounded-2xl bg-white dark:bg-gray-800 items-center shadow-sm"
+                                style={{ width: (width - 52) / 2 }}
                                 onPress={() => handleCitySelect(city.name)}
                                 activeOpacity={0.8}
                             >
-                                <Text style={styles.cityEmoji}>{city.image}</Text>
-                                <Text style={[styles.cityName, { color: colors.text }]}>{city.name}</Text>
-                                <Text style={[styles.cityHotels, { color: colors.textSecondary }]}>
+                                <Text className="text-4xl mb-2">{city.image}</Text>
+                                <Text className="text-base font-semibold text-gray-900 dark:text-white mb-0.5">
+                                    {city.name}
+                                </Text>
+                                <Text className="text-xs text-gray-500 dark:text-gray-400">
                                     {city.hotels} {t('search.hotels')}
                                 </Text>
                             </TouchableOpacity>
@@ -94,112 +95,20 @@ export default function SearchScreen() {
                 </View>
 
                 {/* Recent Searches */}
-                <View style={styles.section}>
-                    <Text style={[styles.sectionTitle, { color: colors.text }]}>
+                <View className="px-5 mt-6">
+                    <Text className="text-lg font-bold text-gray-900 dark:text-white mb-4">
                         {t('search.recentSearches')}
                     </Text>
-                    <View style={[styles.emptyRecent, { backgroundColor: colors.backgroundSecondary }]}>
-                        <FontAwesome name="history" size={24} color={colors.textSecondary} />
-                        <Text style={[styles.emptyText, { color: colors.textSecondary }]}>
+                    <View className="p-8 rounded-xl bg-gray-100 dark:bg-gray-800 items-center gap-2">
+                        <FontAwesome name="history" size={24} color="#9CA3AF" />
+                        <Text className="text-sm text-gray-500 dark:text-gray-400">
                             {t('search.recentEmpty')}
                         </Text>
                     </View>
                 </View>
 
-                <View style={{ height: 20 }} />
+                <View className="h-5" />
             </ScrollView>
         </View>
     );
 }
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-    },
-    header: {
-        paddingHorizontal: 20,
-        paddingBottom: 20,
-        borderBottomLeftRadius: 24,
-        borderBottomRightRadius: 24,
-    },
-    headerTitle: {
-        fontSize: 24,
-        fontWeight: 'bold',
-        color: '#fff',
-    },
-    headerSubtitle: {
-        fontSize: 14,
-        color: 'rgba(255,255,255,0.8)',
-        marginTop: 4,
-    },
-    scrollView: {
-        flex: 1,
-    },
-    searchContainer: {
-        padding: 20,
-        marginTop: -30,
-    },
-    searchBar: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingHorizontal: 16,
-        paddingVertical: 14,
-        borderRadius: 12,
-        gap: 12,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 8,
-        elevation: 4,
-    },
-    searchInput: {
-        flex: 1,
-        fontSize: 15,
-    },
-    section: {
-        paddingHorizontal: 20,
-        marginTop: 10,
-    },
-    sectionTitle: {
-        fontSize: 18,
-        fontWeight: 'bold',
-        marginBottom: 16,
-    },
-    citiesGrid: {
-        flexDirection: 'row',
-        flexWrap: 'wrap',
-        gap: 12,
-    },
-    cityCard: {
-        width: (width - 52) / 2,
-        padding: 16,
-        borderRadius: 16,
-        alignItems: 'center',
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.05,
-        shadowRadius: 4,
-        elevation: 2,
-    },
-    cityEmoji: {
-        fontSize: 36,
-        marginBottom: 8,
-    },
-    cityName: {
-        fontSize: 15,
-        fontWeight: '600',
-        marginBottom: 2,
-    },
-    cityHotels: {
-        fontSize: 12,
-    },
-    emptyRecent: {
-        padding: 30,
-        borderRadius: 12,
-        alignItems: 'center',
-        gap: 8,
-    },
-    emptyText: {
-        fontSize: 13,
-    },
-});

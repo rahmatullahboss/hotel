@@ -1,21 +1,18 @@
 import { useState, useEffect } from 'react';
 import {
-  StyleSheet,
+  View,
+  Text,
   ScrollView,
   TouchableOpacity,
   Image,
   ActivityIndicator,
   RefreshControl,
   Dimensions,
-  Platform,
 } from 'react-native';
-import { Text, View } from '@/components/Themed';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { useTranslation } from 'react-i18next';
-import Colors from '@/constants/Colors';
-import { useColorScheme } from '@/components/useColorScheme';
 import api from '@/lib/api';
 
 const { width } = Dimensions.get('window');
@@ -32,8 +29,6 @@ interface Hotel {
 
 export default function HomeScreen() {
   const router = useRouter();
-  const colorScheme = useColorScheme() ?? 'light';
-  const colors = Colors[colorScheme];
   const insets = useSafeAreaInsets();
   const { t, i18n } = useTranslation();
 
@@ -75,9 +70,12 @@ export default function HomeScreen() {
 
   if (loading) {
     return (
-      <View style={[styles.centered, { paddingTop: insets.top }]}>
-        <ActivityIndicator size="large" color={Colors.primary} />
-        <Text style={[styles.loadingText, { color: colors.textSecondary }]}>
+      <View
+        className="flex-1 items-center justify-center bg-white dark:bg-gray-900"
+        style={{ paddingTop: insets.top }}
+      >
+        <ActivityIndicator size="large" color="#E63946" />
+        <Text className="mt-3 text-base text-gray-500 dark:text-gray-400">
           {t('home.loading')}
         </Text>
       </View>
@@ -85,57 +83,64 @@ export default function HomeScreen() {
   }
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.background }]}>
+    <View className="flex-1 bg-gray-50 dark:bg-gray-900">
       {/* Header with Search */}
       <View
-        style={[styles.header, { paddingTop: insets.top + 12, backgroundColor: Colors.primary }]}
+        className="px-5 pb-5 bg-primary rounded-b-3xl"
+        style={{ paddingTop: insets.top + 12 }}
       >
-        <View style={[styles.headerTop, { backgroundColor: 'transparent' }]}>
-          <View style={{ backgroundColor: 'transparent' }}>
-            <Text style={styles.headerGreeting}>{t('home.greeting')}</Text>
-            <Text style={styles.headerTitle}>{t('home.heroTitle')}</Text>
+        <View className="flex-row justify-between items-start mb-4">
+          <View>
+            <Text className="text-sm text-white/80">{t('home.greeting')}</Text>
+            <Text className="text-2xl font-bold text-white mt-0.5">
+              {t('home.heroTitle')}
+            </Text>
           </View>
           <TouchableOpacity
-            style={styles.notificationBtn}
+            className="w-11 h-11 rounded-full bg-white/20 items-center justify-center"
             activeOpacity={0.7}
             onPress={() => router.push('/notifications')}
           >
             <FontAwesome name="bell-o" size={22} color="#fff" />
-            <View style={styles.notificationDot} />
+            <View className="absolute top-2.5 right-2.5 w-2 h-2 rounded-full bg-yellow-400 border border-primary" />
           </TouchableOpacity>
         </View>
 
         {/* Search Bar */}
         <TouchableOpacity
-          style={styles.searchBar}
+          className="flex-row items-center bg-white rounded-xl px-4 py-3.5 gap-3"
           onPress={() => router.push('/(tabs)/search')}
           activeOpacity={0.9}
         >
           <FontAwesome name="search" size={18} color="#999" />
-          <Text style={styles.searchPlaceholder}>{t('home.searchPlaceholder')}</Text>
+          <Text className="text-gray-400 text-base flex-1">
+            {t('home.searchPlaceholder')}
+          </Text>
         </TouchableOpacity>
       </View>
 
       <ScrollView
-        style={styles.scrollView}
+        className="flex-1"
         showsVerticalScrollIndicator={false}
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={Colors.primary} />
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#E63946" />
         }
       >
-        <View style={[styles.quickFilters, { backgroundColor: 'transparent' }]}>
+        {/* Quick Filters */}
+        <View className="flex-row px-5 py-5 justify-between">
           {QUICK_FILTERS.map((filter) => (
             <TouchableOpacity
               key={filter.id}
-              style={styles.filterItem}
+              className="items-center"
+              style={{ width: (width - 60) / 4 }}
               activeOpacity={0.7}
               onPress={() => router.push({ pathname: '/(tabs)/search', params: { filter: filter.id } })}
             >
-              <View style={[styles.filterIcon, { backgroundColor: colors.backgroundSecondary }]}>
-                <FontAwesome name={filter.icon} size={20} color={Colors.primary} />
+              <View className="w-14 h-14 rounded-2xl bg-white dark:bg-gray-800 items-center justify-center mb-2 shadow-sm">
+                <FontAwesome name={filter.icon} size={20} color="#E63946" />
               </View>
               <Text
-                style={[styles.filterLabel, { color: colors.text }]}
+                className="text-xs font-semibold text-gray-700 dark:text-gray-300 text-center"
                 numberOfLines={1}
                 adjustsFontSizeToFit
               >
@@ -146,32 +151,38 @@ export default function HomeScreen() {
         </View>
 
         {/* Promotional Banner */}
-        <View style={[styles.promoBanner, { backgroundColor: Colors.primary }]}>
-          <View style={[styles.promoContent, { backgroundColor: 'transparent' }]}>
-            <Text style={styles.promoTitle}>{t('home.promo.title')}</Text>
-            <Text style={styles.promoSubtitle}>{t('home.promo.subtitle')}</Text>
-            <TouchableOpacity style={styles.promoButton}>
-              <Text style={styles.promoButtonText}>{t('home.promo.button')}</Text>
+        <View className="mx-5 bg-primary rounded-2xl p-5 flex-row justify-between items-center mb-4">
+          <View className="flex-1">
+            <Text className="text-lg font-bold text-white">{t('home.promo.title')}</Text>
+            <Text className="text-sm text-white/90 mt-1 mb-3">
+              {t('home.promo.subtitle')}
+            </Text>
+            <TouchableOpacity className="bg-white px-4 py-2 rounded-full self-start">
+              <Text className="text-primary font-semibold text-sm">
+                {t('home.promo.button')}
+              </Text>
             </TouchableOpacity>
           </View>
-          <Text style={styles.promoEmoji}>🎉</Text>
+          <Text className="text-5xl">🎉</Text>
         </View>
 
         {/* Featured Hotels */}
-        <View style={[styles.section, { backgroundColor: 'transparent' }]}>
-          <View style={[styles.sectionHeader, { backgroundColor: 'transparent' }]}>
-            <Text style={[styles.sectionTitle, { color: colors.text }]}>
+        <View className="px-5">
+          <View className="flex-row justify-between items-center mb-4">
+            <Text className="text-lg font-bold text-gray-900 dark:text-white">
               {t('home.topRated')}
             </Text>
             <TouchableOpacity>
-              <Text style={[styles.seeAll, { color: Colors.primary }]}>{t('home.seeAll')}</Text>
+              <Text className="text-sm font-semibold text-primary">
+                {t('home.seeAll')}
+              </Text>
             </TouchableOpacity>
           </View>
 
           {hotels.length === 0 ? (
-            <View style={[styles.emptyState, { backgroundColor: colors.backgroundSecondary }]}>
-              <FontAwesome name="building-o" size={40} color={colors.textSecondary} />
-              <Text style={[styles.emptyStateText, { color: colors.textSecondary }]}>
+            <View className="p-10 rounded-xl bg-gray-100 dark:bg-gray-800 items-center">
+              <FontAwesome name="building-o" size={40} color="#9CA3AF" />
+              <Text className="text-sm text-gray-500 dark:text-gray-400 mt-3">
                 {t('home.noHotels')}
               </Text>
             </View>
@@ -179,37 +190,50 @@ export default function HomeScreen() {
             hotels.slice(0, 5).map((hotel) => (
               <TouchableOpacity
                 key={hotel.id}
-                style={[styles.hotelCard, { backgroundColor: colors.card }]}
+                className="rounded-2xl mb-4 overflow-hidden bg-white dark:bg-gray-800 shadow-lg"
                 onPress={() => router.push(`/hotel/${hotel.id}`)}
                 activeOpacity={0.95}
               >
-                <View style={styles.imageContainer}>
+                <View className="relative">
                   <Image
-                    source={{ uri: hotel.imageUrl || 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=400' }}
-                    style={styles.hotelImage}
+                    source={{
+                      uri: hotel.imageUrl || 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=400',
+                    }}
+                    className="w-full h-44"
+                    resizeMode="cover"
                   />
-                  <View style={styles.ratingBadge}>
+                  <View className="absolute top-3 right-3 flex-row items-center bg-black/70 px-2.5 py-1 rounded-lg gap-1">
                     <FontAwesome name="star" size={11} color="#FFD700" />
-                    <Text style={styles.ratingText}>{Number(hotel.rating || 0).toFixed(1)}</Text>
+                    <Text className="text-white text-sm font-bold">
+                      {Number(hotel.rating || 0).toFixed(1)}
+                    </Text>
                   </View>
                 </View>
-                <View style={[styles.hotelInfo, { backgroundColor: 'transparent' }]}>
-                  <Text style={[styles.hotelName, { color: colors.text }]} numberOfLines={1}>
+                <View className="p-4">
+                  <Text
+                    className="text-lg font-bold text-gray-900 dark:text-white mb-1.5 tracking-tight"
+                    numberOfLines={1}
+                  >
                     {hotel.name}
                   </Text>
-                  <View style={[styles.locationRow, { backgroundColor: 'transparent' }]}>
-                    <FontAwesome name="map-marker" size={12} color={colors.textSecondary} />
-                    <Text style={[styles.hotelLocation, { color: colors.textSecondary }]} numberOfLines={1}>
+                  <View className="flex-row items-center gap-1.5 mb-3">
+                    <FontAwesome name="map-marker" size={12} color="#9CA3AF" />
+                    <Text
+                      className="text-sm text-gray-500 dark:text-gray-400 flex-1"
+                      numberOfLines={1}
+                    >
                       {hotel.city}
                     </Text>
                   </View>
-                  <View style={[styles.priceRow, { backgroundColor: 'transparent' }]}>
-                    <Text style={[styles.priceLabel, { color: colors.textSecondary }]}>{t('home.startingFrom')}</Text>
-                    <View style={styles.priceContainer}>
-                      <Text style={[styles.hotelPrice, { color: Colors.primary }]}>
+                  <View className="flex-row items-center justify-between">
+                    <Text className="text-xs text-gray-500 dark:text-gray-400">
+                      {t('home.startingFrom')}
+                    </Text>
+                    <View className="flex-row items-baseline gap-1">
+                      <Text className="text-xl font-bold text-primary">
                         {t('common.currency')}{formatPrice(hotel.lowestPrice || 0)}
                       </Text>
-                      <Text style={[styles.perNight, { color: colors.textSecondary }]}>
+                      <Text className="text-xs text-gray-500 dark:text-gray-400">
                         {t('common.perNight')}
                       </Text>
                     </View>
@@ -221,265 +245,8 @@ export default function HomeScreen() {
         </View>
 
         {/* Bottom Padding */}
-        <View style={{ height: 20 }} />
+        <View className="h-5" />
       </ScrollView>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  centered: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  loadingText: {
-    marginTop: 12,
-    fontSize: 15,
-  },
-  header: {
-    paddingHorizontal: 20,
-    paddingBottom: 20,
-    borderBottomLeftRadius: 24,
-    borderBottomRightRadius: 24,
-  },
-  headerTop: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: 16,
-  },
-  headerGreeting: {
-    fontSize: 14,
-    color: 'rgba(255,255,255,0.8)',
-  },
-  headerTitle: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    color: '#fff',
-    marginTop: 2,
-  },
-  notificationBtn: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: 'rgba(255,255,255,0.2)',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  searchBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-    gap: 12,
-  },
-  searchPlaceholder: {
-    color: '#999',
-    fontSize: 15,
-    flex: 1,
-  },
-  notificationDot: {
-    position: 'absolute',
-    top: 10,
-    right: 10,
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: '#FFD700',
-    borderWidth: 1.5,
-    borderColor: Colors.primary,
-  },
-  scrollView: {
-    flex: 1,
-  },
-  quickFilters: {
-    flexDirection: 'row',
-    paddingHorizontal: 20,
-    paddingVertical: 20,
-    justifyContent: 'space-between',
-  },
-  filterItem: {
-    alignItems: 'center',
-    width: (width - 60) / 4,
-  },
-  filterIcon: {
-    width: 56,
-    height: 56,
-    borderRadius: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 8,
-    ...Platform.select({
-      ios: {
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.08,
-        shadowRadius: 4,
-      },
-      android: {
-        elevation: 2,
-      },
-    }),
-  },
-  filterLabel: {
-    fontSize: 12,
-    fontWeight: '600',
-    textAlign: 'center',
-  },
-  promoBanner: {
-    marginHorizontal: 20,
-    borderRadius: 16,
-    padding: 20,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 16,
-  },
-  promoContent: {
-    flex: 1,
-  },
-  promoTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#fff',
-  },
-  promoSubtitle: {
-    fontSize: 14,
-    color: 'rgba(255,255,255,0.9)',
-    marginTop: 4,
-    marginBottom: 12,
-  },
-  promoButton: {
-    backgroundColor: '#fff',
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 20,
-    alignSelf: 'flex-start',
-  },
-  promoButtonText: {
-    color: Colors.primary,
-    fontWeight: '600',
-    fontSize: 13,
-  },
-  promoEmoji: {
-    fontSize: 48,
-  },
-  section: {
-    paddingHorizontal: 20,
-  },
-  sectionHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 16,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-  seeAll: {
-    fontSize: 14,
-    fontWeight: '600',
-  },
-  emptyState: {
-    padding: 40,
-    borderRadius: 12,
-    alignItems: 'center',
-  },
-  emptyStateText: {
-    fontSize: 14,
-    marginTop: 12,
-  },
-  hotelCard: {
-    borderRadius: 20,
-    marginBottom: 16,
-    overflow: 'hidden',
-    ...Platform.select({
-      ios: {
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.12,
-        shadowRadius: 12,
-      },
-      android: {
-        elevation: 6,
-      },
-    }),
-  },
-  imageContainer: {
-    position: 'relative',
-  },
-  hotelImage: {
-    width: '100%',
-    height: 180,
-  },
-  imageGradient: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    bottom: 0,
-    height: 60,
-  },
-  hotelInfo: {
-    padding: 16,
-  },
-  hotelName: {
-    fontSize: 17,
-    fontWeight: '700',
-    marginBottom: 6,
-    letterSpacing: 0.2,
-  },
-  ratingBadge: {
-    position: 'absolute',
-    top: 12,
-    right: 12,
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0,0,0,0.7)',
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 8,
-    gap: 4,
-  },
-  ratingText: {
-    color: '#fff',
-    fontSize: 13,
-    fontWeight: '700',
-  },
-  locationRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    marginBottom: 12,
-  },
-  hotelLocation: {
-    fontSize: 13,
-    flex: 1,
-  },
-  priceRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  priceLabel: {
-    fontSize: 12,
-  },
-  priceContainer: {
-    flexDirection: 'row',
-    alignItems: 'baseline',
-    gap: 4,
-  },
-  hotelPrice: {
-    fontSize: 20,
-    fontWeight: 'bold',
-  },
-  perNight: {
-    fontSize: 12,
-  },
-});
