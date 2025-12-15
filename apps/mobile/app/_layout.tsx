@@ -7,6 +7,7 @@ import { useEffect, useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import 'react-native-reanimated';
+import '../global.css';
 
 import { ThemeProvider, useTheme } from '@/context/ThemeContext';
 import Colors from '@/constants/Colors';
@@ -97,6 +98,7 @@ function RootLayoutNav() {
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
           <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
           <Stack.Screen name="hotel/[id]" options={{ headerShown: false }} />
+          <Stack.Screen name="room/[id]" options={{ headerShown: false }} />
           <Stack.Screen name="auth/login" options={{ headerShown: false }} />
           <Stack.Screen name="auth/register" options={{ headerShown: true }} />
         </Stack>
