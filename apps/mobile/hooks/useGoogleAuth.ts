@@ -93,7 +93,7 @@ export function useGoogleAuth() {
             const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:3000';
             console.log('Sending to backend:', API_URL);
 
-            const res = await fetch(`${API_URL}/api/auth/mobile-google`, {
+            const res = await fetch(`${API_URL}/api/mobile/google-auth`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
