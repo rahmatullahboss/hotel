@@ -94,10 +94,7 @@
         {
           "calendarPermission": "Allow Vibe Hospitality to add your bookings to your calendar."
         }
-      ],
-      "expo-haptics",
-      "expo-sharing",
-      "expo-brightness"
+      ]
     ],
     "experiments": {
       "typedRoutes": true
