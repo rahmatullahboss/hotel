@@ -6,15 +6,12 @@ import {
     ScrollView,
     TouchableOpacity,
     Dimensions,
-    FlatList,
     ActivityIndicator,
-    Alert,
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { useTranslation } from 'react-i18next';
-import * as Location from 'expo-location';
 import CityCard from '@/components/CityCard';
 import HotelCard from '@/components/HotelCard';
 import api from '@/lib/api';
@@ -28,8 +25,6 @@ interface Hotel {
     rating: string | number;
     imageUrl: string;
     lowestPrice?: number;
-    latitude?: string;
-    longitude?: string;
 }
 
 const POPULAR_CITIES = [
@@ -57,7 +52,6 @@ export default function SearchScreen() {
     const [loading, setLoading] = useState(true);
     const [searching, setSearching] = useState(false);
     const [activeFilter, setActiveFilter] = useState<string | null>(filter || null);
-    const [locationLoading, setLocationLoading] = useState(false);
 
     // Fetch all hotels on mount
     useEffect(() => {
@@ -87,7 +81,7 @@ export default function SearchScreen() {
                 hotel.city.toLowerCase().includes(searchQuery.toLowerCase())
             );
             setFilteredHotels(filtered);
-        } else {
+        } else if (!activeFilter) {
             setSearching(false);
             setFilteredHotels([]);
         }
@@ -109,41 +103,16 @@ export default function SearchScreen() {
         }
     };
 
-    const handleFilter = async (filterId: string) => {
+    const handleFilter = (filterId: string) => {
         setActiveFilter(filterId);
         setSearching(true);
 
         if (filterId === 'nearby') {
-            // Near Me - Get location and sort by distance
-            setLocationLoading(true);
-            try {
-                const { status } = await Location.requestForegroundPermissionsAsync();
-                if (status !== 'granted') {
-                    Alert.alert('Location Permission', 'Please enable location to use Near Me feature');
-                    setLocationLoading(false);
-                    setSearching(false);
-                    return;
-                }
-                const location = await Location.getCurrentPositionAsync({});
-                const userLat = location.coords.latitude;
-                const userLng = location.coords.longitude;
-
-                // Sort by distance
-                const hotelsWithDistance = allHotels.map((hotel) => {
-                    const hotelLat = parseFloat(hotel.latitude || '0');
-                    const hotelLng = parseFloat(hotel.longitude || '0');
-                    const distance = Math.sqrt(
-                        Math.pow(userLat - hotelLat, 2) + Math.pow(userLng - hotelLng, 2)
-                    );
-                    return { ...hotel, distance };
-                });
-
-                hotelsWithDistance.sort((a, b) => a.distance - b.distance);
-                setFilteredHotels(hotelsWithDistance.slice(0, 10));
-            } catch (error) {
-                Alert.alert('Error', 'Could not get your location');
-            }
-            setLocationLoading(false);
+            // Near Me - Show hotels from Dhaka (default location)
+            const filtered = allHotels.filter((hotel) =>
+                hotel.city.toLowerCase() === 'dhaka'
+            );
+            setFilteredHotels(filtered);
         } else if (filterId === 'budget') {
             // Budget - price <= 3000
             const filtered = allHotels.filter((hotel) => (hotel.lowestPrice || 0) <= BUDGET_MAX);
@@ -204,7 +173,7 @@ export default function SearchScreen() {
                         <View className="flex-row items-center">
                             <View className="flex-row items-center bg-primary/10 px-4 py-2 rounded-full gap-2">
                                 <Text className="text-primary font-semibold">
-                                    {activeFilter === 'nearby' && '📍 Near Me'}
+                                    {activeFilter === 'nearby' && '📍 Near Me (Dhaka)'}
                                     {activeFilter === 'budget' && '💰 Budget (≤৳3,000)'}
                                     {activeFilter === 'luxury' && '⭐ Premium (≥৳8,000)'}
                                     {activeFilter === 'couple' && '❤️ Couple Friendly'}
@@ -218,12 +187,11 @@ export default function SearchScreen() {
                 )}
 
                 {/* Search Results or Filter Results */}
-                {(searching || locationLoading) ? (
+                {searching ? (
                     <View className="px-5 mt-4">
-                        {locationLoading ? (
+                        {loading ? (
                             <View className="items-center py-8">
                                 <ActivityIndicator size="large" color="#E63946" />
-                                <Text className="text-gray-500 mt-3">Getting your location...</Text>
                             </View>
                         ) : filteredHotels.length > 0 ? (
                             <>
