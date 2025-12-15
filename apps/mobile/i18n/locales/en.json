@@ -242,5 +242,9 @@
         "error": "Something went wrong. Please try again.",
         "scanAgain": "Scan Again",
         "viewBookings": "View My Bookings"
+    },
+    "bookingDetail": {
+        "title": "Booking Details",
+        "notFound": "Booking not found"
     }
 }

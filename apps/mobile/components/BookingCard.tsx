@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { View, Text, TouchableOpacity, Image } from 'react-native';
+import { router } from 'expo-router';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import Animated, { useAnimatedStyle, withTiming, useSharedValue } from 'react-native-reanimated';
 import { useTranslation } from 'react-i18next';
@@ -123,9 +124,8 @@ export default function BookingCard({ booking }: BookingCardProps) {
         return Math.max(1, diff);
     };
 
-    const toggleExpand = () => {
-        setExpanded(!expanded);
-        rotation.value = withTiming(expanded ? 0 : 180, { duration: 200 });
+    const handlePress = () => {
+        router.push(`/booking-details/${booking.id}`);
     };
 
     const arrowStyle = useAnimatedStyle(() => ({
@@ -141,7 +141,7 @@ export default function BookingCard({ booking }: BookingCardProps) {
 
     return (
         <TouchableOpacity
-            onPress={toggleExpand}
+            onPress={handlePress}
             activeOpacity={0.8}
             className="mb-4"
         >

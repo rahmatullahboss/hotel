@@ -109,12 +109,23 @@ export default function BookingsScreen() {
                 className="px-5 pb-6 bg-primary rounded-b-3xl shadow-lg"
                 style={{ paddingTop: insets.top + 16 }}
             >
-                <Text className="text-2xl font-bold text-white tracking-tight">
-                    {t('bookings.title')}
-                </Text>
-                <Text className="text-sm text-white/85 mt-1.5">
-                    {bookings.length} {bookings.length !== 1 ? t('bookings.bookings') : t('bookings.booking')}
-                </Text>
+                <View className="flex-row items-center justify-between">
+                    <View>
+                        <Text className="text-2xl font-bold text-white tracking-tight">
+                            {t('bookings.title')}
+                        </Text>
+                        <Text className="text-sm text-white/85 mt-1.5">
+                            {bookings.length} {bookings.length !== 1 ? t('bookings.bookings') : t('bookings.booking')}
+                        </Text>
+                    </View>
+                    <TouchableOpacity
+                        onPress={() => router.push('/qr-scanner')}
+                        className="w-12 h-12 rounded-full bg-white/20 items-center justify-center"
+                        activeOpacity={0.7}
+                    >
+                        <FontAwesome name="qrcode" size={22} color="#FFFFFF" />
+                    </TouchableOpacity>
+                </View>
             </View>
 
             <ScrollView
