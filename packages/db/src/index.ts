@@ -1,8 +1,12 @@
-import { neon } from "@neondatabase/serverless";
-import { drizzle } from "drizzle-orm/neon-http";
+import { neon, neonConfig, Pool } from "@neondatabase/serverless";
+import { drizzle as drizzleHttp } from "drizzle-orm/neon-http";
+import { drizzle as drizzleServerless } from "drizzle-orm/neon-serverless";
 import * as schema from "./schema";
 
-// Create Neon client
+// Enable WebSocket support for transactions
+neonConfig.webSocketConstructor = globalThis.WebSocket;
+
+// Create Neon client with transaction support
 const createClient = () => {
     const databaseUrl = process.env.DATABASE_URL;
 
@@ -10,8 +14,9 @@ const createClient = () => {
         throw new Error("DATABASE_URL environment variable is not set");
     }
 
-    const sql = neon(databaseUrl);
-    return drizzle(sql, { schema });
+    // Use Pool for WebSocket connection (supports transactions)
+    const pool = new Pool({ connectionString: databaseUrl });
+    return drizzleServerless(pool, { schema });
 };
 
 // Singleton pattern for database client
