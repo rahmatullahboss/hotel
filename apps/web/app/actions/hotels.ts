@@ -261,13 +261,14 @@ export const getFeaturedHotels = unstable_cache(
 
 /**
  * Room data with availability and full details for display
+ * Supports room type grouping (OYO/Booking.com style)
  */
 export interface RoomWithDetails {
-    id: string;
+    id: string;                // For grouped rooms, this is the first available room's ID
     name: string;
     type: string;
     basePrice: string;
-    dynamicPrice: number;      // Calculated dynamic price per night
+    dynamicPrice: number;      // Calculated dynamic price per night (same for all rooms of this type)
     totalDynamicPrice: number; // Total for all nights
     nights: number;
     maxGuests: number;
@@ -280,10 +281,15 @@ export interface RoomWithDetails {
         multiplier: number;
         rules: Array<{ name: string; description: string }>;
     };
+    // Room grouping fields (for "X rooms available" display)
+    availableCount: number;    // Number of rooms available of this type
+    totalCount: number;        // Total rooms of this type
+    roomIds: string[];         // All room IDs of this type (for auto-assignment during booking)
 }
 
 /**
  * Get available rooms for a hotel on specific dates
+ * Groups rooms by (name, type, basePrice) - OYO/Booking.com style
  * Uses pre-computed prices from roomInventory (single source of truth)
  */
 export async function getAvailableRooms(
@@ -294,7 +300,7 @@ export async function getAvailableRooms(
     try {
         // Import bookings and inventory for availability/pricing check
         const { bookings, roomInventory } = await import("@repo/db/schema");
-        const { ne, lt, gt, and: drizzleAnd, eq, inArray } = await import("drizzle-orm");
+        const { ne, lt, gt, and: drizzleAnd, eq, inArray, gte, lt: drizzleLt } = await import("drizzle-orm");
 
         // Get all active rooms for the hotel
         const hotelRooms = await db.query.rooms.findMany({
@@ -317,22 +323,15 @@ export async function getAvailableRooms(
         const roomIds = roomList.map(r => r.id);
 
         // Fetch pre-computed prices from inventory for the requested date range
-        // This is the SINGLE SOURCE OF TRUTH for pricing
-        // We need prices for dates: checkIn (inclusive) to checkOut (exclusive)
-        // e.g., stay from Jan 1 to Jan 3 = need prices for Jan 1 and Jan 2
-        const { gte, lt: drizzleLt } = await import("drizzle-orm");
         const inventoryPrices = await db.query.roomInventory.findMany({
             where: drizzleAnd(
                 inArray(roomInventory.roomId, roomIds),
-                gte(roomInventory.date, checkIn),   // Include check-in date
-                drizzleLt(roomInventory.date, checkOut)  // Exclude check-out date
+                gte(roomInventory.date, checkIn),
+                drizzleLt(roomInventory.date, checkOut)
             ),
         });
 
-        // Format dates for display
-        const formatDate = (d: string) => new Date(d).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
-
-        // We need price for each night of the stay
+        // Calculate nights
         const nights = Math.max(1, Math.ceil((new Date(checkOut).getTime() - new Date(checkIn).getTime()) / (1000 * 60 * 60 * 24)));
         const stayDates: string[] = [];
         for (let i = 0; i < nights; i++) {
@@ -341,12 +340,12 @@ export async function getAvailableRooms(
             stayDates.push(d.toISOString().split('T')[0]!);
         }
 
-        // Check availability (existing bookings)
-        const roomsWithAvailability = await Promise.all(
+        // Check availability for each room
+        const roomAvailability = await Promise.all(
             roomList.map(async (room) => {
-                let existingBooking: any = null;
+                let isBooked = false;
                 try {
-                    existingBooking = await db.query.bookings.findFirst({
+                    const existingBooking = await db.query.bookings.findFirst({
                         where: drizzleAnd(
                             eq(bookings.roomId, room.id),
                             ne(bookings.status, "CANCELLED"),
@@ -354,58 +353,118 @@ export async function getAvailableRooms(
                             gt(bookings.checkOut, checkIn)
                         ),
                     });
+                    isBooked = !!existingBooking;
                 } catch (e) {
                     // Skip if bookings query fails
                 }
 
-                // Calculate total price using inventory data
-                let totalDynamicPrice = 0;
-                let missingInventory = false;
-
-                for (const dateStr of stayDates) {
-                    const priceEntry = inventoryPrices.find(
-                        p => p.roomId === room.id && p.date === dateStr
-                    );
-
-                    if (priceEntry && priceEntry.price) {
-                        totalDynamicPrice += parseFloat(priceEntry.price);
-                    } else {
-                        // Fallback to base price if no inventory (e.g. far future)
-                        totalDynamicPrice += Number(room.basePrice);
-                        missingInventory = true;
-                    }
-                }
-
-                // Average nightly price
-                const avgPrice = totalDynamicPrice / nights;
-                const dynamicPrice = Math.round(avgPrice);
-
                 return {
-                    id: room.id,
-                    name: room.name,
-                    type: room.type,
-                    basePrice: room.basePrice,
-                    dynamicPrice,
-                    totalDynamicPrice,
-                    nights,
-                    maxGuests: room.maxGuests,
-                    description: room.description,
-                    photos: room.photos ?? [],
-                    amenities: room.amenities ?? [],
-                    isAvailable: !existingBooking,
-                    unavailableReason: existingBooking && existingBooking.checkIn && existingBooking.checkOut
-                        ? `Booked ${formatDate(existingBooking.checkIn)} - ${formatDate(existingBooking.checkOut)}`
-                        : undefined,
-                    // We can reconstruct minimal breakdown if needed, or rely on total
-                    priceBreakdown: missingInventory ? {
-                        multiplier: 1,
-                        rules: [{ name: "Base Rate", description: "Standard rate" }]
-                    } : undefined
+                    room,
+                    isAvailable: !isBooked,
                 };
             })
         );
 
-        return roomsWithAvailability;
+        // Group rooms by (name, type, basePrice) - this is the room "type"
+        const roomGroups = new Map<string, {
+            rooms: typeof roomList;
+            availableRooms: typeof roomList;
+            availableRoomIds: string[];
+        }>();
+
+        for (const { room, isAvailable } of roomAvailability) {
+            // Create a grouping key: name|type|basePrice
+            const groupKey = `${room.name}|${room.type}|${room.basePrice}`;
+
+            if (!roomGroups.has(groupKey)) {
+                roomGroups.set(groupKey, {
+                    rooms: [],
+                    availableRooms: [],
+                    availableRoomIds: [],
+                });
+            }
+
+            const group = roomGroups.get(groupKey)!;
+            group.rooms.push(room);
+
+            if (isAvailable) {
+                group.availableRooms.push(room);
+                group.availableRoomIds.push(room.id);
+            }
+        }
+
+        // Convert groups to RoomWithDetails array
+        const groupedRooms: RoomWithDetails[] = [];
+
+        for (const [groupKey, group] of roomGroups) {
+            // Use the first room as the representative for this group
+            const representativeRoom = group.availableRooms[0] ?? group.rooms[0]!;
+            const totalCount = group.rooms.length;
+            const availableCount = group.availableRooms.length;
+
+            // Calculate dynamic price using inventory data
+            // Use the first available room's inventory prices (all same-type rooms should have same price)
+            let totalDynamicPrice = 0;
+            let missingInventory = false;
+
+            for (const dateStr of stayDates) {
+                // Try to find inventory price from any room in the group
+                // (they should all have the same computed price for same base price)
+                let priceEntry = null;
+                for (const roomId of group.availableRoomIds.length > 0 ? group.availableRoomIds : [representativeRoom.id]) {
+                    priceEntry = inventoryPrices.find(
+                        p => p.roomId === roomId && p.date === dateStr
+                    );
+                    if (priceEntry?.price) break;
+                }
+
+                if (priceEntry && priceEntry.price) {
+                    totalDynamicPrice += parseFloat(priceEntry.price);
+                } else {
+                    // Fallback to base price if no inventory
+                    totalDynamicPrice += Number(representativeRoom.basePrice);
+                    missingInventory = true;
+                }
+            }
+
+            // Average nightly price
+            const avgPrice = totalDynamicPrice / nights;
+            const dynamicPrice = Math.round(avgPrice);
+
+            groupedRooms.push({
+                id: representativeRoom.id, // First available room's ID (or first room if none available)
+                name: representativeRoom.name,
+                type: representativeRoom.type,
+                basePrice: representativeRoom.basePrice,
+                dynamicPrice,
+                totalDynamicPrice,
+                nights,
+                maxGuests: representativeRoom.maxGuests,
+                description: representativeRoom.description,
+                photos: representativeRoom.photos ?? [],
+                amenities: representativeRoom.amenities ?? [],
+                isAvailable: availableCount > 0,
+                unavailableReason: availableCount === 0 ? "All rooms booked for these dates" : undefined,
+                priceBreakdown: missingInventory ? {
+                    multiplier: 1,
+                    rules: [{ name: "Base Rate", description: "Standard rate" }]
+                } : undefined,
+                // Room grouping fields
+                availableCount,
+                totalCount,
+                roomIds: group.availableRoomIds, // Only available room IDs for booking
+            });
+        }
+
+        // Sort: available rooms first, then by price
+        groupedRooms.sort((a, b) => {
+            if (a.isAvailable !== b.isAvailable) {
+                return a.isAvailable ? -1 : 1;
+            }
+            return a.dynamicPrice - b.dynamicPrice;
+        });
+
+        return groupedRooms;
     } catch (error) {
         console.error("Error fetching available rooms:", error);
         return [];

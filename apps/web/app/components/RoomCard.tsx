@@ -25,6 +25,10 @@ interface RoomCardProps {
             multiplier: number;
             rules: Array<{ name: string; description: string }>;
         };
+        // Room grouping fields
+        availableCount?: number;
+        totalCount?: number;
+        roomIds?: string[];
     };
     isSelected: boolean;
     onSelect: () => void;
@@ -131,6 +135,13 @@ export default function RoomCard({ room, isSelected, onSelect, onViewDetails }: 
                 >
                     {badgeLabel}
                 </span>
+
+                {/* Available Count Badge - OYO/Booking.com style */}
+                {room.availableCount !== undefined && room.availableCount > 0 && (
+                    <span className="room-available-badge">
+                        {room.availableCount} {room.availableCount === 1 ? "room" : "rooms"} left
+                    </span>
+                )}
 
                 {/* Unavailable Overlay */}
                 {isUnavailable && (
