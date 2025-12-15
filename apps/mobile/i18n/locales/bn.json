@@ -129,7 +129,8 @@
         "payRemainingAtHotel": "হোটেলে বাকি {{amount}} পরিশোধ করুন",
         "advanceCoveredByWallet": "অগ্রিম ওয়ালেট দিয়ে!",
         "payAtHotelRemaining": "হোটেলে বাকি {{amount}} পরিশোধ করুন",
-        "somethingWentWrong": "কিছু ভুল হয়েছে। আবার চেষ্টা করুন।"
+        "somethingWentWrong": "কিছু ভুল হয়েছে। আবার চেষ্টা করুন।",
+        "firstBookingDiscount": "প্রথম বুকিং ছাড় (২০%)"
     },
     "wallet": {
         "title": "ওয়ালেট",

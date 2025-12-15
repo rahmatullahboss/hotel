@@ -95,7 +95,7 @@ export default function HotelCard({ hotel, index }: HotelCardProps) {
                 {/* Location Badge */}
                 <View className="absolute bottom-3 left-3 flex-row items-center bg-black/60 px-3 py-1.5 rounded-lg gap-1.5">
                     <FontAwesome name="map-marker" size={11} color="#fff" />
-                    <Text className="text-white text-xs font-medium" numberOfLines={1}>
+                    <Text className="text-white text-xs font-medium" numberOfLines={2}>
                         {hotel.city}
                     </Text>
                 </View>

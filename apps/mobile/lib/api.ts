@@ -230,6 +230,24 @@ export const api = {
         method: 'POST',
         body: JSON.stringify({ hotelId, action }),
     }),
+
+    // First Booking Offer
+    checkFirstBookingEligibility: () => apiRequest<{
+        eligible: boolean;
+        discountPercent: number;
+        maxDiscount: number;
+        message?: string;
+    }>('/api/first-booking'),
+
+    calculateFirstBookingDiscount: (amount: number) => apiRequest<{
+        eligible: boolean;
+        discount: number;
+        discountPercent: number;
+        finalAmount: number;
+    }>('/api/first-booking', {
+        method: 'POST',
+        body: JSON.stringify({ amount }),
+    }),
 };
 
 export default api;

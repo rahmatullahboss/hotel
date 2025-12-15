@@ -129,7 +129,8 @@
         "payRemainingAtHotel": "Pay remaining {{amount}} at hotel",
         "advanceCoveredByWallet": "Advance covered by wallet!",
         "payAtHotelRemaining": "Pay remaining {{amount}} at hotel",
-        "somethingWentWrong": "Something went wrong. Please try again."
+        "somethingWentWrong": "Something went wrong. Please try again.",
+        "firstBookingDiscount": "First Booking Discount (20%)"
     },
     "wallet": {
         "title": "Wallet",

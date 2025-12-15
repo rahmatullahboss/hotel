@@ -75,6 +75,10 @@ export default function BookingScreen() {
     const [loadingWallet, setLoadingWallet] = useState(true);
     const [useWalletPartial, setUseWalletPartial] = useState(false); // Use wallet for partial payment
 
+    // First booking discount state
+    const [isFirstBooking, setIsFirstBooking] = useState(false);
+    const [firstBookingDiscount, setFirstBookingDiscount] = useState(0);
+
     // Set default dates
     useEffect(() => {
         const today = new Date();
@@ -99,7 +103,7 @@ export default function BookingScreen() {
         }
     }, [checkIn, checkOut]);
 
-    // Fetch wallet balance
+    // Fetch wallet balance and first booking eligibility
     useEffect(() => {
         const fetchWallet = async () => {
             try {
@@ -114,6 +118,21 @@ export default function BookingScreen() {
             }
         };
         fetchWallet();
+    }, []);
+
+    // Check first booking eligibility
+    useEffect(() => {
+        const checkFirstBooking = async () => {
+            try {
+                const { data } = await api.checkFirstBookingEligibility();
+                if (data?.eligible) {
+                    setIsFirstBooking(true);
+                }
+            } catch (err) {
+                console.log('Error checking first booking:', err);
+            }
+        };
+        checkFirstBooking();
     }, []);
 
     const formatDate = (date: Date) => {
@@ -178,7 +197,10 @@ export default function BookingScreen() {
         return Number(price).toLocaleString('en-US');
     };
 
-    const totalPrice = pricePerNight * nights;
+    const subtotalPrice = pricePerNight * nights;
+    // Calculate first booking discount (20% with max ৳1000)
+    const calculatedDiscount = isFirstBooking ? Math.min(Math.round(subtotalPrice * 0.2), 1000) : 0;
+    const totalPrice = subtotalPrice - calculatedDiscount;
 
     const handleBooking = async () => {
         if (!checkIn || !checkOut) {
@@ -605,9 +627,24 @@ export default function BookingScreen() {
                                 {t('common.currency')}{formatPrice(pricePerNight)} × {i18n.language === 'bn' ? nights.toString().replace(/[0-9]/g, (d) => '০১২৩৪৫৬৭৮৯'[parseInt(d)]) : nights} {nights !== 1 ? t('booking.nights') : t('booking.night')}
                             </Text>
                             <Text className="text-gray-900 dark:text-white font-medium">
-                                {t('common.currency')}{formatPrice(totalPrice)}
+                                {t('common.currency')}{formatPrice(subtotalPrice)}
                             </Text>
                         </View>
+
+                        {/* First Booking Discount */}
+                        {isFirstBooking && calculatedDiscount > 0 && (
+                            <View className="flex-row justify-between bg-yellow-50 dark:bg-yellow-900/20 p-3 rounded-xl -mx-1">
+                                <View className="flex-row items-center gap-2">
+                                    <Text className="text-lg">🎉</Text>
+                                    <Text className="text-yellow-700 dark:text-yellow-400 font-semibold">
+                                        {i18n.language === 'bn' ? 'প্রথম বুকিং ছাড় (২০%)' : 'First Booking Discount (20%)'}
+                                    </Text>
+                                </View>
+                                <Text className="text-yellow-700 dark:text-yellow-400 font-bold">
+                                    -{t('common.currency')}{formatPrice(calculatedDiscount)}
+                                </Text>
+                            </View>
+                        )}
 
                         {/* Wallet deduction */}
                         {useWalletPartial && walletBalance > 0 && (
@@ -647,7 +684,7 @@ export default function BookingScreen() {
                                             ✓ {t('booking.advanceCoveredByWallet', 'Advance covered by wallet!')}
                                         </Text>
                                         <Text className="text-xs text-green-600 dark:text-green-500 mt-1 text-center">
-                                            {t('booking.payAtHotelRemaining', { amount: `${t('common.currency')}${formatPrice(totalPrice - walletBalance)}` })}
+                                            {t('booking.payAtHotelRemaining', { amount: `${t('common.currency')}${formatPrice(Math.max(0, totalPrice - walletBalance))}` })}
                                         </Text>
                                     </View>
                                 );

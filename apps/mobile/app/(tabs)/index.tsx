@@ -189,6 +189,7 @@ export default function HomeScreen() {
                 shadowOpacity: 0.4,
                 shadowRadius: 8,
               }}
+              onPress={() => router.push({ pathname: '/hotels', params: { firstBookingOffer: 'true' } })}
             >
               <Text className="text-white font-bold text-sm">
                 {t('home.promo.button')}
