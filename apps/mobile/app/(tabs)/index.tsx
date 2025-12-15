@@ -9,7 +9,6 @@ import {
   RefreshControl,
   Dimensions,
   FlatList,
-  TextInput,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -18,6 +17,7 @@ import { useTranslation } from 'react-i18next';
 import api from '@/lib/api';
 import HotelCard from '@/components/HotelCard';
 import QuickFilterButton from '@/components/QuickFilterButton';
+import SearchBar from '@/components/SearchBar';
 
 const { width } = Dimensions.get('window');
 
@@ -58,7 +58,6 @@ export default function HomeScreen() {
   const [hotels, setHotels] = useState<Hotel[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
 
   const fetchHotels = async () => {
     const { data, error } = await api.getHotels();
@@ -134,47 +133,7 @@ export default function HomeScreen() {
         </View>
 
         {/* Search Bar */}
-        <View
-          className="flex-row items-center rounded-2xl px-4 py-3 gap-3"
-          style={{
-            backgroundColor: 'rgba(255,255,255,0.95)',
-            shadowColor: '#000',
-            shadowOffset: { width: 0, height: 4 },
-            shadowOpacity: 0.15,
-            shadowRadius: 12,
-          }}
-        >
-          <View className="w-10 h-10 rounded-xl bg-primary/10 items-center justify-center">
-            <FontAwesome name="search" size={16} color="#E63946" />
-          </View>
-          <TextInput
-            className="flex-1 text-base text-gray-900 font-medium"
-            placeholder={t('home.searchPlaceholder')}
-            placeholderTextColor="#9CA3AF"
-            value={searchQuery}
-            onChangeText={setSearchQuery}
-            onSubmitEditing={() => {
-              if (searchQuery.trim().length > 0) {
-                router.push({ pathname: '/search-results', params: { city: searchQuery.trim() } } as any);
-              } else {
-                router.push('/(tabs)/search');
-              }
-            }}
-            returnKeyType="search"
-          />
-          {searchQuery.length > 0 ? (
-            <TouchableOpacity onPress={() => setSearchQuery('')}>
-              <FontAwesome name="times-circle" size={18} color="#9CA3AF" />
-            </TouchableOpacity>
-          ) : (
-            <TouchableOpacity
-              className="w-8 h-8 rounded-lg bg-primary items-center justify-center"
-              onPress={() => router.push('/(tabs)/search')}
-            >
-              <FontAwesome name="sliders" size={14} color="#fff" />
-            </TouchableOpacity>
-          )}
-        </View>
+        <SearchBar />
       </View>
 
       <ScrollView
