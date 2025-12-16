@@ -316,23 +316,35 @@ export async function createBooking(input: CreateBookingInput): Promise<BookingR
         revalidatePath("/bookings");
         revalidatePath("/wallet");
 
-        // Send push notification for confirmed bookings
-        if (result.booking && userId && !result.requiresPayment) {
+        // Send push notification for all bookings (both confirmed and pending)
+        if (result.booking && userId) {
             // Get hotel name for notification
             const hotel = await db.query.hotels.findFirst({
                 where: eq(hotels.id, hotelId),
             });
 
-            sendBookingConfirmation(
-                userId,
-                {
-                    id: result.booking.id,
-                    guestName,
-                    checkIn,
-                    checkOut,
-                },
-                hotel?.name
-            ).catch((err) => console.error("Failed to send booking notification:", err));
+            const checkInDate = new Date(checkIn).toLocaleDateString("en-GB", {
+                day: "numeric",
+                month: "short",
+            });
+
+            // Different message for pending vs confirmed
+            const title = result.requiresPayment ? "🏨 Booking Created!" : "🎉 Booking Confirmed!";
+            const body = result.requiresPayment
+                ? `${hotel?.name || "Your room"} is held for ${checkInDate}. Complete payment to confirm.`
+                : `${hotel?.name || "Your room"} is confirmed for ${checkInDate}. See you soon!`;
+
+            // Use the base sendPushNotification from lib/notifications
+            import("@/lib/notifications").then(({ sendPushNotification }) => {
+                sendPushNotification(userId, {
+                    title,
+                    body,
+                    data: {
+                        type: result.requiresPayment ? "BOOKING_PENDING" : "BOOKING_CONFIRMED",
+                        bookingId: result.booking.id,
+                    },
+                }).catch((err) => console.error("Failed to send booking notification:", err));
+            });
         }
 
         return {
