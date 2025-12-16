@@ -161,7 +161,8 @@ export function useGoogleAuth() {
 
                             const { error: pushError } = await api.registerPushToken(
                                 pushToken,
-                                Platform.OS as 'ios' | 'android'
+                                Platform.OS as 'ios' | 'android',
+                                authData.token
                             );
                             if (pushError) {
                                 console.warn('🔔 Failed to register push token:', pushError);

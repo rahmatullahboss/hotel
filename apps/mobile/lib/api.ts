@@ -33,10 +33,11 @@ interface ApiResponse<T> {
 
 async function apiRequest<T>(
     endpoint: string,
-    options: RequestInit = {}
+    options: RequestInit = {},
+    authToken?: string
 ): Promise<ApiResponse<T>> {
     try {
-        const token = await getToken();
+        const token = authToken || await getToken();
 
         const headers: HeadersInit = {
             'Content-Type': 'application/json',
@@ -250,13 +251,13 @@ export const api = {
     }),
 
     // Push Notifications
-    registerPushToken: (expoPushToken: string, platform: 'ios' | 'android') => apiRequest<{
+    registerPushToken: (expoPushToken: string, platform: 'ios' | 'android', authToken?: string) => apiRequest<{
         success: boolean;
         message?: string;
     }>('/api/user/push-token', {
         method: 'POST',
         body: JSON.stringify({ expoPushToken, platform }),
-    }),
+    }, authToken),
 
     unregisterPushToken: (expoPushToken: string) => apiRequest<{
         success: boolean;
