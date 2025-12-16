@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useCallback } from 'react';
 import {
     View,
     Text,
@@ -8,11 +8,11 @@ import {
     RefreshControl,
     FlatList,
 } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, useFocusEffect } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { useTranslation } from 'react-i18next';
-import api from '@/lib/api';
+import api, { getToken } from '@/lib/api';
 import BookingCard from '@/components/BookingCard';
 
 interface Booking {
@@ -62,18 +62,34 @@ export default function BookingsScreen() {
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
 
-    const fetchBookings = async () => {
+    const fetchBookings = useCallback(async () => {
+        // Check if user is authenticated
+        const token = await getToken();
+        if (!token) {
+            // User is not authenticated, clear bookings
+            setBookings([]);
+            setLoading(false);
+            setRefreshing(false);
+            return;
+        }
+
         const { data, error } = await api.getMyBookings();
         if (!error && data) {
             setBookings(data);
+        } else if (error) {
+            // Clear bookings on error (e.g., unauthorized)
+            setBookings([]);
         }
         setLoading(false);
         setRefreshing(false);
-    };
-
-    useEffect(() => {
-        fetchBookings();
     }, []);
+
+    // Refetch on screen focus to ensure fresh data after login/logout
+    useFocusEffect(
+        useCallback(() => {
+            fetchBookings();
+        }, [fetchBookings])
+    );
 
     const onRefresh = () => {
         setRefreshing(true);

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import {
     View,
     Text,
@@ -11,11 +11,11 @@ import {
     Alert,
 } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
-import { Stack } from 'expo-router';
+import { Stack, useFocusEffect } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { useTranslation } from 'react-i18next';
-import api from '@/lib/api';
+import api, { getToken } from '@/lib/api';
 
 interface ReferralData {
     code: string;
@@ -38,17 +38,29 @@ export default function ReferralScreen() {
     const [applying, setApplying] = useState(false);
 
     const fetchReferral = useCallback(async () => {
-        const { data: referralData } = await api.getReferral();
-        if (referralData) {
+        const token = await getToken();
+        if (!token) {
+            setData(null);
+            setLoading(false);
+            setRefreshing(false);
+            return;
+        }
+
+        const { data: referralData, error } = await api.getReferral();
+        if (referralData && !error) {
             setData(referralData);
+        } else if (error) {
+            setData(null);
         }
         setLoading(false);
         setRefreshing(false);
     }, []);
 
-    useEffect(() => {
-        fetchReferral();
-    }, [fetchReferral]);
+    useFocusEffect(
+        useCallback(() => {
+            fetchReferral();
+        }, [fetchReferral])
+    );
 
     const onRefresh = () => {
         setRefreshing(true);

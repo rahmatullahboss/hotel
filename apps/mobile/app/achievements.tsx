@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import {
     View,
     Text,
@@ -6,11 +6,11 @@ import {
     ActivityIndicator,
     RefreshControl,
 } from 'react-native';
-import { Stack } from 'expo-router';
+import { Stack, useFocusEffect } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { useTranslation } from 'react-i18next';
-import api from '@/lib/api';
+import api, { getToken } from '@/lib/api';
 
 interface Badge {
     id: string;
@@ -56,18 +56,30 @@ export default function AchievementsScreen() {
     const [refreshing, setRefreshing] = useState(false);
 
     const fetchAchievements = useCallback(async () => {
+        const token = await getToken();
+        if (!token) {
+            setData(null);
+            setLoading(false);
+            setRefreshing(false);
+            return;
+        }
+
         await api.recordDailyLogin();
-        const { data: achievementsData } = await api.getAchievements();
-        if (achievementsData) {
+        const { data: achievementsData, error } = await api.getAchievements();
+        if (achievementsData && !error) {
             setData(achievementsData);
+        } else if (error) {
+            setData(null);
         }
         setLoading(false);
         setRefreshing(false);
     }, []);
 
-    useEffect(() => {
-        fetchAchievements();
-    }, [fetchAchievements]);
+    useFocusEffect(
+        useCallback(() => {
+            fetchAchievements();
+        }, [fetchAchievements])
+    );
 
     const onRefresh = () => {
         setRefreshing(true);
@@ -184,8 +196,8 @@ export default function AchievementsScreen() {
                                     <View
                                         key={badge.id}
                                         className={`w-[30%] p-3 rounded-xl items-center ${badge.isEarned
-                                                ? 'bg-primary/15'
-                                                : 'bg-gray-100 dark:bg-gray-700 opacity-60'
+                                            ? 'bg-primary/15'
+                                            : 'bg-gray-100 dark:bg-gray-700 opacity-60'
                                             }`}
                                     >
                                         <Text className="text-3xl mb-2">{badge.icon}</Text>

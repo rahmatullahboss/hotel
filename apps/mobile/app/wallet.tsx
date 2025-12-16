@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import {
     View,
     Text,
@@ -6,11 +6,11 @@ import {
     ActivityIndicator,
     RefreshControl,
 } from 'react-native';
-import { useRouter, Stack } from 'expo-router';
+import { useRouter, Stack, useFocusEffect } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { useTranslation } from 'react-i18next';
-import api from '@/lib/api';
+import api, { getToken } from '@/lib/api';
 
 interface Transaction {
     id: string;
@@ -48,17 +48,31 @@ export default function WalletScreen() {
     const [refreshing, setRefreshing] = useState(false);
 
     const fetchWallet = useCallback(async () => {
+        // Check if user is authenticated
+        const token = await getToken();
+        if (!token) {
+            setData(null);
+            setLoading(false);
+            setRefreshing(false);
+            return;
+        }
+
         const { data: walletData, error } = await api.getWallet();
-        if (walletData) {
+        if (walletData && !error) {
             setData(walletData);
+        } else if (error) {
+            setData(null);
         }
         setLoading(false);
         setRefreshing(false);
     }, []);
 
-    useEffect(() => {
-        fetchWallet();
-    }, [fetchWallet]);
+    // Refetch on screen focus
+    useFocusEffect(
+        useCallback(() => {
+            fetchWallet();
+        }, [fetchWallet])
+    );
 
     const onRefresh = () => {
         setRefreshing(true);
