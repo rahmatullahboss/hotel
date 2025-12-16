@@ -27,6 +27,7 @@ interface HotelDetail {
     payAtHotelEnabled: boolean;
     latitude: string | null;
     longitude: string | null;
+    vibeCode?: string | null;
 }
 
 export default function HotelDetailPage() {
@@ -124,13 +125,16 @@ export default function HotelDetailPage() {
 
     const images = hotel.images.length > 0 ? hotel.images : ["https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800"];
 
+    // Format display name with Vibe branding
+    const displayName = hotel.vibeCode ? `Vibe ${hotel.vibeCode} ${hotel.name}` : hotel.name;
+
     return (
         <>
             {/* Hero Image Gallery */}
             <div style={{ position: "relative" }}>
                 <img
                     src={images[currentImage]}
-                    alt={hotel.name}
+                    alt={displayName}
                     style={{
                         width: "100%",
                         height: "280px",
@@ -208,8 +212,24 @@ export default function HotelDetailPage() {
                 {/* Hotel Info */}
                 <div style={{ marginBottom: "1.5rem" }}>
                     <h1 style={{ fontSize: "1.5rem", fontWeight: 700, marginBottom: "0.5rem" }}>
-                        {hotel.name}
+                        {displayName}
                     </h1>
+                    {hotel.vibeCode && (
+                        <span
+                            style={{
+                                display: "inline-block",
+                                backgroundColor: "#E63946",
+                                color: "white",
+                                padding: "0.25rem 0.5rem",
+                                borderRadius: "4px",
+                                fontSize: "0.75rem",
+                                fontWeight: "600",
+                                marginBottom: "0.5rem",
+                            }}
+                        >
+                            {hotel.vibeCode}
+                        </span>
+                    )}
 
                     <div className="hotel-location" style={{ marginBottom: "0.75rem" }}>
                         <svg

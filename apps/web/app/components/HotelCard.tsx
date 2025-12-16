@@ -13,6 +13,7 @@ interface HotelCardProps {
     imageUrl: string;
     amenities: string[];
     payAtHotel?: boolean;
+    vibeCode?: string | null;
 }
 
 export function HotelCard({
@@ -25,9 +26,13 @@ export function HotelCard({
     imageUrl,
     amenities,
     payAtHotel = false,
+    vibeCode,
 }: HotelCardProps) {
     const t = useTranslations("hotel");
     const tCommon = useTranslations("common");
+
+    // Format display name with Vibe branding
+    const displayName = vibeCode ? `Vibe ${vibeCode} ${name}` : name;
 
     return (
         <Link href={`/hotels/${id}`} className="card hotel-card">
@@ -35,7 +40,7 @@ export function HotelCard({
             <div style={{ position: "relative" }}>
                 <img
                     src={imageUrl}
-                    alt={name}
+                    alt={displayName}
                     className="card-image"
                     loading="lazy"
                 />
@@ -51,6 +56,24 @@ export function HotelCard({
                         {t("payAtHotel")}
                     </span>
                 )}
+                {vibeCode && (
+                    <span
+                        className="badge-vibe"
+                        style={{
+                            position: "absolute",
+                            top: "0.75rem",
+                            right: "0.75rem",
+                            backgroundColor: "#E63946",
+                            color: "white",
+                            padding: "0.25rem 0.5rem",
+                            borderRadius: "4px",
+                            fontSize: "0.75rem",
+                            fontWeight: "600",
+                        }}
+                    >
+                        {vibeCode}
+                    </span>
+                )}
             </div>
 
             {/* Content */}
@@ -64,7 +87,7 @@ export function HotelCard({
                     }}
                 >
                     <div>
-                        <h3 className="hotel-name">{name}</h3>
+                        <h3 className="hotel-name">{displayName}</h3>
                         <p className="hotel-location">
                             <svg
                                 xmlns="http://www.w3.org/2000/svg"

@@ -231,6 +231,7 @@ function HotelsContent() {
                                     imageUrl={hotel.imageUrl}
                                     amenities={hotel.amenities}
                                     payAtHotel={hotel.payAtHotel}
+                                    vibeCode={hotel.vibeCode}
                                 />
                             </div>
                         ))}
@@ -288,6 +289,7 @@ function HotelsContent() {
                                             imageUrl={hotel.imageUrl}
                                             amenities={hotel.amenities}
                                             payAtHotel={hotel.payAtHotel}
+                                            vibeCode={hotel.vibeCode}
                                         />
                                     ))}
                             </div>

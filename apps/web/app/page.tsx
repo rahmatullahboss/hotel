@@ -78,6 +78,7 @@ export default async function HomePage() {
                   imageUrl={hotel.imageUrl}
                   amenities={hotel.amenities}
                   payAtHotel={hotel.payAtHotel}
+                  vibeCode={hotel.vibeCode}
                 />
               ))
             ) : (
