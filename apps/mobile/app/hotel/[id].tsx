@@ -15,6 +15,7 @@ import { useTranslation } from 'react-i18next';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { useBooking } from '@/hooks/useBooking';
 import { shareHotel } from '@/lib/share';
+import { openNavigation } from '@/lib/navigation';
 
 const { width } = Dimensions.get('window');
 const HEADER_HEIGHT = 320;
@@ -204,12 +205,31 @@ export default function HotelDetailScreen() {
                             {hotel.vibeCode ? `Vibe ${hotel.name}` : hotel.name}
                         </Text>
 
-                        {/* Location */}
-                        <View className="flex-row items-center mb-4 gap-2">
-                            <FontAwesome name="map-marker" size={16} color="#E63946" />
-                            <Text className="text-sm text-gray-500 dark:text-gray-400">
-                                {hotel.address}, {hotel.city}
-                            </Text>
+                        {/* Location with Navigate Button */}
+                        <View className="flex-row items-center justify-between mb-4">
+                            <View className="flex-row items-center gap-2 flex-1">
+                                <FontAwesome name="map-marker" size={16} color="#E63946" />
+                                <Text className="text-sm text-gray-500 dark:text-gray-400 flex-1" numberOfLines={2}>
+                                    {hotel.address}, {hotel.city}
+                                </Text>
+                            </View>
+                            {hotel.latitude && hotel.longitude && (
+                                <TouchableOpacity
+                                    onPress={() => openNavigation({
+                                        latitude: parseFloat(hotel.latitude!),
+                                        longitude: parseFloat(hotel.longitude!),
+                                        name: hotel.name,
+                                        address: hotel.address,
+                                    })}
+                                    className="flex-row items-center gap-2 bg-blue-500 px-3 py-2 rounded-full ml-2"
+                                    activeOpacity={0.8}
+                                >
+                                    <FontAwesome name="location-arrow" size={12} color="#fff" />
+                                    <Text className="text-white text-xs font-semibold">
+                                        {t('hotel.navigate', 'Navigate')}
+                                    </Text>
+                                </TouchableOpacity>
+                            )}
                         </View>
 
                         {/* Description */}

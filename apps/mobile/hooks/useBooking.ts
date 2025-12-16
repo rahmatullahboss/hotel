@@ -15,6 +15,8 @@ interface Hotel {
     rooms?: Room[];
     vibeCode?: string | null;
     category?: string | null;
+    latitude?: string | null;
+    longitude?: string | null;
 }
 
 interface Room {
