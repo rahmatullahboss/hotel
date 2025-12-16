@@ -5,7 +5,9 @@
         "currency": "৳",
         "perNight": "/night",
         "comingSoon": "Coming Soon",
-        "share": "Share"
+        "share": "Share",
+        "shareFailed": "Failed to share. Please try again.",
+        "ok": "OK"
     },
     "nav": {
         "home": "Home",

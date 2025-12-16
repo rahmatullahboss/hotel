@@ -16,7 +16,10 @@ import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { useBooking } from '@/hooks/useBooking';
 import { shareHotel } from '@/lib/share';
 import { openNavigation } from '@/lib/navigation';
+import { useBookingDates } from '@/contexts/BookingDatesContext';
+import DateSelectionBar from '@/components/DateSelectionBar';
 import NearbyAttractions from '@/components/NearbyAttractions';
+import { Alert } from 'react-native';
 
 const { width } = Dimensions.get('window');
 const HEADER_HEIGHT = 320;
@@ -27,6 +30,7 @@ export default function HotelDetailScreen() {
     const { t, i18n } = useTranslation();
     const scrollY = useRef(new Animated.Value(0)).current;
     const insets = useSafeAreaInsets();
+    const { checkIn, checkOut, setDates, formatCheckIn, formatCheckOut } = useBookingDates();
 
     const {
         hotel,
@@ -125,12 +129,22 @@ export default function HotelDetailScreen() {
                     <View className="flex-row gap-2">
                         <TouchableOpacity
                             className="w-11 h-11 rounded-full bg-black/50 items-center justify-center"
-                            onPress={() => shareHotel({
-                                hotelId: hotel.id,
-                                hotelName: hotel.vibeCode ? `Vibe ${hotel.name}` : hotel.name,
-                                city: hotel.city,
-                                rating: Number(hotel.rating),
-                            })}
+                            onPress={async () => {
+                                try {
+                                    await shareHotel({
+                                        hotelId: hotel.id,
+                                        hotelName: hotel.vibeCode ? `Vibe ${hotel.name}` : hotel.name,
+                                        city: hotel.city,
+                                        rating: Number(hotel.rating),
+                                    });
+                                } catch (error) {
+                                    console.error('Share error:', error);
+                                    Alert.alert(
+                                        t('common.error', 'Error'),
+                                        t('common.shareFailed', 'Failed to share. Please try again.')
+                                    );
+                                }
+                            }}
                             activeOpacity={0.8}
                         >
                             <FontAwesome name="share" size={18} color="#fff" />
@@ -270,6 +284,19 @@ export default function HotelDetailScreen() {
                             hotelLng={hotel.longitude ? parseFloat(hotel.longitude) : undefined}
                             city={hotel.city}
                         />
+
+                        {/* Date Selection - Sticky */}
+                        <View className="bg-gray-50 dark:bg-gray-800 rounded-2xl p-4 mb-6">
+                            <Text className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
+                                {t('booking.dates', 'Select your dates')}
+                            </Text>
+                            <DateSelectionBar
+                                checkIn={checkIn}
+                                checkOut={checkOut}
+                                onDatesChange={setDates}
+                                variant="light"
+                            />
+                        </View>
                     </View>
 
                     {/* Rooms Section */}
@@ -374,6 +401,9 @@ export default function HotelDetailScreen() {
                                                         hotelCity: hotel.city,
                                                         roomImage: room.photos?.[0] || '',
                                                         hotelId: hotel.id,
+                                                        // Pass dates from context
+                                                        checkIn: formatCheckIn(),
+                                                        checkOut: formatCheckOut(),
                                                         // Pass roomIds for auto room assignment
                                                         roomIds: room.roomIds ? JSON.stringify(room.roomIds) : '',
                                                     }

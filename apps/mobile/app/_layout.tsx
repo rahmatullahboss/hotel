@@ -14,6 +14,7 @@ import 'react-native-reanimated';
 import '../global.css';
 
 import { ThemeProvider, useTheme } from '@/context/ThemeContext';
+import { BookingDatesProvider } from '@/contexts/BookingDatesContext';
 import Colors from '@/constants/Colors';
 import { initI18n } from '@/i18n';
 import api, { getToken } from '@/lib/api';
@@ -97,7 +98,9 @@ export default function RootLayout() {
 
   return (
     <ThemeProvider>
-      <RootLayoutNav />
+      <BookingDatesProvider>
+        <RootLayoutNav />
+      </BookingDatesProvider>
     </ThemeProvider>
   );
 }

@@ -38,6 +38,9 @@ export default function BookingScreen() {
         hotelCity?: string;
         roomImage?: string;
         hotelId?: string;
+        checkIn?: string;
+        checkOut?: string;
+        roomIds?: string;
     }>();
 
     const router = useRouter();
@@ -79,19 +82,30 @@ export default function BookingScreen() {
     const [isFirstBooking, setIsFirstBooking] = useState(false);
     const [firstBookingDiscount, setFirstBookingDiscount] = useState(0);
 
-    // Set default dates
+    // Set default dates (use params if provided, otherwise default to tomorrow)
     useEffect(() => {
-        const today = new Date();
-        const tomorrow = new Date(today);
-        tomorrow.setDate(tomorrow.getDate() + 1);
-        const dayAfter = new Date(today);
-        dayAfter.setDate(dayAfter.getDate() + 2);
+        if (params.checkIn && params.checkOut) {
+            // Use dates from params (passed from hotel details)
+            const checkInDateVal = new Date(params.checkIn);
+            const checkOutDateVal = new Date(params.checkOut);
+            setCheckInDate(checkInDateVal);
+            setCheckOutDate(checkOutDateVal);
+            setCheckIn(params.checkIn);
+            setCheckOut(params.checkOut);
+        } else {
+            // Default to tomorrow -> day after
+            const today = new Date();
+            const tomorrow = new Date(today);
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            const dayAfter = new Date(today);
+            dayAfter.setDate(dayAfter.getDate() + 2);
 
-        setCheckInDate(tomorrow);
-        setCheckOutDate(dayAfter);
-        setCheckIn(formatDate(tomorrow));
-        setCheckOut(formatDate(dayAfter));
-    }, []);
+            setCheckInDate(tomorrow);
+            setCheckOutDate(dayAfter);
+            setCheckIn(formatDate(tomorrow));
+            setCheckOut(formatDate(dayAfter));
+        }
+    }, [params.checkIn, params.checkOut]);
 
     // Calculate nights when dates change
     useEffect(() => {

@@ -18,6 +18,8 @@ import api from '@/lib/api';
 import HotelCard from '@/components/HotelCard';
 import QuickFilterButton from '@/components/QuickFilterButton';
 import SearchBar from '@/components/SearchBar';
+import DateSelectionBar from '@/components/DateSelectionBar';
+import { useBookingDates } from '@/contexts/BookingDatesContext';
 
 const { width } = Dimensions.get('window');
 
@@ -35,6 +37,7 @@ export default function HomeScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { t, i18n } = useTranslation();
+  const { checkIn, checkOut, setDates } = useBookingDates();
 
   const QUICK_FILTERS = [
     { id: 'nearby', label: t('home.filters.nearMe'), icon: 'location-arrow' as const },
@@ -135,6 +138,16 @@ export default function HomeScreen() {
 
         {/* Search Bar */}
         <SearchBar />
+
+        {/* Date Selection Bar - OYO Style */}
+        <View className="mt-3">
+          <DateSelectionBar
+            checkIn={checkIn}
+            checkOut={checkOut}
+            onDatesChange={setDates}
+            variant="light"
+          />
+        </View>
       </View>
 
       <ScrollView
