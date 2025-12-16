@@ -13,6 +13,8 @@ interface Hotel {
     images: string[];
     amenities: string[];
     rooms?: Room[];
+    vibeCode?: string | null;
+    category?: string | null;
 }
 
 interface Room {

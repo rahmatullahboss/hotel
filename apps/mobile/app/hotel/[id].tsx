@@ -148,17 +148,45 @@ export default function HotelDetailScreen() {
                 <View className="bg-white dark:bg-gray-900 -mt-6 rounded-t-3xl min-h-screen">
                     {/* Hotel Info Section */}
                     <View className="p-5">
-                        {/* Rating Badge */}
-                        <View className="flex-row items-center self-start bg-black/80 px-3 py-1.5 rounded-lg mb-3 gap-1.5">
-                            <FontAwesome name="star" size={14} color="#FFD700" />
-                            <Text className="text-white text-sm font-bold">
-                                {Number(hotel.rating || 0).toFixed(1)}
-                            </Text>
+                        {/* Badges Row */}
+                        <View className="flex-row items-center gap-2 mb-3 flex-wrap">
+                            {/* Rating Badge */}
+                            <View className="flex-row items-center bg-black/80 px-3 py-1.5 rounded-lg gap-1.5">
+                                <FontAwesome name="star" size={14} color="#FFD700" />
+                                <Text className="text-white text-sm font-bold">
+                                    {Number(hotel.rating || 0).toFixed(1)}
+                                </Text>
+                            </View>
+                            {/* Vibe Code Badge */}
+                            {hotel.vibeCode && (
+                                <View className="bg-primary px-3 py-1.5 rounded-lg">
+                                    <Text className="text-white text-sm font-bold">
+                                        {hotel.vibeCode}
+                                    </Text>
+                                </View>
+                            )}
+                            {/* Category Badge */}
+                            {hotel.category && (
+                                <View
+                                    className="px-3 py-1.5 rounded-lg"
+                                    style={{
+                                        backgroundColor: hotel.category === 'PREMIUM' ? '#F59E0B'
+                                            : hotel.category === 'BUSINESS' ? '#3B82F6'
+                                                : '#10B981'
+                                    }}
+                                >
+                                    <Text className="text-white text-sm font-bold">
+                                        {hotel.category === 'PREMIUM' ? 'Premium'
+                                            : hotel.category === 'BUSINESS' ? 'Business'
+                                                : 'Classic'}
+                                    </Text>
+                                </View>
+                            )}
                         </View>
 
-                        {/* Hotel Name */}
+                        {/* Hotel Name with Vibe Branding */}
                         <Text className="text-3xl font-bold text-gray-900 dark:text-white mb-2 tracking-tight">
-                            {hotel.name}
+                            {hotel.vibeCode ? `Vibe ${hotel.vibeCode} ${hotel.name}` : hotel.name}
                         </Text>
 
                         {/* Location */}
