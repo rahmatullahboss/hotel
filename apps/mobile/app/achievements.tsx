@@ -210,7 +210,7 @@ export default function AchievementsScreen() {
                                         <Text
                                             className={`text-xs font-semibold text-center ${badge.isEarned ? 'text-gray-900 dark:text-white' : 'text-gray-500 dark:text-gray-400'
                                                 }`}
-                                            numberOfLines={1}
+                                            numberOfLines={2}
                                         >
                                             {i18n.language === 'bn' && badge.nameBn ? badge.nameBn : badge.name}
                                         </Text>

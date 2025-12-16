@@ -289,7 +289,7 @@ export default function DateSelectionBar({
 
                 {/* Nights Badge */}
                 <View className="items-center justify-center px-2">
-                    <View className="bg-primary/10 px-3 py-1.5 rounded-full">
+                    <View className="bg-primary/10 px-3 py-1.5 rounded-lg">
                         <Text className="text-primary text-xs font-bold">
                             {nights} {nights === 1 ? t('booking.night', 'night') : t('booking.nights', 'nights')}
                         </Text>

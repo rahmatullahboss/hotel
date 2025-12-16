@@ -51,9 +51,9 @@ export default function RoomDetailsScreen() {
     });
 
     const renderAmenityItem = ({ item }: { item: typeof amenities[0] }) => (
-        <View className="items-center justify-center px-4 py-3 mr-3 bg-gray-100 rounded-xl">
+        <View className="items-center justify-center px-4 py-3 mr-3 bg-gray-100 rounded-lg">
             <FontAwesome name={item.icon} size={24} color="#E63946" />
-            <Text className="mt-2 text-xs font-medium text-gray-700">{item.name}</Text>
+            <Text className="mt-2 text-xs font-bold text-gray-700">{item.name}</Text>
         </View>
     );
 
@@ -115,9 +115,9 @@ export default function RoomDetailsScreen() {
                             <Text className="text-2xl font-bold text-primary">
                                 $50<Text className="text-sm font-normal text-gray-500">/night</Text>
                             </Text>
-                            <View className="flex-row items-center bg-yellow-100 px-2 py-1 rounded-lg">
+                            <View className="flex-row items-center bg-yellow-100 px-2.5 py-1.5 rounded-lg">
                                 <FontAwesome name="star" size={14} color="#F59E0B" />
-                                <Text className="ml-1 text-sm font-semibold text-yellow-700">4.8</Text>
+                                <Text className="ml-1 text-sm font-bold text-yellow-700">4.8</Text>
                             </View>
                         </View>
 

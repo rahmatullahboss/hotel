@@ -187,14 +187,14 @@ export default function HotelDetailScreen() {
                             {/* Rating Badge */}
                             <View className="flex-row items-center bg-black/80 px-3 py-1.5 rounded-lg gap-1.5">
                                 <FontAwesome name="star" size={14} color="#FFD700" />
-                                <Text className="text-white text-sm font-bold" numberOfLines={1}>
+                                <Text className="text-white text-sm font-bold">
                                     {Number(hotel.rating || 0).toFixed(1)}
                                 </Text>
                             </View>
                             {/* Vibe Code Badge */}
                             {hotel.vibeCode && (
                                 <View className="bg-primary px-3 py-1.5 rounded-lg">
-                                    <Text className="text-white text-sm font-bold" numberOfLines={1}>
+                                    <Text className="text-white text-sm font-bold">
                                         {hotel.vibeCode}
                                     </Text>
                                 </View>
@@ -209,7 +209,7 @@ export default function HotelDetailScreen() {
                                                 : '#10B981'
                                     }}
                                 >
-                                    <Text className="text-white text-sm font-bold" numberOfLines={1}>
+                                    <Text className="text-white text-sm font-bold">
                                         {hotel.category === 'PREMIUM' ? 'Premium'
                                             : hotel.category === 'BUSINESS' ? 'Business'
                                                 : 'Classic'}
@@ -227,7 +227,7 @@ export default function HotelDetailScreen() {
                         <View className="flex-row items-center justify-between mb-4">
                             <View className="flex-row items-center gap-2 flex-1">
                                 <FontAwesome name="map-marker" size={16} color="#E63946" />
-                                <Text className="text-sm text-gray-500 dark:text-gray-400 flex-1" numberOfLines={2}>
+                                <Text className="text-sm text-gray-500 dark:text-gray-400 flex-1">
                                     {hotel.address}, {hotel.city}
                                 </Text>
                             </View>
@@ -270,9 +270,9 @@ export default function HotelDetailScreen() {
                                     {hotel.amenities.map((amenity, index) => (
                                         <View
                                             key={index}
-                                            className="px-5 py-2 rounded-full bg-gray-100 dark:bg-gray-800"
+                                            className="px-4 py-2 rounded-lg bg-gray-100 dark:bg-gray-800"
                                         >
-                                            <Text className="text-sm text-gray-700 dark:text-gray-300">
+                                            <Text className="text-xs font-bold text-gray-700 dark:text-gray-300">
                                                 {amenity}
                                             </Text>
                                         </View>
@@ -341,7 +341,7 @@ export default function HotelDetailScreen() {
                                             resizeMode="cover"
                                         />
                                         {/* Room Type Badge */}
-                                        <View className="absolute top-3 left-3 bg-primary px-3 py-1.5 rounded-lg max-w-[45%]">
+                                        <View className="absolute top-3 left-3 bg-primary px-3 py-1.5 rounded-lg max-w-[60%]">
                                             <Text className="text-white text-xs font-bold" numberOfLines={1}>
                                                 {room.type}
                                             </Text>

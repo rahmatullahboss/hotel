@@ -73,7 +73,7 @@ export default function HotelCard({ hotel, index }: HotelCardProps) {
                 {/* Vibe Category Badge */}
                 {hotel.vibeCode && (
                     <View
-                        className="absolute top-3 left-3 flex-row items-center px-2.5 py-1.5 rounded-lg gap-1.5 max-w-[45%]"
+                        className="absolute top-3 left-3 flex-row items-center px-2.5 py-1.5 rounded-lg gap-1.5 max-w-[60%]"
                         style={{ backgroundColor: categoryInfo.color }}
                     >
                         <Text className="text-white text-xs font-bold" numberOfLines={1}>
@@ -91,16 +91,16 @@ export default function HotelCard({ hotel, index }: HotelCardProps) {
                 </View>
 
                 {/* Location Badge */}
-                <View className="absolute bottom-3 left-3 flex-row items-center bg-black/60 px-3 py-1.5 rounded-lg gap-1.5">
+                <View className="absolute bottom-3 left-3 flex-row items-center bg-black/60 px-3 py-1.5 rounded-lg gap-1.5 max-w-[70%]">
                     <FontAwesome name="map-marker" size={11} color="#fff" />
-                    <Text className="text-white text-xs font-medium">
+                    <Text className="text-white text-xs font-medium" numberOfLines={2}>
                         {hotel.city}
                     </Text>
                 </View>
 
                 {/* Vibe Code Badge */}
                 {hotel.vibeCode && (
-                    <View className="absolute bottom-3 right-3 bg-primary/90 px-2 py-1 rounded-md">
+                    <View className="absolute bottom-3 right-3 bg-primary/90 px-2.5 py-1.5 rounded-lg">
                         <Text className="text-white text-xs font-bold" numberOfLines={1}>
                             {hotel.vibeCode}
                         </Text>
@@ -113,7 +113,7 @@ export default function HotelCard({ hotel, index }: HotelCardProps) {
                 {/* Hotel Name */}
                 <Text
                     className="text-lg font-bold text-gray-900 dark:text-white mb-3"
-                    numberOfLines={1}
+                    numberOfLines={2}
                 >
                     {displayName}
                 </Text>

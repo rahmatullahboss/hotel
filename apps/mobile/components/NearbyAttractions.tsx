@@ -67,12 +67,12 @@ export default function NearbyAttractions({ hotelLat, hotelLng, city }: NearbyAt
                         activeOpacity={0.7}
                     >
                         <View
-                            className="w-14 h-14 rounded-2xl items-center justify-center mb-2"
+                            className="w-14 h-14 rounded-lg items-center justify-center mb-2"
                             style={{ backgroundColor: `${place.color}20` }}
                         >
                             <FontAwesome name={place.icon as any} size={24} color={place.color} />
                         </View>
-                        <Text className="text-xs text-gray-600 dark:text-gray-400 text-center" numberOfLines={1}>
+                        <Text className="text-xs text-gray-600 dark:text-gray-400 text-center" numberOfLines={2}>
                             {t(`nearby.${place.type}`, place.label)}
                         </Text>
                     </TouchableOpacity>

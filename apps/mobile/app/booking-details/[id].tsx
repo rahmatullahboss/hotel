@@ -208,9 +208,9 @@ export default function BookingDetailsScreen() {
                                     </View>
                                 )}
                             </View>
-                            <View className={`flex-row items-center px-3 py-1.5 rounded-full gap-1.5 ${status.bgClass}`}>
+                            <View className={`flex-row items-center px-3 py-1.5 rounded-lg gap-1.5 ${status.bgClass}`}>
                                 <FontAwesome name={status.icon} size={12} color={status.color} />
-                                <Text className={`text-xs font-semibold ${status.textClass}`}>
+                                <Text className={`text-xs font-bold ${status.textClass}`}>
                                     {t(`bookings.status.${booking.status.toLowerCase()}`)}
                                 </Text>
                             </View>
@@ -225,7 +225,7 @@ export default function BookingDetailsScreen() {
                                 <Text className="text-sm font-bold text-gray-900 dark:text-white">{formatDate(booking.checkIn)}</Text>
                             </View>
                             <View className="px-3 items-center">
-                                <View className="bg-primary/10 px-3 py-1.5 rounded-full">
+                                <View className="bg-primary/10 px-3 py-1.5 rounded-lg">
                                     <Text className="text-xs font-bold text-primary">
                                         {i18n.language === 'bn' ? nights.toString().replace(/[0-9]/g, d => '০১২৩৪৫৬৭৮৯'[parseInt(d)]) : nights} {nights === 1 ? t('booking.night') : t('booking.nights')}
                                     </Text>

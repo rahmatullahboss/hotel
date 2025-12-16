@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import { useColorScheme } from 'react-native';
 import { useTranslation } from 'react-i18next';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 
 export interface FilterValues {
@@ -62,6 +63,7 @@ export default function SearchFiltersModal({
     const { t } = useTranslation();
     const colorScheme = useColorScheme();
     const isDark = colorScheme === 'dark';
+    const insets = useSafeAreaInsets();
 
     const [minPrice, setMinPrice] = useState(initialFilters?.minPrice ?? 0);
     const [maxPrice, setMaxPrice] = useState(initialFilters?.maxPrice ?? 20000);
@@ -129,7 +131,10 @@ export default function SearchFiltersModal({
         >
             <View className={`flex-1 ${isDark ? 'bg-gray-900' : 'bg-gray-50'}`}>
                 {/* Header */}
-                <View className={`flex-row items-center justify-between p-4 border-b ${isDark ? 'border-gray-700 bg-gray-800' : 'border-gray-200 bg-white'}`}>
+                <View
+                    className={`flex-row items-center justify-between px-4 pb-4 border-b ${isDark ? 'border-gray-700 bg-gray-800' : 'border-gray-200 bg-white'}`}
+                    style={{ paddingTop: insets.top + 16 }}
+                >
                     <TouchableOpacity onPress={onClose}>
                         <Text className="text-primary font-medium">{t('common.cancel', 'Cancel')}</Text>
                     </TouchableOpacity>
@@ -154,12 +159,12 @@ export default function SearchFiltersModal({
                                     <TouchableOpacity
                                         key={option.label}
                                         onPress={() => handlePriceSelect(option.min, option.max)}
-                                        className={`px-4 py-2 rounded-full ${isSelected
-                                                ? 'bg-primary'
-                                                : isDark ? 'bg-gray-700' : 'bg-gray-100'
+                                        className={`px-4 py-2 rounded-lg ${isSelected
+                                            ? 'bg-primary'
+                                            : isDark ? 'bg-gray-700' : 'bg-gray-100'
                                             }`}
                                     >
-                                        <Text className={isSelected ? 'text-white font-medium' : isDark ? 'text-gray-300' : 'text-gray-700'}>
+                                        <Text className={isSelected ? 'text-white font-bold' : isDark ? 'text-gray-300 font-medium' : 'text-gray-700 font-medium'}>
                                             {option.label}
                                         </Text>
                                     </TouchableOpacity>
@@ -178,7 +183,7 @@ export default function SearchFiltersModal({
                                 <TouchableOpacity
                                     key={option.value}
                                     onPress={() => setMinRating(option.value)}
-                                    className={`px-4 py-2 rounded-full flex-row items-center gap-1 ${minRating === option.value
+                                    className={`px-4 py-2 rounded-lg flex-row items-center gap-1 ${minRating === option.value
                                         ? 'bg-primary'
                                         : isDark ? 'bg-gray-700' : 'bg-gray-100'
                                         }`}
@@ -186,7 +191,7 @@ export default function SearchFiltersModal({
                                     {option.value > 0 && (
                                         <FontAwesome name="star" size={12} color={minRating === option.value ? '#fff' : '#F59E0B'} />
                                     )}
-                                    <Text className={minRating === option.value ? 'text-white font-medium' : isDark ? 'text-gray-300' : 'text-gray-700'}>
+                                    <Text className={minRating === option.value ? 'text-white font-bold' : isDark ? 'text-gray-300 font-medium' : 'text-gray-700 font-medium'}>
                                         {option.label}
                                     </Text>
                                 </TouchableOpacity>
@@ -231,7 +236,7 @@ export default function SearchFiltersModal({
                                     <TouchableOpacity
                                         key={amenity.id}
                                         onPress={() => toggleAmenity(amenity.id)}
-                                        className={`px-3 py-2 rounded-full flex-row items-center gap-2 ${isSelected
+                                        className={`px-3 py-2 rounded-lg flex-row items-center gap-2 ${isSelected
                                             ? 'bg-primary'
                                             : isDark ? 'bg-gray-700' : 'bg-gray-100'
                                             }`}
@@ -241,7 +246,7 @@ export default function SearchFiltersModal({
                                             size={14}
                                             color={isSelected ? '#fff' : isDark ? '#9CA3AF' : '#6B7280'}
                                         />
-                                        <Text className={isSelected ? 'text-white' : isDark ? 'text-gray-300' : 'text-gray-700'}>
+                                        <Text className={isSelected ? 'text-white font-bold' : isDark ? 'text-gray-300 font-medium' : 'text-gray-700 font-medium'}>
                                             {t(`amenities.${amenity.id}`, amenity.label)}
                                         </Text>
                                     </TouchableOpacity>

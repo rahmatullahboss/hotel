@@ -168,7 +168,7 @@ export default function BookingCard({ booking }: BookingCardProps) {
                         <View className="flex-1">
                             <View className="flex-row items-start justify-between">
                                 <View className="flex-1 mr-2">
-                                    <Text className="text-base font-bold text-gray-900 dark:text-white" numberOfLines={1}>
+                                    <Text className="text-base font-bold text-gray-900 dark:text-white" numberOfLines={2}>
                                         {booking.hotelName}
                                     </Text>
                                     <Text className="text-sm text-gray-500 dark:text-gray-400 mt-0.5" numberOfLines={1}>
@@ -177,16 +177,16 @@ export default function BookingCard({ booking }: BookingCardProps) {
                                     {booking.hotelLocation && (
                                         <View className="flex-row items-center mt-1 gap-1">
                                             <FontAwesome name="map-marker" size={10} color="#9CA3AF" />
-                                            <Text className="text-xs text-gray-400" numberOfLines={1}>
+                                            <Text className="text-xs text-gray-400" numberOfLines={2}>
                                                 {booking.hotelLocation}
                                             </Text>
                                         </View>
                                     )}
                                 </View>
                                 {/* Status Badge */}
-                                <View className={`flex-row items-center px-2 py-1 rounded-full gap-1 ${status.bgClass}`}>
-                                    <FontAwesome name={status.icon} size={10} color={status.color} />
-                                    <Text className={`text-[10px] font-semibold ${status.textClass}`}>
+                                <View className={`flex-row items-center px-2.5 py-1.5 rounded-lg gap-1.5 ${status.bgClass}`}>
+                                    <FontAwesome name={status.icon} size={12} color={status.color} />
+                                    <Text className={`text-xs font-bold ${status.textClass}`}>
                                         {t(`bookings.status.${booking.status.toLowerCase()}`)}
                                     </Text>
                                 </View>
@@ -205,8 +205,8 @@ export default function BookingCard({ booking }: BookingCardProps) {
                             </Text>
                         </View>
                         <View className="px-2 items-center">
-                            <View className="bg-primary/10 px-2 py-1 rounded-full">
-                                <Text className="text-[10px] font-bold text-primary">
+                            <View className="bg-primary/10 px-2.5 py-1.5 rounded-lg">
+                                <Text className="text-xs font-bold text-primary">
                                     {i18n.language === 'bn' ? nights.toString().replace(/[0-9]/g, d => '০১২৩৪৫৬৭৮৯'[parseInt(d)]) : nights} {nights === 1 ? t('booking.night', 'night') : t('booking.nights', 'nights')}
                                 </Text>
                             </View>
