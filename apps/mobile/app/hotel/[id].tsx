@@ -187,14 +187,14 @@ export default function HotelDetailScreen() {
                             {/* Rating Badge */}
                             <View className="flex-row items-center bg-black/80 px-3 py-1.5 rounded-lg gap-1.5">
                                 <FontAwesome name="star" size={14} color="#FFD700" />
-                                <Text className="text-white text-sm font-bold">
+                                <Text className="text-white text-sm font-bold" numberOfLines={1}>
                                     {Number(hotel.rating || 0).toFixed(1)}
                                 </Text>
                             </View>
                             {/* Vibe Code Badge */}
                             {hotel.vibeCode && (
                                 <View className="bg-primary px-3 py-1.5 rounded-lg">
-                                    <Text className="text-white text-sm font-bold">
+                                    <Text className="text-white text-sm font-bold" numberOfLines={1}>
                                         {hotel.vibeCode}
                                     </Text>
                                 </View>
@@ -209,7 +209,7 @@ export default function HotelDetailScreen() {
                                                 : '#10B981'
                                     }}
                                 >
-                                    <Text className="text-white text-sm font-bold">
+                                    <Text className="text-white text-sm font-bold" numberOfLines={1}>
                                         {hotel.category === 'PREMIUM' ? 'Premium'
                                             : hotel.category === 'BUSINESS' ? 'Business'
                                                 : 'Classic'}
@@ -341,15 +341,15 @@ export default function HotelDetailScreen() {
                                             resizeMode="cover"
                                         />
                                         {/* Room Type Badge */}
-                                        <View className="absolute top-3 left-3 bg-primary px-3 py-1.5 rounded-lg">
-                                            <Text className="text-white text-xs font-bold">
+                                        <View className="absolute top-3 left-3 bg-primary px-3 py-1.5 rounded-lg max-w-[45%]">
+                                            <Text className="text-white text-xs font-bold" numberOfLines={1}>
                                                 {room.type}
                                             </Text>
                                         </View>
                                         {/* Available Count Badge - OYO/Booking.com style */}
                                         {room.availableCount !== undefined && room.availableCount > 0 && (
-                                            <View className="absolute top-3 right-3 bg-orange-500 px-2.5 py-1.5 rounded-lg">
-                                                <Text className="text-white text-xs font-bold">
+                                            <View className="absolute top-3 right-3 bg-orange-500 px-2.5 py-1.5 rounded-lg max-w-[50%]">
+                                                <Text className="text-white text-xs font-bold" numberOfLines={1}>
                                                     {room.availableCount} {room.availableCount === 1 ? 'room' : 'rooms'} left
                                                 </Text>
                                             </View>

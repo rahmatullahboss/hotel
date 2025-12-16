@@ -73,10 +73,10 @@ export default function HotelCard({ hotel, index }: HotelCardProps) {
                 {/* Vibe Category Badge */}
                 {hotel.vibeCode && (
                     <View
-                        className="absolute top-3 left-3 flex-row items-center px-2.5 py-1.5 rounded-lg gap-1.5"
+                        className="absolute top-3 left-3 flex-row items-center px-2.5 py-1.5 rounded-lg gap-1.5 max-w-[45%]"
                         style={{ backgroundColor: categoryInfo.color }}
                     >
-                        <Text className="text-white text-xs font-bold">
+                        <Text className="text-white text-xs font-bold" numberOfLines={1}>
                             Vibe {categoryInfo.label}
                         </Text>
                     </View>
@@ -85,15 +85,15 @@ export default function HotelCard({ hotel, index }: HotelCardProps) {
                 {/* Rating Badge */}
                 <View className="absolute top-3 right-3 flex-row items-center bg-white dark:bg-gray-900 px-2.5 py-1.5 rounded-lg gap-1.5">
                     <FontAwesome name="star" size={12} color="#F59E0B" />
-                    <Text className="text-gray-900 dark:text-white text-sm font-bold">
+                    <Text className="text-gray-900 dark:text-white text-sm font-bold" numberOfLines={1}>
                         {Number(hotel.rating || 0).toFixed(1)}
                     </Text>
                 </View>
 
                 {/* Location Badge */}
-                <View className="absolute bottom-3 left-3 flex-row items-center bg-black/60 px-3 py-1.5 rounded-lg gap-1.5">
+                <View className="absolute bottom-3 left-3 flex-row items-center bg-black/60 px-3 py-1.5 rounded-lg gap-1.5 max-w-[60%]">
                     <FontAwesome name="map-marker" size={11} color="#fff" />
-                    <Text className="text-white text-xs font-medium" numberOfLines={2}>
+                    <Text className="text-white text-xs font-medium flex-shrink" numberOfLines={1}>
                         {hotel.city}
                     </Text>
                 </View>
@@ -101,7 +101,7 @@ export default function HotelCard({ hotel, index }: HotelCardProps) {
                 {/* Vibe Code Badge */}
                 {hotel.vibeCode && (
                     <View className="absolute bottom-3 right-3 bg-primary/90 px-2 py-1 rounded-md">
-                        <Text className="text-white text-xs font-bold">
+                        <Text className="text-white text-xs font-bold" numberOfLines={1}>
                             {hotel.vibeCode}
                         </Text>
                     </View>
