@@ -57,7 +57,7 @@ export default function NearbyAttractions({ hotelLat, hotelLng, city }: NearbyAt
             <ScrollView
                 horizontal
                 showsHorizontalScrollIndicator={false}
-                contentContainerStyle={{ gap: 8, paddingRight: 16 }}
+                contentContainerStyle={{ gap: 10, paddingRight: 16 }}
             >
                 {NEARBY_TYPES.map((place) => (
                     <TouchableOpacity
@@ -67,12 +67,12 @@ export default function NearbyAttractions({ hotelLat, hotelLng, city }: NearbyAt
                         activeOpacity={0.7}
                     >
                         <View
-                            className="w-9 h-9 rounded-full items-center justify-center mb-1"
+                            className="w-10 h-10 rounded-full items-center justify-center mb-1"
                             style={{ backgroundColor: `${place.color}20` }}
                         >
-                            <MaterialCommunityIcons name={place.icon} size={16} color={place.color} />
+                            <MaterialCommunityIcons name={place.icon} size={18} color={place.color} />
                         </View>
-                        <Text className="text-[10px] text-gray-600 dark:text-gray-400 text-center" style={{ maxWidth: 52 }} numberOfLines={2} ellipsizeMode="tail">
+                        <Text className="text-[11px] text-gray-600 dark:text-gray-400 text-center" style={{ maxWidth: 56 }} numberOfLines={2} ellipsizeMode="tail">
                             {t(`nearby.${place.type}`, place.label)}
                         </Text>
                     </TouchableOpacity>
