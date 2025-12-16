@@ -41,25 +41,49 @@ interface Room {
     roomIds?: string[];
 }
 
+interface UseBookingOptions {
+    checkIn?: string;
+    checkOut?: string;
+}
+
 interface UseBookingReturn {
     hotel: Hotel | null;
     rooms: Room[];
     loading: boolean;
+    roomsLoading: boolean;
     error: string | null;
     isSaved: boolean;
     savingState: boolean;
     handleToggleSave: () => Promise<void>;
     refetch: () => Promise<void>;
+    refetchRooms: () => Promise<void>;
 }
 
-export function useBooking(hotelId: string | undefined): UseBookingReturn {
+export function useBooking(hotelId: string | undefined, options?: UseBookingOptions): UseBookingReturn {
     const [hotel, setHotel] = useState<Hotel | null>(null);
     const [rooms, setRooms] = useState<Room[]>([]);
     const [loading, setLoading] = useState(true);
+    const [roomsLoading, setRoomsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [isSaved, setIsSaved] = useState(false);
     const [savingState, setSavingState] = useState(false);
 
+    const checkIn = options?.checkIn;
+    const checkOut = options?.checkOut;
+
+    // Fetch rooms with dates
+    const fetchRooms = useCallback(async () => {
+        if (!hotelId) return;
+
+        setRoomsLoading(true);
+        const roomsRes = await api.getRooms(hotelId, checkIn, checkOut);
+        if (roomsRes.data) {
+            setRooms(roomsRes.data);
+        }
+        setRoomsLoading(false);
+    }, [hotelId, checkIn, checkOut]);
+
+    // Fetch hotel data (without rooms)
     const fetchHotelData = useCallback(async () => {
         if (!hotelId) return;
 
@@ -76,11 +100,8 @@ export function useBooking(hotelId: string | undefined): UseBookingReturn {
 
         setHotel(hotelRes.data);
 
-        // Always fetch rooms from API endpoint to get dynamic pricing
-        const roomsRes = await api.getRooms(hotelId);
-        if (roomsRes.data) {
-            setRooms(roomsRes.data);
-        }
+        // Fetch rooms with dates
+        await fetchRooms();
 
         // Check if hotel is saved
         const savedRes = await api.getSavedHotels();
@@ -90,13 +111,21 @@ export function useBooking(hotelId: string | undefined): UseBookingReturn {
         }
 
         setLoading(false);
-    }, [hotelId]);
+    }, [hotelId, fetchRooms]);
 
+    // Initial fetch
     useEffect(() => {
         if (hotelId) {
             fetchHotelData();
         }
-    }, [hotelId, fetchHotelData]);
+    }, [hotelId]);
+
+    // Refetch rooms when dates change (but not on initial load)
+    useEffect(() => {
+        if (hotelId && hotel && checkIn && checkOut) {
+            fetchRooms();
+        }
+    }, [checkIn, checkOut]);
 
     const handleToggleSave = useCallback(async () => {
         if (!hotelId || savingState) return;
@@ -136,10 +165,13 @@ export function useBooking(hotelId: string | undefined): UseBookingReturn {
         hotel,
         rooms,
         loading,
+        roomsLoading,
         error,
         isSaved,
         savingState,
         handleToggleSave,
         refetch: fetchHotelData,
+        refetchRooms: fetchRooms,
     };
 }
+

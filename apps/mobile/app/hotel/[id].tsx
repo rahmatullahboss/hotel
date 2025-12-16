@@ -36,11 +36,12 @@ export default function HotelDetailScreen() {
         hotel,
         rooms,
         loading,
+        roomsLoading,
         error,
         isSaved,
         savingState,
         handleToggleSave,
-    } = useBooking(id);
+    } = useBooking(id, { checkIn: formatCheckIn(), checkOut: formatCheckOut() });
 
     // Parallax effect
     const headerTranslate = scrollY.interpolate({
@@ -301,9 +302,19 @@ export default function HotelDetailScreen() {
 
                     {/* Rooms Section */}
                     <View className="px-5 pb-5">
-                        <Text className="text-xl font-bold text-gray-900 dark:text-white mb-3">
-                            {t('hotel.availableRooms')}
-                        </Text>
+                        <View className="flex-row items-center justify-between mb-3">
+                            <Text className="text-xl font-bold text-gray-900 dark:text-white">
+                                {t('hotel.availableRooms')}
+                            </Text>
+                            {roomsLoading && (
+                                <View className="flex-row items-center gap-2">
+                                    <ActivityIndicator size="small" color="#E63946" />
+                                    <Text className="text-xs text-gray-500">
+                                        {t('common.loading', 'Loading...')}
+                                    </Text>
+                                </View>
+                            )}
+                        </View>
 
                         {rooms.length === 0 ? (
                             <View className="p-6 rounded-xl bg-gray-100 dark:bg-gray-800 items-center">
