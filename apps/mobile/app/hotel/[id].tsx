@@ -103,6 +103,7 @@ export default function HotelDetailScreen() {
                     transform: [{ translateY: headerTranslate }, { scale: headerScale }],
                     zIndex: 0,
                 }}
+                pointerEvents="none"
             >
                 <Image
                     source={{
@@ -111,60 +112,61 @@ export default function HotelDetailScreen() {
                     style={{ width, height: HEADER_HEIGHT }}
                     resizeMode="cover"
                 />
+            </Animated.View>
 
-                {/* Custom Header Buttons */}
-                <View
-                    style={{ position: 'absolute', top: insets.top + 8, left: 16, right: 16 }}
-                    className="flex-row justify-between"
+            {/* Header Buttons - Separate layer for proper touch handling */}
+            <View
+                style={{ position: 'absolute', top: insets.top + 8, left: 16, right: 16, zIndex: 100 }}
+                className="flex-row justify-between"
+                pointerEvents="box-none"
+            >
+                {/* Back Button */}
+                <TouchableOpacity
+                    className="w-11 h-11 rounded-full bg-black/50 items-center justify-center"
+                    onPress={() => router.back()}
+                    activeOpacity={0.8}
                 >
-                    {/* Back Button */}
+                    <FontAwesome name="arrow-left" size={18} color="#fff" />
+                </TouchableOpacity>
+
+                {/* Save & Share Buttons */}
+                <View className="flex-row gap-2">
                     <TouchableOpacity
                         className="w-11 h-11 rounded-full bg-black/50 items-center justify-center"
-                        onPress={() => router.back()}
+                        onPress={async () => {
+                            try {
+                                await shareHotel({
+                                    hotelId: hotel.id,
+                                    hotelName: hotel.vibeCode ? `Vibe ${hotel.name}` : hotel.name,
+                                    city: hotel.city,
+                                    rating: Number(hotel.rating),
+                                });
+                            } catch (error) {
+                                console.error('Share error:', error);
+                                Alert.alert(
+                                    t('common.error', 'Error'),
+                                    t('common.shareFailed', 'Failed to share. Please try again.')
+                                );
+                            }
+                        }}
                         activeOpacity={0.8}
                     >
-                        <FontAwesome name="arrow-left" size={18} color="#fff" />
+                        <FontAwesome name="share" size={18} color="#fff" />
                     </TouchableOpacity>
-
-                    {/* Save & Share Buttons */}
-                    <View className="flex-row gap-2">
-                        <TouchableOpacity
-                            className="w-11 h-11 rounded-full bg-black/50 items-center justify-center"
-                            onPress={async () => {
-                                try {
-                                    await shareHotel({
-                                        hotelId: hotel.id,
-                                        hotelName: hotel.vibeCode ? `Vibe ${hotel.name}` : hotel.name,
-                                        city: hotel.city,
-                                        rating: Number(hotel.rating),
-                                    });
-                                } catch (error) {
-                                    console.error('Share error:', error);
-                                    Alert.alert(
-                                        t('common.error', 'Error'),
-                                        t('common.shareFailed', 'Failed to share. Please try again.')
-                                    );
-                                }
-                            }}
-                            activeOpacity={0.8}
-                        >
-                            <FontAwesome name="share" size={18} color="#fff" />
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                            className="w-11 h-11 rounded-full bg-black/50 items-center justify-center"
-                            onPress={handleToggleSave}
-                            disabled={savingState}
-                            activeOpacity={0.8}
-                        >
-                            <FontAwesome
-                                name={isSaved ? 'heart' : 'heart-o'}
-                                size={22}
-                                color={isSaved ? '#E63946' : '#fff'}
-                            />
-                        </TouchableOpacity>
-                    </View>
+                    <TouchableOpacity
+                        className="w-11 h-11 rounded-full bg-black/50 items-center justify-center"
+                        onPress={handleToggleSave}
+                        disabled={savingState}
+                        activeOpacity={0.8}
+                    >
+                        <FontAwesome
+                            name={isSaved ? 'heart' : 'heart-o'}
+                            size={22}
+                            color={isSaved ? '#E63946' : '#fff'}
+                        />
+                    </TouchableOpacity>
                 </View>
-            </Animated.View>
+            </View>
 
             {/* Scrollable Content */}
             <Animated.ScrollView
