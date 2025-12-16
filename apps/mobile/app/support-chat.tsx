@@ -28,27 +28,16 @@ interface QuickReply {
     action: string;
 }
 
-// FAQ data for chatbot
-const FAQ_DATA: { [key: string]: string } = {
-    booking: 'To book a hotel: Search → Select Hotel → Choose Room → Enter Dates → Confirm Booking. You can pay online or choose "Pay at Hotel".',
-    cancel: 'Go to My Trips, select your booking, and tap "Cancel Booking". Refunds depend on cancellation policy - usually full refund if cancelled 24+ hours before check-in.',
-    payment: 'We accept bKash, Nagad, Credit/Debit cards, and Pay at Hotel option. Your payment is 100% secure with encrypted transactions.',
-    checkin: 'Use our Self Check-in feature! Scan the QR code at the hotel reception to instantly check in without waiting in queue.',
-    refund: 'Refunds are credited to your Vibe Wallet within 24 hours of cancellation. You can use wallet balance for future bookings.',
-    wallet: 'Vibe Wallet stores your cashback rewards and refunds. You earn 5% cashback on every booking! Use wallet balance at checkout.',
-    contact: 'Email: support@vibehotels.com\nPhone: +880 1234-567890\nWhatsApp available 24/7',
-    points: 'Earn loyalty points with every booking. 1 point = ৳1. Redeem points for discounts on future stays!',
-};
-
-const QUICK_REPLIES: QuickReply[] = [
-    { id: '1', text: '🏨 How to book?', action: 'booking' },
-    { id: '2', text: '❌ Cancel booking', action: 'cancel' },
-    { id: '3', text: '💳 Payment options', action: 'payment' },
-    { id: '4', text: '🔑 Self check-in', action: 'checkin' },
-    { id: '5', text: '💰 Refund policy', action: 'refund' },
-    { id: '6', text: '👛 Wallet & cashback', action: 'wallet' },
-    { id: '7', text: '📞 Contact support', action: 'contact' },
-    { id: '8', text: '⭐ Loyalty points', action: 'points' },
+// Quick reply actions - text will be pulled from translations
+const QUICK_REPLY_ACTIONS = [
+    { id: '1', action: 'booking' },
+    { id: '2', action: 'cancel' },
+    { id: '3', action: 'payment' },
+    { id: '4', action: 'checkin' },
+    { id: '5', action: 'refund' },
+    { id: '6', action: 'wallet' },
+    { id: '7', action: 'contact' },
+    { id: '8', action: 'points' },
 ];
 
 export default function SupportChatScreen() {
@@ -59,13 +48,21 @@ export default function SupportChatScreen() {
     const isDark = colorScheme === 'dark';
     const scrollViewRef = useRef<ScrollView>(null);
 
+    // Create quick replies with translated text
+    const getQuickReplies = (): QuickReply[] => {
+        return QUICK_REPLY_ACTIONS.map(item => ({
+            ...item,
+            text: t(`chat.quickReplies.${item.action}`)
+        }));
+    };
+
     const [messages, setMessages] = useState<Message[]>([
         {
             id: '0',
-            text: t('chat.welcome', 'Hi! 👋 I\'m Vibe Assistant. How can I help you today?'),
+            text: t('chat.welcome'),
             isBot: true,
             timestamp: new Date(),
-            options: QUICK_REPLIES,
+            options: getQuickReplies(),
         },
     ]);
     const [inputText, setInputText] = useState('');
@@ -98,7 +95,8 @@ export default function SupportChatScreen() {
     };
 
     const handleQuickReply = (action: string) => {
-        const reply = QUICK_REPLIES.find(r => r.action === action);
+        const quickReplies = getQuickReplies();
+        const reply = quickReplies.find(r => r.action === action);
         if (!reply) return;
 
         const userMessage: Message = {
@@ -120,25 +118,25 @@ export default function SupportChatScreen() {
         let responseText = '';
         let showOptions = false;
 
-        // Check for keywords
+        // Check for keywords and get translated answers
         if (query.includes('book') || query === 'booking') {
-            responseText = FAQ_DATA.booking;
+            responseText = t('chat.answers.booking');
         } else if (query.includes('cancel')) {
-            responseText = FAQ_DATA.cancel;
+            responseText = t('chat.answers.cancel');
         } else if (query.includes('pay') || query === 'payment') {
-            responseText = FAQ_DATA.payment;
+            responseText = t('chat.answers.payment');
         } else if (query.includes('check') || query === 'checkin') {
-            responseText = FAQ_DATA.checkin;
+            responseText = t('chat.answers.checkin');
         } else if (query.includes('refund')) {
-            responseText = FAQ_DATA.refund;
+            responseText = t('chat.answers.refund');
         } else if (query.includes('wallet') || query.includes('cashback')) {
-            responseText = FAQ_DATA.wallet;
+            responseText = t('chat.answers.wallet');
         } else if (query.includes('contact') || query.includes('support') || query.includes('help')) {
-            responseText = FAQ_DATA.contact;
+            responseText = t('chat.answers.contact');
         } else if (query.includes('point') || query.includes('loyalty')) {
-            responseText = FAQ_DATA.points;
+            responseText = t('chat.answers.points');
         } else {
-            responseText = t('chat.notUnderstood', "I'm not sure I understand. Here are some topics I can help with:");
+            responseText = t('chat.notUnderstood');
             showOptions = true;
         }
 
@@ -147,7 +145,7 @@ export default function SupportChatScreen() {
             text: responseText,
             isBot: true,
             timestamp: new Date(),
-            options: showOptions ? QUICK_REPLIES : undefined,
+            options: showOptions ? getQuickReplies() : undefined,
         };
     };
 
