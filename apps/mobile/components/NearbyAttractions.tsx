@@ -1,5 +1,5 @@
 import { View, Text, TouchableOpacity, ScrollView, Linking, Platform } from 'react-native';
-import FontAwesome from '@expo/vector-icons/FontAwesome';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 
 interface NearbyPlace {
@@ -7,7 +7,7 @@ interface NearbyPlace {
     type: 'restaurant' | 'atm' | 'hospital' | 'shopping' | 'transport' | 'attraction';
     name: string;
     distance: string;
-    icon: string;
+    icon: keyof typeof MaterialCommunityIcons.glyphMap;
     color: string;
 }
 
@@ -17,14 +17,14 @@ interface NearbyAttractionsProps {
     city: string;
 }
 
-// Common nearby places (could be replaced with real API data)
-const NEARBY_TYPES = [
-    { type: 'restaurant', icon: 'cutlery', color: '#EF4444', label: 'Restaurants' },
-    { type: 'atm', icon: 'credit-card', color: '#10B981', label: 'ATM/Banks' },
-    { type: 'hospital', icon: 'hospital-o', color: '#3B82F6', label: 'Hospital' },
-    { type: 'shopping', icon: 'shopping-bag', color: '#F59E0B', label: 'Shopping' },
+// Common nearby places with improved MaterialCommunityIcons
+const NEARBY_TYPES: { type: string; icon: keyof typeof MaterialCommunityIcons.glyphMap; color: string; label: string }[] = [
+    { type: 'restaurant', icon: 'silverware-fork-knife', color: '#EF4444', label: 'Restaurants' },
+    { type: 'atm', icon: 'cash-multiple', color: '#10B981', label: 'ATM/Banks' },
+    { type: 'hospital', icon: 'hospital-building', color: '#3B82F6', label: 'Hospital' },
+    { type: 'shopping', icon: 'shopping', color: '#F59E0B', label: 'Shopping' },
     { type: 'transport', icon: 'bus', color: '#8B5CF6', label: 'Transport' },
-    { type: 'attraction', icon: 'camera', color: '#EC4899', label: 'Attractions' },
+    { type: 'attraction', icon: 'map-marker-star', color: '#EC4899', label: 'Attractions' },
 ];
 
 export default function NearbyAttractions({ hotelLat, hotelLng, city }: NearbyAttractionsProps) {
@@ -70,7 +70,7 @@ export default function NearbyAttractions({ hotelLat, hotelLng, city }: NearbyAt
                             className="w-14 h-14 rounded-lg items-center justify-center mb-2"
                             style={{ backgroundColor: `${place.color}20` }}
                         >
-                            <FontAwesome name={place.icon as any} size={24} color={place.color} />
+                            <MaterialCommunityIcons name={place.icon} size={26} color={place.color} />
                         </View>
                         <Text className="text-xs text-gray-600 dark:text-gray-400 text-center w-full" numberOfLines={2} ellipsizeMode="tail">
                             {t(`nearby.${place.type}`, place.label)}
