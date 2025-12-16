@@ -19,3 +19,11 @@ export { ServiceWorkerUnregister } from "./ServiceWorkerUnregister";
 export { HotelImageGallery } from "./HotelImageGallery";
 export { DateGuestBar } from "./DateGuestBar";
 export { HotelHighlights } from "./HotelHighlights";
+// OYO Design Components
+export { OYOBookingSidebar } from "./OYOBookingSidebar";
+export { OYORoomCard } from "./OYORoomCard";
+export { OYORatingsBreakdown } from "./OYORatingsBreakdown";
+export { OYOReviewCard } from "./OYOReviewCard";
+export { OYOSectionTabs } from "./OYOSectionTabs";
+export { OYOFiltersPanel } from "./OYOFiltersPanel";
+export { OYOHotelCard } from "./OYOHotelCard";

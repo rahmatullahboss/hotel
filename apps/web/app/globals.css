@@ -3652,3 +3652,1148 @@ main.page-with-book-bar {
   color: var(--color-text-secondary);
   margin: 0;
 }
+
+/* ================================================
+   OYO DESIGN - TWO COLUMN LAYOUT
+   ================================================ */
+.oyo-detail-layout {
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: 1.5rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.oyo-main-content {
+  min-width: 0;
+}
+
+.oyo-sidebar {
+  position: sticky;
+  top: 80px;
+  height: fit-content;
+  align-self: start;
+}
+
+@media (max-width: 1024px) {
+  .oyo-detail-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .oyo-sidebar {
+    display: none;
+  }
+}
+
+/* ================================================
+   OYO BOOKING SIDEBAR
+   ================================================ */
+.oyo-booking-sidebar {
+  background: white;
+  border: 1px solid var(--color-border);
+  border-radius: 0.5rem;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.oyo-promo-banner {
+  background: linear-gradient(90deg, #d40000 0%, #e63946 100%);
+  color: white;
+  padding: 0.625rem 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.75rem;
+}
+
+.promo-text {
+  font-weight: 600;
+}
+
+.promo-btn {
+  background: white;
+  color: #d40000;
+  border: none;
+  padding: 0.25rem 0.75rem;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.oyo-price-section {
+  padding: 1rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.oyo-price-main {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+
+.oyo-price {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.oyo-price-original {
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+  text-decoration: line-through;
+}
+
+.oyo-discount-badge {
+  font-size: 0.75rem;
+  color: #ff6b35;
+  font-weight: 600;
+}
+
+.oyo-taxes {
+  font-size: 0.75rem;
+  color: var(--color-text-secondary);
+  margin-top: 0.25rem;
+}
+
+.oyo-date-picker {
+  padding: 1rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.oyo-date-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: 0.5rem;
+  padding: 0.75rem;
+}
+
+.oyo-date-item {
+  flex: 1;
+  position: relative;
+}
+
+.oyo-date-input {
+  position: absolute;
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+}
+
+.oyo-date-label {
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.oyo-date-separator {
+  color: var(--color-text-muted);
+}
+
+.oyo-guests-item {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.875rem;
+  border-left: 1px solid var(--color-border);
+  padding-left: 0.75rem;
+}
+
+.oyo-room-selector {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem;
+  border-bottom: 1px solid var(--color-border);
+  cursor: pointer;
+}
+
+.oyo-room-icon {
+  font-size: 1.25rem;
+}
+
+.oyo-room-name {
+  flex: 1;
+  font-weight: 500;
+}
+
+.oyo-room-selector svg.rotated {
+  transform: rotate(180deg);
+}
+
+.oyo-coupon-section {
+  padding: 1rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.oyo-coupon-applied {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+}
+
+.coupon-icon {
+  color: #f59e0b;
+}
+
+.coupon-text {
+  flex: 1;
+}
+
+.coupon-discount {
+  color: #22c55e;
+  font-weight: 600;
+}
+
+.coupon-check {
+  color: #22c55e;
+}
+
+.oyo-more-offers-btn {
+  margin-top: 0.75rem;
+  background: transparent;
+  border: 1px solid #22c55e;
+  color: #22c55e;
+  padding: 0.375rem 0.75rem;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.oyo-summary {
+  padding: 1rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.oyo-summary-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+  font-size: 0.875rem;
+}
+
+.oyo-savings {
+  color: #22c55e;
+  font-weight: 600;
+}
+
+.oyo-total-row {
+  font-weight: 600;
+}
+
+.oyo-total {
+  font-size: 1rem;
+}
+
+.oyo-taxes-note {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+}
+
+.oyo-book-btn {
+  display: block;
+  width: calc(100% - 2rem);
+  margin: 1rem;
+  padding: 0.875rem;
+  background: linear-gradient(90deg, #22c55e 0%, #16a34a 100%);
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.oyo-book-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.oyo-book-btn:hover:not(:disabled) {
+  opacity: 0.9;
+}
+
+.oyo-social-proof {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.375rem;
+  padding: 0 1rem;
+  font-size: 0.75rem;
+  color: #d40000;
+}
+
+.proof-icon {
+  flex-shrink: 0;
+  margin-top: 0.125rem;
+}
+
+.oyo-policy-links {
+  padding: 1rem;
+  font-size: 0.75rem;
+}
+
+.oyo-policy-link {
+  color: #d40000;
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.oyo-safety-note {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  color: #d40000;
+  margin-bottom: 0.5rem;
+}
+
+.oyo-terms {
+  color: var(--color-text-muted);
+}
+
+.oyo-terms a {
+  color: #d40000;
+}
+
+/* ================================================
+   OYO ROOM CARD
+   ================================================ */
+.oyo-room-card {
+  border: 1px solid var(--color-border);
+  border-radius: 0.5rem;
+  overflow: hidden;
+  cursor: pointer;
+  transition: border-color 0.2s;
+  margin-bottom: 1rem;
+}
+
+.oyo-room-card:hover {
+  border-color: var(--color-primary);
+}
+
+.oyo-room-card.selected {
+  border-color: #f59e0b;
+  border-width: 2px;
+}
+
+.oyo-room-selected-header {
+  background: linear-gradient(90deg, #f59e0b 0%, #fbbf24 100%);
+  color: white;
+  padding: 0.5rem 1rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.star-icon {
+  font-size: 0.875rem;
+}
+
+.oyo-room-content {
+  display: flex;
+  padding: 1rem;
+  gap: 1rem;
+}
+
+.oyo-room-info {
+  flex: 1;
+}
+
+.oyo-room-info .oyo-room-name {
+  font-size: 1.125rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.check-icon {
+  color: #22c55e;
+}
+
+.oyo-room-size {
+  font-size: 0.75rem;
+  color: var(--color-text-secondary);
+  margin-top: 0.25rem;
+}
+
+.oyo-room-price {
+  margin-top: 1rem;
+}
+
+.price-current {
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.price-original {
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+  text-decoration: line-through;
+  margin-left: 0.5rem;
+}
+
+.oyo-room-taxes {
+  font-size: 0.75rem;
+  color: var(--color-text-secondary);
+}
+
+.oyo-selected-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin-top: 0.75rem;
+  padding: 0.375rem 0.75rem;
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.oyo-room-image {
+  width: 120px;
+  height: 100px;
+  border-radius: 0.375rem;
+  overflow: hidden;
+  position: relative;
+}
+
+.oyo-room-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.oyo-room-image-placeholder {
+  width: 100%;
+  height: 100%;
+  background: var(--color-bg-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-muted);
+}
+
+.oyo-room-gallery-btn {
+  position: absolute;
+  bottom: 0.375rem;
+  right: 0.375rem;
+  background: rgba(0, 0, 0, 0.6);
+  border: none;
+  width: 28px;
+  height: 28px;
+  border-radius: 0.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  cursor: pointer;
+}
+
+/* ================================================
+   OYO RATINGS BREAKDOWN
+   ================================================ */
+.oyo-ratings-section {
+  padding: 1.5rem 0;
+}
+
+.oyo-section-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.oyo-iso-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.5rem;
+  background: #f0fdf4;
+  border: 1px solid #22c55e;
+  border-radius: 0.25rem;
+  font-size: 0.625rem;
+  font-weight: 600;
+  color: #22c55e;
+  margin-bottom: 1rem;
+}
+
+.oyo-ratings-content {
+  display: flex;
+  gap: 2rem;
+}
+
+.oyo-rating-overall {
+  text-align: center;
+}
+
+.oyo-rating-badge-large {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  background: #22c55e;
+  color: white;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.375rem;
+  font-size: 1.125rem;
+  font-weight: 700;
+}
+
+.oyo-rating-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-top: 0.5rem;
+  color: var(--color-text-primary);
+}
+
+.oyo-rating-count {
+  font-size: 0.75rem;
+  color: var(--color-text-secondary);
+}
+
+.oyo-rating-breakdown {
+  flex: 1;
+}
+
+.oyo-rating-bar-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.375rem;
+}
+
+.oyo-rating-star {
+  font-size: 0.75rem;
+  width: 24px;
+  color: var(--color-text-secondary);
+}
+
+.oyo-rating-bar {
+  flex: 1;
+  height: 8px;
+  background: #e5e7eb;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.oyo-rating-bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.3s;
+}
+
+.oyo-rating-bar-fill[data-stars="5"],
+.oyo-rating-bar-fill[data-stars="4"] {
+  background: #22c55e;
+}
+
+.oyo-rating-bar-fill[data-stars="3"] {
+  background: #f59e0b;
+}
+
+.oyo-rating-bar-fill[data-stars="2"],
+.oyo-rating-bar-fill[data-stars="1"] {
+  background: #ef4444;
+}
+
+.oyo-rating-percent {
+  font-size: 0.75rem;
+  width: 32px;
+  text-align: right;
+  color: var(--color-text-secondary);
+}
+
+/* ================================================
+   OYO REVIEW CARD
+   ================================================ */
+.oyo-review-card {
+  padding: 1rem 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.oyo-review-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.oyo-review-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--color-bg-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.oyo-review-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.avatar-initials {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+}
+
+.oyo-review-meta {
+  flex: 1;
+  font-size: 0.875rem;
+}
+
+.oyo-reviewer-name {
+  font-weight: 500;
+}
+
+.oyo-review-dot {
+  margin: 0 0.25rem;
+  color: var(--color-text-muted);
+}
+
+.oyo-review-date {
+  color: var(--color-text-secondary);
+}
+
+.oyo-review-rating {
+  display: flex;
+  align-items: center;
+  gap: 0.125rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: white;
+}
+
+.oyo-review-rating.high {
+  background: #22c55e;
+}
+
+.oyo-review-rating.medium {
+  background: #f59e0b;
+}
+
+.oyo-review-rating.low {
+  background: #ef4444;
+}
+
+.oyo-review-text {
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--color-text-secondary);
+}
+
+/* ================================================
+   OYO SECTION TABS
+   ================================================ */
+.oyo-section-tabs {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--color-border);
+  position: sticky;
+  top: 60px;
+  background: white;
+  z-index: 40;
+  padding: 0 1rem;
+}
+
+.oyo-tabs-inner {
+  display: flex;
+  gap: 0.5rem;
+  overflow-x: auto;
+}
+
+.oyo-tab {
+  padding: 1rem 0.75rem;
+  border: none;
+  background: transparent;
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  white-space: nowrap;
+  position: relative;
+}
+
+.oyo-tab:hover {
+  color: var(--color-primary);
+}
+
+.oyo-tab.active {
+  color: #d40000;
+  font-weight: 500;
+}
+
+.oyo-tab.active::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: #d40000;
+}
+
+.oyo-share-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--color-border);
+  background: white;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+
+/* ================================================
+   OYO FILTERS PANEL
+   ================================================ */
+.oyo-filters-panel {
+  width: 240px;
+  flex-shrink: 0;
+  padding-right: 1.5rem;
+  border-right: 1px solid var(--color-border);
+}
+
+.oyo-filters-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+}
+
+.oyo-filter-section {
+  margin-bottom: 1.5rem;
+}
+
+.oyo-filter-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+  color: var(--color-text-primary);
+}
+
+.oyo-location-search {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--color-border);
+  border-radius: 0.375rem;
+  margin-bottom: 0.75rem;
+}
+
+.oyo-location-search input {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-size: 0.875rem;
+}
+
+.oyo-location-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.oyo-location-tag {
+  padding: 0.375rem 0.75rem;
+  border: 1px solid var(--color-border);
+  background: white;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  cursor: pointer;
+}
+
+.oyo-location-tag:hover {
+  background: var(--color-bg-secondary);
+}
+
+.oyo-view-more {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin-top: 0.75rem;
+  color: #22c55e;
+  font-size: 0.875rem;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+.oyo-price-slider {
+  position: relative;
+  height: 24px;
+}
+
+.oyo-range-input {
+  position: absolute;
+  width: 100%;
+  height: 4px;
+  pointer-events: none;
+  -webkit-appearance: none;
+  background: transparent;
+}
+
+.oyo-range-input::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  pointer-events: auto;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  cursor: pointer;
+}
+
+.oyo-price-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  color: var(--color-text-secondary);
+  margin-top: 0.5rem;
+}
+
+.oyo-collections-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.oyo-collection-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+
+.oyo-collection-item input {
+  accent-color: var(--color-primary);
+}
+
+/* ================================================
+   OYO HOTEL CARD (Listing)
+   ================================================ */
+.oyo-hotel-card {
+  display: flex;
+  background: white;
+  border: 1px solid var(--color-border);
+  border-radius: 0.5rem;
+  overflow: hidden;
+  margin-bottom: 1rem;
+}
+
+.oyo-card-gallery {
+  width: 360px;
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 2px;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.oyo-card-badge {
+  position: absolute;
+  top: 0.75rem;
+  left: 0.75rem;
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.625rem;
+  font-weight: 600;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.oyo-card-main-image {
+  display: block;
+  height: 200px;
+}
+
+.oyo-card-main-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.oyo-card-thumbnails {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.oyo-card-thumb {
+  flex: 1;
+  overflow: hidden;
+}
+
+.oyo-card-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.oyo-card-thumb.placeholder {
+  background: var(--color-bg-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-muted);
+}
+
+.oyo-card-content {
+  flex: 1;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.oyo-card-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+
+.oyo-card-name {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin: 0 0 0.25rem;
+}
+
+.oyo-card-address {
+  font-size: 0.75rem;
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+
+.oyo-card-social-proof {
+  display: flex;
+  gap: 0.25rem;
+  font-size: 0.625rem;
+  color: #d40000;
+  text-align: right;
+  max-width: 100px;
+}
+
+.oyo-card-rating-row {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  margin-bottom: 0.75rem;
+}
+
+.oyo-card-rating-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.125rem;
+  background: #22c55e;
+  color: white;
+  padding: 0.125rem 0.375rem;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.oyo-card-rating-count {
+  font-size: 0.75rem;
+  color: var(--color-text-secondary);
+}
+
+.oyo-card-rating-label {
+  font-size: 0.75rem;
+  color: var(--color-text-secondary);
+}
+
+.oyo-card-amenities {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: auto;
+}
+
+.oyo-card-amenity {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.75rem;
+  color: var(--color-text-secondary);
+}
+
+.oyo-card-amenity.more {
+  color: var(--color-primary);
+}
+
+.oyo-card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-top: 1rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--color-border);
+}
+
+.oyo-card-price-section {
+  flex: 1;
+}
+
+.oyo-card-price {
+  display: flex;
+  align-items: baseline;
+  gap: 0.375rem;
+}
+
+.oyo-card-price .price-main {
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.oyo-card-price .price-original {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  text-decoration: line-through;
+}
+
+.oyo-card-price .price-discount {
+  font-size: 0.75rem;
+  color: #ff6b35;
+  font-weight: 600;
+}
+
+.oyo-card-taxes {
+  font-size: 0.625rem;
+  color: var(--color-text-muted);
+  line-height: 1.3;
+}
+
+.oyo-card-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.oyo-btn-outline {
+  padding: 0.625rem 1rem;
+  border: 1px solid var(--color-border);
+  background: white;
+  color: var(--color-text-primary);
+  font-size: 0.875rem;
+  font-weight: 500;
+  border-radius: 0.375rem;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.oyo-btn-primary {
+  padding: 0.625rem 1rem;
+  border: none;
+  background: linear-gradient(90deg, #22c55e 0%, #16a34a 100%);
+  color: white;
+  font-size: 0.875rem;
+  font-weight: 600;
+  border-radius: 0.375rem;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+/* OYO Listing Page Layout */
+.oyo-listing-layout {
+  display: flex;
+  gap: 1.5rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+.oyo-listing-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.oyo-listing-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.oyo-breadcrumb {
+  font-size: 0.75rem;
+  color: var(--color-text-secondary);
+  margin-bottom: 0.5rem;
+}
+
+.oyo-breadcrumb a {
+  color: var(--color-primary);
+}
+
+.oyo-listing-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.oyo-listing-controls {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.oyo-map-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+}
+
+.oyo-sort-dropdown {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+}
+
+.oyo-sort-dropdown select {
+  border: 1px solid var(--color-border);
+  padding: 0.5rem;
+  border-radius: 0.375rem;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .oyo-filters-panel {
+    display: none;
+  }
+
+  .oyo-hotel-card {
+    flex-direction: column;
+  }
+
+  .oyo-card-gallery {
+    width: 100%;
+    height: 200px;
+    grid-template-columns: 1fr;
+  }
+
+  .oyo-card-thumbnails {
+    display: none;
+  }
+
+  .oyo-card-social-proof {
+    display: none;
+  }
+}

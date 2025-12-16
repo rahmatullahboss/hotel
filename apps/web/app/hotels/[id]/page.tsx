@@ -5,11 +5,14 @@ import { useParams, useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import {
     BottomNav,
-    RoomCard,
     RoomDetailModal,
     HotelImageGallery,
-    DateGuestBar,
-    HotelHighlights
+    HotelHighlights,
+    OYOBookingSidebar,
+    OYORoomCard,
+    OYORatingsBreakdown,
+    OYOReviewCard,
+    OYOSectionTabs,
 } from "../../components";
 import { getHotelById, getAvailableRooms, RoomWithDetails } from "../../actions/hotels";
 import { FiMapPin, FiStar, FiClock, FiXCircle, FiCreditCard, FiArrowLeft } from "react-icons/fi";
@@ -43,14 +46,13 @@ const getAmenityIcon = (amenity: string) => {
     const icons: Record<string, React.ReactNode> = {
         "WiFi": <FaWifi size={16} />,
         "wifi": <FaWifi size={16} />,
+        "Free Wifi": <FaWifi size={16} />,
         "AC": <FaSnowflake size={16} />,
         "ac": <FaSnowflake size={16} />,
-        "Air Conditioning": <FaSnowflake size={16} />,
         "TV": <FaTv size={16} />,
         "tv": <FaTv size={16} />,
         "Parking": <FaParking size={16} />,
         "Pool": <FaSwimmingPool size={16} />,
-        "Swimming Pool": <FaSwimmingPool size={16} />,
         "Restaurant": <FaUtensils size={16} />,
         "Gym": <FaDumbbell size={16} />,
         "Spa": <FaSpa size={16} />,
@@ -59,6 +61,32 @@ const getAmenityIcon = (amenity: string) => {
     };
     return icons[amenity] || <FaWifi size={16} />;
 };
+
+// Section tabs configuration
+const SECTION_TABS = [
+    { id: "amenities", label: "Amenities" },
+    { id: "about", label: "About this Vibe" },
+    { id: "rooms", label: "Choose your room" },
+    { id: "reviews", label: "Ratings and Reviews" },
+    { id: "policies", label: "Hotel Rules" },
+    { id: "location", label: "What's nearby" },
+];
+
+// Mock reviews (replace with actual data)
+const MOCK_REVIEWS = [
+    {
+        name: "Rahmat Khan",
+        date: "2025-02-23",
+        rating: 5,
+        text: "Great experience staying in this hotel. Excellent location, very near and walking distance to shopping area and local restaurants.",
+    },
+    {
+        name: "Pabitra Behera",
+        date: "2025-01-04",
+        rating: 5,
+        text: "Very good behavior, I will recommend this hotel. Thank you!",
+    },
+];
 
 export default function HotelDetailPage() {
     const params = useParams();
@@ -151,13 +179,16 @@ export default function HotelDetailPage() {
     }
 
     const displayName = hotel.vibeCode ? `Vibe ${hotel.name}` : hotel.name;
+    const selectedPrice = selectedRoom?.dynamicPrice ?? Number(selectedRoom?.basePrice || 0);
+    const selectedBasePrice = Number(selectedRoom?.basePrice || 0);
+    const nights = selectedRoom?.nights ?? 1;
+    const totalPrice = selectedRoom?.totalDynamicPrice ?? selectedPrice * nights;
 
     return (
         <>
             {/* Back Button - Fixed */}
             <button
                 onClick={() => router.back()}
-                className="btn-back-fixed"
                 style={{
                     position: "fixed",
                     top: "1rem",
@@ -178,123 +209,74 @@ export default function HotelDetailPage() {
                 <FiArrowLeft size={20} />
             </button>
 
-            <main className="page-with-book-bar" style={{ padding: "0 1rem" }}>
-                {/* 1. Image Gallery Grid - OYO Style */}
+            {/* Hero Image Gallery - Full Width */}
+            <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 1rem" }}>
                 <HotelImageGallery
                     images={hotel.images}
                     hotelName={displayName}
                 />
+            </div>
 
-                {/* 2. Hotel Info Header */}
-                <div className="hotel-info-header">
-                    <h1>{displayName}</h1>
+            {/* Section Tabs - Sticky Navigation */}
+            <OYOSectionTabs sections={SECTION_TABS} />
 
-                    {/* Vibe Code Badge */}
-                    {hotel.vibeCode && (
-                        <span
-                            style={{
-                                display: "inline-block",
-                                backgroundColor: "#E63946",
-                                color: "white",
-                                padding: "0.25rem 0.5rem",
-                                borderRadius: "4px",
-                                fontSize: "0.75rem",
-                                fontWeight: "600",
-                                marginBottom: "0.5rem",
-                            }}
-                        >
-                            {hotel.vibeCode}
-                        </span>
-                    )}
-
-                    {/* Rating Row */}
-                    <div className="hotel-rating-row">
-                        <div className="hotel-rating-badge">
-                            <FiStar size={14} />
-                            {parseFloat(hotel.rating || "0").toFixed(1)}
+            {/* Two Column Layout - OYO Style */}
+            <div className="oyo-detail-layout">
+                {/* Main Content */}
+                <div className="oyo-main-content">
+                    {/* Hotel Info Header */}
+                    <div className="hotel-info-header">
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                            <div>
+                                <h1>{displayName}</h1>
+                                <p style={{ fontSize: "0.875rem", color: "var(--color-text-secondary)", margin: "0.25rem 0" }}>
+                                    {hotel.address}, {hotel.city}
+                                </p>
+                                {hotel.vibeCode && (
+                                    <span style={{
+                                        display: "inline-block",
+                                        background: "rgba(0,0,0,0.7)",
+                                        color: "white",
+                                        padding: "0.25rem 0.5rem",
+                                        borderRadius: "4px",
+                                        fontSize: "0.625rem",
+                                        marginTop: "0.5rem",
+                                    }}>
+                                        🏢 Company-Serviced
+                                    </span>
+                                )}
+                            </div>
+                            <div style={{ textAlign: "right" }}>
+                                <div className="hotel-rating-badge" style={{ background: "#22c55e", padding: "0.5rem 0.75rem" }}>
+                                    <FiStar size={14} />
+                                    <span style={{ marginLeft: "0.25rem" }}>{parseFloat(hotel.rating || "0").toFixed(1)}</span>
+                                </div>
+                                <div style={{ fontSize: "0.75rem", color: "var(--color-text-secondary)", marginTop: "0.25rem" }}>
+                                    {hotel.reviewCount} Ratings
+                                </div>
+                            </div>
                         </div>
-                        <span className="hotel-review-count">
-                            {hotel.reviewCount} {tCommon("reviews")}
-                        </span>
+
+                        {/* Check-in Rating */}
+                        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginTop: "0.75rem", fontSize: "0.875rem" }}>
+                            <span>🔒</span>
+                            <span>5.0 · Check-in rating</span>
+                            <span style={{ color: "var(--color-text-secondary)" }}>›</span>
+                            <span style={{ color: "var(--color-text-secondary)" }}>Delightful experience</span>
+                        </div>
                     </div>
 
-                    {/* Location Row */}
-                    <div className="hotel-location-row">
-                        <FiMapPin size={14} />
-                        {hotel.address}, {hotel.city}
-                    </div>
-                </div>
-
-                {/* 3. Highlights / Trust Badges - OYO Style */}
-                <HotelHighlights
-                    payAtHotelEnabled={hotel.payAtHotelEnabled}
-                    isVerified={!!hotel.vibeCode}
-                />
-
-                {/* 4. Sticky Date/Guest Bar - OYO Style */}
-                <DateGuestBar
-                    checkIn={checkIn}
-                    checkOut={checkOut}
-                    guests={guests}
-                    onCheckInChange={setCheckIn}
-                    onCheckOutChange={setCheckOut}
-                    onGuestsChange={setGuests}
-                />
-
-                {/* 5. Room Selection - OYO Style */}
-                <div style={{ marginTop: "1rem" }}>
-                    <div className="section-header">
-                        <h2 className="section-title">{t("availableRooms")}</h2>
-                    </div>
-                    {rooms.length > 0 ? (
-                        <div className="room-cards-grid">
-                            {rooms.map((room) => (
-                                <RoomCard
-                                    key={room.id}
-                                    room={room}
-                                    isSelected={selectedRoom?.id === room.id}
-                                    onSelect={() => setSelectedRoom(room)}
-                                    onViewDetails={() => setDetailRoom(room)}
-                                />
-                            ))}
-                        </div>
-                    ) : (
-                        <div className="card" style={{ padding: "2rem", textAlign: "center" }}>
-                            <p style={{ color: "var(--color-text-secondary)" }}>{t("noRoomsAvailable")}</p>
-                        </div>
-                    )}
-                </div>
-
-                {/* Room Detail Modal */}
-                {detailRoom && (
-                    <RoomDetailModal
-                        room={detailRoom}
-                        isOpen={!!detailRoom}
-                        onClose={() => setDetailRoom(null)}
-                        onSelectRoom={() => setSelectedRoom(detailRoom)}
+                    {/* Highlights / Trust Badges */}
+                    <HotelHighlights
+                        payAtHotelEnabled={hotel.payAtHotelEnabled}
+                        isVerified={!!hotel.vibeCode}
                     />
-                )}
 
-                {/* 6. About Section */}
-                {hotel.description && (
-                    <div style={{ marginTop: "1.5rem" }}>
-                        <div className="section-header">
-                            <h2 className="section-title">{t("about")}</h2>
-                        </div>
-                        <p style={{ fontSize: "0.875rem", color: "var(--color-text-secondary)", lineHeight: 1.6 }}>
-                            {hotel.description}
-                        </p>
-                    </div>
-                )}
-
-                {/* 7. Amenities Grid - OYO Style */}
-                {hotel.amenities && hotel.amenities.length > 0 && (
-                    <div style={{ marginTop: "1.5rem" }}>
-                        <div className="section-header">
-                            <h2 className="section-title">{t("amenities")}</h2>
-                        </div>
+                    {/* Amenities Section */}
+                    <div id="amenities" style={{ marginTop: "1.5rem" }}>
+                        <h2 className="oyo-section-title">Amenities</h2>
                         <div className="amenities-grid">
-                            {hotel.amenities.map((amenity) => (
+                            {hotel.amenities.slice(0, 6).map((amenity) => (
                                 <div key={amenity} className="amenity-grid-item">
                                     <div className="amenity-grid-icon">
                                         {getAmenityIcon(amenity)}
@@ -303,143 +285,174 @@ export default function HotelDetailPage() {
                                 </div>
                             ))}
                         </div>
+                        {hotel.amenities.length > 6 && (
+                            <button style={{ color: "#22c55e", background: "none", border: "none", marginTop: "0.75rem", cursor: "pointer", fontSize: "0.875rem" }}>
+                                Show More
+                            </button>
+                        )}
                     </div>
-                )}
 
-                {/* 8. Policies Section - OYO Style */}
-                <div style={{ marginTop: "1.5rem" }}>
-                    <div className="section-header">
-                        <h2 className="section-title">{t("hotelPolicies")}</h2>
-                    </div>
-                    <div className="policies-grid">
-                        <div className="policy-item">
-                            <div className="policy-icon">
-                                <FiClock size={18} />
-                            </div>
-                            <div className="policy-content">
-                                <h4>Check-in</h4>
-                                <p>From 2:00 PM onwards</p>
-                            </div>
+                    {/* About Section */}
+                    {hotel.description && (
+                        <div id="about" style={{ marginTop: "1.5rem" }}>
+                            <h2 className="oyo-section-title">About this Vibe</h2>
+                            <p style={{ fontSize: "0.875rem", color: "var(--color-text-secondary)", lineHeight: 1.6 }}>
+                                {hotel.description}
+                            </p>
                         </div>
-                        <div className="policy-item">
-                            <div className="policy-icon">
-                                <FiClock size={18} />
-                            </div>
-                            <div className="policy-content">
-                                <h4>Check-out</h4>
-                                <p>Before 12:00 PM</p>
-                            </div>
-                        </div>
-                        <div className="policy-item">
-                            <div className="policy-icon">
-                                <FiXCircle size={18} />
-                            </div>
-                            <div className="policy-content">
-                                <h4>Cancellation</h4>
-                                <p>Free up to 24h before</p>
-                            </div>
-                        </div>
-                        <div className="policy-item">
-                            <div className="policy-icon">
-                                <FiCreditCard size={18} />
-                            </div>
-                            <div className="policy-content">
-                                <h4>ID Required</h4>
-                                <p>Valid ID at check-in</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                    )}
 
-                {/* 9. Location Map */}
-                {hotel.latitude && hotel.longitude && (
-                    <div style={{ marginTop: "1.5rem", marginBottom: "6rem" }}>
-                        <div className="section-header">
-                            <h2 className="section-title">{t("location")}</h2>
+                    {/* Room Selection - OYO Style */}
+                    <div id="rooms" style={{ marginTop: "1.5rem" }}>
+                        <h2 className="oyo-section-title">Choose your room</h2>
+                        {rooms.length > 0 ? (
+                            <div>
+                                {rooms.map((room) => (
+                                    <OYORoomCard
+                                        key={room.id}
+                                        roomId={room.id}
+                                        roomName={room.name}
+                                        roomSize={`${room.capacity || 2} guests · ${room.bedType || "Queen Bed"}`}
+                                        basePrice={Number(room.basePrice)}
+                                        dynamicPrice={room.dynamicPrice ?? Number(room.basePrice)}
+                                        photo={room.photos?.[0]}
+                                        isSelected={selectedRoom?.id === room.id}
+                                        availableCount={room.availableCount}
+                                        onSelect={() => setSelectedRoom(room)}
+                                    />
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="card" style={{ padding: "2rem", textAlign: "center" }}>
+                                <p style={{ color: "var(--color-text-secondary)" }}>{t("noRoomsAvailable")}</p>
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Room Detail Modal */}
+                    {detailRoom && (
+                        <RoomDetailModal
+                            room={detailRoom}
+                            isOpen={!!detailRoom}
+                            onClose={() => setDetailRoom(null)}
+                            onSelectRoom={() => setSelectedRoom(detailRoom)}
+                        />
+                    )}
+
+                    {/* Ratings & Reviews Section */}
+                    <div id="reviews">
+                        <OYORatingsBreakdown
+                            averageRating={parseFloat(hotel.rating || "4.6")}
+                            totalReviews={hotel.reviewCount}
+                        />
+
+                        {/* Reviews */}
+                        <div style={{ marginTop: "1rem" }}>
+                            {MOCK_REVIEWS.map((review, index) => (
+                                <OYOReviewCard
+                                    key={index}
+                                    reviewerName={review.name}
+                                    reviewDate={review.date}
+                                    rating={review.rating}
+                                    reviewText={review.text}
+                                />
+                            ))}
+                            <button style={{ color: "#22c55e", background: "none", border: "none", marginTop: "1rem", cursor: "pointer", fontSize: "0.875rem" }}>
+                                See all reviews
+                            </button>
                         </div>
-                        <div style={{ borderRadius: "0.75rem", overflow: "hidden", height: 200 }}>
-                            <Suspense
-                                fallback={
-                                    <div
-                                        style={{
+                    </div>
+
+                    {/* Policies Section */}
+                    <div id="policies" style={{ marginTop: "1.5rem" }}>
+                        <h2 className="oyo-section-title">Hotel policies</h2>
+                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem", marginBottom: "1rem" }}>
+                            <div style={{ padding: "1rem", border: "1px solid var(--color-border)", borderRadius: "0.5rem" }}>
+                                <div style={{ fontSize: "0.75rem", color: "var(--color-text-secondary)" }}>Check-in</div>
+                                <div style={{ fontSize: "1rem", fontWeight: "600" }}>12:00 PM</div>
+                            </div>
+                            <div style={{ padding: "1rem", border: "1px solid var(--color-border)", borderRadius: "0.5rem" }}>
+                                <div style={{ fontSize: "0.75rem", color: "var(--color-text-secondary)" }}>Check-out</div>
+                                <div style={{ fontSize: "1rem", fontWeight: "600" }}>11:00 AM</div>
+                            </div>
+                        </div>
+                        <ul style={{ fontSize: "0.875rem", color: "var(--color-text-secondary)", paddingLeft: "1.25rem" }}>
+                            <li style={{ marginBottom: "0.5rem" }}>• Couples are welcome</li>
+                            <li style={{ marginBottom: "0.5rem" }}>• Guests can check in using any local or outstation ID proof (PAN card not accepted)</li>
+                        </ul>
+                        <button style={{ color: "#d40000", background: "none", border: "none", marginTop: "0.75rem", cursor: "pointer", fontSize: "0.875rem" }}>
+                            View Guest Policy
+                        </button>
+                    </div>
+
+                    {/* Location Map */}
+                    <div id="location" style={{ marginTop: "1.5rem", marginBottom: "6rem" }}>
+                        <h2 className="oyo-section-title">What's nearby?</h2>
+                        {hotel.latitude && hotel.longitude && (
+                            <div style={{ borderRadius: "0.75rem", overflow: "hidden", height: 200 }}>
+                                <Suspense
+                                    fallback={
+                                        <div style={{
                                             height: "100%",
                                             display: "flex",
                                             alignItems: "center",
                                             justifyContent: "center",
                                             background: "var(--color-bg-secondary)",
-                                        }}
-                                    >
-                                        {tCommon("loadingMap")}
-                                    </div>
-                                }
-                            >
-                                <HotelMap
-                                    hotels={[{
-                                        id: hotel.id,
-                                        name: hotel.name,
-                                        lat: parseFloat(hotel.latitude),
-                                        lng: parseFloat(hotel.longitude),
-                                        price: rooms[0] ? (rooms[0].dynamicPrice ?? Number(rooms[0].basePrice)) : 0,
-                                        rating: hotel.rating ? parseFloat(hotel.rating) : undefined,
-                                    }]}
-                                    center={[parseFloat(hotel.latitude), parseFloat(hotel.longitude)]}
-                                    zoom={15}
-                                />
-                            </Suspense>
-                        </div>
+                                        }}>
+                                            {tCommon("loadingMap")}
+                                        </div>
+                                    }
+                                >
+                                    <HotelMap
+                                        hotels={[{
+                                            id: hotel.id,
+                                            name: hotel.name,
+                                            lat: parseFloat(hotel.latitude),
+                                            lng: parseFloat(hotel.longitude),
+                                            price: rooms[0] ? (rooms[0].dynamicPrice ?? Number(rooms[0].basePrice)) : 0,
+                                            rating: hotel.rating ? parseFloat(hotel.rating) : undefined,
+                                        }]}
+                                        center={[parseFloat(hotel.latitude), parseFloat(hotel.longitude)]}
+                                        zoom={15}
+                                    />
+                                </Suspense>
+                            </div>
+                        )}
                         <p className="hotel-location-row" style={{ marginTop: "0.5rem" }}>
                             <FiMapPin size={12} /> {hotel.address}, {hotel.city}
                         </p>
                     </div>
-                )}
-            </main>
+                </div>
 
-            {/* 10. Sticky Book Now Footer - OYO Style */}
-            {selectedRoom && (() => {
-                const displayPrice = selectedRoom.dynamicPrice ?? Number(selectedRoom.basePrice);
-                const basePrice = Number(selectedRoom.basePrice);
-                const isDiscount = selectedRoom.dynamicPrice && selectedRoom.dynamicPrice < basePrice;
-                const nights = selectedRoom.nights ?? 1;
-                const total = selectedRoom.totalDynamicPrice ?? displayPrice * nights;
+                {/* Sticky Booking Sidebar - OYO Style */}
+                <div className="oyo-sidebar">
+                    {selectedRoom && (
+                        <OYOBookingSidebar
+                            hotelName={displayName}
+                            roomName={selectedRoom.name}
+                            basePrice={selectedBasePrice}
+                            dynamicPrice={selectedPrice}
+                            totalPrice={totalPrice}
+                            nights={nights}
+                            checkIn={checkIn}
+                            checkOut={checkOut}
+                            guests={guests}
+                            isSelected={!!selectedRoom}
+                            onCheckInChange={setCheckIn}
+                            onCheckOutChange={setCheckOut}
+                            onGuestsChange={setGuests}
+                            onBookNow={handleBookNow}
+                        />
+                    )}
+                </div>
+            </div>
 
-                return (
-                    <div
-                        className="book-now-bar"
-                        style={{
-                            position: "fixed",
-                            left: 0,
-                            right: 0,
-                            bottom: 0,
-                            background: "white",
-                            padding: "1rem",
-                            boxShadow: "0 -4px 12px rgba(0, 0, 0, 0.1)",
-                            borderTop: "1px solid var(--color-border)",
-                            display: "flex",
-                            justifyContent: "space-between",
-                            alignItems: "center",
-                            zIndex: 90,
-                        }}
-                    >
-                        <div>
-                            <div className="hotel-price">
-                                ৳{displayPrice.toLocaleString()}
-                                <span className="hotel-price-label">{tCommon("perNight")}</span>
-                            </div>
-                            {isDiscount && (
-                                <div style={{ fontSize: "0.625rem", color: "var(--color-text-muted)", textDecoration: "line-through" }}>
-                                    ৳{basePrice.toLocaleString()}/{tCommon("night")}
-                                </div>
-                            )}
-                            <div style={{ fontSize: "0.75rem", color: "var(--color-text-secondary)" }}>
-                                {selectedRoom.name} • {nights} {tCommon(nights > 1 ? "nights" : "night")} = ৳{total.toLocaleString()}
-                            </div>
-                        </div>
-                        <button className="btn btn-primary btn-lg" onClick={handleBookNow}>
-                            {t("bookNow")}
-                        </button>
-                    </div>
-                );
-            })()}
+            {/* Mobile Book Now Bar (only on mobile) */}
+            <div className="book-now-bar" style={{
+                display: "none",
+            }}>
+                {/* Hidden on desktop, CSS shows on mobile */}
+            </div>
 
             <BottomNav />
         </>

@@ -3,10 +3,11 @@
 import { Suspense, useState, useEffect, useCallback, useMemo, lazy } from "react";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { BottomNav, HotelCard, Footer, SearchForm, SearchFiltersPanel } from "../components";
+import { BottomNav, Footer, SearchForm, OYOFiltersPanel, OYOHotelCard } from "../components";
 import { WhyChooseUs } from "../components/WhyChooseUs";
 import { searchHotels, type HotelWithPrice } from "../actions/hotels";
-import { FiMapPin, FiX } from "react-icons/fi";
+import { FiMapPin, FiX, FiMap } from "react-icons/fi";
+import Link from "next/link";
 
 // Lazy load the map component to avoid SSR issues
 const HotelMapLazy = lazy(() =>
@@ -28,9 +29,11 @@ function HotelsContent() {
     const [hotels, setHotels] = useState<HotelWithPrice[]>([]);
     const [loading, setLoading] = useState(true);
 
-    // New filter states
+    // Filter states
     const [minRating, setMinRating] = useState(0);
     const [selectedAmenities, setSelectedAmenities] = useState<string[]>([]);
+    const [priceRange, setPriceRange] = useState<[number, number]>([500, 10000]);
+    const [selectedCollections, setSelectedCollections] = useState<string[]>([]);
 
     // Geolocation state
     const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
@@ -70,12 +73,6 @@ function HotelsContent() {
         setSortBy("rating");
     }, []);
 
-    // Clear all filters handler
-    const handleClearAllFilters = useCallback(() => {
-        setMinRating(0);
-        setSelectedAmenities([]);
-    }, []);
-
     // Fetch hotels from database
     useEffect(() => {
         async function fetchHotels() {
@@ -84,8 +81,8 @@ function HotelsContent() {
                 city: city || undefined,
                 sortBy,
                 payAtHotel: filterPayAtHotel || undefined,
-                minPrice: priceMinParam ? Number(priceMinParam) : undefined,
-                maxPrice: priceMaxParam ? Number(priceMaxParam) : undefined,
+                minPrice: priceRange[0],
+                maxPrice: priceRange[1],
                 minRating: minRating || undefined,
                 amenities: selectedAmenities.length > 0 ? selectedAmenities : undefined,
                 latitude: userLocation?.lat,
@@ -96,7 +93,7 @@ function HotelsContent() {
             setLoading(false);
         }
         fetchHotels();
-    }, [city, sortBy, filterPayAtHotel, userLocation, priceMinParam, priceMaxParam, minRating, selectedAmenities]);
+    }, [city, sortBy, filterPayAtHotel, userLocation, priceRange, minRating, selectedAmenities]);
 
     // Map markers data
     const mapMarkers = useMemo(
@@ -116,176 +113,175 @@ function HotelsContent() {
         setSelectedHotelId(hotelId);
     }, []);
 
-    const handleHotelHover = useCallback((hotelId: string | undefined) => {
-        setSelectedHotelId(hotelId);
-    }, []);
+    // Popular locations for the current city
+    const popularLocations = city
+        ? ["Downtown", "Airport Area", "Beach Side", "City Center", "Business District"]
+        : ["Dhaka", "Chittagong", "Cox's Bazar", "Sylhet", "Kolkata"];
 
     return (
         <>
-            {/* Header */}
-            <header
-                style={{
-                    padding: "1rem",
-                    background: "white",
-                    borderBottom: "1px solid var(--color-border)",
-                    position: "sticky",
-                    top: 0,
-                    zIndex: 50,
-                }}
-            >
-                <div
-                    style={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                        marginBottom: "1rem",
-                    }}
-                >
-                    <div>
-                        <h1 style={{ fontSize: "1.25rem", fontWeight: 700 }}>
-                            {city ? `${city} এ হোটেল` : t("allHotels")}
-                        </h1>
-                        <p style={{ fontSize: "0.875rem", color: "var(--color-text-secondary)" }}>
-                            {loading ? tCommon("searching") : `${hotels.length} টি হোটেল পাওয়া গেছে`}
-                        </p>
-                    </div>
-
-                    {/* View Toggle */}
-                    <div className="view-toggle">
-                        <button
-                            className={`view-toggle-btn ${view === "list" ? "active" : ""}`}
-                            onClick={() => setView("list")}
-                        >
-                            {t("listView")}
-                        </button>
-                        <button
-                            className={`view-toggle-btn ${view === "map" ? "active" : ""}`}
-                            onClick={() => setView("map")}
-                        >
-                            {t("mapView")}
-                        </button>
-                    </div>
-                </div>
-
-                {/* Search Form - Same as homepage */}
-                <div style={{ marginBottom: "1rem" }}>
+            {/* OYO-Style Sticky Header */}
+            <header className="oyo-header" style={{
+                padding: "0.75rem 1rem",
+                background: "white",
+                borderBottom: "1px solid var(--color-border)",
+                position: "sticky",
+                top: 0,
+                zIndex: 50,
+            }}>
+                <div style={{ maxWidth: 1200, margin: "0 auto" }}>
                     <SearchForm />
                 </div>
-
-                {/* Filters */}
-                <div style={{ display: "flex", gap: "0.5rem", overflowX: "auto", flexWrap: "wrap" }}>
-                    <select
-                        value={sortBy}
-                        onChange={(e) => setSortBy(e.target.value as "price" | "rating" | "distance")}
-                        className="form-input"
-                        style={{ padding: "0.5rem", width: "auto", fontSize: "0.875rem" }}
-                    >
-                        <option value="rating">{t("topRated")}</option>
-                        <option value="price">{t("lowestPrice")}</option>
-                        {userLocation && <option value="distance">{t("nearest")}</option>}
-                    </select>
-
-                    {/* Nearby / Location Button */}
-                    {userLocation ? (
-                        <button
-                            className="btn btn-primary"
-                            style={{ padding: "0.5rem 1rem", fontSize: "0.875rem", minHeight: "auto" }}
-                            onClick={handleClearLocation}
-                        >
-                            <FiMapPin size={16} style={{ marginRight: "0.25rem" }} /> {t("nearby")} <FiX size={14} style={{ marginLeft: "0.25rem" }} />
-                        </button>
-                    ) : (
-                        <button
-                            className="btn btn-outline"
-                            style={{ padding: "0.5rem 1rem", fontSize: "0.875rem", minHeight: "auto" }}
-                            onClick={handleGetLocation}
-                            disabled={locationLoading}
-                        >
-                            {locationLoading ? <><FiMapPin size={16} /> {t("gettingLocation")}</> : <><FiMapPin size={16} /> {t("nearby")}</>}
-                        </button>
-                    )}
-                    {locationError && (
-                        <span style={{ color: "var(--color-error)", fontSize: "0.75rem", alignSelf: "center" }}>
-                            {locationError}
-                        </span>
-                    )}
-
-                    <button
-                        className={`btn ${filterPayAtHotel ? "btn-primary" : "btn-outline"}`}
-                        style={{ padding: "0.5rem 1rem", fontSize: "0.875rem", minHeight: "auto" }}
-                        onClick={() => setFilterPayAtHotel(!filterPayAtHotel)}
-                    >
-                        {t("payAtHotel")}
-                    </button>
-                </div>
-
-                {/* Advanced Filters Panel */}
-                <SearchFiltersPanel
-                    minRating={minRating}
-                    onMinRatingChange={setMinRating}
-                    selectedAmenities={selectedAmenities}
-                    onAmenitiesChange={setSelectedAmenities}
-                    onClearAll={handleClearAllFilters}
-                />
             </header>
 
-            <main className="container page-content">
-                {loading ? (
-                    <div style={{ textAlign: "center", padding: "3rem" }}>
-                        <div className="skeleton" style={{ width: 100, height: 24, margin: "0 auto" }} />
+            {/* Main Content with OYO Layout */}
+            <div className="oyo-listing-layout">
+                {/* Left Sidebar Filters - OYO Style */}
+                <OYOFiltersPanel
+                    city={city || "Bangladesh"}
+                    popularLocations={popularLocations}
+                    minPrice={500}
+                    maxPrice={15000}
+                    priceRange={priceRange}
+                    selectedAmenities={selectedAmenities}
+                    selectedCollections={selectedCollections}
+                    onPriceChange={setPriceRange}
+                    onAmenityToggle={(amenity) => {
+                        setSelectedAmenities((prev) =>
+                            prev.includes(amenity) ? prev.filter((a) => a !== amenity) : [...prev, amenity]
+                        );
+                    }}
+                    onCollectionToggle={(id) => {
+                        setSelectedCollections((prev) =>
+                            prev.includes(id) ? prev.filter((c) => c !== id) : [...prev, id]
+                        );
+                    }}
+                    onLocationClick={(location) => {
+                        window.location.href = `/hotels?city=${encodeURIComponent(location)}`;
+                    }}
+                />
+
+                {/* Main Content Area */}
+                <div className="oyo-listing-content">
+                    {/* Breadcrumb */}
+                    <div className="oyo-breadcrumb">
+                        <Link href="/">Bangladesh</Link> › {city ? `${city} Hotels` : "All Hotels"}
                     </div>
-                ) : hotels.length === 0 ? (
-                    <div style={{ textAlign: "center", padding: "3rem", color: "var(--color-text-secondary)" }}>
-                        {t("noHotelsFound")}
+
+                    {/* Header Row */}
+                    <div className="oyo-listing-header">
+                        <h1 className="oyo-listing-title">
+                            {city ? `Hotels in ${city}` : t("allHotels")}
+                        </h1>
+
+                        <div className="oyo-listing-controls">
+                            {/* Map View Toggle */}
+                            <div className="oyo-map-toggle">
+                                <span>Map View</span>
+                                <label style={{ position: "relative", width: 48, height: 24, display: "inline-block" }}>
+                                    <input
+                                        type="checkbox"
+                                        checked={view === "map"}
+                                        onChange={() => setView(view === "list" ? "map" : "list")}
+                                        style={{ opacity: 0, width: 0, height: 0 }}
+                                    />
+                                    <span style={{
+                                        position: "absolute",
+                                        cursor: "pointer",
+                                        top: 0,
+                                        left: 0,
+                                        right: 0,
+                                        bottom: 0,
+                                        backgroundColor: view === "map" ? "#22c55e" : "#ccc",
+                                        borderRadius: 24,
+                                        transition: "0.3s",
+                                    }}>
+                                        <span style={{
+                                            position: "absolute",
+                                            height: 18,
+                                            width: 18,
+                                            left: view === "map" ? 26 : 3,
+                                            bottom: 3,
+                                            backgroundColor: "white",
+                                            borderRadius: "50%",
+                                            transition: "0.3s",
+                                        }} />
+                                    </span>
+                                </label>
+                            </div>
+
+                            {/* Sort Dropdown */}
+                            <div className="oyo-sort-dropdown">
+                                <span>Sort By</span>
+                                <select
+                                    value={sortBy}
+                                    onChange={(e) => setSortBy(e.target.value as "price" | "rating" | "distance")}
+                                >
+                                    <option value="rating">Popularity</option>
+                                    <option value="price">Price: Low to High</option>
+                                    {userLocation && <option value="distance">Distance</option>}
+                                </select>
+                            </div>
+                        </div>
                     </div>
-                ) : view === "list" ? (
-                    <div className="hotel-grid">
-                        {hotels.map((hotel) => (
-                            <div
-                                key={hotel.id}
-                                onMouseEnter={() => handleHotelHover(hotel.id)}
-                                onMouseLeave={() => handleHotelHover(undefined)}
-                            >
-                                <HotelCard
+
+                    {/* Promo Banner */}
+                    <div style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "0.5rem",
+                        padding: "0.75rem 1rem",
+                        background: "#fff9e6",
+                        borderRadius: "0.5rem",
+                        marginBottom: "1rem",
+                        fontSize: "0.875rem",
+                    }}>
+                        <span style={{ fontSize: "1.25rem" }}>🎉</span>
+                        <span>upto 80% off. Valid until 31st Dec 2026.</span>
+                    </div>
+
+                    {/* Hotels Grid */}
+                    {loading ? (
+                        <div style={{ textAlign: "center", padding: "3rem" }}>
+                            <div className="skeleton" style={{ width: 100, height: 24, margin: "0 auto" }} />
+                        </div>
+                    ) : hotels.length === 0 ? (
+                        <div style={{ textAlign: "center", padding: "3rem", color: "var(--color-text-secondary)" }}>
+                            {t("noHotelsFound")}
+                        </div>
+                    ) : view === "list" ? (
+                        <div>
+                            {hotels.map((hotel) => (
+                                <OYOHotelCard
+                                    key={hotel.id}
                                     id={hotel.id}
                                     name={hotel.name}
-                                    location={hotel.location}
-                                    price={hotel.lowestPrice}
-                                    rating={hotel.rating}
-                                    reviewCount={hotel.reviewCount}
-                                    imageUrl={hotel.imageUrl}
-                                    amenities={hotel.amenities}
-                                    payAtHotel={hotel.payAtHotel}
+                                    address={hotel.location}
+                                    city={city || "Bangladesh"}
+                                    rating={hotel.rating || 4.5}
+                                    reviewCount={hotel.reviewCount || 100}
+                                    images={hotel.images || [hotel.imageUrl]}
+                                    amenities={hotel.amenities || ["WiFi", "AC", "TV"]}
+                                    basePrice={Math.round(hotel.lowestPrice * 1.3)}
+                                    dynamicPrice={hotel.lowestPrice}
+                                    badge={hotel.category === "premium" ? "Company-Serviced" : undefined}
                                     vibeCode={hotel.vibeCode}
-                                    category={hotel.category}
+                                    bookingsCount={Math.floor(Math.random() * 3000) + 500}
                                 />
-                            </div>
-                        ))}
-                    </div>
-                ) : (
-                    /* Map View */
-                    <div
-                        style={{
-                            display: "grid",
-                            gridTemplateColumns: "1fr",
-                            gap: "1rem",
-                            height: "calc(100vh - 200px)",
-                        }}
-                        className="map-view-container"
-                    >
-                        {/* Map */}
-                        <div style={{ borderRadius: "0.75rem", overflow: "hidden", minHeight: 400 }}>
+                            ))}
+                        </div>
+                    ) : (
+                        /* Map View */
+                        <div style={{ borderRadius: "0.75rem", overflow: "hidden", height: "calc(100vh - 200px)" }}>
                             <Suspense
                                 fallback={
-                                    <div
-                                        style={{
-                                            height: "100%",
-                                            display: "flex",
-                                            alignItems: "center",
-                                            justifyContent: "center",
-                                            background: "var(--color-bg-secondary)",
-                                        }}
-                                    >
+                                    <div style={{
+                                        height: "100%",
+                                        display: "flex",
+                                        alignItems: "center",
+                                        justifyContent: "center",
+                                        background: "var(--color-bg-secondary)",
+                                    }}>
                                         {tCommon("loadingMap")}
                                     </div>
                                 }
@@ -297,33 +293,9 @@ function HotelsContent() {
                                 />
                             </Suspense>
                         </div>
-
-                        {/* Selected Hotel Card (Mobile) */}
-                        {selectedHotelId && (
-                            <div className="selected-hotel-card" style={{ marginTop: "-3rem", zIndex: 10, position: "relative" }}>
-                                {hotels
-                                    .filter((h) => h.id === selectedHotelId)
-                                    .map((hotel) => (
-                                        <HotelCard
-                                            key={hotel.id}
-                                            id={hotel.id}
-                                            name={hotel.name}
-                                            location={hotel.location}
-                                            price={hotel.lowestPrice}
-                                            rating={hotel.rating}
-                                            reviewCount={hotel.reviewCount}
-                                            imageUrl={hotel.imageUrl}
-                                            amenities={hotel.amenities}
-                                            payAtHotel={hotel.payAtHotel}
-                                            vibeCode={hotel.vibeCode}
-                                            category={hotel.category}
-                                        />
-                                    ))}
-                            </div>
-                        )}
-                    </div>
-                )}
-            </main>
+                    )}
+                </div>
+            </div>
 
             {/* Why Choose Us Section */}
             <WhyChooseUs />
