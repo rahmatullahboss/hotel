@@ -20,8 +20,8 @@ export async function getUserPushTokens(userId: string): Promise<string[]> {
     });
 
     return subscriptions
-        .filter((sub) => sub.isActive && Expo.isExpoPushToken(sub.expoPushToken))
-        .map((sub) => sub.expoPushToken);
+        .filter((sub: { isActive: boolean; expoPushToken: string }) => sub.isActive && Expo.isExpoPushToken(sub.expoPushToken))
+        .map((sub: { expoPushToken: string }) => sub.expoPushToken);
 }
 
 /**

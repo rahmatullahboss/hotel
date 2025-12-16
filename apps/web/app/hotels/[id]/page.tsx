@@ -102,8 +102,8 @@ export default function HotelDetailPage() {
     const [detailRoom, setDetailRoom] = useState<Room | null>(null);
 
     // Default dates: today and tomorrow
-    const today = new Date().toISOString().split("T")[0];
-    const tomorrow = new Date(Date.now() + 86400000).toISOString().split("T")[0];
+    const today = new Date().toISOString().split("T")[0]!;
+    const tomorrow = new Date(Date.now() + 86400000).toISOString().split("T")[0]!;
     const [checkIn, setCheckIn] = useState(today);
     const [checkOut, setCheckOut] = useState(tomorrow);
     const [guests, setGuests] = useState(2);
@@ -312,7 +312,7 @@ export default function HotelDetailPage() {
                                         key={room.id}
                                         roomId={room.id}
                                         roomName={room.name}
-                                        roomSize={`${room.maxGuests || 2} guests · ${room.bedType || "Queen Bed"}`}
+                                        roomSize={`${room.maxGuests || 2} guests · ${room.type || "DOUBLE"}`}
                                         basePrice={Number(room.basePrice)}
                                         dynamicPrice={room.dynamicPrice ?? Number(room.basePrice)}
                                         photo={room.photos?.[0]}

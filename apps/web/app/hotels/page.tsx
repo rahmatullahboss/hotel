@@ -260,12 +260,12 @@ function HotelsContent() {
                                     city={city || "Bangladesh"}
                                     rating={hotel.rating || 4.5}
                                     reviewCount={hotel.reviewCount || 100}
-                                    images={hotel.images || [hotel.imageUrl]}
+                                    images={[hotel.imageUrl]}
                                     amenities={hotel.amenities || ["WiFi", "AC", "TV"]}
                                     basePrice={Math.round(hotel.lowestPrice * 1.3)}
                                     dynamicPrice={hotel.lowestPrice}
                                     badge={hotel.category === "premium" ? "Company-Serviced" : undefined}
-                                    vibeCode={hotel.vibeCode}
+                                    vibeCode={hotel.vibeCode ?? undefined}
                                     bookingsCount={Math.floor(Math.random() * 3000) + 500}
                                 />
                             ))}
