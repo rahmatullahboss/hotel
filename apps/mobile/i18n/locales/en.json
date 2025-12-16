@@ -340,5 +340,28 @@
         "gym": "Gym",
         "tv": "TV",
         "room service": "Room Service"
+    },
+    "onboarding": {
+        "skip": "Skip",
+        "next": "Next",
+        "getStarted": "Get Started",
+        "alreadyHaveAccount": "Already have an account?",
+        "login": "Login",
+        "slide1": {
+            "title": "Welcome to Vibe",
+            "description": "Find and book the perfect hotel for your next adventure. Thousands of verified hotels at your fingertips."
+        },
+        "slide2": {
+            "title": "Instant Booking",
+            "description": "Book your stay in seconds. Pay online or at the hotel - you choose what works best for you."
+        },
+        "slide3": {
+            "title": "Earn Rewards",
+            "description": "Get 5% cashback on every booking. Unlock badges, maintain streaks, and earn exclusive perks."
+        },
+        "slide4": {
+            "title": "Self Check-in",
+            "description": "Skip the queue! Use your QR code for instant self check-in and check-out at partner hotels."
+        }
     }
 }

@@ -191,6 +191,7 @@ function RootLayoutNav() {
         <StatusBar style={theme === 'dark' ? 'light' : 'dark'} />
         <Stack>
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen name="onboarding" options={{ headerShown: false }} />
           <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
           <Stack.Screen name="hotel/[id]" options={{ headerShown: false }} />
           <Stack.Screen name="room/[id]" options={{ headerShown: false }} />
