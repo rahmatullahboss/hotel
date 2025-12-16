@@ -3,7 +3,7 @@
 import { Suspense, useState, useEffect, useCallback, useMemo, lazy } from "react";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { BottomNav, HotelCard, Footer, SearchForm } from "../components";
+import { BottomNav, HotelCard, Footer, SearchForm, SearchFiltersPanel } from "../components";
 import { WhyChooseUs } from "../components/WhyChooseUs";
 import { searchHotels, type HotelWithPrice } from "../actions/hotels";
 import { FiMapPin, FiX } from "react-icons/fi";
@@ -16,6 +16,8 @@ const HotelMapLazy = lazy(() =>
 function HotelsContent() {
     const searchParams = useSearchParams();
     const city = searchParams.get("city") || "";
+    const priceMinParam = searchParams.get("priceMin");
+    const priceMaxParam = searchParams.get("priceMax");
     const t = useTranslations("hotels");
     const tCommon = useTranslations("common");
 
@@ -25,6 +27,10 @@ function HotelsContent() {
     const [selectedHotelId, setSelectedHotelId] = useState<string | undefined>();
     const [hotels, setHotels] = useState<HotelWithPrice[]>([]);
     const [loading, setLoading] = useState(true);
+
+    // New filter states
+    const [minRating, setMinRating] = useState(0);
+    const [selectedAmenities, setSelectedAmenities] = useState<string[]>([]);
 
     // Geolocation state
     const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
@@ -64,6 +70,12 @@ function HotelsContent() {
         setSortBy("rating");
     }, []);
 
+    // Clear all filters handler
+    const handleClearAllFilters = useCallback(() => {
+        setMinRating(0);
+        setSelectedAmenities([]);
+    }, []);
+
     // Fetch hotels from database
     useEffect(() => {
         async function fetchHotels() {
@@ -72,6 +84,10 @@ function HotelsContent() {
                 city: city || undefined,
                 sortBy,
                 payAtHotel: filterPayAtHotel || undefined,
+                minPrice: priceMinParam ? Number(priceMinParam) : undefined,
+                maxPrice: priceMaxParam ? Number(priceMaxParam) : undefined,
+                minRating: minRating || undefined,
+                amenities: selectedAmenities.length > 0 ? selectedAmenities : undefined,
                 latitude: userLocation?.lat,
                 longitude: userLocation?.lng,
                 radiusKm: 15,
@@ -80,7 +96,7 @@ function HotelsContent() {
             setLoading(false);
         }
         fetchHotels();
-    }, [city, sortBy, filterPayAtHotel, userLocation]);
+    }, [city, sortBy, filterPayAtHotel, userLocation, priceMinParam, priceMaxParam, minRating, selectedAmenities]);
 
     // Map markers data
     const mapMarkers = useMemo(
@@ -202,6 +218,15 @@ function HotelsContent() {
                         {t("payAtHotel")}
                     </button>
                 </div>
+
+                {/* Advanced Filters Panel */}
+                <SearchFiltersPanel
+                    minRating={minRating}
+                    onMinRatingChange={setMinRating}
+                    selectedAmenities={selectedAmenities}
+                    onAmenitiesChange={setSelectedAmenities}
+                    onClearAll={handleClearAllFilters}
+                />
             </header>
 
             <main className="container page-content">

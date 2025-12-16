@@ -524,5 +524,18 @@
         "payAtHotelDesc": "Only 20% advance, rest at check-in",
         "instantTitle": "Instant Booking",
         "instantDesc": "Book instantly, no waiting for confirmation"
+    },
+    "filters": {
+        "rating": "Rating",
+        "amenities": "Amenities",
+        "clearAll": "Clear All",
+        "amenity": {
+            "wifi": "WiFi",
+            "ac": "AC",
+            "tv": "TV",
+            "parking": "Parking",
+            "pool": "Pool",
+            "restaurant": "Restaurant"
+        }
     }
 }

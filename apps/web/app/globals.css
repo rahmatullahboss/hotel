@@ -2890,3 +2890,137 @@ main.page-with-book-bar {
     margin: 0 auto 1.5rem;
   }
 }
+
+/* ================================================
+   SEARCH FILTERS PANEL
+   ================================================ */
+.search-filters-panel {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: center;
+  padding: 0.75rem 0;
+  margin-top: 0.5rem;
+}
+
+.filter-section {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.filter-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+/* Rating Filter Buttons */
+.rating-filter-buttons {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.rating-filter-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.375rem 0.75rem;
+  background: white;
+  border: 1px solid var(--color-border);
+  border-radius: 9999px;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: var(--color-text-primary);
+}
+
+.rating-filter-btn:hover {
+  border-color: var(--color-primary);
+  background: rgba(230, 57, 70, 0.05);
+}
+
+.rating-filter-btn.active {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: white;
+}
+
+.rating-filter-btn svg {
+  color: #F59E0B;
+}
+
+.rating-filter-btn.active svg {
+  color: white;
+}
+
+/* Amenity Filter Chips */
+.amenity-filter-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+}
+
+.amenity-filter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.375rem 0.625rem;
+  background: white;
+  border: 1px solid var(--color-border);
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: var(--color-text-primary);
+}
+
+.amenity-filter-chip:hover {
+  border-color: var(--color-primary);
+  background: rgba(230, 57, 70, 0.05);
+}
+
+.amenity-filter-chip.active {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: white;
+}
+
+/* Clear Filters Button */
+.clear-filters-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.375rem 0.75rem;
+  background: rgba(208, 0, 0, 0.1);
+  border: none;
+  border-radius: 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  cursor: pointer;
+  color: var(--color-error);
+  transition: all 0.2s ease;
+}
+
+.clear-filters-btn:hover {
+  background: rgba(208, 0, 0, 0.2);
+}
+
+/* Responsive adjustments */
+@media (max-width: 767px) {
+  .search-filters-panel {
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    padding-bottom: 0.5rem;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .filter-section {
+    flex-shrink: 0;
+  }
+}

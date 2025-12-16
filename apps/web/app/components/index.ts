@@ -3,6 +3,7 @@ export { TopNav } from "./TopNav";
 export { DesktopHeader } from "./DesktopHeader";
 export { Footer } from "./Footer";
 export { SearchForm } from "./SearchForm";
+export { SearchFiltersPanel } from "./SearchFiltersPanel";
 export { HotelCard } from "./HotelCard";
 export { BookingQRCode } from "./BookingQRCode";
 export { CancelBookingModal } from "./CancelBookingModal";
