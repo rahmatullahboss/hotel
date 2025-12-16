@@ -312,7 +312,7 @@ export default function HotelDetailPage() {
                                         key={room.id}
                                         roomId={room.id}
                                         roomName={room.name}
-                                        roomSize={`${room.capacity || 2} guests · ${room.bedType || "Queen Bed"}`}
+                                        roomSize={`${room.maxGuests || 2} guests · ${room.bedType || "Queen Bed"}`}
                                         basePrice={Number(room.basePrice)}
                                         dynamicPrice={room.dynamicPrice ?? Number(room.basePrice)}
                                         photo={room.photos?.[0]}
