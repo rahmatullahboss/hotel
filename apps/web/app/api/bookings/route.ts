@@ -121,6 +121,8 @@ export async function POST(request: NextRequest) {
             success: true,
             bookingId: result.bookingId,
             message: "Booking created successfully",
+            requiresPayment: result.requiresPayment,
+            advanceAmount: result.advanceAmount,
         });
     } catch (error) {
         console.error("Error creating booking:", error);

@@ -138,6 +138,26 @@
         "signIn": "Sign In",
         "cancel": "Cancel"
     },
+    "payment": {
+        "title": "Complete Payment",
+        "expired": "Booking Expired",
+        "expiredMessage": "Your booking hold has expired. Please try booking again.",
+        "roomHeld": "Room Held for You",
+        "completeToConfirm": "Complete payment to confirm your booking",
+        "advanceAmount": "20% Advance Payment",
+        "selectMethod": "Select Payment Method",
+        "instantPayment": "Instant mobile payment",
+        "infoNote": "After payment, the remaining amount will be paid at the hotel during check-in.",
+        "payNow": "Pay Now",
+        "payLater": "Pay Later",
+        "skipTitle": "Skip Payment?",
+        "skipMessage": "Your booking will remain pending and may be cancelled if payment is not completed within 20 minutes.",
+        "skipConfirm": "Skip for Now",
+        "redirecting": "Payment Started",
+        "checkStatusAfter": "Complete the payment in the browser. Then check your bookings for status.",
+        "cannotOpen": "Cannot open payment page",
+        "failed": "Payment initiation failed"
+    },
     "wallet": {
         "title": "Wallet",
         "balance": "Wallet Balance",

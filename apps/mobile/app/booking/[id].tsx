@@ -268,7 +268,18 @@ export default function BookingScreen() {
 
             if (error) {
                 Alert.alert(t('common.error'), error);
+            } else if (data?.requiresPayment && data?.advanceAmount) {
+                // Wallet doesn't cover 20% advance - redirect to payment screen
+                router.replace({
+                    pathname: '/advance-payment',
+                    params: {
+                        bookingId: data.bookingId,
+                        amount: String(data.advanceAmount),
+                        hotelName: hotelName,
+                    },
+                });
             } else {
+                // Booking confirmed (wallet covered the advance or full payment)
                 Alert.alert(
                     t('booking.confirmed'),
                     t('booking.confirmedMessage', { hotel: hotelName }),

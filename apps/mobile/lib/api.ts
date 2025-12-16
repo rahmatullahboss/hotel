@@ -292,6 +292,17 @@ export const api = {
         hasTokens: boolean;
     }>('/api/test-notification'),
 
+    // Payment
+    initiatePayment: (bookingId: string, amount?: number) => apiRequest<{
+        success: boolean;
+        redirectUrl?: string;
+        paymentID?: string;
+        error?: string;
+    }>('/api/payment/initiate', {
+        method: 'POST',
+        body: JSON.stringify({ bookingId, amount }),
+    }),
+
     // Booking Cancellation
     getCancellationInfo: (bookingId: string) => apiRequest<{
         type: 'ADVANCE_PAYMENT';
