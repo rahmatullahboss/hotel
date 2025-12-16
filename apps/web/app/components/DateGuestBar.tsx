@@ -47,7 +47,10 @@ export function DateGuestBar({
                                 if (e.target.value >= checkOut) {
                                     const nextDay = new Date(e.target.value);
                                     nextDay.setDate(nextDay.getDate() + 1);
-                                    onCheckOutChange(nextDay.toISOString().split("T")[0]);
+                                    const nextDayStr = nextDay.toISOString().split("T")[0];
+                                    if (nextDayStr) {
+                                        onCheckOutChange(nextDayStr);
+                                    }
                                 }
                             }}
                         />
