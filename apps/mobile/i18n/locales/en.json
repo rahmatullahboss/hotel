@@ -319,5 +319,26 @@
         "addToCalendar": "Add to Calendar",
         "added": "Added to Calendar",
         "addedMessage": "Check-in and check-out reminders have been added to your calendar."
+    },
+    "filters": {
+        "title": "Filters",
+        "reset": "Reset",
+        "priceRange": "Price Range",
+        "rating": "Rating",
+        "payAtHotel": "Pay at Hotel",
+        "payAtHotelDesc": "Pay when you check in",
+        "amenities": "Amenities",
+        "showResults": "Show Results ({{count}} filters)",
+        "showAllResults": "Show All Results"
+    },
+    "amenities": {
+        "wifi": "WiFi",
+        "parking": "Parking",
+        "ac": "AC",
+        "breakfast": "Breakfast",
+        "pool": "Pool",
+        "gym": "Gym",
+        "tv": "TV",
+        "room service": "Room Service"
     }
 }

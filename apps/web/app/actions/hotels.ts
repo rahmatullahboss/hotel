@@ -31,6 +31,8 @@ export interface SearchParams {
     minPrice?: number;
     maxPrice?: number;
     payAtHotel?: boolean;
+    minRating?: number;
+    amenities?: string[];
     sortBy?: "price" | "rating" | "distance";
     // Geo-based search
     latitude?: number;
@@ -65,7 +67,7 @@ function calculateDistance(
  * Uses pre-computed lowestDynamicPrice from cron job (single source of truth)
  */
 export async function searchHotels(params: SearchParams): Promise<HotelWithPrice[]> {
-    const { city, minPrice, maxPrice, payAtHotel, sortBy = "rating", latitude, longitude, radiusKm = 10 } = params;
+    const { city, minPrice, maxPrice, payAtHotel, minRating, amenities, sortBy = "rating", latitude, longitude, radiusKm = 10 } = params;
 
     try {
         // Get all hotels with pre-computed dynamic price (or fallback to base price)
@@ -150,6 +152,22 @@ export async function searchHotels(params: SearchParams): Promise<HotelWithPrice
         }
         if (payAtHotel) {
             filtered = filtered.filter((h: typeof filtered[number]) => h.payAtHotel === true);
+        }
+
+        // Rating filter
+        if (minRating !== undefined && minRating > 0) {
+            filtered = filtered.filter((h: typeof filtered[number]) => h.rating >= minRating);
+        }
+
+        // Amenities filter (must have ALL specified amenities)
+        if (amenities && amenities.length > 0) {
+            filtered = filtered.filter((h: typeof filtered[number]) => {
+                return amenities.every((amenity: string) =>
+                    h.amenities.some((a: string) =>
+                        a.toLowerCase().includes(amenity.toLowerCase())
+                    )
+                );
+            });
         }
 
         // Sort by distance if geo-searching
