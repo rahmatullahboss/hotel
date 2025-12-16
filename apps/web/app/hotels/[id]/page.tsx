@@ -3,9 +3,17 @@
 import { useState, useEffect, lazy, Suspense } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { BottomNav, RoomCard, RoomDetailModal, ImageGalleryModal } from "../../components";
+import {
+    BottomNav,
+    RoomCard,
+    RoomDetailModal,
+    HotelImageGallery,
+    DateGuestBar,
+    HotelHighlights
+} from "../../components";
 import { getHotelById, getAvailableRooms, RoomWithDetails } from "../../actions/hotels";
-import { FiMapPin, FiImage } from "react-icons/fi";
+import { FiMapPin, FiStar, FiClock, FiXCircle, FiCreditCard, FiArrowLeft } from "react-icons/fi";
+import { FaWifi, FaSnowflake, FaTv, FaParking, FaSwimmingPool, FaUtensils, FaDumbbell, FaSpa, FaCoffee, FaConciergeBell } from "react-icons/fa";
 
 // Lazy load map to avoid SSR issues
 const HotelMap = lazy(() =>
@@ -30,27 +38,47 @@ interface HotelDetail {
     vibeCode?: string | null;
 }
 
+// Amenity icon mapping
+const getAmenityIcon = (amenity: string) => {
+    const icons: Record<string, React.ReactNode> = {
+        "WiFi": <FaWifi size={16} />,
+        "wifi": <FaWifi size={16} />,
+        "AC": <FaSnowflake size={16} />,
+        "ac": <FaSnowflake size={16} />,
+        "Air Conditioning": <FaSnowflake size={16} />,
+        "TV": <FaTv size={16} />,
+        "tv": <FaTv size={16} />,
+        "Parking": <FaParking size={16} />,
+        "Pool": <FaSwimmingPool size={16} />,
+        "Swimming Pool": <FaSwimmingPool size={16} />,
+        "Restaurant": <FaUtensils size={16} />,
+        "Gym": <FaDumbbell size={16} />,
+        "Spa": <FaSpa size={16} />,
+        "Coffee": <FaCoffee size={16} />,
+        "Room Service": <FaConciergeBell size={16} />,
+    };
+    return icons[amenity] || <FaWifi size={16} />;
+};
+
 export default function HotelDetailPage() {
     const params = useParams();
     const router = useRouter();
     const hotelId = params.id as string;
     const t = useTranslations("hotelDetail");
     const tCommon = useTranslations("common");
-    const tSearch = useTranslations("search");
 
     const [hotel, setHotel] = useState<HotelDetail | null>(null);
     const [rooms, setRooms] = useState<Room[]>([]);
     const [loading, setLoading] = useState(true);
     const [selectedRoom, setSelectedRoom] = useState<Room | null>(null);
-    const [currentImage, setCurrentImage] = useState(0);
     const [detailRoom, setDetailRoom] = useState<Room | null>(null);
-    const [showGallery, setShowGallery] = useState(false);
 
     // Default dates: today and tomorrow
     const today = new Date().toISOString().split("T")[0];
     const tomorrow = new Date(Date.now() + 86400000).toISOString().split("T")[0];
     const [checkIn, setCheckIn] = useState(today);
     const [checkOut, setCheckOut] = useState(tomorrow);
+    const [guests, setGuests] = useState(2);
 
     // Fetch hotel data
     useEffect(() => {
@@ -90,11 +118,9 @@ export default function HotelDetailPage() {
         if (!hotel || !selectedRoom || !checkIn || !checkOut) return;
         const roomPhoto = selectedRoom.photos && selectedRoom.photos.length > 0 ? selectedRoom.photos[0] : "";
         const roomPhotoParam = roomPhoto ? `&roomPhoto=${encodeURIComponent(roomPhoto)}` : "";
-        // Use dynamic price if available, otherwise base price
         const price = selectedRoom.dynamicPrice ?? Number(selectedRoom.basePrice);
         const nights = selectedRoom.nights ?? 1;
         const total = selectedRoom.totalDynamicPrice ?? price * nights;
-        // Pass roomIds for auto room assignment (room type booking)
         const roomIdsParam = selectedRoom.roomIds && selectedRoom.roomIds.length > 0
             ? `&roomIds=${encodeURIComponent(JSON.stringify(selectedRoom.roomIds))}`
             : "";
@@ -106,7 +132,7 @@ export default function HotelDetailPage() {
     if (loading) {
         return (
             <div style={{ padding: "2rem", textAlign: "center" }}>
-                <div className="skeleton" style={{ width: "100%", height: 280 }} />
+                <div className="skeleton" style={{ width: "100%", height: 400, borderRadius: "0.75rem" }} />
                 <div className="skeleton" style={{ width: 200, height: 24, marginTop: "1rem" }} />
             </div>
         );
@@ -124,119 +150,46 @@ export default function HotelDetailPage() {
         );
     }
 
-    const images = hotel.images.length > 0 ? hotel.images : ["https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800"];
-
-    // Show "Vibe Hotel Name" (brand prefix), vibeCode number shown as badge
     const displayName = hotel.vibeCode ? `Vibe ${hotel.name}` : hotel.name;
 
     return (
         <>
-            {/* Hero Image Gallery */}
-            <div style={{ position: "relative" }}>
-                <img
-                    src={images[currentImage]}
-                    alt={displayName}
-                    onClick={() => setShowGallery(true)}
-                    style={{
-                        width: "100%",
-                        height: "280px",
-                        objectFit: "cover",
-                        cursor: "pointer",
-                    }}
+            {/* Back Button - Fixed */}
+            <button
+                onClick={() => router.back()}
+                className="btn-back-fixed"
+                style={{
+                    position: "fixed",
+                    top: "1rem",
+                    left: "1rem",
+                    zIndex: 100,
+                    width: "40px",
+                    height: "40px",
+                    borderRadius: "50%",
+                    background: "white",
+                    border: "none",
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
+                }}
+            >
+                <FiArrowLeft size={20} />
+            </button>
+
+            <main className="page-with-book-bar" style={{ padding: "0 1rem" }}>
+                {/* 1. Image Gallery Grid - OYO Style */}
+                <HotelImageGallery
+                    images={hotel.images}
+                    hotelName={displayName}
                 />
 
-                {/* Image Dots */}
-                {images.length > 1 && (
-                    <div
-                        style={{
-                            position: "absolute",
-                            bottom: "1rem",
-                            left: "50%",
-                            transform: "translateX(-50%)",
-                            display: "flex",
-                            gap: "0.5rem",
-                        }}
-                    >
-                        {images.map((_, i) => (
-                            <button
-                                key={i}
-                                onClick={() => setCurrentImage(i)}
-                                style={{
-                                    width: "8px",
-                                    height: "8px",
-                                    borderRadius: "50%",
-                                    background: i === currentImage ? "white" : "rgba(255,255,255,0.5)",
-                                    border: "none",
-                                    cursor: "pointer",
-                                }}
-                            />
-                        ))}
-                    </div>
-                )}
+                {/* 2. Hotel Info Header */}
+                <div className="hotel-info-header">
+                    <h1>{displayName}</h1>
 
-                {/* Image Count Badge - OYO style */}
-                {images.length > 1 && (
-                    <button
-                        className="image-count-badge"
-                        onClick={() => setShowGallery(true)}
-                    >
-                        <FiImage size={14} />
-                        {currentImage + 1}/{images.length}
-                    </button>
-                )}
-
-                {/* Back Button */}
-                <button
-                    onClick={() => router.back()}
-                    style={{
-                        position: "absolute",
-                        top: "1rem",
-                        left: "1rem",
-                        width: "40px",
-                        height: "40px",
-                        borderRadius: "50%",
-                        background: "white",
-                        border: "none",
-                        cursor: "pointer",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
-                    }}
-                >
-                    ←
-                </button>
-
-                {/* Pay at Hotel Badge */}
-                {hotel.payAtHotelEnabled && (
-                    <span
-                        className="badge-pay-hotel"
-                        style={{
-                            position: "absolute",
-                            top: "1rem",
-                            right: "1rem",
-                        }}
-                    >
-                        {t("payAtHotel")}
-                    </span>
-                )}
-            </div>
-
-            {/* Image Gallery Modal */}
-            <ImageGalleryModal
-                images={images}
-                initialIndex={currentImage}
-                isOpen={showGallery}
-                onClose={() => setShowGallery(false)}
-                hotelName={displayName}
-            />
-
-            <main className="page-with-book-bar">
-                {/* Hotel Info */}
-                <div style={{ marginBottom: "1.5rem" }}>
-                    <h1 style={{ fontSize: "1.5rem", fontWeight: 700, marginBottom: "0.5rem" }}>
-                        {displayName}
-                    </h1>
+                    {/* Vibe Code Badge */}
                     {hotel.vibeCode && (
                         <span
                             style={{
@@ -254,150 +207,45 @@ export default function HotelDetailPage() {
                         </span>
                     )}
 
-                    <div className="hotel-location" style={{ marginBottom: "0.75rem" }}>
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            viewBox="0 0 20 20"
-                            fill="currentColor"
-                            style={{ width: "14px", height: "14px" }}
-                        >
-                            <path
-                                fillRule="evenodd"
-                                d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z"
-                                clipRule="evenodd"
-                            />
-                        </svg>
-                        {hotel.address}, {hotel.city}
-                    </div>
-
-                    {/* Rating */}
-                    <div className="rating">
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            viewBox="0 0 20 20"
-                            fill="currentColor"
-                            style={{ width: "16px", height: "16px" }}
-                        >
-                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                        </svg>
-                        <span className="rating-value">{parseFloat(hotel.rating || "0").toFixed(1)}</span>
-                        <span style={{ color: "var(--color-text-muted)" }}>
-                            ({hotel.reviewCount} {tCommon("reviews")})
+                    {/* Rating Row */}
+                    <div className="hotel-rating-row">
+                        <div className="hotel-rating-badge">
+                            <FiStar size={14} />
+                            {parseFloat(hotel.rating || "0").toFixed(1)}
+                        </div>
+                        <span className="hotel-review-count">
+                            {hotel.reviewCount} {tCommon("reviews")}
                         </span>
                     </div>
-                </div>
 
-                {/* Description */}
-                {hotel.description && (
-                    <div className="card" style={{ padding: "1rem", marginBottom: "1rem" }}>
-                        <h2 style={{ fontSize: "1rem", fontWeight: 600, marginBottom: "0.5rem" }}>
-                            {t("about")}
-                        </h2>
-                        <p style={{ fontSize: "0.875rem", color: "var(--color-text-secondary)", lineHeight: 1.6 }}>
-                            {hotel.description}
-                        </p>
-                    </div>
-                )}
-
-                {/* Amenities */}
-                {hotel.amenities && hotel.amenities.length > 0 && (
-                    <div className="card" style={{ padding: "1rem", marginBottom: "1rem" }}>
-                        <h2 style={{ fontSize: "1rem", fontWeight: 600, marginBottom: "0.75rem" }}>
-                            {t("amenities")}
-                        </h2>
-                        <div className="amenity-tags">
-                            {hotel.amenities.map((amenity) => (
-                                <span key={amenity} className="amenity-tag">
-                                    ✓ {amenity}
-                                </span>
-                            ))}
-                        </div>
-                    </div>
-                )}
-
-                {/* Location Map */}
-                {hotel.latitude && hotel.longitude && (
-                    <div className="card" style={{ padding: "1rem", marginBottom: "1rem" }}>
-                        <h2 style={{ fontSize: "1rem", fontWeight: 600, marginBottom: "0.75rem" }}>
-                            {t("location")}
-                        </h2>
-                        <div style={{ borderRadius: "0.5rem", overflow: "hidden", height: 200 }}>
-                            <Suspense
-                                fallback={
-                                    <div
-                                        style={{
-                                            height: "100%",
-                                            display: "flex",
-                                            alignItems: "center",
-                                            justifyContent: "center",
-                                            background: "var(--color-bg-secondary)",
-                                        }}
-                                    >
-                                        {tCommon("loadingMap")}
-                                    </div>
-                                }
-                            >
-                                <HotelMap
-                                    hotels={[{
-                                        id: hotel.id,
-                                        name: hotel.name,
-                                        lat: parseFloat(hotel.latitude),
-                                        lng: parseFloat(hotel.longitude),
-                                        price: rooms[0] ? (rooms[0].dynamicPrice ?? Number(rooms[0].basePrice)) : 0,
-                                        rating: hotel.rating ? parseFloat(hotel.rating) : undefined,
-                                    }]}
-                                    center={[parseFloat(hotel.latitude), parseFloat(hotel.longitude)]}
-                                    zoom={15}
-                                />
-                            </Suspense>
-                        </div>
-                        <p style={{ fontSize: "0.75rem", color: "var(--color-text-secondary)", marginTop: "0.5rem", display: "flex", alignItems: "center", gap: "0.25rem" }}>
-                            <FiMapPin size={12} /> {hotel.address}, {hotel.city}
-                        </p>
-                    </div>
-                )}
-
-                {/* Date Selection */}
-                <div className="card" style={{ padding: "1rem", marginBottom: "1rem" }}>
-                    <h2 style={{ fontSize: "1rem", fontWeight: 600, marginBottom: "0.75rem" }}>
-                        {t("selectDates")}
-                    </h2>
-                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
-                        <div className="form-group" style={{ marginBottom: 0 }}>
-                            <label className="form-label" style={{ fontSize: "0.875rem" }}>{tSearch("checkIn")}</label>
-                            <input
-                                type="date"
-                                className="form-input"
-                                value={checkIn}
-                                min={today}
-                                onChange={(e) => {
-                                    setCheckIn(e.target.value);
-                                    if (checkOut && e.target.value >= checkOut) {
-                                        const nextDay = new Date(e.target.value);
-                                        nextDay.setDate(nextDay.getDate() + 1);
-                                        setCheckOut(nextDay.toISOString().split("T")[0]);
-                                    }
-                                }}
-                            />
-                        </div>
-                        <div className="form-group" style={{ marginBottom: 0 }}>
-                            <label className="form-label" style={{ fontSize: "0.875rem" }}>{tSearch("checkOut")}</label>
-                            <input
-                                type="date"
-                                className="form-input"
-                                value={checkOut}
-                                min={checkIn || today}
-                                onChange={(e) => setCheckOut(e.target.value)}
-                            />
-                        </div>
+                    {/* Location Row */}
+                    <div className="hotel-location-row">
+                        <FiMapPin size={14} />
+                        {hotel.address}, {hotel.city}
                     </div>
                 </div>
 
-                {/* Room Selection with Photos */}
-                <div style={{ marginBottom: "1rem" }}>
-                    <h2 style={{ fontSize: "1.125rem", fontWeight: 600, marginBottom: "1rem" }}>
-                        {t("availableRooms")}
-                    </h2>
+                {/* 3. Highlights / Trust Badges - OYO Style */}
+                <HotelHighlights
+                    payAtHotelEnabled={hotel.payAtHotelEnabled}
+                    isVerified={!!hotel.vibeCode}
+                />
+
+                {/* 4. Sticky Date/Guest Bar - OYO Style */}
+                <DateGuestBar
+                    checkIn={checkIn}
+                    checkOut={checkOut}
+                    guests={guests}
+                    onCheckInChange={setCheckIn}
+                    onCheckOutChange={setCheckOut}
+                    onGuestsChange={setGuests}
+                />
+
+                {/* 5. Room Selection - OYO Style */}
+                <div style={{ marginTop: "1rem" }}>
+                    <div className="section-header">
+                        <h2 className="section-title">{t("availableRooms")}</h2>
+                    </div>
                     {rooms.length > 0 ? (
                         <div className="room-cards-grid">
                             {rooms.map((room) => (
@@ -427,26 +275,126 @@ export default function HotelDetailPage() {
                     />
                 )}
 
-                {/* Policies */}
-                <div className="card" style={{ padding: "1rem" }}>
-                    <h2 style={{ fontSize: "1rem", fontWeight: 600, marginBottom: "0.75rem" }}>
-                        {t("hotelPolicies")}
-                    </h2>
-                    <div style={{ fontSize: "0.875rem", color: "var(--color-text-secondary)" }}>
-                        <div style={{ marginBottom: "0.5rem" }}>
-                            {t("checkInTime")}
+                {/* 6. About Section */}
+                {hotel.description && (
+                    <div style={{ marginTop: "1.5rem" }}>
+                        <div className="section-header">
+                            <h2 className="section-title">{t("about")}</h2>
                         </div>
-                        <div style={{ marginBottom: "0.5rem" }}>
-                            {t("checkOutTime")}
+                        <p style={{ fontSize: "0.875rem", color: "var(--color-text-secondary)", lineHeight: 1.6 }}>
+                            {hotel.description}
+                        </p>
+                    </div>
+                )}
+
+                {/* 7. Amenities Grid - OYO Style */}
+                {hotel.amenities && hotel.amenities.length > 0 && (
+                    <div style={{ marginTop: "1.5rem" }}>
+                        <div className="section-header">
+                            <h2 className="section-title">{t("amenities")}</h2>
                         </div>
-                        <div>
-                            {t("cancellationPolicy")}
+                        <div className="amenities-grid">
+                            {hotel.amenities.map((amenity) => (
+                                <div key={amenity} className="amenity-grid-item">
+                                    <div className="amenity-grid-icon">
+                                        {getAmenityIcon(amenity)}
+                                    </div>
+                                    <span className="amenity-grid-text">{amenity}</span>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
+
+                {/* 8. Policies Section - OYO Style */}
+                <div style={{ marginTop: "1.5rem" }}>
+                    <div className="section-header">
+                        <h2 className="section-title">{t("hotelPolicies")}</h2>
+                    </div>
+                    <div className="policies-grid">
+                        <div className="policy-item">
+                            <div className="policy-icon">
+                                <FiClock size={18} />
+                            </div>
+                            <div className="policy-content">
+                                <h4>Check-in</h4>
+                                <p>From 2:00 PM onwards</p>
+                            </div>
+                        </div>
+                        <div className="policy-item">
+                            <div className="policy-icon">
+                                <FiClock size={18} />
+                            </div>
+                            <div className="policy-content">
+                                <h4>Check-out</h4>
+                                <p>Before 12:00 PM</p>
+                            </div>
+                        </div>
+                        <div className="policy-item">
+                            <div className="policy-icon">
+                                <FiXCircle size={18} />
+                            </div>
+                            <div className="policy-content">
+                                <h4>Cancellation</h4>
+                                <p>Free up to 24h before</p>
+                            </div>
+                        </div>
+                        <div className="policy-item">
+                            <div className="policy-icon">
+                                <FiCreditCard size={18} />
+                            </div>
+                            <div className="policy-content">
+                                <h4>ID Required</h4>
+                                <p>Valid ID at check-in</p>
+                            </div>
                         </div>
                     </div>
                 </div>
+
+                {/* 9. Location Map */}
+                {hotel.latitude && hotel.longitude && (
+                    <div style={{ marginTop: "1.5rem", marginBottom: "6rem" }}>
+                        <div className="section-header">
+                            <h2 className="section-title">{t("location")}</h2>
+                        </div>
+                        <div style={{ borderRadius: "0.75rem", overflow: "hidden", height: 200 }}>
+                            <Suspense
+                                fallback={
+                                    <div
+                                        style={{
+                                            height: "100%",
+                                            display: "flex",
+                                            alignItems: "center",
+                                            justifyContent: "center",
+                                            background: "var(--color-bg-secondary)",
+                                        }}
+                                    >
+                                        {tCommon("loadingMap")}
+                                    </div>
+                                }
+                            >
+                                <HotelMap
+                                    hotels={[{
+                                        id: hotel.id,
+                                        name: hotel.name,
+                                        lat: parseFloat(hotel.latitude),
+                                        lng: parseFloat(hotel.longitude),
+                                        price: rooms[0] ? (rooms[0].dynamicPrice ?? Number(rooms[0].basePrice)) : 0,
+                                        rating: hotel.rating ? parseFloat(hotel.rating) : undefined,
+                                    }]}
+                                    center={[parseFloat(hotel.latitude), parseFloat(hotel.longitude)]}
+                                    zoom={15}
+                                />
+                            </Suspense>
+                        </div>
+                        <p className="hotel-location-row" style={{ marginTop: "0.5rem" }}>
+                            <FiMapPin size={12} /> {hotel.address}, {hotel.city}
+                        </p>
+                    </div>
+                )}
             </main>
 
-            {/* Sticky Book Now Footer */}
+            {/* 10. Sticky Book Now Footer - OYO Style */}
             {selectedRoom && (() => {
                 const displayPrice = selectedRoom.dynamicPrice ?? Number(selectedRoom.basePrice);
                 const basePrice = Number(selectedRoom.basePrice);
@@ -461,6 +409,7 @@ export default function HotelDetailPage() {
                             position: "fixed",
                             left: 0,
                             right: 0,
+                            bottom: 0,
                             background: "white",
                             padding: "1rem",
                             boxShadow: "0 -4px 12px rgba(0, 0, 0, 0.1)",
@@ -476,7 +425,6 @@ export default function HotelDetailPage() {
                                 ৳{displayPrice.toLocaleString()}
                                 <span className="hotel-price-label">{tCommon("perNight")}</span>
                             </div>
-                            {/* Only show strikethrough when it's a DISCOUNT */}
                             {isDiscount && (
                                 <div style={{ fontSize: "0.625rem", color: "var(--color-text-muted)", textDecoration: "line-through" }}>
                                     ৳{basePrice.toLocaleString()}/{tCommon("night")}

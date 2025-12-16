@@ -110,7 +110,19 @@
         "checkOutTime": "Check-out: 12:00 PM",
         "cancellationPolicy": "Cancellation: Free cancellation up to 24 hours before check-in",
         "bookNow": "Book Now",
-        "payAtHotel": "Pay at Hotel"
+        "payAtHotel": "Pay at Hotel",
+        "highlights": {
+            "sanitized": "Daily Sanitized",
+            "support24x7": "24/7 Support",
+            "freeWifi": "Free WiFi",
+            "secureBooking": "Secure Booking"
+        },
+        "policies": {
+            "checkIn": "Check-in",
+            "checkOut": "Check-out",
+            "cancellation": "Cancellation",
+            "idRequired": "ID Required"
+        }
     },
     "hotel": {
         "rating": "Rating",

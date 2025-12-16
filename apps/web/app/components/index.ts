@@ -16,3 +16,6 @@ export { FirstBookingBanner } from "./FirstBookingBanner";
 export { FirstBookingBannerWrapper } from "./FirstBookingBannerWrapper";
 export { ImageGalleryModal } from "./ImageGalleryModal";
 export { ServiceWorkerUnregister } from "./ServiceWorkerUnregister";
+export { HotelImageGallery } from "./HotelImageGallery";
+export { DateGuestBar } from "./DateGuestBar";
+export { HotelHighlights } from "./HotelHighlights";
