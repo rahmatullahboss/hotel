@@ -39,37 +39,50 @@ export async function sendPushNotification(
             return { success: false, error: "No push tokens registered" };
         }
 
+        console.log(`📱 Sending push to ${tokens.length} token(s):`, tokens);
+        console.log(`📱 Notification payload:`, notification);
+
         const messages: ExpoPushMessage[] = tokens.map((token) => ({
             to: token,
             sound: "default" as const,
             title: notification.title,
             body: notification.body,
             data: notification.data,
+            priority: "high" as const,
         }));
+
+        console.log(`📱 Messages to send:`, JSON.stringify(messages, null, 2));
 
         // Send notifications in chunks (Expo recommends this for batch sending)
         const chunks = expo.chunkPushNotifications(messages);
         const tickets: ExpoPushTicket[] = [];
 
         for (const chunk of chunks) {
+            console.log(`📱 Sending chunk of ${chunk.length} message(s)...`);
             const ticketChunk = await expo.sendPushNotificationsAsync(chunk);
+            console.log(`📱 Received tickets:`, JSON.stringify(ticketChunk, null, 2));
             tickets.push(...ticketChunk);
         }
 
-        // Log any errors
+        // Log all ticket results
+        let hasError = false;
         tickets.forEach((ticket, index) => {
             if (ticket.status === "error") {
+                hasError = true;
                 console.error(
-                    `Push notification error for token ${tokens[index]}:`,
-                    ticket.message
+                    `❌ Push notification error for token ${tokens[index]}:`,
+                    ticket.message,
+                    ticket.details
                 );
+            } else {
+                console.log(`✅ Push notification queued successfully:`, ticket);
             }
         });
 
-        console.log(`Sent ${tickets.length} push notification(s) to user ${userId}`);
-        return { success: true };
+        console.log(`📬 Sent ${tickets.length} push notification(s) to user ${userId}`);
+        return { success: !hasError, error: hasError ? "Some notifications failed" : undefined };
     } catch (error) {
-        console.error("Error sending push notification:", error);
+        console.error("❌ Error sending push notification:", error);
         return {
             success: false,
             error: error instanceof Error ? error.message : "Unknown error",
