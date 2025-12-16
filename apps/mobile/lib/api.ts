@@ -275,6 +275,23 @@ export const api = {
         body: JSON.stringify({ expoPushToken }),
     }),
 
+    // Test Notification (for debugging)
+    testNotification: () => apiRequest<{
+        success: boolean;
+        message?: string;
+        userId?: string;
+        tokensFound?: number;
+    }>('/api/test-notification', {
+        method: 'POST',
+    }),
+
+    checkPushTokens: () => apiRequest<{
+        userId: string;
+        tokensCount: number;
+        tokens: string[];
+        hasTokens: boolean;
+    }>('/api/test-notification'),
+
     // Booking Cancellation
     getCancellationInfo: (bookingId: string) => apiRequest<{
         type: 'ADVANCE_PAYMENT';
