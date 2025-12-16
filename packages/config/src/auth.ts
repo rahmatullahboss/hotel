@@ -2,7 +2,9 @@ import { DrizzleAdapter } from "@auth/drizzle-adapter";
 import type { NextAuthConfig } from "next-auth";
 import Google from "next-auth/providers/google";
 import Credentials from "next-auth/providers/credentials";
-import { getDbHttp, users, accounts, sessions, verificationTokens } from "@repo/db";
+import { users, accounts, sessions, verificationTokens, schema } from "@repo/db";
+import { neon } from "@neondatabase/serverless";
+import { drizzle } from "drizzle-orm/neon-http";
 
 /**
  * Shared Auth.js v5 configuration for all apps
@@ -20,9 +22,30 @@ import { getDbHttp, users, accounts, sessions, verificationTokens } from "@repo/
  * ```
  */
 
+// Create the DB client locally to ensure it uses the same drizzle-orm instance as the adapter
+const createAdapterDb = () => {
+    const databaseUrl = process.env.DATABASE_URL;
+    if (!databaseUrl) {
+        throw new Error("DATABASE_URL environment variable is not set");
+    }
+    const sql = neon(databaseUrl);
+    // Don't pass schema to drizzleHttp to avoid "is not PgDatabase" error in adapter
+    return drizzle(sql);
+};
+
+// Create a separate client with schema for queries in authorize callback
+const createQueryDb = () => {
+    const databaseUrl = process.env.DATABASE_URL;
+    if (!databaseUrl) {
+        throw new Error("DATABASE_URL environment variable is not set");
+    }
+    const sql = neon(databaseUrl);
+    return drizzle(sql, { schema });
+};
+
 export const authConfig: NextAuthConfig = {
     // Use HTTP-based client for Auth.js Drizzle adapter compatibility
-    adapter: DrizzleAdapter(getDbHttp() as any, {
+    adapter: DrizzleAdapter(createAdapterDb() as any, {
         usersTable: users,
         accountsTable: accounts,
         sessionsTable: sessions,
@@ -52,7 +75,7 @@ export const authConfig: NextAuthConfig = {
                 if (!email) return null;
 
                 // Find or create user for development
-                const db = getDbHttp();
+                const db = createQueryDb();
                 const existingUser = await db.query.users.findFirst({
                     where: (users: any, { eq }: any) => eq(users.email, email),
                 });

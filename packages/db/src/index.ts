@@ -38,8 +38,7 @@ const createHttpClient = () => {
     }
 
     const sql = neon(databaseUrl);
-    // Don't pass schema option - it interferes with the is(db, PgDatabase) check
-    return drizzleHttp(sql);
+    return drizzleHttp(sql, { schema });
 };
 
 // Singleton pattern for database client
