@@ -51,8 +51,8 @@ export default function HotelCard({ hotel, index }: HotelCardProps) {
 
     const categoryInfo = getCategoryInfo(hotel.category);
 
-    // Use original name (vibeCode shown as badge on card instead)
-    const displayName = hotel.name;
+    // Show "Vibe Hotel Name" (brand prefix), vibeCode number shown as badge
+    const displayName = hotel.vibeCode ? `Vibe ${hotel.name}` : hotel.name;
 
     return (
         <TouchableOpacity

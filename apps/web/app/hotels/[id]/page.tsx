@@ -125,8 +125,8 @@ export default function HotelDetailPage() {
 
     const images = hotel.images.length > 0 ? hotel.images : ["https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800"];
 
-    // Use original name (vibeCode shown as badge instead)
-    const displayName = hotel.name;
+    // Show "Vibe Hotel Name" (brand prefix), vibeCode number shown as badge
+    const displayName = hotel.vibeCode ? `Vibe ${hotel.name}` : hotel.name;
 
     return (
         <>

@@ -184,9 +184,9 @@ export default function HotelDetailScreen() {
                             )}
                         </View>
 
-                        {/* Hotel Name (vibeCode shown as badge instead) */}
+                        {/* Hotel Name with Vibe brand prefix (code shown as badge) */}
                         <Text className="text-3xl font-bold text-gray-900 dark:text-white mb-2 tracking-tight">
-                            {hotel.name}
+                            {hotel.vibeCode ? `Vibe ${hotel.name}` : hotel.name}
                         </Text>
 
                         {/* Location */}
