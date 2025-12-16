@@ -7,9 +7,6 @@ import { useEffect, useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { Platform } from 'react-native';
-import * as Device from 'expo-device';
-import * as Notifications from 'expo-notifications';
-import Constants from 'expo-constants';
 import 'react-native-reanimated';
 import '../global.css';
 
@@ -18,15 +15,30 @@ import Colors from '@/constants/Colors';
 import { initI18n } from '@/i18n';
 import api, { getToken } from '@/lib/api';
 
-// Configure notification handler for foreground notifications
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldPlaySound: true,
-    shouldSetBadge: true,
-    shouldShowBanner: true,
-    shouldShowList: true,
-  }),
-});
+// Dynamically import native modules to handle cases where they're not available
+let Device: typeof import('expo-device') | null = null;
+let Notifications: typeof import('expo-notifications') | null = null;
+let Constants: typeof import('expo-constants').default | null = null;
+
+try {
+  Device = require('expo-device');
+  Notifications = require('expo-notifications');
+  Constants = require('expo-constants').default;
+
+  // Configure notification handler for foreground notifications (only if available)
+  if (Notifications) {
+    Notifications.setNotificationHandler({
+      handleNotification: async () => ({
+        shouldPlaySound: true,
+        shouldSetBadge: true,
+        shouldShowBanner: true,
+        shouldShowList: true,
+      }),
+    });
+  }
+} catch (e) {
+  console.log('Native modules not available, notifications disabled');
+}
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -109,6 +121,12 @@ function RootLayoutNav() {
   useEffect(() => {
     const initPushNotifications = async () => {
       try {
+        // Skip if native modules are not available
+        if (!Device || !Notifications || !Constants) {
+          console.log('Native notification modules not available, skipping push setup');
+          return;
+        }
+
         // Check if user is authenticated
         const token = await getToken();
         if (!token) return;
