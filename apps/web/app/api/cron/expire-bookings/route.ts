@@ -13,8 +13,18 @@ export async function GET(request: NextRequest) {
         // Verify cron secret (for security in production)
         const authHeader = request.headers.get("authorization");
         const cronSecret = process.env.CRON_SECRET;
+        const isProduction = process.env.NODE_ENV === "production";
 
-        // In production, require authorization
+        // In production, CRON_SECRET must be defined
+        if (isProduction && !cronSecret) {
+            console.error("CRON_SECRET is not defined in production environment");
+            return NextResponse.json(
+                { success: false, error: "Server configuration error" },
+                { status: 500 }
+            );
+        }
+
+        // Always require authorization when CRON_SECRET is set (dev or prod)
         if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
             return NextResponse.json(
                 { success: false, error: "Unauthorized" },

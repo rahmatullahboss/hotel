@@ -2,7 +2,13 @@ import { NextRequest } from "next/server";
 import jwt from "jsonwebtoken";
 import { auth } from "@/auth";
 
-const JWT_SECRET = process.env.AUTH_SECRET || "your-secret-key";
+function getJwtSecret(): string {
+    const secret = process.env.AUTH_SECRET;
+    if (!secret) {
+        throw new Error("AUTH_SECRET environment variable is required for JWT authentication");
+    }
+    return secret;
+}
 
 interface JWTPayload {
     id: string;
@@ -22,7 +28,7 @@ export function verifyMobileToken(request: NextRequest): JWTPayload | null {
 
     const token = authHeader.substring(7);
     try {
-        const decoded = jwt.verify(token, JWT_SECRET) as JWTPayload;
+        const decoded = jwt.verify(token, getJwtSecret()) as JWTPayload;
         return decoded;
     } catch (error) {
         console.error("JWT verification failed:", error);
