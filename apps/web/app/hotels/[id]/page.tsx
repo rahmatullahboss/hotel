@@ -3,9 +3,9 @@
 import { useState, useEffect, lazy, Suspense } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { BottomNav, RoomCard, RoomDetailModal } from "../../components";
+import { BottomNav, RoomCard, RoomDetailModal, ImageGalleryModal } from "../../components";
 import { getHotelById, getAvailableRooms, RoomWithDetails } from "../../actions/hotels";
-import { FiMapPin } from "react-icons/fi";
+import { FiMapPin, FiImage } from "react-icons/fi";
 
 // Lazy load map to avoid SSR issues
 const HotelMap = lazy(() =>
@@ -44,6 +44,7 @@ export default function HotelDetailPage() {
     const [selectedRoom, setSelectedRoom] = useState<Room | null>(null);
     const [currentImage, setCurrentImage] = useState(0);
     const [detailRoom, setDetailRoom] = useState<Room | null>(null);
+    const [showGallery, setShowGallery] = useState(false);
 
     // Default dates: today and tomorrow
     const today = new Date().toISOString().split("T")[0];
@@ -135,10 +136,12 @@ export default function HotelDetailPage() {
                 <img
                     src={images[currentImage]}
                     alt={displayName}
+                    onClick={() => setShowGallery(true)}
                     style={{
                         width: "100%",
                         height: "280px",
                         objectFit: "cover",
+                        cursor: "pointer",
                     }}
                 />
 
@@ -169,6 +172,17 @@ export default function HotelDetailPage() {
                             />
                         ))}
                     </div>
+                )}
+
+                {/* Image Count Badge - OYO style */}
+                {images.length > 1 && (
+                    <button
+                        className="image-count-badge"
+                        onClick={() => setShowGallery(true)}
+                    >
+                        <FiImage size={14} />
+                        {currentImage + 1}/{images.length}
+                    </button>
                 )}
 
                 {/* Back Button */}
@@ -207,6 +221,15 @@ export default function HotelDetailPage() {
                     </span>
                 )}
             </div>
+
+            {/* Image Gallery Modal */}
+            <ImageGalleryModal
+                images={images}
+                initialIndex={currentImage}
+                isOpen={showGallery}
+                onClose={() => setShowGallery(false)}
+                hotelName={displayName}
+            />
 
             <main className="page-with-book-bar">
                 {/* Hotel Info */}
