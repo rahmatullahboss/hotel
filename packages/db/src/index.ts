@@ -26,6 +26,7 @@ const createClient = () => {
 };
 
 // Create HTTP-based client for Auth.js adapter (compatible with DrizzleAdapter)
+// Note: No schema option is passed to keep the PgDatabase type check working
 const createHttpClient = () => {
     if (typeof window !== "undefined") {
         return null as any;
@@ -37,7 +38,8 @@ const createHttpClient = () => {
     }
 
     const sql = neon(databaseUrl);
-    return drizzleHttp(sql, { schema });
+    // Don't pass schema option - it interferes with the is(db, PgDatabase) check
+    return drizzleHttp(sql);
 };
 
 // Singleton pattern for database client
