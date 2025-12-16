@@ -32,15 +32,11 @@ export const getDb = () => {
     if (!dbInstance) {
         dbInstance = createClient();
     }
-    return dbInstance;
+    return dbInstance!;
 };
 
-// For direct import usage
-export const db = new Proxy({} as ReturnType<typeof createClient>, {
-    get(_, prop) {
-        return getDb()[prop as keyof ReturnType<typeof createClient>];
-    },
-});
+// For direct import usage - same as getDb but with lazy initialization
+export const db = getDb();
 
 // Re-export schema and types
 export * from "./schema";
