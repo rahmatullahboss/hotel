@@ -173,7 +173,7 @@ export default async function ProfilePage() {
                             {t("upcomingTrips")}
                         </h2>
                         <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-                            {upcomingBookings.map((booking) => (
+                            {upcomingBookings.map((booking: typeof upcomingBookings[number]) => (
                                 <div key={booking.id} className="card" style={{ padding: "1rem" }}>
                                     <div style={{ display: "flex", gap: "1rem" }}>
                                         <img
