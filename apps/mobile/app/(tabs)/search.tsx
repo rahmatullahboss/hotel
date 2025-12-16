@@ -16,6 +16,7 @@ import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { useTranslation } from 'react-i18next';
 // import * as Location from 'expo-location';
 import HotelCard from '@/components/HotelCard';
+import SearchFiltersModal, { FilterValues } from '@/components/SearchFiltersModal';
 import api from '@/lib/api';
 
 const { width } = Dimensions.get('window');
@@ -92,6 +93,14 @@ export default function SearchScreen() {
     const [activeFilter, setActiveFilter] = useState<string | null>(filter || null);
     const [locationLoading, setLocationLoading] = useState(false);
     const [showSuggestions, setShowSuggestions] = useState(false);
+    const [showFiltersModal, setShowFiltersModal] = useState(false);
+    const [advancedFilters, setAdvancedFilters] = useState<FilterValues>({
+        minPrice: 0,
+        maxPrice: 20000,
+        minRating: 0,
+        payAtHotel: false,
+        amenities: [],
+    });
 
     // Fetch all hotels on mount
     useEffect(() => {
@@ -194,6 +203,33 @@ export default function SearchScreen() {
         }
 
         setFilteredHotels(filtered);
+    };
+
+    const handleAdvancedFiltersApply = async (filters: FilterValues) => {
+        setAdvancedFilters(filters);
+        setSearching(true);
+        setLoading(true);
+
+        try {
+            const { data, error } = await api.getHotels({
+                minPrice: filters.minPrice > 0 ? filters.minPrice : undefined,
+                maxPrice: filters.maxPrice < 20000 ? filters.maxPrice : undefined,
+                minRating: filters.minRating > 0 ? filters.minRating : undefined,
+                amenities: filters.amenities.length > 0 ? filters.amenities.join(',') : undefined,
+            });
+
+            if (!error && data) {
+                let filtered = data;
+                if (filters.payAtHotel) {
+                    filtered = filtered.filter((h: any) => h.payAtHotel === true);
+                }
+                setFilteredHotels(filtered);
+            }
+        } catch (err) {
+            console.error('Filter error:', err);
+        } finally {
+            setLoading(false);
+        }
     };
 
     const clearSearch = () => {
@@ -333,6 +369,23 @@ export default function SearchScreen() {
                                 </Text>
                             </TouchableOpacity>
                         )}
+
+                        {/* Advanced Filters Button */}
+                        <TouchableOpacity
+                            className="flex-row items-center px-4 py-2.5 rounded-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 gap-2"
+                            onPress={() => setShowFiltersModal(true)}
+                            style={{
+                                shadowColor: '#000',
+                                shadowOffset: { width: 0, height: 2 },
+                                shadowOpacity: 0.05,
+                                shadowRadius: 4,
+                            }}
+                        >
+                            <FontAwesome name="sliders" size={14} color="#E63946" />
+                            <Text className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                                {t('filters.title', 'Filters')}
+                            </Text>
+                        </TouchableOpacity>
                     </ScrollView>
                 </View>
 
@@ -460,6 +513,14 @@ export default function SearchScreen() {
 
                 <View className="h-5" />
             </ScrollView>
+
+            {/* Filters Modal */}
+            <SearchFiltersModal
+                visible={showFiltersModal}
+                onClose={() => setShowFiltersModal(false)}
+                onApply={handleAdvancedFiltersApply}
+                initialFilters={advancedFilters}
+            />
         </View>
     );
 }

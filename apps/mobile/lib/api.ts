@@ -71,6 +71,10 @@ export const api = {
         checkOut?: string;
         guests?: number;
         limit?: number;
+        minPrice?: number;
+        maxPrice?: number;
+        minRating?: number;
+        amenities?: string;
     }) => {
         const searchParams = new URLSearchParams();
         if (params?.city) searchParams.set('city', params.city);
@@ -78,6 +82,10 @@ export const api = {
         if (params?.checkOut) searchParams.set('checkOut', params.checkOut);
         if (params?.guests) searchParams.set('guests', String(params.guests));
         if (params?.limit) searchParams.set('limit', String(params.limit));
+        if (params?.minPrice) searchParams.set('minPrice', String(params.minPrice));
+        if (params?.maxPrice) searchParams.set('maxPrice', String(params.maxPrice));
+        if (params?.minRating) searchParams.set('minRating', String(params.minRating));
+        if (params?.amenities) searchParams.set('amenities', params.amenities);
 
         return apiRequest<any[]>(`/api/hotels?${searchParams.toString()}`);
     },
