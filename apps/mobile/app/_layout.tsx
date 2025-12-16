@@ -7,6 +7,9 @@ import { useEffect, useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { Platform } from 'react-native';
+import * as Device from 'expo-device';
+import * as Notifications from 'expo-notifications';
+import Constants from 'expo-constants';
 import 'react-native-reanimated';
 import '../global.css';
 
@@ -15,30 +18,15 @@ import Colors from '@/constants/Colors';
 import { initI18n } from '@/i18n';
 import api, { getToken } from '@/lib/api';
 
-// Dynamically import native modules to handle cases where they're not available
-let Device: typeof import('expo-device') | null = null;
-let Notifications: typeof import('expo-notifications') | null = null;
-let Constants: typeof import('expo-constants').default | null = null;
-
-try {
-  Device = require('expo-device');
-  Notifications = require('expo-notifications');
-  Constants = require('expo-constants').default;
-
-  // Configure notification handler for foreground notifications (only if available)
-  if (Notifications) {
-    Notifications.setNotificationHandler({
-      handleNotification: async () => ({
-        shouldPlaySound: true,
-        shouldSetBadge: true,
-        shouldShowBanner: true,
-        shouldShowList: true,
-      }),
-    });
-  }
-} catch (e) {
-  console.log('Native modules not available, notifications disabled');
-}
+// Configure notification handler for foreground notifications
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldPlaySound: true,
+    shouldSetBadge: true,
+    shouldShowBanner: true,
+    shouldShowList: true,
+  }),
+});
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -121,65 +109,76 @@ function RootLayoutNav() {
   useEffect(() => {
     const initPushNotifications = async () => {
       try {
-        // Skip if native modules are not available
-        if (!Device || !Notifications || !Constants) {
-          console.log('Native notification modules not available, skipping push setup');
-          return;
-        }
+        console.log('🔔 Starting push notification initialization...');
 
         // Check if user is authenticated
         const token = await getToken();
-        if (!token) return;
+        if (!token) {
+          console.log('🔔 User not authenticated, skipping push setup');
+          return;
+        }
+        console.log('🔔 User authenticated');
 
         // Check if running on physical device
         if (!Device.isDevice) {
-          console.log('Push notifications require a physical device');
+          console.log('🔔 Push notifications require a physical device');
           return;
         }
+        console.log('🔔 Running on physical device');
 
         // Check/request permissions
         const { status: existingStatus } = await Notifications.getPermissionsAsync();
+        console.log('🔔 Existing permission status:', existingStatus);
         let finalStatus = existingStatus;
 
         if (existingStatus !== 'granted') {
+          console.log('🔔 Requesting permission...');
           const { status } = await Notifications.requestPermissionsAsync();
           finalStatus = status;
+          console.log('🔔 New permission status:', finalStatus);
         }
 
         if (finalStatus !== 'granted') {
-          console.log('Push notification permission not granted');
+          console.log('🔔 Push notification permission not granted');
           return;
         }
+        console.log('🔔 Permission granted!');
 
         // Set up Android notification channel
         if (Platform.OS === 'android') {
+          console.log('🔔 Setting up Android notification channel...');
           await Notifications.setNotificationChannelAsync('default', {
             name: 'Default',
             importance: Notifications.AndroidImportance.MAX,
             vibrationPattern: [0, 250, 250, 250],
             lightColor: '#E63946',
           });
+          console.log('🔔 Android notification channel created');
         }
 
         // Get Expo push token
         const projectId = Constants.expoConfig?.extra?.eas?.projectId;
+        console.log('🔔 Project ID:', projectId);
         if (!projectId) {
-          console.log('Project ID not found in app configuration');
+          console.log('🔔 Project ID not found in app configuration');
           return;
         }
 
+        console.log('🔔 Getting Expo push token...');
         const tokenData = await Notifications.getExpoPushTokenAsync({ projectId });
         const expoPushToken = tokenData.data;
+        console.log('🔔 Expo Push Token:', expoPushToken);
 
         // Register token with backend
+        console.log('🔔 Registering push token with backend...');
         const { error } = await api.registerPushToken(expoPushToken, Platform.OS as 'ios' | 'android');
         if (error) {
-          console.warn('Failed to register push token:', error);
+          console.warn('🔔 Failed to register push token:', error);
         } else {
-          console.log('Push token registered:', expoPushToken);
+          console.log('🔔 Push token registered successfully!');
         }
       } catch (error) {
-        console.error('Error initializing push notifications:', error);
+        console.error('🔔 Error initializing push notifications:', error);
       }
     };
 
