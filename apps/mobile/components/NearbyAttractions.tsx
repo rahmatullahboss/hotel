@@ -17,14 +17,14 @@ interface NearbyAttractionsProps {
     city: string;
 }
 
-// Common nearby places with improved MaterialCommunityIcons
+// Common nearby places with OYO-style icons
 const NEARBY_TYPES: { type: string; icon: keyof typeof MaterialCommunityIcons.glyphMap; color: string; label: string }[] = [
-    { type: 'restaurant', icon: 'coffee', color: '#EF4444', label: 'Restaurants' },
-    { type: 'atm', icon: 'currency-usd', color: '#10B981', label: 'ATM/Banks' },
-    { type: 'hospital', icon: 'medical-bag', color: '#3B82F6', label: 'Hospital' },
-    { type: 'shopping', icon: 'store', color: '#F59E0B', label: 'Shopping' },
-    { type: 'transport', icon: 'subway-variant', color: '#8B5CF6', label: 'Transport' },
-    { type: 'attraction', icon: 'star-circle', color: '#EC4899', label: 'Attractions' },
+    { type: 'railway', icon: 'train', color: '#6366F1', label: 'Railway Station' },
+    { type: 'airport', icon: 'airplane', color: '#0EA5E9', label: 'Airport' },
+    { type: 'bus', icon: 'bus-stop', color: '#8B5CF6', label: 'Bus Stand' },
+    { type: 'hospital', icon: 'hospital', color: '#EF4444', label: 'Hospital' },
+    { type: 'atm', icon: 'credit-card-wireless', color: '#10B981', label: 'ATM' },
+    { type: 'landmark', icon: 'map-marker', color: '#F59E0B', label: 'Landmarks' },
 ];
 
 export default function NearbyAttractions({ hotelLat, hotelLng, city }: NearbyAttractionsProps) {
