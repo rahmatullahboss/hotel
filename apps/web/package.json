@@ -18,6 +18,7 @@
     "@repo/ui": "*",
     "@sentry/nextjs": "^10.30.0",
     "@types/jsonwebtoken": "^9.0.10",
+    "expo-server-sdk": "^4.0.0",
     "jsonwebtoken": "^9.0.3",
     "leaflet": "^1.9.4",
     "next": "^16.0.10",

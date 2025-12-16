@@ -4,6 +4,7 @@ import { db } from "@repo/db";
 import { bookings, rooms, hotels, users, wallets, walletTransactions } from "@repo/db/schema";
 import { eq, desc, and, lt, gt, ne } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
+import { sendBookingConfirmation, sendBookingCancellation } from "@/lib/notifications";
 
 export interface CreateBookingInput {
     hotelId: string;
@@ -315,6 +316,25 @@ export async function createBooking(input: CreateBookingInput): Promise<BookingR
         revalidatePath("/bookings");
         revalidatePath("/wallet");
 
+        // Send push notification for confirmed bookings
+        if (result.booking && userId && !result.requiresPayment) {
+            // Get hotel name for notification
+            const hotel = await db.query.hotels.findFirst({
+                where: eq(hotels.id, hotelId),
+            });
+
+            sendBookingConfirmation(
+                userId,
+                {
+                    id: result.booking.id,
+                    guestName,
+                    checkIn,
+                    checkOut,
+                },
+                hotel?.name
+            ).catch((err) => console.error("Failed to send booking notification:", err));
+        }
+
         return {
             success: true,
             bookingId: result.booking?.id,
@@ -501,6 +521,13 @@ export async function cancelBooking(
 
         revalidatePath("/bookings");
         revalidatePath("/wallet");
+
+        // Send cancellation notification
+        sendBookingCancellation(
+            userId,
+            { id: booking.id, guestName: booking.guestName },
+            refundAmount > 0 ? refundAmount : undefined
+        ).catch((err) => console.error("Failed to send cancellation notification:", err));
 
         return {
             success: true,
