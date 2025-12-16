@@ -4,7 +4,8 @@
         "error": "Error",
         "currency": "৳",
         "perNight": "/night",
-        "comingSoon": "Coming Soon"
+        "comingSoon": "Coming Soon",
+        "share": "Share"
     },
     "nav": {
         "home": "Home",
@@ -313,5 +314,10 @@
             "4": "Good",
             "5": "Excellent"
         }
+    },
+    "calendar": {
+        "addToCalendar": "Add to Calendar",
+        "added": "Added to Calendar",
+        "addedMessage": "Check-in and check-out reminders have been added to your calendar."
     }
 }

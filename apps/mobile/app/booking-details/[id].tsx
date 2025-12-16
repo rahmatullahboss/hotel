@@ -7,6 +7,8 @@ import { useColorScheme } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
 import api from '@/lib/api';
 import CancelBookingModal from '@/components/CancelBookingModal';
+import { addBookingToCalendar } from '@/lib/calendar';
+import { shareBooking } from '@/lib/share';
 
 interface BookingDetails {
     id: string;
@@ -326,6 +328,50 @@ export default function BookingDetailsScreen() {
                             </Text>
                         </TouchableOpacity>
                     )}
+
+                    {/* Add to Calendar Button */}
+                    {showQR && (
+                        <TouchableOpacity
+                            onPress={() => addBookingToCalendar({
+                                hotelName: booking.hotelName,
+                                hotelAddress: booking.hotelLocation,
+                                checkIn: booking.checkIn,
+                                checkOut: booking.checkOut,
+                                bookingId: booking.id,
+                            }).then(success => {
+                                if (success) {
+                                    Alert.alert(
+                                        t('calendar.added', 'Added to Calendar'),
+                                        t('calendar.addedMessage', 'Check-in and check-out reminders have been added to your calendar.')
+                                    );
+                                }
+                            })}
+                            className="py-4 rounded-xl flex-row items-center justify-center gap-2 mb-4 bg-blue-500"
+                            activeOpacity={0.8}
+                        >
+                            <FontAwesome name="calendar-plus-o" size={18} color="#FFFFFF" />
+                            <Text className="text-white font-bold text-base">
+                                {t('calendar.addToCalendar', 'Add to Calendar')}
+                            </Text>
+                        </TouchableOpacity>
+                    )}
+
+                    {/* Share Booking Button */}
+                    <TouchableOpacity
+                        onPress={() => shareBooking({
+                            bookingId: booking.id,
+                            hotelName: booking.hotelName,
+                            checkIn: booking.checkIn,
+                            checkOut: booking.checkOut,
+                        })}
+                        className="py-4 rounded-xl flex-row items-center justify-center gap-2 mb-4 border border-gray-300 dark:border-gray-600"
+                        activeOpacity={0.8}
+                    >
+                        <FontAwesome name="share" size={18} color="#6B7280" />
+                        <Text className="text-gray-600 dark:text-gray-300 font-bold text-base">
+                            {t('common.share', 'Share')}
+                        </Text>
+                    </TouchableOpacity>
 
                     {/* Cancel Booking Button */}
                     {canCancel && (
