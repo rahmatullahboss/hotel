@@ -15,7 +15,7 @@ import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { useTranslation } from 'react-i18next';
-import api from '@/lib/api';
+import api, { getToken } from '@/lib/api';
 
 // Payment method types (excluding standalone wallet - it's now a partial option)
 type PaymentMethod = 'PAY_AT_HOTEL' | 'BKASH' | 'NAGAD' | 'CARD';
@@ -203,6 +203,26 @@ export default function BookingScreen() {
     const totalPrice = subtotalPrice - calculatedDiscount;
 
     const handleBooking = async () => {
+        // Check if user is authenticated
+        const token = await getToken();
+        if (!token) {
+            Alert.alert(
+                t('booking.loginRequired'),
+                t('booking.loginRequiredMessage'),
+                [
+                    {
+                        text: t('booking.cancel'),
+                        style: 'cancel',
+                    },
+                    {
+                        text: t('booking.signIn'),
+                        onPress: () => router.push('/auth/login'),
+                    },
+                ]
+            );
+            return;
+        }
+
         if (!checkIn || !checkOut) {
             Alert.alert(t('common.error'), t('booking.selectDates'));
             return;

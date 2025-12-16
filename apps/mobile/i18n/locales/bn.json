@@ -131,7 +131,11 @@
         "advanceCoveredByWallet": "অগ্রিম ওয়ালেট দিয়ে!",
         "payAtHotelRemaining": "হোটেলে বাকি {{amount}} পরিশোধ করুন",
         "somethingWentWrong": "কিছু ভুল হয়েছে। আবার চেষ্টা করুন।",
-        "firstBookingDiscount": "প্রথম বুকিং ছাড় (২০%)"
+        "firstBookingDiscount": "প্রথম বুকিং ছাড় (২০%)",
+        "loginRequired": "লগইন প্রয়োজন",
+        "loginRequiredMessage": "বুকিং সম্পন্ন করতে সাইন ইন করুন। আপনার বুকিং তথ্য সংরক্ষিত থাকবে।",
+        "signIn": "সাইন ইন",
+        "cancel": "বাতিল"
     },
     "wallet": {
         "title": "ওয়ালেট",

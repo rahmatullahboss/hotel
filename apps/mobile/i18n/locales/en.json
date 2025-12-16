@@ -131,7 +131,11 @@
         "advanceCoveredByWallet": "Advance covered by wallet!",
         "payAtHotelRemaining": "Pay remaining {{amount}} at hotel",
         "somethingWentWrong": "Something went wrong. Please try again.",
-        "firstBookingDiscount": "First Booking Discount (20%)"
+        "firstBookingDiscount": "First Booking Discount (20%)",
+        "loginRequired": "Login Required",
+        "loginRequiredMessage": "Please sign in to complete your booking. Your booking details will be saved.",
+        "signIn": "Sign In",
+        "cancel": "Cancel"
     },
     "wallet": {
         "title": "Wallet",
