@@ -254,6 +254,31 @@
     },
     "bookingDetail": {
         "title": "Booking Details",
-        "notFound": "Booking not found"
+        "notFound": "Booking not found",
+        "cancelBooking": "Cancel Booking"
+    },
+    "cancelModal": {
+        "title": "Cancel Booking",
+        "selectReason": "Please select a reason",
+        "reasonLabel": "Reason for cancellation",
+        "keepBooking": "Keep Booking",
+        "confirm": "Cancel Booking",
+        "untilCheckIn": "until check-in",
+        "willBeRefunded": "will be refunded to wallet",
+        "freeCancellation": "Free cancellation",
+        "lessThanHour": "Less than 1 hour",
+        "hoursUntil": "{{hours}} hours",
+        "daysUntil": "{{days}} days",
+        "successTitle": "Booking Cancelled",
+        "successRefund": "৳{{amount}} has been refunded to your wallet",
+        "successNoRefund": "Your booking has been cancelled",
+        "reasons": {
+            "planChanged": "Plan Changed",
+            "foundBetterDeal": "Found Another Hotel",
+            "emergency": "Emergency",
+            "travelCancelled": "Travel Cancelled",
+            "priceIssue": "Price Issue",
+            "other": "Other"
+        }
     }
 }

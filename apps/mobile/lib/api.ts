@@ -266,6 +266,27 @@ export const api = {
         method: 'DELETE',
         body: JSON.stringify({ expoPushToken }),
     }),
+
+    // Booking Cancellation
+    getCancellationInfo: (bookingId: string) => apiRequest<{
+        type: 'ADVANCE_PAYMENT';
+        isLate: boolean;
+        isVeryLate?: boolean;
+        hoursRemaining: number;
+        penalty: string | null;
+        refund: number;
+    } | null>(`/api/bookings/${bookingId}?cancelInfo=true`),
+
+    cancelBooking: (bookingId: string, reason: string) => apiRequest<{
+        success: boolean;
+        refundAmount: number;
+        isLate: boolean;
+        message: string;
+        error?: string;
+    }>(`/api/bookings/${bookingId}`, {
+        method: 'DELETE',
+        body: JSON.stringify({ reason }),
+    }),
 };
 
 export default api;

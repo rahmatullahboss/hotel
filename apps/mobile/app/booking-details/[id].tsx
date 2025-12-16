@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react';
-import { View, Text, ScrollView, Image, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { View, Text, ScrollView, Image, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
 import { useLocalSearchParams, Stack, router } from 'expo-router';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { useTranslation } from 'react-i18next';
 import { useColorScheme } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
 import api from '@/lib/api';
+import CancelBookingModal from '@/components/CancelBookingModal';
 
 interface BookingDetails {
     id: string;
@@ -72,6 +73,7 @@ export default function BookingDetailsScreen() {
             : null
     );
     const [loading, setLoading] = useState(!params.hotelName);
+    const [showCancelModal, setShowCancelModal] = useState(false);
 
     useEffect(() => {
         if (params.id) fetchBooking();
@@ -150,6 +152,24 @@ export default function BookingDetailsScreen() {
     const roomName = booking.roomName ?? booking.roomType ?? 'Room';
     const nights = calculateNights();
     const showQR = booking.status === 'CONFIRMED' || booking.status === 'PENDING';
+    const canCancel = booking.status === 'CONFIRMED' || booking.status === 'PENDING';
+
+    const handleCancelSuccess = (refundAmount: number) => {
+        setShowCancelModal(false);
+        if (refundAmount > 0) {
+            Alert.alert(
+                t('cancelModal.successTitle', 'Booking Cancelled'),
+                t('cancelModal.successRefund', { amount: refundAmount.toLocaleString() }),
+                [{ text: 'OK', onPress: () => router.replace('/(tabs)/bookings') }]
+            );
+        } else {
+            Alert.alert(
+                t('cancelModal.successTitle', 'Booking Cancelled'),
+                t('cancelModal.successNoRefund', 'Your booking has been cancelled'),
+                [{ text: 'OK', onPress: () => router.replace('/(tabs)/bookings') }]
+            );
+        }
+    };
 
     return (
         <>
@@ -306,9 +326,32 @@ export default function BookingDetailsScreen() {
                         </TouchableOpacity>
                     )}
 
+                    {/* Cancel Booking Button */}
+                    {canCancel && (
+                        <TouchableOpacity
+                            onPress={() => setShowCancelModal(true)}
+                            className="py-4 rounded-xl flex-row items-center justify-center gap-2 mb-4 border-2 border-red-500"
+                            activeOpacity={0.8}
+                        >
+                            <FontAwesome name="times-circle" size={18} color="#EF4444" />
+                            <Text className="text-red-500 font-bold text-base">
+                                {t('bookingDetail.cancelBooking', 'Cancel Booking')}
+                            </Text>
+                        </TouchableOpacity>
+                    )}
+
                     <View className="h-8" />
                 </View>
             </ScrollView>
+
+            {/* Cancel Booking Modal */}
+            <CancelBookingModal
+                visible={showCancelModal}
+                bookingId={booking.id}
+                hotelName={booking.hotelName}
+                onClose={() => setShowCancelModal(false)}
+                onSuccess={handleCancelSuccess}
+            />
         </>
     );
 }

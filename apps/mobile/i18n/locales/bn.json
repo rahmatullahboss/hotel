@@ -254,6 +254,31 @@
     },
     "bookingDetail": {
         "title": "বুকিং বিবরণ",
-        "notFound": "বুকিং পাওয়া যায়নি"
+        "notFound": "বুকিং পাওয়া যায়নি",
+        "cancelBooking": "বুকিং বাতিল"
+    },
+    "cancelModal": {
+        "title": "বুকিং বাতিল",
+        "selectReason": "একটি কারণ নির্বাচন করুন",
+        "reasonLabel": "বাতিলের কারণ",
+        "keepBooking": "বুকিং রাখুন",
+        "confirm": "বুকিং বাতিল করুন",
+        "untilCheckIn": "চেক-ইন পর্যন্ত",
+        "willBeRefunded": "ওয়ালেটে ফেরত হবে",
+        "freeCancellation": "বিনামূল্যে বাতিল",
+        "lessThanHour": "১ ঘন্টারও কম",
+        "hoursUntil": "{{hours}} ঘন্টা",
+        "daysUntil": "{{days}} দিন",
+        "successTitle": "বুকিং বাতিল হয়েছে",
+        "successRefund": "৳{{amount}} আপনার ওয়ালেটে ফেরত হয়েছে",
+        "successNoRefund": "আপনার বুকিং বাতিল হয়েছে",
+        "reasons": {
+            "planChanged": "পরিকল্পনা পরিবর্তন",
+            "foundBetterDeal": "অন্য হোটেল পেয়ে গেছি",
+            "emergency": "জরুরি অবস্থা",
+            "travelCancelled": "ভ্রমণ বাতিল",
+            "priceIssue": "মূল্য সমস্যা",
+            "other": "অন্যান্য"
+        }
     }
 }
