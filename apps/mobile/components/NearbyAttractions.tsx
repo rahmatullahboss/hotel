@@ -19,12 +19,12 @@ interface NearbyAttractionsProps {
 
 // Common nearby places with improved MaterialCommunityIcons
 const NEARBY_TYPES: { type: string; icon: keyof typeof MaterialCommunityIcons.glyphMap; color: string; label: string }[] = [
-    { type: 'restaurant', icon: 'silverware-fork-knife', color: '#EF4444', label: 'Restaurants' },
-    { type: 'atm', icon: 'cash-multiple', color: '#10B981', label: 'ATM/Banks' },
-    { type: 'hospital', icon: 'hospital-building', color: '#3B82F6', label: 'Hospital' },
-    { type: 'shopping', icon: 'shopping', color: '#F59E0B', label: 'Shopping' },
-    { type: 'transport', icon: 'bus', color: '#8B5CF6', label: 'Transport' },
-    { type: 'attraction', icon: 'map-marker-star', color: '#EC4899', label: 'Attractions' },
+    { type: 'restaurant', icon: 'food', color: '#EF4444', label: 'Restaurants' },
+    { type: 'atm', icon: 'bank', color: '#10B981', label: 'ATM/Banks' },
+    { type: 'hospital', icon: 'hospital-box', color: '#3B82F6', label: 'Hospital' },
+    { type: 'shopping', icon: 'cart', color: '#F59E0B', label: 'Shopping' },
+    { type: 'transport', icon: 'train-car', color: '#8B5CF6', label: 'Transport' },
+    { type: 'attraction', icon: 'camera-marker', color: '#EC4899', label: 'Attractions' },
 ];
 
 export default function NearbyAttractions({ hotelLat, hotelLng, city }: NearbyAttractionsProps) {
