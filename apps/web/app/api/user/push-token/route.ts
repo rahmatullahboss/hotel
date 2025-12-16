@@ -1,31 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { db, pushSubscriptions, users } from "@repo/db";
+import { db, pushSubscriptions } from "@repo/db";
 import { eq, and } from "drizzle-orm";
-import { auth } from "@/auth";
-
-// Helper to get user ID from request
-async function getUserIdFromRequest(request: NextRequest): Promise<string | null> {
-    // Try session auth first
-    const session = await auth();
-    if (session?.user?.id) {
-        return session.user.id;
-    }
-
-    // Try Bearer token for mobile app
-    const authHeader = request.headers.get("authorization");
-    if (authHeader?.startsWith("Bearer ")) {
-        const token = authHeader.slice(7);
-        // Token is the user ID for mobile auth
-        const user = await db.query.users.findFirst({
-            where: eq(users.id, token),
-        });
-        if (user) {
-            return user.id;
-        }
-    }
-
-    return null;
-}
+import { getUserIdFromRequest } from "@/lib/mobile-auth";
 
 // POST - Register Expo push token
 export async function POST(request: NextRequest) {
