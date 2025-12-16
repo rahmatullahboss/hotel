@@ -16,6 +16,7 @@ import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { useBooking } from '@/hooks/useBooking';
 import { shareHotel } from '@/lib/share';
 import { openNavigation } from '@/lib/navigation';
+import NearbyAttractions from '@/components/NearbyAttractions';
 
 const { width } = Dimensions.get('window');
 const HEADER_HEIGHT = 320;
@@ -262,6 +263,13 @@ export default function HotelDetailScreen() {
                                 </ScrollView>
                             </>
                         )}
+
+                        {/* Nearby Places */}
+                        <NearbyAttractions
+                            hotelLat={hotel.latitude ? parseFloat(hotel.latitude) : undefined}
+                            hotelLng={hotel.longitude ? parseFloat(hotel.longitude) : undefined}
+                            city={hotel.city}
+                        />
                     </View>
 
                     {/* Rooms Section */}
