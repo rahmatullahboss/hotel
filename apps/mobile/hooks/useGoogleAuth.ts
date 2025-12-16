@@ -2,7 +2,11 @@ import { useState, useCallback } from 'react';
 import { GoogleSignin, statusCodes } from '@react-native-google-signin/google-signin';
 import { setToken } from '@/lib/api';
 import { useRouter } from 'expo-router';
-import { Alert } from 'react-native';
+import { Alert, Platform } from 'react-native';
+import * as Notifications from 'expo-notifications';
+import * as Device from 'expo-device';
+import Constants from 'expo-constants';
+import api from '@/lib/api';
 
 // Configure Google Sign-In once
 GoogleSignin.configure({
@@ -124,9 +128,57 @@ export function useGoogleAuth() {
             await setToken(authData.token);
             console.log('Token stored successfully');
 
+            // Register for push notifications after successful login
+            try {
+                console.log('🔔 Registering for push notifications after login...');
+
+                if (Device.isDevice) {
+                    const { status: existingStatus } = await Notifications.getPermissionsAsync();
+                    let finalStatus = existingStatus;
+
+                    if (existingStatus !== 'granted') {
+                        console.log('🔔 Requesting notification permission...');
+                        const { status } = await Notifications.requestPermissionsAsync();
+                        finalStatus = status;
+                    }
+
+                    if (finalStatus === 'granted') {
+                        // Set up Android notification channel
+                        if (Platform.OS === 'android') {
+                            await Notifications.setNotificationChannelAsync('default', {
+                                name: 'Default',
+                                importance: Notifications.AndroidImportance.MAX,
+                                vibrationPattern: [0, 250, 250, 250],
+                                lightColor: '#E63946',
+                            });
+                        }
+
+                        const projectId = Constants.expoConfig?.extra?.eas?.projectId;
+                        if (projectId) {
+                            const tokenData = await Notifications.getExpoPushTokenAsync({ projectId });
+                            const pushToken = tokenData.data;
+                            console.log('🔔 Push Token:', pushToken);
+
+                            const { error: pushError } = await api.registerPushToken(
+                                pushToken,
+                                Platform.OS as 'ios' | 'android'
+                            );
+                            if (pushError) {
+                                console.warn('🔔 Failed to register push token:', pushError);
+                            } else {
+                                console.log('🔔 Push token registered successfully!');
+                            }
+                        }
+                    } else {
+                        console.log('🔔 Notification permission not granted');
+                    }
+                }
+            } catch (pushErr) {
+                console.warn('🔔 Push notification setup error:', pushErr);
+            }
+
             // Navigate to home
             setLoading(false);
-            Alert.alert('Success!', 'Signed in successfully!');
             router.replace('/(tabs)');
 
             return { success: true };
