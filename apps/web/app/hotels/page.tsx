@@ -34,6 +34,10 @@ function HotelsContent() {
     const [selectedAmenities, setSelectedAmenities] = useState<string[]>([]);
     const [priceRange, setPriceRange] = useState<[number, number]>([500, 10000]);
 
+    // Pagination state
+    const [currentPage, setCurrentPage] = useState(1);
+    const HOTELS_PER_PAGE = 10;
+
     // Geolocation state
     const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
     const [locationLoading, setLocationLoading] = useState(false);
@@ -89,6 +93,7 @@ function HotelsContent() {
                 radiusKm: 15,
             });
             setHotels(results);
+            setCurrentPage(1); // Reset to first page on filter change
             setLoading(false);
         }
         fetchHotels();
@@ -231,23 +236,49 @@ function HotelsContent() {
                         </div>
                     ) : view === "list" ? (
                         <div>
-                            {hotels.map((hotel) => (
-                                <OYOHotelCard
-                                    key={hotel.id}
-                                    id={hotel.id}
-                                    name={hotel.name}
-                                    address={hotel.location}
-                                    city={city || "Bangladesh"}
-                                    rating={hotel.rating || 0}
-                                    reviewCount={hotel.reviewCount || 0}
-                                    images={[hotel.imageUrl]}
-                                    amenities={hotel.amenities || []}
-                                    basePrice={Math.round(hotel.lowestPrice * 1.3)}
-                                    dynamicPrice={hotel.lowestPrice}
-                                    badge={hotel.category === "PREMIUM" ? "Premium" : hotel.category === "BUSINESS" ? "Business" : undefined}
-                                    vibeCode={hotel.vibeCode ?? undefined}
-                                />
-                            ))}
+                            {hotels
+                                .slice((currentPage - 1) * HOTELS_PER_PAGE, currentPage * HOTELS_PER_PAGE)
+                                .map((hotel) => (
+                                    <OYOHotelCard
+                                        key={hotel.id}
+                                        id={hotel.id}
+                                        name={hotel.name}
+                                        address={hotel.location}
+                                        city={city || "Bangladesh"}
+                                        rating={hotel.rating || 0}
+                                        reviewCount={hotel.reviewCount || 0}
+                                        images={[hotel.imageUrl]}
+                                        amenities={hotel.amenities || []}
+                                        basePrice={Math.round(hotel.lowestPrice * 1.3)}
+                                        dynamicPrice={hotel.lowestPrice}
+                                        badge={hotel.category === "PREMIUM" ? "Premium" : hotel.category === "BUSINESS" ? "Business" : undefined}
+                                        vibeCode={hotel.vibeCode ?? undefined}
+                                    />
+                                ))}
+
+                            {/* Pagination */}
+                            {hotels.length > HOTELS_PER_PAGE && (
+                                <div className="pagination-container">
+                                    <button
+                                        className="pagination-btn"
+                                        onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                                        disabled={currentPage === 1}
+                                    >
+                                        ← Previous
+                                    </button>
+                                    <div className="pagination-info">
+                                        Page {currentPage} of {Math.ceil(hotels.length / HOTELS_PER_PAGE)}
+                                        <span className="pagination-count">({hotels.length} hotels)</span>
+                                    </div>
+                                    <button
+                                        className="pagination-btn"
+                                        onClick={() => setCurrentPage(p => Math.min(Math.ceil(hotels.length / HOTELS_PER_PAGE), p + 1))}
+                                        disabled={currentPage >= Math.ceil(hotels.length / HOTELS_PER_PAGE)}
+                                    >
+                                        Next →
+                                    </button>
+                                </div>
+                            )}
                         </div>
                     ) : (
                         /* Map View */
