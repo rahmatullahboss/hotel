@@ -2,7 +2,7 @@ import { DrizzleAdapter } from "@auth/drizzle-adapter";
 import type { NextAuthConfig } from "next-auth";
 import Google from "next-auth/providers/google";
 import Credentials from "next-auth/providers/credentials";
-import { getDb, users, accounts, sessions, verificationTokens } from "@repo/db";
+import { getDbHttp, users, accounts, sessions, verificationTokens } from "@repo/db";
 
 /**
  * Shared Auth.js v5 configuration for all apps
@@ -21,7 +21,8 @@ import { getDb, users, accounts, sessions, verificationTokens } from "@repo/db";
  */
 
 export const authConfig: NextAuthConfig = {
-    adapter: DrizzleAdapter(getDb(), {
+    // Use HTTP-based client for Auth.js Drizzle adapter compatibility
+    adapter: DrizzleAdapter(getDbHttp() as any, {
         usersTable: users,
         accountsTable: accounts,
         sessionsTable: sessions,
@@ -51,7 +52,7 @@ export const authConfig: NextAuthConfig = {
                 if (!email) return null;
 
                 // Find or create user for development
-                const db = getDb();
+                const db = getDbHttp();
                 const existingUser = await db.query.users.findFirst({
                     where: (users: any, { eq }: any) => eq(users.email, email),
                 });

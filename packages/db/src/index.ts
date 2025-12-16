@@ -6,7 +6,7 @@ import * as schema from "./schema";
 // Enable WebSocket support for transactions
 neonConfig.webSocketConstructor = globalThis.WebSocket;
 
-// Create Neon client with transaction support
+// Create Neon client with transaction support (WebSocket-based)
 const createClient = () => {
     // Prevent client-side execution
     if (typeof window !== "undefined") {
@@ -25,14 +25,38 @@ const createClient = () => {
     return drizzleServerless(pool, { schema });
 };
 
+// Create HTTP-based client for Auth.js adapter (compatible with DrizzleAdapter)
+const createHttpClient = () => {
+    if (typeof window !== "undefined") {
+        return null as any;
+    }
+
+    const databaseUrl = process.env.DATABASE_URL;
+    if (!databaseUrl) {
+        throw new Error("DATABASE_URL environment variable is not set");
+    }
+
+    const sql = neon(databaseUrl);
+    return drizzleHttp(sql, { schema });
+};
+
 // Singleton pattern for database client
 let dbInstance: ReturnType<typeof createClient> | null = null;
+let dbHttpInstance: ReturnType<typeof createHttpClient> | null = null;
 
 export const getDb = () => {
     if (!dbInstance) {
         dbInstance = createClient();
     }
     return dbInstance!;
+};
+
+// HTTP-based client for Auth.js adapter compatibility
+export const getDbHttp = () => {
+    if (!dbHttpInstance) {
+        dbHttpInstance = createHttpClient();
+    }
+    return dbHttpInstance!;
 };
 
 // For direct import usage - same as getDb but with lazy initialization
