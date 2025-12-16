@@ -9,7 +9,7 @@ import {
     wallets,
     walletTransactions,
 } from "@repo/db/schema";
-import { eq, and, sql } from "drizzle-orm";
+import { eq, and, sql, desc, asc } from "drizzle-orm";
 import { auth } from "../auth";
 import { revalidatePath } from "next/cache";
 
@@ -225,7 +225,7 @@ export async function getStreakData() {
 
         // Find next reward
         const nextReward = STREAK_REWARDS.find(
-            (r) => r.days > streak.currentStreak
+            (r: typeof STREAK_REWARDS[number]) => r.days > streak.currentStreak
         );
 
         return {
@@ -258,10 +258,10 @@ export async function getUserBadges() {
             with: {
                 badge: true,
             },
-            orderBy: (ub, { desc }) => [desc(ub.earnedAt)],
+            orderBy: desc(userBadges.earnedAt),
         });
 
-        return earned.map((ub) => ({
+        return earned.map((ub: typeof earned[number]) => ({
             id: ub.badge.id,
             code: ub.badge.code,
             name: ub.badge.name,
@@ -288,11 +288,11 @@ export async function getAllBadges() {
     try {
         const allBadges = await db.query.badges.findMany({
             where: eq(badges.isActive, true),
-            orderBy: (b, { asc }) => [asc(b.category), asc(b.requirement)],
+            orderBy: [asc(badges.category), asc(badges.requirement)],
         });
 
         if (!session?.user?.id) {
-            return allBadges.map((b) => ({
+            return allBadges.map((b: typeof allBadges[number]) => ({
                 ...b,
                 isEarned: false,
                 earnedAt: null,
@@ -304,12 +304,12 @@ export async function getAllBadges() {
         });
 
         const earnedMap = new Map(
-            earned.map((e) => [e.badgeId, e.earnedAt])
+            earned.map((e: typeof earned[number]) => [e.badgeId, e.earnedAt])
         );
 
         return allBadges
-            .filter((b) => !b.isSecret || earnedMap.has(b.id))
-            .map((b) => ({
+            .filter((b: typeof allBadges[number]) => !b.isSecret || earnedMap.has(b.id))
+            .map((b: typeof allBadges[number]) => ({
                 ...b,
                 isEarned: earnedMap.has(b.id),
                 earnedAt: earnedMap.get(b.id) || null,

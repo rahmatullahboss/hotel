@@ -86,7 +86,7 @@ export async function getAnalyticsData(
         let platformBookings = 0;
         let walkInBookings = 0;
 
-        periodBookings.forEach((b) => {
+        periodBookings.forEach((b: typeof periodBookings[number]) => {
             const amount = Number(b.totalAmount) || 0;
             totalRevenue += amount;
 
@@ -114,7 +114,7 @@ export async function getAnalyticsData(
         }
 
         // Populate with actual data
-        periodBookings.forEach((b) => {
+        periodBookings.forEach((b: typeof periodBookings[number]) => {
             const date = b.checkIn;
             const existing = dailyRevenueMap.get(date) || { revenue: 0, bookings: 0 };
             existing.revenue += Number(b.totalAmount) || 0;
@@ -134,9 +134,9 @@ export async function getAnalyticsData(
 
         // Calculate occupancy (simplified: based on checked-in bookings)
         const checkedInBookings = periodBookings.filter(
-            (b) => b.status === "CHECKED_IN" || b.status === "CHECKED_OUT"
+            (b: typeof periodBookings[number]) => b.status === "CHECKED_IN" || b.status === "CHECKED_OUT"
         );
-        const occupiedRoomDays = checkedInBookings.reduce((sum, b) => {
+        const occupiedRoomDays = checkedInBookings.reduce((sum: number, b: typeof checkedInBookings[number]) => {
             const checkIn = new Date(b.checkIn);
             const checkOut = new Date(b.checkOut);
             const nights = Math.ceil((checkOut.getTime() - checkIn.getTime()) / (1000 * 60 * 60 * 24));
@@ -150,7 +150,7 @@ export async function getAnalyticsData(
         const roomRevenueMap = new Map<string, { roomNumber: string; revenue: number; bookings: number }>();
 
         for (const booking of periodBookings) {
-            const room = hotelRooms.find((r) => r.id === booking.roomId);
+            const room = hotelRooms.find((r: typeof hotelRooms[number]) => r.id === booking.roomId);
             if (!room) continue;
 
             const existing = roomRevenueMap.get(room.id) || {

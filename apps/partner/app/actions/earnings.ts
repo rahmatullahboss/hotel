@@ -86,7 +86,7 @@ export async function getEarningsData(
         let walkInRevenue = 0;
         let platformRevenue = 0;
 
-        const transactions: Transaction[] = periodBookings.map((b) => {
+        const transactions: Transaction[] = periodBookings.map((b: typeof periodBookings[number]) => {
             const amount = Number(b.totalAmount) || 0;
             const commission = Number(b.commissionAmount) || 0;
             const net = Number(b.netAmount) || 0;

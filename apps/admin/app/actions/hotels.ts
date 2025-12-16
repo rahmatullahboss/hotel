@@ -1,6 +1,6 @@
 "use server";
 
-import { db } from "@repo/db";
+import { db, type Room } from "@repo/db";
 import { hotels, users, rooms } from "@repo/db/schema";
 import { eq, desc } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
@@ -124,10 +124,11 @@ export async function getRoomsWithRemovalRequests() {
         });
 
         // Filter rooms with removal requests
-        const roomsWithRequests = allRooms.filter(room =>
-            room.description?.startsWith("[REMOVAL_REQUESTED")
+        const roomsWithRequests = allRooms.filter(
+            (room: typeof allRooms[number]) =>
+                room.description?.startsWith("[REMOVAL_REQUESTED") ||
+                (room as any).status === "REQUESTED_REMOVAL"
         );
-
         return roomsWithRequests;
     } catch (error) {
         console.error("Error fetching rooms with removal requests:", error);

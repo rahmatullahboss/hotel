@@ -38,7 +38,7 @@ export async function getHotelsWithStatus(): Promise<HotelWithStats[]> {
         orderBy: desc(hotels.createdAt),
     });
 
-    return allHotels.map((hotel) => ({
+    return allHotels.map((hotel: typeof allHotels[number]) => ({
         id: hotel.id,
         name: hotel.name,
         city: hotel.city,
@@ -66,7 +66,7 @@ export async function getHotelsBelowRating(threshold: number = 3) {
         orderBy: hotels.rating,
     });
 
-    return lowRatedHotels.map((hotel) => ({
+    return lowRatedHotels.map((hotel: typeof lowRatedHotels[number]) => ({
         id: hotel.id,
         name: hotel.name,
         city: hotel.city,
@@ -84,11 +84,11 @@ export async function getHotelsBelowRating(threshold: number = 3) {
 export async function getSuspensionStats() {
     const allHotels = await db.query.hotels.findMany();
 
-    const activeHotels = allHotels.filter((h) => h.status === "ACTIVE").length;
-    const suspendedHotels = allHotels.filter((h) => h.status === "SUSPENDED").length;
-    const pendingHotels = allHotels.filter((h) => h.status === "PENDING").length;
+    const activeHotels = allHotels.filter((h: typeof allHotels[number]) => h.status === "ACTIVE").length;
+    const suspendedHotels = allHotels.filter((h: typeof allHotels[number]) => h.status === "SUSPENDED").length;
+    const pendingHotels = allHotels.filter((h: typeof allHotels[number]) => h.status === "PENDING").length;
     const lowRatedActive = allHotels.filter(
-        (h) => h.status === "ACTIVE" && parseFloat(h.rating || "5") < 3
+        (h: typeof allHotels[number]) => h.status === "ACTIVE" && parseFloat(h.rating || "5") < 3
     ).length;
 
     // Get suspension threshold from settings

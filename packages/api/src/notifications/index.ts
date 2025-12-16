@@ -265,11 +265,11 @@ export async function sendPushNotification(
 
         // Send to all web subscriptions (filter for valid web push credentials)
         const webSubscriptions = subscriptions.filter(
-            sub => sub.endpoint && sub.p256dh && sub.auth
+            (sub: any) => sub.endpoint && sub.p256dh && sub.auth
         );
 
         await Promise.all(
-            webSubscriptions.map(async (sub) => {
+            webSubscriptions.map(async (sub: any) => {
                 try {
                     await webpush.sendNotification(
                         {
@@ -475,15 +475,15 @@ export async function sendExpoPushNotification(
         });
 
         const mobileTokens = subscriptions
-            .filter(sub => sub.expoPushToken && (sub.platform === 'ios' || sub.platform === 'android'))
-            .map(sub => sub.expoPushToken!);
+            .filter((sub: any) => sub.expoPushToken && (sub.platform === 'ios' || sub.platform === 'android'))
+            .map((sub: any) => sub.expoPushToken!);
 
         if (mobileTokens.length === 0) {
             return { success: true, sent: 0 };
         }
 
         // Prepare messages for Expo push service
-        const messages = mobileTokens.map(token => ({
+        const messages = mobileTokens.map((token: string) => ({
             to: token,
             sound: 'default' as const,
             title: payload.title,

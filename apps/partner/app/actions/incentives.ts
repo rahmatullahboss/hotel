@@ -89,14 +89,14 @@ export async function getActivePrograms(): Promise<IncentiveWithProgress[]> {
     });
 
     const participationMap = new Map(
-        participations.map((p) => [p.programId, p])
+        participations.map((p: typeof participations[number]) => [p.programId, p])
     );
 
     // Build result with progress
     const result: IncentiveWithProgress[] = [];
 
     for (const program of programs) {
-        let participation = participationMap.get(program.id);
+        let participation = participationMap.get(program.id) as any;
 
         // Auto-enroll if not participating
         if (!participation) {
@@ -181,18 +181,18 @@ export async function getIncentiveStats() {
     });
 
     const active = participations.filter(
-        (p) => p.program.status === "ACTIVE" && !p.isCompleted
+        (p: typeof participations[number]) => p.program.status === "ACTIVE" && !p.isCompleted
     ).length;
 
-    const completed = participations.filter((p) => p.isCompleted).length;
+    const completed = participations.filter((p: typeof participations[number]) => p.isCompleted).length;
 
     const claimed = participations.filter(
-        (p) => p.claimStatus === "PAID"
+        (p: typeof participations[number]) => p.claimStatus === "PAID"
     ).length;
 
     const totalEarned = participations
-        .filter((p) => p.claimStatus === "PAID")
-        .reduce((sum, p) => sum + parseFloat(p.payoutAmount || "0"), 0);
+        .filter((p: typeof participations[number]) => p.claimStatus === "PAID")
+        .reduce((sum: number, p: typeof participations[number]) => sum + parseFloat(p.payoutAmount || "0"), 0);
 
     return {
         active,

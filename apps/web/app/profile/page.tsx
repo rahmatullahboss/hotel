@@ -22,10 +22,10 @@ export default async function ProfilePage() {
     ]);
 
     const upcomingBookings = bookings.filter(
-        (b) => new Date(b.checkIn) >= new Date() && b.status !== "CANCELLED"
+        (b: typeof bookings[number]) => new Date(b.checkIn) >= new Date() && b.status !== "CANCELLED"
     );
     const pastBookings = bookings.filter(
-        (b) => new Date(b.checkIn) < new Date() || b.status === "CANCELLED"
+        (b: typeof bookings[number]) => new Date(b.checkIn) < new Date() || b.status === "CANCELLED"
     );
 
     const tierColors = {

@@ -1,6 +1,6 @@
 "use server";
 
-import { db, reviews, hotels, users, bookings } from "@repo/db";
+import { db, reviews, hotels, users, bookings, type Review } from "@repo/db";
 import { eq, desc, and, sql, avg, count, gte, lte, isNotNull } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
@@ -37,19 +37,19 @@ export async function getReviewStats() {
     const allReviews = await db.query.reviews.findMany();
 
     const total = allReviews.length;
-    const visible = allReviews.filter((r) => r.isVisible).length;
-    const hidden = allReviews.filter((r) => !r.isVisible).length;
-    const withResponse = allReviews.filter((r) => r.hotelResponse).length;
+    const visible = allReviews.filter((r: Review) => r.isVisible).length;
+    const hidden = allReviews.filter((r: Review) => !r.isVisible).length;
+    const withResponse = allReviews.filter((r: Review) => r.hotelResponse).length;
 
     // Rating breakdown
-    const fiveStar = allReviews.filter((r) => r.rating === 5).length;
-    const fourStar = allReviews.filter((r) => r.rating === 4).length;
-    const threeStar = allReviews.filter((r) => r.rating === 3).length;
-    const twoStar = allReviews.filter((r) => r.rating === 2).length;
-    const oneStar = allReviews.filter((r) => r.rating === 1).length;
+    const fiveStar = allReviews.filter((r: Review) => r.rating === 5).length;
+    const fourStar = allReviews.filter((r: Review) => r.rating === 4).length;
+    const threeStar = allReviews.filter((r: Review) => r.rating === 3).length;
+    const twoStar = allReviews.filter((r: Review) => r.rating === 2).length;
+    const oneStar = allReviews.filter((r: Review) => r.rating === 1).length;
 
     const avgRating = total > 0
-        ? allReviews.reduce((sum, r) => sum + r.rating, 0) / total
+        ? allReviews.reduce((sum: number, r: Review) => sum + r.rating, 0) / total
         : 0;
 
     return {
@@ -79,14 +79,14 @@ export async function getAllReviews(
     let filtered = allReviews;
 
     if (filter === "visible") {
-        filtered = allReviews.filter((r) => r.isVisible);
+        filtered = allReviews.filter((r: typeof allReviews[number]) => r.isVisible);
     } else if (filter === "hidden") {
-        filtered = allReviews.filter((r) => !r.isVisible);
+        filtered = allReviews.filter((r: typeof allReviews[number]) => !r.isVisible);
     } else if (filter === "no-response") {
-        filtered = allReviews.filter((r) => !r.hotelResponse);
+        filtered = allReviews.filter((r: typeof allReviews[number]) => !r.hotelResponse);
     }
 
-    return filtered.map((review) => ({
+    return filtered.map((review: typeof allReviews[number]) => ({
         id: review.id,
         rating: review.rating,
         title: review.title,
@@ -118,7 +118,7 @@ export async function getHotelReviews(hotelId: string): Promise<ReviewWithDetail
         orderBy: desc(reviews.createdAt),
     });
 
-    return hotelReviews.map((review) => ({
+    return hotelReviews.map((review: typeof hotelReviews[number]) => ({
         id: review.id,
         rating: review.rating,
         title: review.title,
@@ -206,7 +206,7 @@ export async function deleteReview(
         });
 
         const newRating = remainingReviews.length > 0
-            ? remainingReviews.reduce((sum, r) => sum + r.rating, 0) / remainingReviews.length
+            ? remainingReviews.reduce((sum: number, r: Review) => sum + r.rating, 0) / remainingReviews.length
             : 0;
 
         await db

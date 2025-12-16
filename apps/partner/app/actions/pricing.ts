@@ -41,9 +41,9 @@ export async function getRoomPricing(hotelId: string): Promise<RoomPricing[]> {
             .from(roomInventory)
             .where(eq(roomInventory.date, today));
 
-        return hotelRooms.map((room) => {
+        return hotelRooms.map((room: typeof hotelRooms[number]) => {
             const basePrice = Number(room.basePrice) || 0;
-            const inventory = todayInventory.find((inv) => inv.roomId === room.id);
+            const inventory = todayInventory.find((inv: typeof todayInventory[number]) => inv.roomId === room.id);
             const currentPrice = inventory?.price ? Number(inventory.price) : basePrice;
 
             return {
@@ -102,7 +102,7 @@ export async function getRoomPricingCalendar(
         for (let i = 0; i < days; i++) {
             const date = new Date(today.getTime() + i * 24 * 60 * 60 * 1000);
             const dateStr = date.toISOString().split("T")[0]!;
-            const inv = inventory.find((d) => d.date === dateStr);
+            const inv = inventory.find((d: typeof inventory[number]) => d.date === dateStr);
 
             dates.push({
                 date: dateStr,

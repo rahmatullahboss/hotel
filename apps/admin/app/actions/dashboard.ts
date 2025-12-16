@@ -1,6 +1,6 @@
 "use server";
 
-import { db } from "@repo/db";
+import { db, type Hotel } from "@repo/db";
 import { hotels, bookings, users, rooms } from "@repo/db/schema";
 import { eq, sql, count, sum, and, gte, lte, desc, ne } from "drizzle-orm";
 
@@ -249,12 +249,10 @@ export async function getQualityAlerts(): Promise<{
 
         // Get pending count
         const pendingResult = await db
-            .select({ count: count() })
-            .from(hotels)
             .where(eq(hotels.status, "PENDING"));
 
         return {
-            lowRatedHotels: lowRated.map(h => ({
+            lowRatedHotels: lowRated.map((h: Hotel) => ({
                 id: h.id,
                 name: h.name,
                 rating: Number(h.rating) || 0,
@@ -310,7 +308,7 @@ export async function getPendingPaymentBookings(limit: number = 20): Promise<Pen
 
         const now = new Date();
 
-        return pendingBookings.map((b) => {
+        return pendingBookings.map((b: typeof pendingBookings[number]) => {
             const expiresAt = b.expiresAt ? new Date(b.expiresAt) : null;
             const minutesRemaining = expiresAt
                 ? Math.max(0, Math.round((expiresAt.getTime() - now.getTime()) / 60000))

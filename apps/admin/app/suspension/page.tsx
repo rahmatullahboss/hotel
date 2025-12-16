@@ -115,7 +115,7 @@ export default async function SuspensionPage() {
                         </div>
                     </div>
                     <ul style={{ margin: "0.75rem 0 0 0", paddingLeft: "1.5rem" }}>
-                        {lowRatedHotels.slice(0, 5).map((hotel) => (
+                        {lowRatedHotels.slice(0, 5).map((hotel: typeof lowRatedHotels[number]) => (
                             <li key={hotel.id} style={{ fontSize: "0.875rem", marginBottom: "0.25rem" }}>
                                 {hotel.name} ({hotel.city}) - Rating: {hotel.rating}
                             </li>

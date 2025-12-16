@@ -53,7 +53,7 @@ export async function GET(request: NextRequest) {
                 lifetimePoints: loyalty.lifetimePoints,
                 tier: loyalty.tier,
             },
-            transactions: transactions.map((tx) => ({
+            transactions: transactions.map((tx: typeof transactions[number]) => ({
                 id: tx.id,
                 type: tx.type,
                 amount: Number(tx.amount),

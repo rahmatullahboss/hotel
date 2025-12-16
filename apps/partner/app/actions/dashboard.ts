@@ -266,7 +266,7 @@ export async function getUpcomingBookings(hotelId: string, limit = 5): Promise<B
             .orderBy(bookings.checkIn)
             .limit(limit);
 
-        return result.map((b) => {
+        return result.map((b: typeof result[number]) => {
             const totalAmount = Number(b.totalAmount) || 0;
             // Only count advance as paid if bookingFeeStatus is PAID
             const advancePaid = b.bookingFeeStatus === "PAID" ? (Number(b.bookingFee) || 0) : 0;
@@ -320,7 +320,7 @@ export async function getTodaysCheckIns(hotelId: string): Promise<BookingSummary
             ))
             .orderBy(bookings.createdAt);
 
-        return result.map((b) => {
+        return result.map((b: typeof result[number]) => {
             const totalAmount = Number(b.totalAmount) || 0;
             // Only count advance as paid if bookingFeeStatus is PAID
             const advancePaid = b.bookingFeeStatus === "PAID" ? (Number(b.bookingFee) || 0) : 0;
@@ -367,7 +367,7 @@ export async function getCurrentlyStaying(hotelId: string): Promise<BookingSumma
             .where(and(eq(bookings.hotelId, hotelId), eq(bookings.status, "CHECKED_IN")))
             .orderBy(bookings.checkOut);
 
-        return result.map((b) => {
+        return result.map((b: typeof result[number]) => {
             const totalAmount = Number(b.totalAmount) || 0;
             // Only count advance as paid if bookingFeeStatus is PAID
             const advancePaid = b.bookingFeeStatus === "PAID" ? (Number(b.bookingFee) || 0) : 0;
@@ -422,7 +422,7 @@ export async function getTodaysCheckOuts(hotelId: string): Promise<BookingSummar
             )
             .orderBy(bookings.createdAt);
 
-        return result.map((b) => {
+        return result.map((b: typeof result[number]) => {
             const totalAmount = Number(b.totalAmount) || 0;
             // Only count advance as paid if bookingFeeStatus is PAID
             const advancePaid = b.bookingFeeStatus === "PAID" ? (Number(b.bookingFee) || 0) : 0;

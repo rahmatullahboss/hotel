@@ -25,11 +25,11 @@ export function TopHotels({ hotels }: TopHotelsProps) {
         );
     }
 
-    const maxRevenue = Math.max(...hotels.map((h) => h.revenue), 1);
+    const maxRevenue = Math.max(...hotels.map((h: any) => h.revenue), 1);
 
     return (
         <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
-            {hotels.map((hotel, index) => (
+            {hotels.map((hotel: any, index) => (
                 <div key={hotel.hotelId} style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
                     <div style={{
                         width: "24px",

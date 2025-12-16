@@ -47,8 +47,8 @@ export async function submitHotelRegistration(
             .select({ vibeCode: hotels.vibeCode })
             .from(hotels);
         const codes = existingCodes
-            .map(h => h.vibeCode)
-            .filter((code): code is string => code !== null);
+            .map((h: typeof existingCodes[number]) => h.vibeCode)
+            .filter((code: string | null): code is string => code !== null);
 
         const vibeCode = generateVibeCode(codes);
 

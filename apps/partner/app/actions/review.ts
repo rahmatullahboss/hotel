@@ -44,11 +44,11 @@ export async function getHotelReviewsForPartner(): Promise<{
 
         const avgRating =
             hotelReviews.length > 0
-                ? hotelReviews.reduce((sum, r) => sum + r.rating, 0) / hotelReviews.length
+                ? hotelReviews.reduce((sum: number, r: typeof hotelReviews[number]) => sum + r.rating, 0) / hotelReviews.length
                 : 0;
 
         return {
-            reviews: hotelReviews.map((r) => ({
+            reviews: hotelReviews.map((r: typeof hotelReviews[number]) => ({
                 id: r.id,
                 rating: r.rating,
                 title: r.title,

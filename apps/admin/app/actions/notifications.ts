@@ -1,6 +1,6 @@
 "use server";
 
-import { db, pushSubscriptions, users, hotels } from "@repo/db";
+import { db, pushSubscriptions, users, hotels, type PushSubscription, type Hotel } from "@repo/db";
 import { eq, and, desc, inArray } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
@@ -32,10 +32,10 @@ interface BroadcastResult {
  */
 export async function getNotificationStats() {
     const subscriptions = await db.query.pushSubscriptions.findMany();
-    const activeSubscriptions = subscriptions.filter((s) => s.isActive).length;
+    const activeSubscriptions = subscriptions.filter((s: PushSubscription) => s.isActive).length;
 
     // Get unique users with subscriptions
-    const uniqueUserIds = [...new Set(subscriptions.map((s) => s.userId))];
+    const uniqueUserIds = [...new Set(subscriptions.map((s: PushSubscription) => s.userId))];
 
     return {
         totalSubscriptions: subscriptions.length,
@@ -55,7 +55,7 @@ export async function getHotelOwnersWithSubscriptions() {
         },
     });
 
-    const ownerIds = [...new Set(allHotels.map((h) => h.ownerId))];
+    const ownerIds = [...new Set(allHotels.map((h: Hotel) => h.ownerId))] as string[];
 
     // Get subscriptions for hotel owners
     const subscriptions = await db.query.pushSubscriptions.findMany({

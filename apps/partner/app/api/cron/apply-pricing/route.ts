@@ -88,7 +88,7 @@ async function applyDynamicPricing() {
                 )
             );
 
-        const seasonalRulesForPricing: SeasonalRule[] = activeSeasonalRules.map((r) => ({
+        const seasonalRulesForPricing: SeasonalRule[] = activeSeasonalRules.map((r: typeof activeSeasonalRules[number]) => ({
             id: r.id,
             name: r.name,
             startDate: r.startDate,
@@ -213,9 +213,9 @@ async function applyDynamicPricing() {
         }
 
         const duration = Date.now() - startTime;
-        const totalRooms = results.reduce((sum, r) => sum + r.roomsUpdated, 0);
-        const totalDates = results.reduce((sum, r) => sum + r.datesUpdated, 0);
-        const failedHotels = results.filter((r) => r.error).length;
+        const totalRooms = results.reduce((sum: number, r: typeof results[number]) => sum + r.roomsUpdated, 0);
+        const totalDates = results.reduce((sum: number, r: typeof results[number]) => sum + r.datesUpdated, 0);
+        const failedHotels = results.filter((r: typeof results[number]) => r.error).length;
 
         console.log(
             `[Pricing] Completed in ${duration}ms - ${totalRooms} rooms, ${totalDates} date entries updated, ${failedHotels} failures`

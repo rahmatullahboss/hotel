@@ -1,6 +1,6 @@
 "use server";
 
-import { db } from "@repo/db";
+import { db, type Promotion } from "@repo/db";
 import { promotions } from "@repo/db/schema";
 import { eq, desc, and, gte, lte, or } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
@@ -32,7 +32,7 @@ export async function getPromotions(): Promise<PromotionData[]> {
             orderBy: [desc(promotions.createdAt)],
         });
 
-        return allPromotions.map((p) => ({
+        return allPromotions.map((p: Promotion) => ({
             id: p.id,
             code: p.code,
             name: p.name,
@@ -75,12 +75,12 @@ export async function getActivePromotions(): Promise<PromotionData[]> {
 
         // Filter by validTo and maxUses in memory for more control
         return activePromotions
-            .filter((p) => {
+            .filter((p: Promotion) => {
                 if (p.validTo && p.validTo < today) return false;
                 if (p.maxUses && p.currentUses >= p.maxUses) return false;
                 return true;
             })
-            .map((p) => ({
+            .map((p: Promotion) => ({
                 id: p.id,
                 code: p.code,
                 name: p.name,

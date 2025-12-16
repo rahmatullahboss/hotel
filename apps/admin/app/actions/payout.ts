@@ -36,7 +36,7 @@ export async function getAllPayoutRequests(): Promise<PayoutWithDetails[]> {
             },
         });
 
-        return payouts.map((p) => ({
+        return payouts.map((p: typeof payouts[number]) => ({
             id: p.id,
             hotelId: p.hotelId,
             hotelName: p.hotel?.name || "Unknown",

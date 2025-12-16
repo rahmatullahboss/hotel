@@ -35,7 +35,7 @@ export async function GET(request: NextRequest) {
             .orderBy(desc(savedHotels.createdAt));
 
         return NextResponse.json({
-            savedHotels: saved.map((s) => ({
+            savedHotels: saved.map((s: typeof saved[number]) => ({
                 id: s.id,
                 hotelId: s.hotelId,
                 savedAt: s.savedAt,

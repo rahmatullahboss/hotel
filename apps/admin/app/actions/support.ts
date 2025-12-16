@@ -37,12 +37,12 @@ interface TicketWithDetails {
 export async function getSupportStats() {
     const allTickets = await db.query.supportTickets.findMany();
 
-    const open = allTickets.filter((t) => t.status === "OPEN").length;
-    const inProgress = allTickets.filter((t) => t.status === "IN_PROGRESS").length;
-    const resolved = allTickets.filter((t) => t.status === "RESOLVED").length;
-    const closed = allTickets.filter((t) => t.status === "CLOSED").length;
+    const open = allTickets.filter((t: typeof allTickets[number]) => t.status === "OPEN").length;
+    const inProgress = allTickets.filter((t: typeof allTickets[number]) => t.status === "IN_PROGRESS").length;
+    const resolved = allTickets.filter((t: typeof allTickets[number]) => t.status === "RESOLVED").length;
+    const closed = allTickets.filter((t: typeof allTickets[number]) => t.status === "CLOSED").length;
 
-    const urgent = allTickets.filter((t) => t.priority === "URGENT" && t.status !== "CLOSED" && t.status !== "RESOLVED").length;
+    const urgent = allTickets.filter((t: typeof allTickets[number]) => t.priority === "URGENT" && t.status !== "CLOSED" && t.status !== "RESOLVED").length;
 
     return {
         total: allTickets.length,
@@ -72,16 +72,16 @@ export async function getAllTickets(
     let filtered = allTickets;
 
     if (filter === "open") {
-        filtered = allTickets.filter((t) => t.status === "OPEN");
+        filtered = allTickets.filter((t: typeof allTickets[number]) => t.status === "OPEN");
     } else if (filter === "in-progress") {
-        filtered = allTickets.filter((t) => t.status === "IN_PROGRESS");
+        filtered = allTickets.filter((t: typeof allTickets[number]) => t.status === "IN_PROGRESS");
     } else if (filter === "resolved") {
-        filtered = allTickets.filter((t) => t.status === "RESOLVED" || t.status === "CLOSED");
+        filtered = allTickets.filter((t: typeof allTickets[number]) => t.status === "RESOLVED" || t.status === "CLOSED");
     } else if (filter === "urgent") {
-        filtered = allTickets.filter((t) => t.priority === "URGENT" && t.status !== "CLOSED");
+        filtered = allTickets.filter((t: typeof allTickets[number]) => t.priority === "URGENT" && t.status !== "CLOSED");
     }
 
-    return filtered.map((ticket) => ({
+    return filtered.map((ticket: typeof allTickets[number]) => ({
         id: ticket.id,
         subject: ticket.subject,
         description: ticket.description,
@@ -135,7 +135,7 @@ export async function getTicketDetails(ticketId: string) {
             name: ticket.hotel.name,
             city: ticket.hotel.city,
         } : null,
-        replies: ticket.replies?.map((r) => ({
+        replies: ticket.replies?.map((r: typeof ticket.replies[number]) => ({
             id: r.id,
             message: r.message,
             isStaffReply: r.isStaffReply,

@@ -28,7 +28,7 @@ export async function getHotelRooms(hotelId: string): Promise<RoomStatus[]> {
         });
 
         // Get today's inventory status for all rooms
-        const roomIds = hotelRooms.map((r) => r.id);
+        const roomIds = hotelRooms.map((r: typeof hotelRooms[number]) => r.id);
 
         const todayInventory = roomIds.length > 0 ? await db
             .select()
@@ -55,11 +55,11 @@ export async function getHotelRooms(hotelId: string): Promise<RoomStatus[]> {
                 )
             ) : [];
 
-        const checkedInRoomIds = new Set(checkedInBookings.map((b) => b.roomId));
+        const checkedInRoomIds = new Set(checkedInBookings.map((b: typeof checkedInBookings[number]) => b.roomId));
 
         // Map rooms with their status
-        return hotelRooms.map((room) => {
-            const inventory = todayInventory.find((inv) => inv.roomId === room.id);
+        return hotelRooms.map((room: typeof hotelRooms[number]) => {
+            const inventory = todayInventory.find((inv: typeof todayInventory[number]) => inv.roomId === room.id);
             let status: RoomStatus["status"] = "AVAILABLE";
 
             // Priority: BLOCKED inventory > CHECKED_IN booking > OCCUPIED inventory > AVAILABLE
@@ -107,7 +107,7 @@ export async function blockRoom(
         });
 
         if (conflictingBookings.length > 0) {
-            const bookedDates = conflictingBookings.map(b =>
+            const bookedDates = conflictingBookings.map((b: typeof conflictingBookings[number]) =>
                 `${b.checkIn} to ${b.checkOut}`
             ).join(", ");
             return {

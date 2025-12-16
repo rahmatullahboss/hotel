@@ -78,7 +78,7 @@ export async function createBooking(input: CreateBookingInput): Promise<BookingR
 
     try {
         // Use a serializable transaction to prevent race conditions
-        const result = await db.transaction(async (tx) => {
+        const result = await db.transaction(async (tx: any) => {
             // Auto room assignment logic for room type booking
             let actualRoomId = roomId;
 

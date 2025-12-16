@@ -41,7 +41,7 @@ export async function getStaffMembers(): Promise<StaffMember[]> {
             .where(eq(hotelStaff.hotelId, roleInfo.hotelId))
             .orderBy(desc(hotelStaff.invitedAt));
 
-        return staff.map((s) => ({
+        return staff.map((s: typeof staff[number]) => ({
             ...s,
             email: s.email || "unknown@email.com",
             role: s.role as PartnerRole,

@@ -1,6 +1,6 @@
 "use server";
 
-import { db, systemSettings, incentivePrograms, hotelIncentives, hotels } from "@repo/db";
+import { db, systemSettings, incentivePrograms, hotelIncentives, hotels, type HotelIncentive, type IncentiveProgram } from "@repo/db";
 import { eq, desc, and, count } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { SETTING_KEYS } from "@repo/db/schema";
@@ -99,9 +99,9 @@ export async function getProgramWithStats(programId: string) {
 
     const stats = {
         totalParticipants: participations.length,
-        completed: participations.filter((p) => p.isCompleted).length,
-        claimed: participations.filter((p) => p.claimStatus === "PENDING").length,
-        paid: participations.filter((p) => p.claimStatus === "PAID").length,
+        approved: participations.filter((p: HotelIncentive) => p.claimStatus === "APPROVED").length,
+        pending: participations.filter((p: HotelIncentive) => p.claimStatus === "PENDING").length,
+        paid: participations.filter((p: HotelIncentive) => p.claimStatus === "PAID").length,
     };
 
     return { program, stats };
@@ -207,7 +207,7 @@ export async function getPendingClaims() {
         orderBy: desc(hotelIncentives.claimedAt),
     });
 
-    return claims.map((claim) => ({
+    return claims.map((claim: typeof claims[number]) => ({
         id: claim.id,
         hotelName: claim.hotel?.name || "Unknown",
         programName: claim.program.name,
@@ -297,11 +297,11 @@ export async function getIncentiveDashboardStats() {
     const programs = await db.query.incentivePrograms.findMany();
     const allClaims = await db.query.hotelIncentives.findMany();
 
-    const activePrograms = programs.filter((p) => p.status === "ACTIVE").length;
-    const pendingClaims = allClaims.filter((c) => c.claimStatus === "PENDING").length;
+    const activePrograms = programs.filter((p: IncentiveProgram) => p.status === "ACTIVE").length;
+    const pendingClaims = allClaims.filter((c: HotelIncentive) => c.claimStatus === "PENDING").length;
     const totalPaid = allClaims
-        .filter((c) => c.claimStatus === "PAID")
-        .reduce((sum, c) => sum + parseFloat(c.payoutAmount || "0"), 0);
+        .filter((c: HotelIncentive) => c.claimStatus === "PAID")
+        .reduce((sum: number, c: HotelIncentive) => sum + parseFloat(c.payoutAmount || "0"), 0);
 
     const isEnabled = await isHotelIncentivesEnabled();
 

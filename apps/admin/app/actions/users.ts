@@ -70,7 +70,7 @@ export async function getUserStats(): Promise<UserStats> {
         ]);
 
         const roleCounts = roleResults.reduce(
-            (acc, curr) => {
+            (acc: Record<string, number>, curr: typeof roleResults[number]) => {
                 acc[curr.role] = curr.count;
                 return acc;
             },
@@ -144,7 +144,7 @@ export async function getUsersWithDetails(
             .offset(offset);
 
         // Get wallet and loyalty data for these users
-        const userIds = allUsers.map((u) => u.id);
+        const userIds = allUsers.map((u: typeof allUsers[number]) => u.id);
 
         const [walletsData, loyaltyData, bookingsData] = await Promise.all([
             userIds.length > 0
@@ -169,14 +169,14 @@ export async function getUsersWithDetails(
         ]);
 
         // Create lookup maps
-        const walletMap = new Map(walletsData.map((w) => [w.userId, w]));
-        const loyaltyMap = new Map(loyaltyData.map((l) => [l.userId, l]));
-        const bookingsMap = new Map(bookingsData.map((b) => [b.userId, b.count]));
+        const walletMap = new Map(walletsData.map((w: typeof walletsData[number]) => [w.userId, w]));
+        const loyaltyMap = new Map(loyaltyData.map((l: typeof loyaltyData[number]) => [l.userId, l]));
+        const bookingsMap = new Map(bookingsData.map((b: typeof bookingsData[number]) => [b.userId, b.count]));
 
         // Combine data
-        const usersWithDetails: UserWithDetails[] = allUsers.map((user) => {
-            const wallet = walletMap.get(user.id);
-            const loyalty = loyaltyMap.get(user.id);
+        const usersWithDetails: UserWithDetails[] = allUsers.map((user: typeof allUsers[number]) => {
+            const wallet = walletMap.get(user.id) as any;
+            const loyalty = loyaltyMap.get(user.id) as any;
             const bookingCount = bookingsMap.get(user.id) || 0;
 
             return {

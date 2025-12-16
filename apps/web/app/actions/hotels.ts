@@ -102,7 +102,7 @@ export async function searchHotels(params: SearchParams): Promise<HotelWithPrice
                 : desc(hotels.rating));
 
         // Transform results - use cached price as single source of truth
-        let filtered = result.map((h) => {
+        let filtered = result.map((h: typeof result[number]) => {
             const hotelLat = h.latitude ? parseFloat(h.latitude) : null;
             const hotelLng = h.longitude ? parseFloat(h.longitude) : null;
 
@@ -138,23 +138,23 @@ export async function searchHotels(params: SearchParams): Promise<HotelWithPrice
 
         // Apply geo filter if location provided
         if (latitude && longitude) {
-            filtered = filtered.filter((h) => h.distance !== undefined && h.distance <= radiusKm);
+            filtered = filtered.filter((h: typeof filtered[number]) => h.distance !== undefined && h.distance <= radiusKm);
         }
 
         // Apply price filters
         if (minPrice !== undefined) {
-            filtered = filtered.filter((h) => h.lowestPrice >= minPrice);
+            filtered = filtered.filter((h: typeof filtered[number]) => h.lowestPrice >= minPrice);
         }
         if (maxPrice !== undefined) {
-            filtered = filtered.filter((h) => h.lowestPrice <= maxPrice);
+            filtered = filtered.filter((h: typeof filtered[number]) => h.lowestPrice <= maxPrice);
         }
         if (payAtHotel) {
-            filtered = filtered.filter((h) => h.payAtHotel === true);
+            filtered = filtered.filter((h: typeof filtered[number]) => h.payAtHotel === true);
         }
 
         // Sort by distance if geo-searching
         if (sortBy === "distance" && latitude && longitude) {
-            filtered.sort((a, b) => (a.distance ?? Infinity) - (b.distance ?? Infinity));
+            filtered.sort((a: typeof filtered[number], b: typeof filtered[number]) => (a.distance ?? Infinity) - (b.distance ?? Infinity));
         }
 
         return filtered;
@@ -224,7 +224,7 @@ const _getFeaturedHotels = async (limit: number): Promise<HotelWithPrice[]> => {
             .limit(limit);
 
         // Transform results - use cached price as single source of truth
-        return result.map((h) => {
+        return result.map((h: typeof result[number]) => {
             // Use pre-computed price, fallback to base price if not yet computed
             const displayPrice = h.lowestDynamicPrice
                 ? parseFloat(h.lowestDynamicPrice)
@@ -320,7 +320,7 @@ export async function getAvailableRooms(
             return [];
         }
 
-        const roomIds = roomList.map(r => r.id);
+        const roomIds = roomList.map((r: typeof roomList[number]) => r.id);
 
         // Fetch pre-computed prices from inventory for the requested date range
         const inventoryPrices = await db.query.roomInventory.findMany({
@@ -342,7 +342,7 @@ export async function getAvailableRooms(
 
         // Check availability for each room
         const roomAvailability = await Promise.all(
-            roomList.map(async (room) => {
+            roomList.map(async (room: typeof roomList[number]) => {
                 let isBooked = false;
                 try {
                     const existingBooking = await db.query.bookings.findFirst({
@@ -413,7 +413,7 @@ export async function getAvailableRooms(
                 let priceEntry = null;
                 for (const roomId of group.availableRoomIds.length > 0 ? group.availableRoomIds : [representativeRoom.id]) {
                     priceEntry = inventoryPrices.find(
-                        p => p.roomId === roomId && p.date === dateStr
+                        (p: typeof inventoryPrices[number]) => p.roomId === roomId && p.date === dateStr
                     );
                     if (priceEntry?.price) break;
                 }

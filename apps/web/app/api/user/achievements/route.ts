@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@repo/db";
 import { loginStreaks, badges, userBadges, wallets, walletTransactions } from "@repo/db/schema";
-import { eq, and, sql } from "drizzle-orm";
+import { eq, and, sql, asc } from "drizzle-orm";
 import { getUserIdFromRequest } from "@/lib/mobile-auth";
 
 export const dynamic = "force-dynamic";
@@ -40,13 +40,13 @@ export async function GET(request: NextRequest) {
             };
 
         const nextReward = STREAK_REWARDS.find(
-            (r) => r.days > streakData.currentStreak
+            (r: typeof STREAK_REWARDS[number]) => r.days > streakData.currentStreak
         );
 
         // Get all badges with earned status
         const allBadges = await db.query.badges.findMany({
             where: eq(badges.isActive, true),
-            orderBy: (b, { asc }) => [asc(b.category), asc(b.requirement)],
+            orderBy: [asc(badges.category), asc(badges.requirement)],
         });
 
         const earned = await db.query.userBadges.findMany({
@@ -54,12 +54,12 @@ export async function GET(request: NextRequest) {
         });
 
         const earnedMap = new Map(
-            earned.map((e) => [e.badgeId, e.earnedAt])
+            earned.map((e: typeof earned[number]) => [e.badgeId, e.earnedAt])
         );
 
         const badgesWithStatus = allBadges
-            .filter((b) => !b.isSecret || earnedMap.has(b.id))
-            .map((b) => ({
+            .filter((b: typeof allBadges[number]) => !b.isSecret || earnedMap.has(b.id))
+            .map((b: typeof allBadges[number]) => ({
                 id: b.id,
                 code: b.code,
                 name: b.name,

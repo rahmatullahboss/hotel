@@ -32,7 +32,7 @@ export default async function BookingsPage() {
                                     </td>
                                 </tr>
                             ) : (
-                                bookings.map((booking) => (
+                                bookings.map((booking: any) => (
                                     <tr key={booking.id}>
                                         <td>
                                             <code style={{ fontSize: "0.75rem", color: "var(--color-text-secondary)" }}>
@@ -69,10 +69,10 @@ export default async function BookingsPage() {
                                         <td>
                                             <span
                                                 className={`badge ${booking.status === "CONFIRMED"
-                                                        ? "badge-success"
-                                                        : booking.status === "CANCELLED"
-                                                            ? "badge-danger"
-                                                            : "badge-warning"
+                                                    ? "badge-success"
+                                                    : booking.status === "CANCELLED"
+                                                        ? "badge-danger"
+                                                        : "badge-warning"
                                                     }`}
                                             >
                                                 {booking.status}

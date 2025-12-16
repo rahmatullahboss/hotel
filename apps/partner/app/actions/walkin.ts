@@ -179,7 +179,7 @@ export async function getTodayWalkIns(): Promise<{
 
         return {
             count: walkIns.length,
-            revenue: walkIns.reduce((sum, b) => sum + Number(b.totalAmount), 0),
+            revenue: walkIns.reduce((sum: number, b: typeof walkIns[number]) => sum + Number(b.totalAmount), 0),
         };
     } catch (error) {
         console.error("Error fetching walk-ins:", error);

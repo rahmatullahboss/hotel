@@ -50,7 +50,7 @@ export default async function ChannelsAdminPage() {
             <section style={{ marginBottom: "2rem" }}>
                 <h2 className="section-title">By Channel</h2>
                 <div className="card-grid" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))" }}>
-                    {stats.byChannel.map((ch) => (
+                    {stats.byChannel.map((ch: any) => (
                         <div key={ch.channelType} className="card" style={{ padding: "1rem", textAlign: "center" }}>
                             <span style={{ fontSize: "2rem" }}>{CHANNEL_INFO[ch.channelType]?.logo || "🔗"}</span>
                             <div style={{ fontWeight: 600, marginTop: "0.5rem" }}>

@@ -109,7 +109,7 @@ export async function getPriceComparison(): Promise<PriceComparison | null> {
 
     if (hotelRooms.length === 0) return null;
 
-    const yourPrice = hotelRooms.reduce((sum, r) => sum + Number(r.basePrice), 0) / hotelRooms.length;
+    const yourPrice = hotelRooms.reduce((sum: number, r: typeof hotelRooms[number]) => sum + Number(r.basePrice), 0) / hotelRooms.length;
 
     // Get competitor rates for today/upcoming
     const today = new Date();
@@ -132,7 +132,7 @@ export async function getPriceComparison(): Promise<PriceComparison | null> {
 
     const rates = await db.query.competitorRates.findMany({
         where: and(
-            sql`${competitorRates.competitorId} IN (${sql.join(competitors.map(c => sql`${c.id}`), sql`, `)})`,
+            sql`${competitorRates.competitorId} IN (${sql.join(competitors.map((c: typeof competitors[number]) => sql`${c.id}`), sql`, `)})`,
             gte(competitorRates.checkInDate, today)
         ),
     });
@@ -148,10 +148,10 @@ export async function getPriceComparison(): Promise<PriceComparison | null> {
         };
     }
 
-    const rateValues = rates.map((r) => parseFloat(r.rate));
+    const rateValues = rates.map((r: typeof rates[number]) => parseFloat(r.rate));
     const competitorMin = Math.min(...rateValues);
     const competitorMax = Math.max(...rateValues);
-    const competitorAvg = rateValues.reduce((a, b) => a + b, 0) / rateValues.length;
+    const competitorAvg = rateValues.reduce((a: number, b: number) => a + b, 0) / rateValues.length;
 
     // Determine position
     let position: PricePosition;
@@ -203,7 +203,7 @@ export async function getPricingRecommendations(): Promise<Recommendation[]> {
         orderBy: priceRecommendations.date,
     });
 
-    return recommendations.map((r) => ({
+    return recommendations.map((r: typeof recommendations[number]) => ({
         id: r.id,
         date: r.date,
         roomType: r.roomType,
@@ -239,7 +239,7 @@ export async function getPricingStats() {
         competitorCount: competitors.length,
         position: comparison?.position || "AVERAGE",
         percentageDiff: comparison?.percentageDiff || 0,
-        pendingRecommendations: recommendations.filter((r) => r.isApplied === "false").length,
+        pendingRecommendations: recommendations.filter((r: typeof recommendations[number]) => r.isApplied === "false").length,
     };
 }
 

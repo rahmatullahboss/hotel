@@ -3,7 +3,7 @@
 import { auth } from "@/auth";
 import { db } from "@repo/db";
 import { wallets, walletTransactions, loyaltyPoints } from "@repo/db/schema";
-import { eq } from "drizzle-orm";
+import { eq, desc } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
 /**
@@ -46,7 +46,7 @@ export async function getTransactionHistory() {
 
     return db.query.walletTransactions.findMany({
         where: eq(walletTransactions.walletId, wallet.id),
-        orderBy: (tx, { desc }) => [desc(tx.createdAt)],
+        orderBy: desc(walletTransactions.createdAt),
         limit: 50,
     });
 }

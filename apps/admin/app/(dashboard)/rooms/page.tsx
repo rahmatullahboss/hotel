@@ -41,7 +41,7 @@ export default async function RoomsPage() {
                     </h2>
 
                     <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
-                        {roomsWithRequests.map((room) => {
+                        {roomsWithRequests.map((room: any) => {
                             // Extract reason from description
                             const reasonMatch = room.description?.match(/\[REMOVAL_REQUESTED:\s*([^\]]+)\]/);
                             const reason = reasonMatch ? reasonMatch[1] : "No reason provided";

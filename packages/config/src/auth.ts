@@ -53,7 +53,7 @@ export const authConfig: NextAuthConfig = {
                 // Find or create user for development
                 const db = getDb();
                 const existingUser = await db.query.users.findFirst({
-                    where: (users, { eq }) => eq(users.email, email),
+                    where: (users: any, { eq }: any) => eq(users.email, email),
                 });
 
                 if (existingUser) {

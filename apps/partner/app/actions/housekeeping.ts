@@ -56,14 +56,14 @@ export async function getRoomsWithCleaningStatus() {
     const statuses = await db.query.roomCleaningStatuses.findMany({
         where: inArray(
             roomCleaningStatuses.roomId,
-            hotelRooms.map((r) => r.id)
+            hotelRooms.map((r: typeof hotelRooms[number]) => r.id)
         ),
     });
 
-    const statusMap = new Map(statuses.map((s) => [s.roomId, s]));
+    const statusMap = new Map(statuses.map((s: typeof statuses[number]) => [s.roomId, s]));
 
-    return hotelRooms.map((room) => {
-        const status = statusMap.get(room.id);
+    return hotelRooms.map((room: typeof hotelRooms[number]) => {
+        const status = statusMap.get(room.id) as any;
         return {
             id: room.id,
             roomNumber: room.roomNumber,
@@ -108,7 +108,7 @@ export async function getTodaysTasks(): Promise<TaskWithRoom[]> {
         orderBy: [desc(housekeepingTasks.priority), desc(housekeepingTasks.createdAt)],
     });
 
-    return tasks.map((task) => ({
+    return tasks.map((task: typeof tasks[number]) => ({
         id: task.id,
         roomId: task.roomId,
         roomNumber: task.room?.roomNumber || "Unknown",
@@ -150,11 +150,11 @@ export async function getHousekeepingStats() {
 
     const roomsData = await getRoomsWithCleaningStatus();
 
-    const pending = tasks.filter((t) => t.status === "PENDING" || t.status === "ASSIGNED").length;
-    const inProgress = tasks.filter((t) => t.status === "IN_PROGRESS").length;
-    const completed = tasks.filter((t) => t.status === "COMPLETED" || t.status === "VERIFIED").length;
-    const dirtyRooms = roomsData.filter((r) => r.status === "DIRTY").length;
-    const cleanRooms = roomsData.filter((r) => r.status === "CLEAN" || r.status === "INSPECTED").length;
+    const pending = tasks.filter((t: typeof tasks[number]) => t.status === "PENDING" || t.status === "ASSIGNED").length;
+    const inProgress = tasks.filter((t: typeof tasks[number]) => t.status === "IN_PROGRESS").length;
+    const completed = tasks.filter((t: typeof tasks[number]) => t.status === "COMPLETED" || t.status === "VERIFIED").length;
+    const dirtyRooms = roomsData.filter((r: typeof roomsData[number]) => r.status === "DIRTY").length;
+    const cleanRooms = roomsData.filter((r: typeof roomsData[number]) => r.status === "CLEAN" || r.status === "INSPECTED").length;
 
     return {
         pending,

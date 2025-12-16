@@ -149,7 +149,7 @@ export async function getHotelReviews(hotelId: string): Promise<{
             .where(and(eq(reviews.hotelId, hotelId), eq(reviews.isVisible, true)));
 
         return {
-            reviews: hotelReviews.map((r) => ({
+            reviews: hotelReviews.map((r: typeof hotelReviews[number]) => ({
                 id: r.id,
                 rating: r.rating,
                 title: r.title,

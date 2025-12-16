@@ -92,7 +92,7 @@ export default async function ReportsPage() {
                         </tr>
                     </thead>
                     <tbody>
-                        {hotelRevenue.map((hotel) => (
+                        {hotelRevenue.map((hotel: any) => (
                             <tr key={hotel.hotelId} style={{ borderTop: "1px solid var(--color-border)" }}>
                                 <td style={{ padding: "0.75rem 1rem" }}>
                                     <div style={{ fontWeight: 500, fontSize: "0.875rem" }}>{hotel.hotelName}</div>

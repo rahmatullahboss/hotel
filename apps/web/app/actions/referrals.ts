@@ -128,11 +128,11 @@ export async function getReferralStats() {
             orderBy: [desc(referrals.createdAt)],
         });
 
-        const pendingCount = userReferrals.filter((r) => r.status === "PENDING").length;
-        const completedCount = userReferrals.filter((r) => r.status === "COMPLETED").length;
+        const pendingCount = userReferrals.filter((r: typeof userReferrals[number]) => r.status === "PENDING").length;
+        const completedCount = userReferrals.filter((r: typeof userReferrals[number]) => r.status === "COMPLETED").length;
         const totalEarned = userReferrals
-            .filter((r) => r.status === "COMPLETED")
-            .reduce((sum, r) => sum + Number(r.referrerReward || 0), 0);
+            .filter((r: typeof userReferrals[number]) => r.status === "COMPLETED")
+            .reduce((sum: number, r: typeof userReferrals[number]) => sum + Number(r.referrerReward || 0), 0);
 
         return {
             code: userCode.code,
@@ -140,7 +140,7 @@ export async function getReferralStats() {
             pendingReferrals: pendingCount,
             completedReferrals: completedCount,
             totalEarned,
-            referralHistory: userReferrals.map((r) => ({
+            referralHistory: userReferrals.map((r: typeof userReferrals[number]) => ({
                 id: r.id,
                 referredUserName: r.referredUser?.name || "Anonymous",
                 referredUserImage: r.referredUser?.image,

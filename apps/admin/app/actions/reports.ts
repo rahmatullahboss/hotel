@@ -1,6 +1,6 @@
 "use server";
 
-import { db, hotels, bookings, users, payoutRequests, reviews } from "@repo/db";
+import { db, hotels, bookings, users, payoutRequests, reviews, type Booking, type Hotel } from "@repo/db";
 import { eq, desc, and, gte, lte, sql, count, sum } from "drizzle-orm";
 
 // ==================
@@ -39,14 +39,14 @@ export async function getBookingReport(
     });
 
     const confirmedBookings = allBookings.filter(
-        (b) => b.status !== "CANCELLED" && b.status !== "PENDING"
+        (b: Booking) => b.status !== "CANCELLED" && b.status !== "PENDING"
     );
 
     const totalRevenue = confirmedBookings.reduce(
-        (sum, b) => sum + parseFloat(b.totalAmount), 0
+        (sum: number, b: Booking) => sum + parseFloat(b.totalAmount), 0
     );
     const totalCommission = confirmedBookings.reduce(
-        (sum, b) => sum + parseFloat(b.commissionAmount), 0
+        (sum: number, b: Booking) => sum + parseFloat(b.commissionAmount), 0
     );
 
     return {
@@ -76,8 +76,8 @@ export async function getRevenueByHotelReport(
         },
     });
 
-    const hotelsWithRevenue = allHotels.map((hotel) => {
-        const relevantBookings = hotel.bookings.filter((b) => {
+    const hotelsWithRevenue = allHotels.map((hotel: typeof allHotels[number]) => {
+        const relevantBookings = hotel.bookings.filter((b: typeof hotel.bookings[number]) => {
             if (b.status === "CANCELLED" || b.status === "PENDING") return false;
             if (!startDate || !endDate) return true;
             const bookingDate = new Date(b.createdAt);
@@ -85,10 +85,10 @@ export async function getRevenueByHotelReport(
         });
 
         const revenue = relevantBookings.reduce(
-            (sum, b) => sum + parseFloat(b.totalAmount), 0
+            (sum: number, b: typeof relevantBookings[number]) => sum + parseFloat(b.totalAmount), 0
         );
         const commission = relevantBookings.reduce(
-            (sum, b) => sum + parseFloat(b.commissionAmount), 0
+            (sum: number, b: typeof relevantBookings[number]) => sum + parseFloat(b.commissionAmount), 0
         );
 
         return {
@@ -102,7 +102,7 @@ export async function getRevenueByHotelReport(
         };
     });
 
-    return hotelsWithRevenue.sort((a, b) => b.revenue - a.revenue);
+    return hotelsWithRevenue.sort((a: typeof hotelsWithRevenue[number], b: typeof hotelsWithRevenue[number]) => b.revenue - a.revenue);
 }
 
 /**
@@ -123,7 +123,7 @@ export async function getMonthlyTrend(year: number = new Date().getFullYear()) {
         commission: 0,
     }));
 
-    allBookings.forEach((booking) => {
+    allBookings.forEach((booking: Booking) => {
         if (booking.status !== "CANCELLED" && booking.status !== "PENDING") {
             const monthIndex = new Date(booking.createdAt).getMonth();
             const month = months[monthIndex];
@@ -166,7 +166,7 @@ export async function generateExportData(
         });
 
         const headers = ["Date", "Hotel", "Room", "Guest", "Check-In", "Check-Out", "Status", "Amount", "Commission"];
-        const rows = allBookings.map((b) => [
+        const rows = allBookings.map((b: typeof allBookings[number]) => [
             new Date(b.createdAt).toLocaleDateString(),
             b.hotel?.name || "",
             b.room?.name || "",
@@ -178,13 +178,13 @@ export async function generateExportData(
             b.commissionAmount,
         ]);
 
-        return [headers.join(","), ...rows.map((r) => r.join(","))].join("\n");
+        return [headers.join(","), ...rows.map((r: (string | number)[]) => r.join(","))].join("\n");
     }
 
     if (reportType === "revenue-by-hotel") {
         const data = await getRevenueByHotelReport(startDate, endDate);
         const headers = ["Hotel", "City", "Bookings", "Revenue", "Commission", "Net Revenue"];
-        const rows = data.map((h) => [
+        const rows = data.map((h: Awaited<ReturnType<typeof getRevenueByHotelReport>>[number]) => [
             h.hotelName,
             h.city,
             h.bookingCount,
@@ -193,7 +193,7 @@ export async function generateExportData(
             h.netRevenue,
         ]);
 
-        return [headers.join(","), ...rows.map((r) => r.join(","))].join("\n");
+        return [headers.join(","), ...rows.map((r: (string | number)[]) => r.join(","))].join("\n");
     }
 
     if (reportType === "payouts") {
@@ -211,7 +211,7 @@ export async function generateExportData(
         });
 
         const headers = ["Date", "Hotel", "Amount", "Method", "Status", "Transaction Ref"];
-        const rows = allPayouts.map((p) => [
+        const rows = allPayouts.map((p: typeof allPayouts[number]) => [
             new Date(p.createdAt).toLocaleDateString(),
             p.hotel?.name || "",
             p.amount,
@@ -220,7 +220,7 @@ export async function generateExportData(
             p.transactionReference || "",
         ]);
 
-        return [headers.join(","), ...rows.map((r) => r.join(","))].join("\n");
+        return [headers.join(","), ...rows.map((r: (string | number | null)[]) => r.join(","))].join("\n");
     }
 
     return "";

@@ -1,6 +1,6 @@
 "use server";
 
-import { db, hotels, systemSettings } from "@repo/db";
+import { db, hotels, systemSettings, type Hotel } from "@repo/db";
 import { eq, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { SETTING_KEYS } from "@repo/db/schema";
@@ -42,13 +42,13 @@ export async function getCommissionStats(): Promise<CommissionStats> {
     });
     const defaultCommission = parseFloat(defaultSetting?.value || "12");
 
-    const commissionRates = allHotels.map((h) => parseFloat(h.commissionRate));
+    const commissionRates = allHotels.map((h: Hotel) => parseFloat(h.commissionRate));
     const customCommissionCount = allHotels.filter(
-        (h) => parseFloat(h.commissionRate) !== defaultCommission
+        (h: Hotel) => parseFloat(h.commissionRate) !== defaultCommission
     ).length;
 
     const avgCommission = commissionRates.length > 0
-        ? commissionRates.reduce((a, b) => a + b, 0) / commissionRates.length
+        ? commissionRates.reduce((a: number, b: number) => a + b, 0) / commissionRates.length
         : defaultCommission;
     const minCommission = commissionRates.length > 0
         ? Math.min(...commissionRates)
@@ -75,7 +75,7 @@ export async function getHotelsWithCommission(): Promise<HotelCommission[]> {
         orderBy: hotels.name,
     });
 
-    return allHotels.map((hotel) => ({
+    return allHotels.map((hotel: Hotel) => ({
         id: hotel.id,
         name: hotel.name,
         city: hotel.city,

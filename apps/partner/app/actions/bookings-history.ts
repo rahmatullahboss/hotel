@@ -89,7 +89,7 @@ export async function getBookingHistory(
         if (filters.search) {
             const searchLower = filters.search.toLowerCase();
             filteredResult = result.filter(
-                (b) =>
+                (b: typeof result[number]) =>
                     b.guestName.toLowerCase().includes(searchLower) ||
                     b.guestPhone.includes(filters.search!)
             );
@@ -105,7 +105,7 @@ export async function getBookingHistory(
         const pages = Math.ceil(total / limit);
 
         return {
-            bookings: filteredResult.map((b) => {
+            bookings: filteredResult.map((b: typeof filteredResult[number]) => {
                 const totalAmount = Number(b.totalAmount) || 0;
                 const advancePaid = Number(b.bookingFee) || 0;
                 return {
@@ -151,7 +151,7 @@ export async function exportBookingsCSV(
         "Source",
     ];
 
-    const rows = allBookings.map((b) => [
+    const rows = allBookings.map((b: typeof allBookings[number]) => [
         b.guestName,
         b.guestPhone,
         b.roomNumber,
@@ -165,6 +165,6 @@ export async function exportBookingsCSV(
         b.bookingSource,
     ]);
 
-    const csv = [headers.join(","), ...rows.map((row) => row.join(","))].join("\n");
+    const csv = [headers.join(","), ...rows.map((row: (string | number)[]) => row.join(","))].join("\n");
     return csv;
 }

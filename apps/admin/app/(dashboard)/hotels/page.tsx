@@ -7,7 +7,7 @@ export default async function HotelsPage() {
     ]);
 
     // Separate active/suspended hotels from pending
-    const activeHotels = hotels.filter(h => h.status !== "PENDING");
+    const activeHotels = hotels.filter((h: any) => h.status !== "PENDING");
 
     return (
         <div>
@@ -47,7 +47,7 @@ export default async function HotelsPage() {
                     </h2>
 
                     <div style={{ display: "grid", gap: "1rem", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))" }}>
-                        {pendingHotels.map((hotel) => (
+                        {pendingHotels.map((hotel: any) => (
                             <div key={hotel.id} className="card" style={{
                                 border: "2px solid var(--color-warning)",
                                 background: "rgba(233, 196, 106, 0.05)"
@@ -162,7 +162,7 @@ export default async function HotelsPage() {
                                         </td>
                                     </tr>
                                 ) : (
-                                    hotels.map((hotel) => (
+                                    hotels.map((hotel: any) => (
                                         <tr key={hotel.id}>
                                             <td>
                                                 <div className="table-cell-flex">

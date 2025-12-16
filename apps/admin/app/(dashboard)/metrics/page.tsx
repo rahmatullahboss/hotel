@@ -31,7 +31,7 @@ export default async function MetricsPage() {
                     </h2>
 
                     <div className="card" style={{ padding: "0", overflow: "hidden" }}>
-                        {flaggedHotels.map((hotel, index) => (
+                        {flaggedHotels.map((hotel: any, index: number) => (
                             <div
                                 key={hotel.hotelId}
                                 style={{
@@ -102,7 +102,7 @@ export default async function MetricsPage() {
                                         </td>
                                     </tr>
                                 ) : (
-                                    allMetrics.map((hotel) => {
+                                    allMetrics.map((hotel: any) => {
                                         const cancelRate = Number(hotel.cancellationRate);
                                         const isWarning = cancelRate > 20;
                                         const isDanger = cancelRate > 30;

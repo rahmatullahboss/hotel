@@ -40,7 +40,7 @@ export async function getAvailableBalance(): Promise<{
             );
 
         const totalEarnings = completedBookings.reduce(
-            (sum, b) => sum + Number(b.netAmount || 0),
+            (sum: number, b: typeof completedBookings[number]) => sum + Number(b.netAmount || 0),
             0
         );
 
@@ -57,7 +57,7 @@ export async function getAvailableBalance(): Promise<{
             );
 
         const pendingPayouts = pendingPayoutRows.reduce(
-            (sum, p) => sum + Number(p.amount || 0),
+            (sum: number, p: typeof pendingPayoutRows[number]) => sum + Number(p.amount || 0),
             0
         );
 
@@ -73,7 +73,7 @@ export async function getAvailableBalance(): Promise<{
             );
 
         const paidPayouts = paidPayoutRows.reduce(
-            (sum, p) => sum + Number(p.amount || 0),
+            (sum: number, p: typeof paidPayoutRows[number]) => sum + Number(p.amount || 0),
             0
         );
 
@@ -169,7 +169,7 @@ export async function getPayoutHistory(): Promise<{
         });
 
         return {
-            payouts: payouts.map((p) => ({
+            payouts: payouts.map((p: typeof payouts[number]) => ({
                 id: p.id,
                 amount: Number(p.amount),
                 status: p.status,

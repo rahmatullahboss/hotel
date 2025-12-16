@@ -206,7 +206,7 @@ export async function removeHotelPhoto(
         }
 
         const currentPhotos = (hotel.photos as string[]) || [];
-        const updatedPhotos = currentPhotos.filter((p) => p !== photoUrl);
+        const updatedPhotos = currentPhotos.filter((p: string) => p !== photoUrl);
 
         await db
             .update(hotels)

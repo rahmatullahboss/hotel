@@ -43,8 +43,8 @@ async function assignVibeCodes() {
             .where(sql`${hotels.vibeCode} IS NOT NULL`);
 
         const codes = existingCodes
-            .map(h => h.vibeCode)
-            .filter((code): code is string => code !== null);
+            .map((h: { vibeCode: string | null }) => h.vibeCode)
+            .filter((code: string | null): code is string => code !== null);
 
         // Assign codes to each hotel
         let assigned = 0;

@@ -30,7 +30,7 @@ async function _getCities(): Promise<CityWithStats[]> {
         orderBy: [desc(cities.isPopular), desc(cities.hotelCount)],
     });
 
-    return result.map((city) => ({
+    return result.map((city: typeof result[number]) => ({
         ...city,
         latitude: city.latitude ? Number(city.latitude) : null,
         longitude: city.longitude ? Number(city.longitude) : null,
@@ -52,7 +52,7 @@ async function _getPopularCities(limit: number = 8): Promise<CityWithStats[]> {
         limit,
     });
 
-    return result.map((city) => ({
+    return result.map((city: typeof result[number]) => ({
         ...city,
         latitude: city.latitude ? Number(city.latitude) : null,
         longitude: city.longitude ? Number(city.longitude) : null,
@@ -117,7 +117,7 @@ export async function getAllCitySlugs(): Promise<string[]> {
             .from(cities)
             .where(eq(cities.isActive, true));
 
-        return result.map((c) => c.slug);
+        return result.map((c: typeof result[number]) => c.slug);
     } catch (error) {
         // Table may not exist yet during first build
         console.warn("Cities table not found, returning empty array for static params");
