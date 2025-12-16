@@ -7,7 +7,6 @@ import {
     BottomNav,
     RoomDetailModal,
     HotelImageGallery,
-    HotelHighlights,
     OYOBookingSidebar,
     OYORoomCard,
     OYORatingsBreakdown,
@@ -114,7 +113,6 @@ export default function HotelDetailPage() {
         { id: "about", label: t("sections.aboutVibe") },
         { id: "rooms", label: t("sections.chooseRoom") },
         { id: "reviews", label: t("sections.ratingsReviews") },
-        { id: "policies", label: t("sections.hotelRules") },
         { id: "location", label: t("sections.whatsNearby") },
     ];
 
@@ -282,21 +280,7 @@ export default function HotelDetailPage() {
                                 </div>
                             </div>
                         </div>
-
-                        {/* Check-in Rating */}
-                        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginTop: "0.75rem", fontSize: "0.875rem" }}>
-                            <span>🔒</span>
-                            <span>5.0 · {t("checkInRating")}</span>
-                            <span style={{ color: "var(--color-text-secondary)" }}>›</span>
-                            <span style={{ color: "var(--color-text-secondary)" }}>{t("delightfulExperience")}</span>
-                        </div>
                     </div>
-
-                    {/* Highlights / Trust Badges */}
-                    <HotelHighlights
-                        payAtHotelEnabled={hotel.payAtHotelEnabled}
-                        isVerified={!!hotel.vibeCode}
-                    />
 
                     {/* Amenities Section */}
                     <div id="amenities" style={{ marginTop: "1.5rem" }}>
@@ -404,28 +388,6 @@ export default function HotelDetailPage() {
                                 </p>
                             )}
                         </div>
-                    </div>
-
-                    {/* Policies Section */}
-                    <div id="policies" style={{ marginTop: "1.5rem" }}>
-                        <h2 className="oyo-section-title">{t("policies.title")}</h2>
-                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem", marginBottom: "1rem" }}>
-                            <div style={{ padding: "1rem", border: "1px solid var(--color-border)", borderRadius: "0.5rem" }}>
-                                <div style={{ fontSize: "0.75rem", color: "var(--color-text-secondary)" }}>{t("policies.checkIn")}</div>
-                                <div style={{ fontSize: "1rem", fontWeight: "600" }}>12:00 PM</div>
-                            </div>
-                            <div style={{ padding: "1rem", border: "1px solid var(--color-border)", borderRadius: "0.5rem" }}>
-                                <div style={{ fontSize: "0.75rem", color: "var(--color-text-secondary)" }}>{t("policies.checkOut")}</div>
-                                <div style={{ fontSize: "1rem", fontWeight: "600" }}>11:00 AM</div>
-                            </div>
-                        </div>
-                        <ul style={{ fontSize: "0.875rem", color: "var(--color-text-secondary)", paddingLeft: "1.25rem" }}>
-                            <li style={{ marginBottom: "0.5rem" }}>• {t("policies.couplesWelcome")}</li>
-                            <li style={{ marginBottom: "0.5rem" }}>• {t("policies.idProof")}</li>
-                        </ul>
-                        <button style={{ color: "#d40000", background: "none", border: "none", marginTop: "0.75rem", cursor: "pointer", fontSize: "0.875rem" }}>
-                            {t("policies.viewPolicy")}
-                        </button>
                     </div>
 
                     {/* Location Map */}
