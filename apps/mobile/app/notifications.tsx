@@ -109,12 +109,18 @@ export default function NotificationsScreen() {
 
     if (loading) {
         return (
-            <View
-                className="flex-1 items-center justify-center bg-white dark:bg-gray-900"
-                style={{ paddingTop: insets.top }}
-            >
-                <Stack.Screen options={{ headerShown: false }} />
-                <ActivityIndicator size="large" color="#E63946" />
+            <View className="flex-1 bg-white dark:bg-gray-900">
+                <Stack.Screen
+                    options={{
+                        headerShown: true,
+                        title: t('notifications.title'),
+                        headerStyle: { backgroundColor: '#E63946' },
+                        headerTintColor: '#fff',
+                    }}
+                />
+                <View className="flex-1 items-center justify-center">
+                    <ActivityIndicator size="large" color="#E63946" />
+                </View>
             </View>
         );
     }
