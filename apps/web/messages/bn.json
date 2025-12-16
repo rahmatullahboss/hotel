@@ -585,8 +585,14 @@
         "instantDesc": "তাৎক্ষণিকভাবে বুক করুন, নিশ্চিতকরণের জন্য অপেক্ষা নেই"
     },
     "filters": {
+        "title": "ফিল্টার",
+        "popularLocations": "{city} এর জনপ্রিয় স্থান",
+        "searchPlaceholder": "খুঁজুন...",
+        "price": "মূল্য",
         "rating": "রেটিং",
         "amenities": "সুবিধা",
+        "viewMore": "+ আরও দেখুন",
+        "viewLess": "কম দেখুন",
         "clearAll": "সব মুছুন",
         "amenity": {
             "wifi": "ওয়াইফাই",
@@ -594,7 +600,35 @@
             "tv": "টিভি",
             "parking": "পার্কিং",
             "pool": "পুল",
-            "restaurant": "রেস্টুরেন্ট"
+            "restaurant": "রেস্টুরেন্ট",
+            "gym": "জিম",
+            "roomService": "রুম সার্ভিস"
         }
+    },
+    "hotelCard": {
+        "ratings": "{count} রেটিং",
+        "excellent": "অসাধারণ",
+        "veryGood": "খুব ভালো",
+        "good": "ভালো",
+        "average": "মোটামুটি",
+        "more": "+ {count} আরও",
+        "off": "ছাড়",
+        "taxesAndFees": "+ ট্যাক্স ও ফি প্রতি রাত",
+        "viewDetails": "বিস্তারিত দেখুন",
+        "bookNow": "এখনই বুক করুন"
+    },
+    "listing": {
+        "breadcrumbHome": "বাংলাদেশ",
+        "allHotels": "সকল হোটেল",
+        "hotelsIn": "{city} এর হোটেল",
+        "mapView": "ম্যাপ ভিউ",
+        "sortBy": "সাজান",
+        "sortPopularity": "জনপ্রিয়তা",
+        "sortPrice": "দাম: কম থেকে বেশি",
+        "sortDistance": "দূরত্ব",
+        "previousPage": "← আগে",
+        "nextPage": "পরে →",
+        "pageInfo": "পৃষ্ঠা {current} / {total}",
+        "hotelCount": "({count} হোটেল)"
     }
 }

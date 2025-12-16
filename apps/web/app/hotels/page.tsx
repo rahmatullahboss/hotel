@@ -20,6 +20,7 @@ function HotelsContent() {
     const priceMinParam = searchParams.get("priceMin");
     const priceMaxParam = searchParams.get("priceMax");
     const t = useTranslations("hotels");
+    const tListing = useTranslations("listing");
     const tCommon = useTranslations("common");
 
     const [view, setView] = useState<"list" | "map">("list");
@@ -165,19 +166,19 @@ function HotelsContent() {
                 <div className="oyo-listing-content">
                     {/* Breadcrumb */}
                     <div className="oyo-breadcrumb">
-                        <Link href="/">Bangladesh</Link> › {city ? `${city} Hotels` : "All Hotels"}
+                        <Link href="/">{tListing("breadcrumbHome")}</Link> › {city ? tListing("hotelsIn", { city }) : tListing("allHotels")}
                     </div>
 
                     {/* Header Row */}
                     <div className="oyo-listing-header">
                         <h1 className="oyo-listing-title">
-                            {city ? `Hotels in ${city}` : t("allHotels")}
+                            {city ? tListing("hotelsIn", { city }) : tListing("allHotels")}
                         </h1>
 
                         <div className="oyo-listing-controls">
                             {/* Map View Toggle */}
                             <div className="oyo-map-toggle">
-                                <span>Map View</span>
+                                <span>{tListing("mapView")}</span>
                                 <label style={{ position: "relative", width: 48, height: 24, display: "inline-block" }}>
                                     <input
                                         type="checkbox"
@@ -212,14 +213,14 @@ function HotelsContent() {
 
                             {/* Sort Dropdown */}
                             <div className="oyo-sort-dropdown">
-                                <span>Sort By</span>
+                                <span>{tListing("sortBy")}</span>
                                 <select
                                     value={sortBy}
                                     onChange={(e) => setSortBy(e.target.value as "price" | "rating" | "distance")}
                                 >
-                                    <option value="rating">Popularity</option>
-                                    <option value="price">Price: Low to High</option>
-                                    {userLocation && <option value="distance">Distance</option>}
+                                    <option value="rating">{tListing("sortPopularity")}</option>
+                                    <option value="price">{tListing("sortPrice")}</option>
+                                    {userLocation && <option value="distance">{tListing("sortDistance")}</option>}
                                 </select>
                             </div>
                         </div>
@@ -264,18 +265,18 @@ function HotelsContent() {
                                         onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                                         disabled={currentPage === 1}
                                     >
-                                        ← Previous
+                                        {tListing("previousPage")}
                                     </button>
                                     <div className="pagination-info">
-                                        Page {currentPage} of {Math.ceil(hotels.length / HOTELS_PER_PAGE)}
-                                        <span className="pagination-count">({hotels.length} hotels)</span>
+                                        {tListing("pageInfo", { current: currentPage, total: Math.ceil(hotels.length / HOTELS_PER_PAGE) })}
+                                        <span className="pagination-count">{tListing("hotelCount", { count: hotels.length })}</span>
                                     </div>
                                     <button
                                         className="pagination-btn"
                                         onClick={() => setCurrentPage(p => Math.min(Math.ceil(hotels.length / HOTELS_PER_PAGE), p + 1))}
                                         disabled={currentPage >= Math.ceil(hotels.length / HOTELS_PER_PAGE)}
                                     >
-                                        Next →
+                                        {tListing("nextPage")}
                                     </button>
                                 </div>
                             )}

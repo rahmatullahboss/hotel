@@ -42,7 +42,7 @@ export function OYOHotelCard({
     city,
     rating,
     reviewCount,
-    ratingLabel = "Excellent",
+    ratingLabel,
     images,
     amenities,
     basePrice,
@@ -50,8 +50,7 @@ export function OYOHotelCard({
     badge,
     vibeCode,
 }: OYOHotelCardProps) {
-    const t = useTranslations("hotels");
-    const tCommon = useTranslations("common");
+    const t = useTranslations("hotelCard");
 
     const discount = basePrice > dynamicPrice ? Math.round(((basePrice - dynamicPrice) / basePrice) * 100) : 0;
     const displayName = vibeCode ? `Vibe ${name}` : name;
@@ -59,10 +58,10 @@ export function OYOHotelCard({
     const thumbnails = images.slice(1, 4);
 
     const getRatingLabel = (r: number) => {
-        if (r >= 4.5) return "Excellent";
-        if (r >= 4.0) return "Very Good";
-        if (r >= 3.5) return "Good";
-        return "Average";
+        if (r >= 4.5) return t("excellent");
+        if (r >= 4.0) return t("veryGood");
+        if (r >= 3.5) return t("good");
+        return t("average");
     };
 
     return (
@@ -112,7 +111,7 @@ export function OYOHotelCard({
                         {rating.toFixed(1)}
                         <FiStar size={10} />
                     </div>
-                    <span className="oyo-card-rating-count">({reviewCount} Ratings)</span>
+                    <span className="oyo-card-rating-count">({t("ratings", { count: reviewCount })})</span>
                     <span className="oyo-card-rating-label">• {getRatingLabel(rating)}</span>
                 </div>
 
@@ -124,7 +123,7 @@ export function OYOHotelCard({
                         </span>
                     ))}
                     {amenities.length > 4 && (
-                        <span className="oyo-card-amenity more">+ {amenities.length - 4} more</span>
+                        <span className="oyo-card-amenity more">{t("more", { count: amenities.length - 4 })}</span>
                     )}
                 </div>
 
@@ -136,20 +135,20 @@ export function OYOHotelCard({
                             {discount > 0 && (
                                 <>
                                     <span className="price-original">৳{basePrice.toLocaleString()}</span>
-                                    <span className="price-discount">{discount}% off</span>
+                                    <span className="price-discount">{discount}% {t("off")}</span>
                                 </>
                             )}
                         </div>
                         <div className="oyo-card-taxes">
-                            + taxes & fees per night
+                            {t("taxesAndFees")}
                         </div>
                     </div>
                     <div className="oyo-card-actions">
                         <Link href={`/hotels/${id}`} className="oyo-btn-outline">
-                            View Details
+                            {t("viewDetails")}
                         </Link>
                         <Link href={`/hotels/${id}`} className="oyo-btn-primary">
-                            Book Now
+                            {t("bookNow")}
                         </Link>
                     </div>
                 </div>

@@ -20,14 +20,14 @@ interface OYOFiltersPanelProps {
 
 // Common amenities that exist in the database
 const AVAILABLE_AMENITIES = [
-    "WiFi",
-    "AC",
-    "TV",
-    "Parking",
-    "Pool",
-    "Restaurant",
-    "Gym",
-    "Room Service",
+    { key: "wifi", label: "WiFi" },
+    { key: "ac", label: "AC" },
+    { key: "tv", label: "TV" },
+    { key: "parking", label: "Parking" },
+    { key: "pool", label: "Pool" },
+    { key: "restaurant", label: "Restaurant" },
+    { key: "gym", label: "Gym" },
+    { key: "roomService", label: "Room Service" },
 ];
 
 // Rating options
@@ -62,16 +62,16 @@ export function OYOFiltersPanel({
 
     return (
         <div className="oyo-filters-panel">
-            <h2 className="oyo-filters-title">Filters</h2>
+            <h2 className="oyo-filters-title">{t("title")}</h2>
 
             {/* Popular Locations */}
             <div className="oyo-filter-section">
-                <h3 className="oyo-filter-label">Popular locations in {city}</h3>
+                <h3 className="oyo-filter-label">{t("popularLocations", { city })}</h3>
                 <div className="oyo-location-search">
                     <FiSearch size={14} />
                     <input
                         type="text"
-                        placeholder="Search..."
+                        placeholder={t("searchPlaceholder")}
                         value={locationSearch}
                         onChange={(e) => setLocationSearch(e.target.value)}
                     />
@@ -94,11 +94,11 @@ export function OYOFiltersPanel({
                     >
                         {showMoreLocations ? (
                             <>
-                                <FiChevronUp size={14} /> View Less
+                                <FiChevronUp size={14} /> {t("viewLess")}
                             </>
                         ) : (
                             <>
-                                + View More
+                                {t("viewMore")}
                             </>
                         )}
                     </button>
@@ -107,7 +107,7 @@ export function OYOFiltersPanel({
 
             {/* Price Range Slider */}
             <div className="oyo-filter-section">
-                <h3 className="oyo-filter-label">Price</h3>
+                <h3 className="oyo-filter-label">{t("price")}</h3>
                 <div className="oyo-price-slider">
                     <input
                         type="range"
@@ -134,7 +134,7 @@ export function OYOFiltersPanel({
 
             {/* Rating Filter */}
             <div className="oyo-filter-section">
-                <h3 className="oyo-filter-label">Rating</h3>
+                <h3 className="oyo-filter-label">{t("rating")}</h3>
                 <div className="oyo-rating-options">
                     {RATING_OPTIONS.map((option) => (
                         <button
@@ -151,16 +151,16 @@ export function OYOFiltersPanel({
 
             {/* Amenities Filter */}
             <div className="oyo-filter-section">
-                <h3 className="oyo-filter-label">Amenities</h3>
+                <h3 className="oyo-filter-label">{t("amenities")}</h3>
                 <div className="oyo-amenities-list">
                     {AVAILABLE_AMENITIES.map((amenity) => (
-                        <label key={amenity} className="oyo-amenity-item">
+                        <label key={amenity.key} className="oyo-amenity-item">
                             <input
                                 type="checkbox"
-                                checked={selectedAmenities.includes(amenity)}
-                                onChange={() => onAmenityToggle?.(amenity)}
+                                checked={selectedAmenities.includes(amenity.label)}
+                                onChange={() => onAmenityToggle?.(amenity.label)}
                             />
-                            <span>{amenity}</span>
+                            <span>{t(`amenity.${amenity.key}`)}</span>
                         </label>
                     ))}
                 </div>

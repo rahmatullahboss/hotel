@@ -587,8 +587,14 @@
         "instantDesc": "Book instantly, no waiting for confirmation"
     },
     "filters": {
+        "title": "Filters",
+        "popularLocations": "Popular locations in {city}",
+        "searchPlaceholder": "Search...",
+        "price": "Price",
         "rating": "Rating",
         "amenities": "Amenities",
+        "viewMore": "+ View More",
+        "viewLess": "View Less",
         "clearAll": "Clear All",
         "amenity": {
             "wifi": "WiFi",
@@ -596,7 +602,35 @@
             "tv": "TV",
             "parking": "Parking",
             "pool": "Pool",
-            "restaurant": "Restaurant"
+            "restaurant": "Restaurant",
+            "gym": "Gym",
+            "roomService": "Room Service"
         }
+    },
+    "hotelCard": {
+        "ratings": "{count} Ratings",
+        "excellent": "Excellent",
+        "veryGood": "Very Good",
+        "good": "Good",
+        "average": "Average",
+        "more": "+ {count} more",
+        "off": "off",
+        "taxesAndFees": "+ taxes & fees per night",
+        "viewDetails": "View Details",
+        "bookNow": "Book Now"
+    },
+    "listing": {
+        "breadcrumbHome": "Bangladesh",
+        "allHotels": "All Hotels",
+        "hotelsIn": "Hotels in {city}",
+        "mapView": "Map View",
+        "sortBy": "Sort By",
+        "sortPopularity": "Popularity",
+        "sortPrice": "Price: Low to High",
+        "sortDistance": "Distance",
+        "previousPage": "← Previous",
+        "nextPage": "Next →",
+        "pageInfo": "Page {current} of {total}",
+        "hotelCount": "({count} hotels)"
     }
 }
