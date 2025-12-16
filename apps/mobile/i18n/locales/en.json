@@ -53,6 +53,7 @@
         "checkOut": "Check-out",
         "totalPaid": "Total Paid",
         "status": {
+            "booked": "Booked",
             "confirmed": "Confirmed",
             "pending": "Pending",
             "cancelled": "Cancelled",

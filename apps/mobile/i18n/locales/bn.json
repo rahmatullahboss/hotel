@@ -53,6 +53,7 @@
         "checkOut": "চেক-আউট",
         "totalPaid": "মোট পরিশোধ",
         "status": {
+            "booked": "বুক হয়েছে",
             "confirmed": "নিশ্চিত",
             "pending": "মুলতুবি",
             "cancelled": "বাতিল",
