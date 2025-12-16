@@ -6,7 +6,13 @@ import jwt from "jsonwebtoken";
 
 export const dynamic = "force-dynamic";
 
-const JWT_SECRET = process.env.AUTH_SECRET || "your-secret-key";
+function getJwtSecret(): string {
+    const secret = process.env.AUTH_SECRET;
+    if (!secret) {
+        throw new Error("AUTH_SECRET environment variable is required");
+    }
+    return secret;
+}
 
 interface GoogleTokenPayload {
     email: string;
@@ -132,7 +138,7 @@ export async function POST(request: NextRequest) {
                 name: user.name,
                 role: user.role,
             },
-            JWT_SECRET,
+            getJwtSecret(),
             { expiresIn: "30d" }
         );
 
