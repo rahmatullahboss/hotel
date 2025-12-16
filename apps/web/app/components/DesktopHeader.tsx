@@ -10,7 +10,7 @@ import { FaHotel, FaWallet } from "react-icons/fa";
 
 export function DesktopHeader() {
     const pathname = usePathname();
-    const { data: session } = useSession();
+    const { data: session, status } = useSession();
     const t = useTranslations("nav");
 
     const navLinks = [
@@ -19,6 +19,9 @@ export function DesktopHeader() {
         { href: "/bookings", label: t("myBookings"), icon: <FiCalendar size={18} /> },
         { href: "/wallet", label: t("wallet"), icon: <FaWallet size={18} /> },
     ];
+
+    // Check both session and status to ensure accurate auth state
+    const isAuthenticated = status === "authenticated" && session?.user;
 
     return (
         <header className="desktop-header">
@@ -46,7 +49,9 @@ export function DesktopHeader() {
                 {/* User Actions */}
                 <div className="desktop-header-actions">
                     <LanguageSwitcher />
-                    {session ? (
+                    {status === "loading" ? (
+                        <div style={{ width: 100, height: 36 }} />
+                    ) : isAuthenticated ? (
                         <Link href="/profile" className="desktop-user-btn">
                             <span className="user-avatar">
                                 {session.user?.name?.charAt(0) || "U"}
