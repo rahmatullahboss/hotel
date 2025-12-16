@@ -52,14 +52,19 @@ export default function ProfileScreen() {
     );
 
     const fetchProfile = async () => {
-        const { data } = await api.getProfile();
+        const { data, error } = await api.getProfile();
         if (data) {
             setUser(data);
+        } else if (error) {
+            // Clear user if not authenticated or API fails
+            setUser(null);
         }
         setLoading(false);
     };
 
     const handleLogout = async () => {
+        // Clear user state immediately for instant UI update
+        setUser(null);
         await removeToken();
         router.replace('/');
     };
