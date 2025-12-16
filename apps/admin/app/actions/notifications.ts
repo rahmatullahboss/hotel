@@ -234,3 +234,84 @@ export async function sendTestNotification(): Promise<BroadcastResult> {
         tag: "test",
     });
 }
+
+// ==================
+// Expo Push Notifications (Mobile App)
+// ==================
+
+import { Expo, ExpoPushMessage, ExpoPushTicket } from "expo-server-sdk";
+
+const expo = new Expo();
+
+/**
+ * Broadcast notification to ALL mobile app users
+ */
+export async function broadcastToAllMobileUsers(
+    payload: { title: string; body: string; data?: Record<string, unknown> }
+): Promise<BroadcastResult> {
+    try {
+        // Get all active Expo push tokens
+        const subscriptions = await db.query.pushSubscriptions.findMany({
+            where: eq(pushSubscriptions.isActive, true),
+        });
+
+        // Filter only valid Expo tokens
+        const validTokens = subscriptions
+            .filter((sub: PushSubscription) => sub.expoPushToken && Expo.isExpoPushToken(sub.expoPushToken))
+            .map((sub: PushSubscription) => sub.expoPushToken);
+
+        if (validTokens.length === 0) {
+            return { success: false, sent: 0, failed: 0, error: "No mobile devices registered" };
+        }
+
+        // Create messages
+        const messages: ExpoPushMessage[] = validTokens.map((token: string) => ({
+            to: token,
+            sound: "default" as const,
+            title: payload.title,
+            body: payload.body,
+            data: payload.data,
+        }));
+
+        // Send in chunks
+        const chunks = expo.chunkPushNotifications(messages);
+        let sent = 0;
+        let failed = 0;
+
+        for (const chunk of chunks) {
+            const tickets = await expo.sendPushNotificationsAsync(chunk);
+            tickets.forEach((ticket: ExpoPushTicket) => {
+                if (ticket.status === "ok") {
+                    sent++;
+                } else {
+                    failed++;
+                }
+            });
+        }
+
+        console.log(`Broadcast sent: ${sent} success, ${failed} failed`);
+        revalidatePath("/notifications");
+        return { success: true, sent, failed };
+    } catch (error) {
+        console.error("Mobile broadcast error:", error);
+        return { success: false, sent: 0, failed: 0, error: "Failed to send mobile notifications" };
+    }
+}
+
+/**
+ * Send promotional/offer notification to all mobile users
+ */
+export async function sendOfferNotification(
+    title: string,
+    body: string,
+    offerUrl?: string
+): Promise<BroadcastResult> {
+    return broadcastToAllMobileUsers({
+        title,
+        body,
+        data: {
+            type: "OFFER",
+            url: offerUrl,
+        },
+    });
+}

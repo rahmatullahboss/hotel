@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { MdCelebration, MdUpdate, MdWarning, MdInfo } from "react-icons/md";
-import { broadcastToAllPartners, sendTestNotification } from "../actions/notifications";
+import { MdCelebration, MdUpdate, MdWarning, MdInfo, MdPhoneAndroid } from "react-icons/md";
+import { broadcastToAllPartners, sendTestNotification, broadcastToAllMobileUsers } from "../actions/notifications";
 
 const QUICK_TEMPLATES = [
     {
@@ -34,6 +34,7 @@ const QUICK_TEMPLATES = [
 export function QuickNotifications() {
     const [loadingIndex, setLoadingIndex] = useState<number | null>(null);
     const [testLoading, setTestLoading] = useState(false);
+    const [mobileLoading, setMobileLoading] = useState(false);
 
     const handleQuickSend = async (index: number) => {
         const template = QUICK_TEMPLATES[index];
@@ -79,8 +80,58 @@ export function QuickNotifications() {
         }
     };
 
+    const handleMobileNotification = async () => {
+        const title = prompt("Notification Title:", "🎁 Special Offer!");
+        if (!title) return;
+
+        const body = prompt("Notification Body:", "Get 20% off on your next booking!");
+        if (!body) return;
+
+        setMobileLoading(true);
+        try {
+            const result = await broadcastToAllMobileUsers({ title, body });
+            if (result.success) {
+                alert(`✅ Sent to ${result.sent} mobile devices (${result.failed} failed)`);
+            } else {
+                alert(result.error || "Failed to send");
+            }
+        } catch (error) {
+            console.error("Error:", error);
+            alert("Failed to send mobile notification");
+        } finally {
+            setMobileLoading(false);
+        }
+    };
+
     return (
         <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+            {/* Send to Mobile Apps - Primary Action */}
+            <button
+                type="button"
+                onClick={handleMobileNotification}
+                disabled={mobileLoading}
+                style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: "0.5rem",
+                    padding: "1rem",
+                    border: "none",
+                    borderRadius: "8px",
+                    background: "linear-gradient(135deg, #E63946 0%, #c62f3c 100%)",
+                    color: "white",
+                    cursor: mobileLoading ? "not-allowed" : "pointer",
+                    fontSize: "0.9rem",
+                    fontWeight: 600,
+                    opacity: mobileLoading ? 0.7 : 1,
+                }}
+            >
+                <MdPhoneAndroid size={20} />
+                {mobileLoading ? "Sending..." : "📱 Send to Mobile Apps"}
+            </button>
+
+            <hr style={{ margin: "0.5rem 0", border: "none", borderTop: "1px solid var(--color-border)" }} />
+
             {QUICK_TEMPLATES.map((template, index) => (
                 <button
                     key={index}
@@ -145,3 +196,4 @@ export function QuickNotifications() {
 }
 
 export default QuickNotifications;
+
