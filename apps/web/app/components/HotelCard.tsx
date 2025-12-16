@@ -63,8 +63,8 @@ export function HotelCard({
     const t = useTranslations("hotel");
     const tCommon = useTranslations("common");
 
-    // Format display name with Vibe branding
-    const displayName = vibeCode ? `Vibe ${vibeCode} ${name}` : name;
+    // Use original name (no vibeCode prefix - vibeCode shown as badge instead)
+    const displayName = name;
     const categoryLabel = getCategoryLabel(category);
     const categoryColor = getCategoryColor(category);
 
