@@ -8,6 +8,7 @@ import {
     Platform,
     ActivityIndicator,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, Stack } from 'expo-router';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { setToken } from '@/lib/api';
@@ -67,14 +68,14 @@ export default function LoginScreen() {
     };
 
     return (
-        <>
+        <SafeAreaView className="flex-1 bg-white dark:bg-gray-900">
             <Stack.Screen options={{ headerShown: false }} />
             <KeyboardAvoidingView
-                className="flex-1 p-6 bg-white dark:bg-gray-900"
+                className="flex-1 p-6"
                 behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
             >
                 {/* Header */}
-                <View className="items-center mt-16 mb-10">
+                <View className="items-center mt-8 mb-10">
                     <View className="w-20 h-20 rounded-2xl bg-primary items-center justify-center mb-6">
                         <FontAwesome name="building" size={40} color="#fff" />
                     </View>
@@ -177,6 +178,6 @@ export default function LoginScreen() {
                     <Text className="text-sm text-gray-500 dark:text-gray-400">Continue as Guest</Text>
                 </TouchableOpacity>
             </KeyboardAvoidingView>
-        </>
+        </SafeAreaView>
     );
 }
