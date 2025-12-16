@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { FiSearch, FiChevronDown, FiChevronUp } from "react-icons/fi";
+import { FiSearch, FiChevronDown, FiChevronUp, FiStar } from "react-icons/fi";
 
 interface OYOFiltersPanelProps {
     city: string;
@@ -10,36 +10,46 @@ interface OYOFiltersPanelProps {
     minPrice: number;
     maxPrice: number;
     priceRange: [number, number];
-    selectedRating?: number;
+    minRating?: number;
     selectedAmenities?: string[];
-    collections?: { id: string; label: string }[];
-    selectedCollections?: string[];
     onPriceChange: (range: [number, number]) => void;
     onRatingChange?: (rating: number | undefined) => void;
     onAmenityToggle?: (amenity: string) => void;
     onLocationClick?: (location: string) => void;
-    onCollectionToggle?: (collectionId: string) => void;
 }
+
+// Common amenities that exist in the database
+const AVAILABLE_AMENITIES = [
+    "WiFi",
+    "AC",
+    "TV",
+    "Parking",
+    "Pool",
+    "Restaurant",
+    "Gym",
+    "Room Service",
+];
+
+// Rating options
+const RATING_OPTIONS = [
+    { value: 4.5, label: "4.5+" },
+    { value: 4.0, label: "4.0+" },
+    { value: 3.5, label: "3.5+" },
+    { value: 3.0, label: "3.0+" },
+];
 
 export function OYOFiltersPanel({
     city,
-    popularLocations = ["Downtown", "Airport Area", "Beach Side", "City Center", "Business District"],
+    popularLocations = ["Dhaka", "Chittagong", "Cox's Bazar", "Sylhet"],
     minPrice,
     maxPrice,
     priceRange,
-    selectedRating,
+    minRating,
     selectedAmenities = [],
-    collections = [
-        { id: "family", label: "Family OYOs" },
-        { id: "friendly", label: "Your friendly neighbourhood stay" },
-        { id: "group", label: "For Group Travellers" },
-    ],
-    selectedCollections = [],
     onPriceChange,
     onRatingChange,
     onAmenityToggle,
     onLocationClick,
-    onCollectionToggle,
 }: OYOFiltersPanelProps) {
     const t = useTranslations("filters");
     const [showMoreLocations, setShowMoreLocations] = useState(false);
@@ -122,18 +132,35 @@ export function OYOFiltersPanel({
                 </div>
             </div>
 
-            {/* Collections */}
+            {/* Rating Filter */}
             <div className="oyo-filter-section">
-                <h3 className="oyo-filter-label">Collections</h3>
-                <div className="oyo-collections-list">
-                    {collections.map((collection) => (
-                        <label key={collection.id} className="oyo-collection-item">
+                <h3 className="oyo-filter-label">Rating</h3>
+                <div className="oyo-rating-options">
+                    {RATING_OPTIONS.map((option) => (
+                        <button
+                            key={option.value}
+                            className={`oyo-rating-btn ${minRating === option.value ? "active" : ""}`}
+                            onClick={() => onRatingChange?.(minRating === option.value ? undefined : option.value)}
+                        >
+                            <FiStar size={12} />
+                            {option.label}
+                        </button>
+                    ))}
+                </div>
+            </div>
+
+            {/* Amenities Filter */}
+            <div className="oyo-filter-section">
+                <h3 className="oyo-filter-label">Amenities</h3>
+                <div className="oyo-amenities-list">
+                    {AVAILABLE_AMENITIES.map((amenity) => (
+                        <label key={amenity} className="oyo-amenity-item">
                             <input
                                 type="checkbox"
-                                checked={selectedCollections.includes(collection.id)}
-                                onChange={() => onCollectionToggle?.(collection.id)}
+                                checked={selectedAmenities.includes(amenity)}
+                                onChange={() => onAmenityToggle?.(amenity)}
                             />
-                            <span>{collection.label}</span>
+                            <span>{amenity}</span>
                         </label>
                     ))}
                 </div>

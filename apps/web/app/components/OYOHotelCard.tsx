@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useTranslations } from "next-intl";
-import { FiStar, FiZap, FiImage } from "react-icons/fi";
+import { FiStar, FiImage } from "react-icons/fi";
 import { FaWifi, FaSnowflake, FaTv, FaParking, FaSwimmingPool, FaUtensils, FaConciergeBell } from "react-icons/fa";
 
 interface OYOHotelCardProps {
@@ -17,8 +17,6 @@ interface OYOHotelCardProps {
     amenities: string[];
     basePrice: number;
     dynamicPrice: number;
-    taxes?: number;
-    bookingsCount?: number;
     badge?: string;
     vibeCode?: string;
 }
@@ -49,8 +47,6 @@ export function OYOHotelCard({
     amenities,
     basePrice,
     dynamicPrice,
-    taxes = 192,
-    bookingsCount = 2000,
     badge,
     vibeCode,
 }: OYOHotelCardProps) {
@@ -108,11 +104,6 @@ export function OYOHotelCard({
                         <h3 className="oyo-card-name">{displayName}</h3>
                         <p className="oyo-card-address">{address}</p>
                     </div>
-                    {/* Social Proof */}
-                    <div className="oyo-card-social-proof">
-                        <FiZap size={12} className="proof-icon" />
-                        <span>{(bookingsCount / 1000).toFixed(0)}k+ people booked<br />this Vibe in last 6<br />months</span>
-                    </div>
                 </div>
 
                 {/* Rating */}
@@ -150,7 +141,7 @@ export function OYOHotelCard({
                             )}
                         </div>
                         <div className="oyo-card-taxes">
-                            + ৳{taxes} taxes & fees · per room<br />per night
+                            + taxes & fees per night
                         </div>
                     </div>
                     <div className="oyo-card-actions">

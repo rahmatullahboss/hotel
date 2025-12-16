@@ -30,10 +30,9 @@ function HotelsContent() {
     const [loading, setLoading] = useState(true);
 
     // Filter states
-    const [minRating, setMinRating] = useState(0);
+    const [minRating, setMinRating] = useState<number | undefined>(undefined);
     const [selectedAmenities, setSelectedAmenities] = useState<string[]>([]);
     const [priceRange, setPriceRange] = useState<[number, number]>([500, 10000]);
-    const [selectedCollections, setSelectedCollections] = useState<string[]>([]);
 
     // Geolocation state
     const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
@@ -143,17 +142,13 @@ function HotelsContent() {
                     minPrice={500}
                     maxPrice={15000}
                     priceRange={priceRange}
+                    minRating={minRating}
                     selectedAmenities={selectedAmenities}
-                    selectedCollections={selectedCollections}
                     onPriceChange={setPriceRange}
+                    onRatingChange={setMinRating}
                     onAmenityToggle={(amenity) => {
                         setSelectedAmenities((prev) =>
                             prev.includes(amenity) ? prev.filter((a) => a !== amenity) : [...prev, amenity]
-                        );
-                    }}
-                    onCollectionToggle={(id) => {
-                        setSelectedCollections((prev) =>
-                            prev.includes(id) ? prev.filter((c) => c !== id) : [...prev, id]
                         );
                     }}
                     onLocationClick={(location) => {
@@ -225,21 +220,6 @@ function HotelsContent() {
                         </div>
                     </div>
 
-                    {/* Promo Banner */}
-                    <div style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "0.5rem",
-                        padding: "0.75rem 1rem",
-                        background: "#fff9e6",
-                        borderRadius: "0.5rem",
-                        marginBottom: "1rem",
-                        fontSize: "0.875rem",
-                    }}>
-                        <span style={{ fontSize: "1.25rem" }}>🎉</span>
-                        <span>upto 80% off. Valid until 31st Dec 2026.</span>
-                    </div>
-
                     {/* Hotels Grid */}
                     {loading ? (
                         <div style={{ textAlign: "center", padding: "3rem" }}>
@@ -258,15 +238,14 @@ function HotelsContent() {
                                     name={hotel.name}
                                     address={hotel.location}
                                     city={city || "Bangladesh"}
-                                    rating={hotel.rating || 4.5}
-                                    reviewCount={hotel.reviewCount || 100}
+                                    rating={hotel.rating || 0}
+                                    reviewCount={hotel.reviewCount || 0}
                                     images={[hotel.imageUrl]}
-                                    amenities={hotel.amenities || ["WiFi", "AC", "TV"]}
+                                    amenities={hotel.amenities || []}
                                     basePrice={Math.round(hotel.lowestPrice * 1.3)}
                                     dynamicPrice={hotel.lowestPrice}
-                                    badge={hotel.category === "premium" ? "Company-Serviced" : undefined}
+                                    badge={hotel.category === "PREMIUM" ? "Premium" : hotel.category === "BUSINESS" ? "Business" : undefined}
                                     vibeCode={hotel.vibeCode ?? undefined}
-                                    bookingsCount={Math.floor(Math.random() * 3000) + 500}
                                 />
                             ))}
                         </div>
