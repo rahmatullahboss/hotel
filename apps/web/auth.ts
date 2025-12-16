@@ -1,14 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import NextAuth from "next-auth";
-import { authConfig } from "@repo/config/auth";
+import { getAuthConfig } from "@repo/config/auth";
 
-const nextAuth = NextAuth({
-    ...authConfig,
-    pages: {
-        signIn: "/auth/signin",
-        error: "/auth/error",
-    },
-}) as any;
+// Use the function pattern - NextAuth calls getAuthConfig per-request
+// This ensures DB connections are created at request time, not module load time
+const nextAuth = NextAuth(getAuthConfig) as any;
 
 export const handlers = nextAuth.handlers;
 export const auth: () => Promise<any> = nextAuth.auth;

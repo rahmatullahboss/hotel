@@ -1,17 +1,6 @@
 import NextAuth from "next-auth";
-import { authConfig } from "@repo/config/auth";
+import { getAuthConfig } from "@repo/config/auth";
 
-export const { handlers, auth, signIn, signOut } = NextAuth({
-    ...authConfig,
-    // Middleware handles authorization, so we only need to keep jwt/session callbacks
-    callbacks: {
-        ...authConfig.callbacks,
-        // Remove the authorized callback - middleware.ts handles route protection
-    },
-    pages: {
-        ...authConfig.pages,
-        signIn: "/auth/signin",
-        error: "/auth/error",
-    },
-});
-
+// Use the function pattern - NextAuth calls getAuthConfig per-request
+// This ensures DB connections are created at request time, not module load time
+export const { handlers, auth, signIn, signOut } = NextAuth(getAuthConfig);

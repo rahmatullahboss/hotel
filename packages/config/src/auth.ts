@@ -7,29 +7,30 @@ import { neon } from "@neondatabase/serverless";
 import { drizzle } from "drizzle-orm/neon-http";
 
 /**
- * Shared Auth.js v5 configuration for all apps
+ * Shared Auth.js v5 configuration factory for all apps
  * 
- * Apps should import this config and extend it with their own settings:
+ * IMPORTANT: This returns a FUNCTION, not the config directly.
+ * This is required because Neon serverless cannot keep connections alive
+ * between requests, so the DB client must be created inside the request handler.
+ * 
+ * Apps should use this pattern:
  * 
  * ```ts
- * import { authConfig } from "@repo/config/auth";
+ * import { getAuthConfig } from "@repo/config/auth";
  * import NextAuth from "next-auth";
  * 
- * export const { handlers, auth, signIn, signOut } = NextAuth({
- *   ...authConfig,
- *   // App-specific overrides
- * });
+ * export const { handlers, auth, signIn, signOut } = NextAuth(getAuthConfig);
  * ```
  */
 
-// Create the DB client locally to ensure it uses the same drizzle-orm instance as the adapter
+// Create the DB client for adapter (without schema to pass PgDatabase type check)
 const createAdapterDb = () => {
     const databaseUrl = process.env.DATABASE_URL;
     if (!databaseUrl) {
         throw new Error("DATABASE_URL environment variable is not set");
     }
     const sql = neon(databaseUrl);
-    // Don't pass schema to drizzleHttp to avoid "is not PgDatabase" error in adapter
+    // Don't pass schema to drizzle to avoid "is not PgDatabase" error in adapter
     return drizzle(sql);
 };
 
@@ -43,8 +44,15 @@ const createQueryDb = () => {
     return drizzle(sql, { schema });
 };
 
-export const authConfig: NextAuthConfig = {
-    // Use HTTP-based client for Auth.js Drizzle adapter compatibility
+/**
+ * Auth config factory function
+ * 
+ * This function is called per-request by NextAuth, ensuring that:
+ * 1. Database connections are created fresh for each request (required for Neon serverless)
+ * 2. Environment variables are read at runtime, not at module evaluation time
+ */
+export const getAuthConfig = (): NextAuthConfig => ({
+    // Create adapter with fresh DB connection per request
     adapter: DrizzleAdapter(createAdapterDb() as any, {
         usersTable: users,
         accountsTable: accounts,
@@ -139,6 +147,17 @@ export const authConfig: NextAuthConfig = {
     },
 
     debug: process.env.NODE_ENV === "development",
+});
+
+// Legacy export for backwards compatibility (deprecated)
+// WARNING: This will cause issues with Neon serverless - use getAuthConfig instead
+export const authConfig: NextAuthConfig = {
+    providers: [],
+    session: { strategy: "jwt" },
+    pages: {
+        signIn: "/auth/signin",
+        error: "/auth/error",
+    },
 };
 
 // Extended session type for apps to use
