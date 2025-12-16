@@ -14,6 +14,7 @@ import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { useBooking } from '@/hooks/useBooking';
+import { shareHotel } from '@/lib/share';
 
 const { width } = Dimensions.get('window');
 const HEADER_HEIGHT = 320;
@@ -118,19 +119,33 @@ export default function HotelDetailScreen() {
                         <FontAwesome name="arrow-left" size={18} color="#fff" />
                     </TouchableOpacity>
 
-                    {/* Save Button */}
-                    <TouchableOpacity
-                        className="w-11 h-11 rounded-full bg-black/50 items-center justify-center"
-                        onPress={handleToggleSave}
-                        disabled={savingState}
-                        activeOpacity={0.8}
-                    >
-                        <FontAwesome
-                            name={isSaved ? 'heart' : 'heart-o'}
-                            size={22}
-                            color={isSaved ? '#E63946' : '#fff'}
-                        />
-                    </TouchableOpacity>
+                    {/* Save & Share Buttons */}
+                    <View className="flex-row gap-2">
+                        <TouchableOpacity
+                            className="w-11 h-11 rounded-full bg-black/50 items-center justify-center"
+                            onPress={() => shareHotel({
+                                hotelId: hotel.id,
+                                hotelName: hotel.vibeCode ? `Vibe ${hotel.name}` : hotel.name,
+                                city: hotel.city,
+                                rating: Number(hotel.rating),
+                            })}
+                            activeOpacity={0.8}
+                        >
+                            <FontAwesome name="share" size={18} color="#fff" />
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                            className="w-11 h-11 rounded-full bg-black/50 items-center justify-center"
+                            onPress={handleToggleSave}
+                            disabled={savingState}
+                            activeOpacity={0.8}
+                        >
+                            <FontAwesome
+                                name={isSaved ? 'heart' : 'heart-o'}
+                                size={22}
+                                color={isSaved ? '#E63946' : '#fff'}
+                            />
+                        </TouchableOpacity>
+                    </View>
                 </View>
             </Animated.View>
 
