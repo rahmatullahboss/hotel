@@ -153,6 +153,7 @@ export default function BookingDetailsScreen() {
     const nights = calculateNights();
     const showQR = booking.status === 'CONFIRMED' || booking.status === 'PENDING';
     const canCancel = booking.status === 'CONFIRMED' || booking.status === 'PENDING';
+    const canReview = booking.status === 'COMPLETED' || booking.status === 'CHECKED_OUT';
 
     const handleCancelSuccess = (refundAmount: number) => {
         setShowCancelModal(false);
@@ -336,6 +337,26 @@ export default function BookingDetailsScreen() {
                             <FontAwesome name="times-circle" size={18} color="#EF4444" />
                             <Text className="text-red-500 font-bold text-base">
                                 {t('bookingDetail.cancelBooking', 'Cancel Booking')}
+                            </Text>
+                        </TouchableOpacity>
+                    )}
+
+                    {/* Write Review Button */}
+                    {canReview && (
+                        <TouchableOpacity
+                            onPress={() => router.push({
+                                pathname: '/write-review',
+                                params: {
+                                    bookingId: booking.id,
+                                    hotelName: booking.hotelName,
+                                },
+                            })}
+                            className="py-4 rounded-xl flex-row items-center justify-center gap-2 mb-4 bg-amber-500"
+                            activeOpacity={0.8}
+                        >
+                            <FontAwesome name="star" size={18} color="#FFFFFF" />
+                            <Text className="text-white font-bold text-base">
+                                {t('reviews.writeReview', 'Write Review')}
                             </Text>
                         </TouchableOpacity>
                     )}

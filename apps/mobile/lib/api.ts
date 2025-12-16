@@ -287,6 +287,64 @@ export const api = {
         method: 'DELETE',
         body: JSON.stringify({ reason }),
     }),
+
+    // Reviews
+    getHotelReviews: (hotelId: string, limit?: number) => apiRequest<{
+        reviews: Array<{
+            id: string;
+            rating: number;
+            title: string | null;
+            content: string | null;
+            cleanlinessRating: number | null;
+            serviceRating: number | null;
+            valueRating: number | null;
+            locationRating: number | null;
+            hotelResponse: string | null;
+            createdAt: string;
+            userName: string;
+            userImage: string | null;
+        }>;
+        stats: {
+            totalReviews: number;
+            averageRating: number;
+            breakdown: {
+                fiveStar: number;
+                fourStar: number;
+                threeStar: number;
+                twoStar: number;
+                oneStar: number;
+            };
+        };
+    }>(`/api/hotels/${hotelId}/reviews${limit ? `?limit=${limit}` : ''}`),
+
+    submitReview: (data: {
+        bookingId: string;
+        rating: number;
+        title?: string;
+        content?: string;
+        cleanlinessRating?: number;
+        serviceRating?: number;
+        valueRating?: number;
+        locationRating?: number;
+    }) => apiRequest<{
+        success: boolean;
+        reviewId: string;
+        message: string;
+        error?: string;
+    }>('/api/reviews', {
+        method: 'POST',
+        body: JSON.stringify(data),
+    }),
+
+    getMyReviews: () => apiRequest<Array<{
+        id: string;
+        rating: number;
+        title: string | null;
+        content: string | null;
+        hotelName: string;
+        hotelImage: string | null;
+        createdAt: string;
+    }>>('/api/reviews'),
 };
 
 export default api;

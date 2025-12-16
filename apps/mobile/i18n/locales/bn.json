@@ -280,5 +280,38 @@
             "priceIssue": "মূল্য সমস্যা",
             "other": "অন্যান্য"
         }
+    },
+    "reviews": {
+        "title": "রিভিউ",
+        "writeReview": "রিভিউ লিখুন",
+        "seeAll": "সব রিভিউ দেখুন",
+        "noReviews": "এখনো কোনো রিভিউ নেই",
+        "beFirst": "প্রথম রিভিউ দিন!",
+        "overallRating": "সামগ্রিক রেটিং",
+        "tapToRate": "রেট করতে ট্যাপ করুন",
+        "titleLabel": "শিরোনাম (ঐচ্ছিক)",
+        "titlePlaceholder": "আপনার অভিজ্ঞতা সংক্ষেপে লিখুন",
+        "contentLabel": "আপনার রিভিউ (ঐচ্ছিক)",
+        "contentPlaceholder": "আপনার থাকার অভিজ্ঞতা শেয়ার করুন...",
+        "rateAspects": "বিভিন্ন দিক রেট করুন",
+        "cleanliness": "পরিচ্ছন্নতা",
+        "service": "সার্ভিস",
+        "value": "মূল্যের যোগ্যতা",
+        "location": "অবস্থান",
+        "submitReview": "রিভিউ জমা দিন",
+        "thankYou": "ধন্যবাদ!",
+        "reviewSubmitted": "আপনার রিভিউ জমা হয়েছে",
+        "error": "ত্রুটি",
+        "ratingRequired": "রেটিং দিতে হবে",
+        "submitFailed": "রিভিউ জমা দিতে ব্যর্থ",
+        "hotelResponse": "হোটেলের উত্তর",
+        "basedOn": "{{count}} রিভিউয়ের উপর ভিত্তি করে",
+        "ratings": {
+            "1": "খুবই খারাপ",
+            "2": "খারাপ",
+            "3": "মোটামুটি",
+            "4": "ভালো",
+            "5": "চমৎকার"
+        }
     }
 }

@@ -280,5 +280,38 @@
             "priceIssue": "Price Issue",
             "other": "Other"
         }
+    },
+    "reviews": {
+        "title": "Reviews",
+        "writeReview": "Write Review",
+        "seeAll": "See All Reviews",
+        "noReviews": "No reviews yet",
+        "beFirst": "Be the first to review!",
+        "overallRating": "Overall Rating",
+        "tapToRate": "Tap to rate",
+        "titleLabel": "Title (Optional)",
+        "titlePlaceholder": "Summarize your experience",
+        "contentLabel": "Your Review (Optional)",
+        "contentPlaceholder": "Tell others about your stay...",
+        "rateAspects": "Rate Different Aspects",
+        "cleanliness": "Cleanliness",
+        "service": "Service",
+        "value": "Value for Money",
+        "location": "Location",
+        "submitReview": "Submit Review",
+        "thankYou": "Thank You!",
+        "reviewSubmitted": "Your review has been submitted",
+        "error": "Error",
+        "ratingRequired": "Please select a rating",
+        "submitFailed": "Failed to submit review",
+        "hotelResponse": "Hotel Response",
+        "basedOn": "Based on {{count}} reviews",
+        "ratings": {
+            "1": "Terrible",
+            "2": "Poor",
+            "3": "Average",
+            "4": "Good",
+            "5": "Excellent"
+        }
     }
 }
