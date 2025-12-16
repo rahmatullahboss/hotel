@@ -86,6 +86,25 @@ export default function HelpScreen() {
                     <FontAwesome name="chevron-right" size={14} color="#9CA3AF" />
                 </TouchableOpacity>
 
+                {/* AI Chat Support */}
+                <TouchableOpacity
+                    className="flex-row items-center p-4 rounded-xl mb-3 bg-primary"
+                    onPress={() => router.push('/support-chat' as any)}
+                >
+                    <View className="w-11 h-11 rounded-full bg-white/20 items-center justify-center mr-3.5">
+                        <FontAwesome name="comments" size={20} color="#fff" />
+                    </View>
+                    <View className="flex-1">
+                        <Text className="text-base font-semibold text-white">
+                            {t('help.chatBot', 'Chat with Vibe AI')}
+                        </Text>
+                        <Text className="text-sm text-white/80 mt-0.5">
+                            {t('help.instantHelp', 'Get instant help 24/7')}
+                        </Text>
+                    </View>
+                    <FontAwesome name="chevron-right" size={14} color="#fff" />
+                </TouchableOpacity>
+
                 <TouchableOpacity
                     className="flex-row items-center p-4 rounded-xl mb-3 bg-white dark:bg-gray-800"
                     onPress={handleWhatsApp}
