@@ -3,6 +3,7 @@ import { db } from "@repo/db";
 import { bookings } from "@repo/db/schema";
 import { eq } from "drizzle-orm";
 import { createBkashPayment } from "@repo/config/payment";
+import { getUserIdFromRequest } from "@/lib/mobile-auth";
 
 export async function POST(request: NextRequest) {
     try {
@@ -29,6 +30,15 @@ export async function POST(request: NextRequest) {
             return NextResponse.json(
                 { success: false, error: "Booking not found" },
                 { status: 404 }
+            );
+        }
+
+        // Security: Verify the user owns this booking (if authenticated)
+        const userId = await getUserIdFromRequest(request);
+        if (userId && booking.userId !== userId) {
+            return NextResponse.json(
+                { success: false, error: "Unauthorized: You don't own this booking" },
+                { status: 403 }
             );
         }
 
