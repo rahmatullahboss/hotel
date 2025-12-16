@@ -137,6 +137,7 @@ export default function SavedHotelsScreen() {
                                     <Text
                                         className="text-sm font-semibold text-gray-900 dark:text-white mb-1"
                                         numberOfLines={2}
+                                        ellipsizeMode="tail"
                                     >
                                         {item.hotel.name}
                                     </Text>

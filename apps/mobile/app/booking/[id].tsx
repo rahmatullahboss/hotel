@@ -636,7 +636,7 @@ export default function BookingScreen() {
                                                     </Text>
                                                     {!method.available && (
                                                         <View className="px-2 py-0.5 rounded-full bg-gray-100">
-                                                            <Text className="text-xs text-gray-500" numberOfLines={1}>
+                                                            <Text className="text-xs text-gray-500" numberOfLines={1} ellipsizeMode="tail">
                                                                 {t('common.comingSoon', 'Coming Soon')}
                                                             </Text>
                                                         </View>

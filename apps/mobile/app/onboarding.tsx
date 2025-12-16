@@ -90,24 +90,34 @@ export default function OnboardingScreen() {
     };
 
     const renderSlide = ({ item }: { item: OnboardingSlide }) => (
-        <View style={{ width }} className="flex-1 items-center justify-center px-8">
-            {/* Icon Container */}
-            <View
-                className="w-32 h-32 rounded-full items-center justify-center mb-10"
-                style={{ backgroundColor: item.bgColor }}
-            >
-                <FontAwesome name={item.icon as any} size={56} color={item.iconColor} />
+        <View style={{ width, flex: 1 }} className="items-center px-8">
+            <View className="flex-1 items-center justify-center">
+                {/* Icon Container */}
+                <View
+                    className="w-32 h-32 rounded-full items-center justify-center mb-10"
+                    style={{ backgroundColor: item.bgColor }}
+                >
+                    <FontAwesome name={item.icon as any} size={56} color={item.iconColor} />
+                </View>
+
+                {/* Title */}
+                <Text 
+                    className="text-3xl font-bold text-gray-900 text-center mb-4 px-4"
+                    numberOfLines={0}
+                >
+                    {t(`onboarding.slide${item.id}.title`, item.title)}
+                </Text>
+
+                {/* Description */}
+                <View className="w-full px-4">
+                    <Text 
+                        className="text-base text-gray-500 text-center leading-7"
+                        numberOfLines={0}
+                    >
+                        {t(`onboarding.slide${item.id}.description`, item.description)}
+                    </Text>
+                </View>
             </View>
-
-            {/* Title */}
-            <Text className="text-3xl font-bold text-gray-900 text-center mb-4">
-                {t(`onboarding.slide${item.id}.title`, item.title)}
-            </Text>
-
-            {/* Description */}
-            <Text className="text-base text-gray-500 text-center leading-6">
-                {t(`onboarding.slide${item.id}.description`, item.description)}
-            </Text>
         </View>
     );
 

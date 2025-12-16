@@ -94,12 +94,18 @@ export default function HomeScreen() {
     return (
       <View
         className="flex-1 items-center justify-center bg-white dark:bg-gray-900"
-        style={{ paddingTop: insets.top }}
+        style={{ paddingTop: insets.top, paddingHorizontal: 24 }}
       >
         <ActivityIndicator size="large" color="#E63946" />
-        <Text className="mt-3 text-base text-gray-500 dark:text-gray-400">
-          {t('home.loading')}
-        </Text>
+        <View className="mt-4 w-full">
+          <Text 
+            className="text-base text-gray-500 dark:text-gray-400 text-center"
+            numberOfLines={0}
+            style={{ width: '100%' }}
+          >
+            {t('home.loading')}
+          </Text>
+        </View>
       </View>
     );
   }

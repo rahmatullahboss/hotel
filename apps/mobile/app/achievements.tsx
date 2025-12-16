@@ -211,6 +211,7 @@ export default function AchievementsScreen() {
                                             className={`text-xs font-semibold text-center ${badge.isEarned ? 'text-gray-900 dark:text-white' : 'text-gray-500 dark:text-gray-400'
                                                 }`}
                                             numberOfLines={2}
+                                            ellipsizeMode="tail"
                                         >
                                             {i18n.language === 'bn' && badge.nameBn ? badge.nameBn : badge.name}
                                         </Text>

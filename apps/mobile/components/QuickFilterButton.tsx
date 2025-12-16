@@ -26,6 +26,7 @@ export default function QuickFilterButton({
             <Text
                 className="text-xs font-medium text-gray-700 dark:text-gray-300 text-center"
                 numberOfLines={1}
+                ellipsizeMode="tail"
                 adjustsFontSizeToFit
             >
                 {label}

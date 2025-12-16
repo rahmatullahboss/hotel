@@ -168,16 +168,16 @@ export default function BookingCard({ booking }: BookingCardProps) {
                         <View className="flex-1">
                             <View className="flex-row items-start justify-between">
                                 <View className="flex-1 mr-2">
-                                    <Text className="text-base font-bold text-gray-900 dark:text-white" numberOfLines={2}>
+                                    <Text className="text-base font-bold text-gray-900 dark:text-white" numberOfLines={2} ellipsizeMode="tail">
                                         {booking.hotelName}
                                     </Text>
-                                    <Text className="text-sm text-gray-500 dark:text-gray-400 mt-0.5" numberOfLines={1}>
+                                    <Text className="text-sm text-gray-500 dark:text-gray-400 mt-0.5" numberOfLines={1} ellipsizeMode="tail">
                                         {roomName}
                                     </Text>
                                     {booking.hotelLocation && (
                                         <View className="flex-row items-center mt-1 gap-1">
                                             <FontAwesome name="map-marker" size={10} color="#9CA3AF" />
-                                            <Text className="text-xs text-gray-400" numberOfLines={2}>
+                                            <Text className="text-xs text-gray-400 flex-1" numberOfLines={2} ellipsizeMode="tail">
                                                 {booking.hotelLocation}
                                             </Text>
                                         </View>

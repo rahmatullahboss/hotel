@@ -135,14 +135,14 @@ export default function SearchFiltersModal({
                     className={`flex-row items-center justify-between px-4 pb-4 border-b ${isDark ? 'border-gray-700 bg-gray-800' : 'border-gray-200 bg-white'}`}
                     style={{ paddingTop: insets.top + 16 }}
                 >
-                    <TouchableOpacity onPress={onClose}>
+                    <TouchableOpacity onPress={onClose} className="min-w-[70px]">
                         <Text className="text-primary font-medium">{t('common.cancel', 'Cancel')}</Text>
                     </TouchableOpacity>
-                    <Text className={`text-lg font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                    <Text className={`text-lg font-bold flex-1 text-center ${isDark ? 'text-white' : 'text-gray-900'}`}>
                         {t('filters.title', 'Filters')}
                     </Text>
-                    <TouchableOpacity onPress={handleReset}>
-                        <Text className="text-primary font-medium">{t('filters.reset', 'Reset')}</Text>
+                    <TouchableOpacity onPress={handleReset} className="min-w-[70px]">
+                        <Text className="text-primary font-medium text-right">{t('filters.reset', 'Reset')}</Text>
                     </TouchableOpacity>
                 </View>
 
@@ -159,7 +159,7 @@ export default function SearchFiltersModal({
                                     <TouchableOpacity
                                         key={option.label}
                                         onPress={() => handlePriceSelect(option.min, option.max)}
-                                        className={`px-4 py-2 rounded-lg ${isSelected
+                                        className={`px-4 py-2.5 rounded-lg flex-shrink ${isSelected
                                             ? 'bg-primary'
                                             : isDark ? 'bg-gray-700' : 'bg-gray-100'
                                             }`}
@@ -183,7 +183,7 @@ export default function SearchFiltersModal({
                                 <TouchableOpacity
                                     key={option.value}
                                     onPress={() => setMinRating(option.value)}
-                                    className={`px-4 py-2 rounded-lg flex-row items-center gap-1 ${minRating === option.value
+                                    className={`px-4 py-2.5 rounded-lg flex-row items-center gap-1 flex-shrink ${minRating === option.value
                                         ? 'bg-primary'
                                         : isDark ? 'bg-gray-700' : 'bg-gray-100'
                                         }`}
@@ -209,7 +209,7 @@ export default function SearchFiltersModal({
                                 <View className={`w-10 h-10 rounded-full items-center justify-center ${payAtHotel ? 'bg-primary' : isDark ? 'bg-gray-700' : 'bg-gray-100'}`}>
                                     <FontAwesome name="hotel" size={18} color={payAtHotel ? '#fff' : isDark ? '#9CA3AF' : '#6B7280'} />
                                 </View>
-                                <View>
+                                <View className="flex-1">
                                     <Text className={`font-medium ${isDark ? 'text-white' : 'text-gray-900'}`}>
                                         {t('filters.payAtHotel', 'Pay at Hotel')}
                                     </Text>
@@ -229,26 +229,28 @@ export default function SearchFiltersModal({
                         <Text className={`text-base font-semibold mb-4 ${isDark ? 'text-white' : 'text-gray-900'}`}>
                             {t('filters.amenities', 'Amenities')}
                         </Text>
-                        <View className="flex-row flex-wrap gap-2">
+                        <View className="flex-row flex-wrap gap-2.5">
                             {COMMON_AMENITIES.map((amenity) => {
                                 const isSelected = selectedAmenities.includes(amenity.id);
                                 return (
                                     <TouchableOpacity
                                         key={amenity.id}
                                         onPress={() => toggleAmenity(amenity.id)}
-                                        className={`px-3 py-2 rounded-lg flex-row items-center gap-2 ${isSelected
+                                        className={`px-4 py-2.5 rounded-lg ${isSelected
                                             ? 'bg-primary'
                                             : isDark ? 'bg-gray-700' : 'bg-gray-100'
                                             }`}
                                     >
-                                        <FontAwesome
-                                            name={amenity.icon as any}
-                                            size={14}
-                                            color={isSelected ? '#fff' : isDark ? '#9CA3AF' : '#6B7280'}
-                                        />
-                                        <Text className={isSelected ? 'text-white font-bold' : isDark ? 'text-gray-300 font-medium' : 'text-gray-700 font-medium'}>
-                                            {t(`amenities.${amenity.id}`, amenity.label)}
-                                        </Text>
+                                        <View className="flex-row items-center gap-2">
+                                            <FontAwesome
+                                                name={amenity.icon as any}
+                                                size={14}
+                                                color={isSelected ? '#fff' : isDark ? '#9CA3AF' : '#6B7280'}
+                                            />
+                                            <Text className={`${isSelected ? 'text-white font-bold' : isDark ? 'text-gray-300 font-medium' : 'text-gray-700 font-medium'}`}>
+                                                {t(`amenities.${amenity.id}`, amenity.label)}
+                                            </Text>
+                                        </View>
                                     </TouchableOpacity>
                                 );
                             })}

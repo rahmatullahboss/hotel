@@ -63,7 +63,7 @@ export default function NearbyAttractions({ hotelLat, hotelLng, city }: NearbyAt
                     <TouchableOpacity
                         key={place.type}
                         onPress={() => openMapsSearch(place.label)}
-                        className="items-center"
+                        className="items-center w-16"
                         activeOpacity={0.7}
                     >
                         <View
@@ -72,7 +72,7 @@ export default function NearbyAttractions({ hotelLat, hotelLng, city }: NearbyAt
                         >
                             <FontAwesome name={place.icon as any} size={24} color={place.color} />
                         </View>
-                        <Text className="text-xs text-gray-600 dark:text-gray-400 text-center" numberOfLines={2}>
+                        <Text className="text-xs text-gray-600 dark:text-gray-400 text-center w-full" numberOfLines={2} ellipsizeMode="tail">
                             {t(`nearby.${place.type}`, place.label)}
                         </Text>
                     </TouchableOpacity>

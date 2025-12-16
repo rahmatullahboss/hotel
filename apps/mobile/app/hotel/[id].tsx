@@ -342,14 +342,14 @@ export default function HotelDetailScreen() {
                                         />
                                         {/* Room Type Badge */}
                                         <View className="absolute top-3 left-3 bg-primary px-3 py-1.5 rounded-lg max-w-[60%]">
-                                            <Text className="text-white text-xs font-bold" numberOfLines={1}>
+                                            <Text className="text-white text-xs font-bold flex-shrink" numberOfLines={1} ellipsizeMode="tail">
                                                 {room.type}
                                             </Text>
                                         </View>
                                         {/* Available Count Badge - OYO/Booking.com style */}
                                         {room.availableCount !== undefined && room.availableCount > 0 && (
                                             <View className="absolute top-3 right-3 bg-orange-500 px-2.5 py-1.5 rounded-lg max-w-[50%]">
-                                                <Text className="text-white text-xs font-bold" numberOfLines={1}>
+                                                <Text className="text-white text-xs font-bold flex-shrink" numberOfLines={1} ellipsizeMode="tail">
                                                     {room.availableCount} {room.availableCount === 1 ? 'room' : 'rooms'} left
                                                 </Text>
                                             </View>
