@@ -1,10 +1,10 @@
-import { auth, signOut } from "@/auth";
+import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { getUserBookings } from "../actions/bookings";
 import { getWallet, getLoyaltyPoints } from "../actions/wallet";
-import { BottomNav, LanguageSwitcher } from "../components";
+import { BottomNav, LanguageSwitcher, SignOutButton } from "../components";
 
 export default async function ProfilePage() {
     const session = await auth();
@@ -84,17 +84,7 @@ export default async function ProfilePage() {
                         <Link href="/profile/edit" className="btn btn-outline" style={{ flex: 1, textAlign: "center", textDecoration: "none", color: "inherit", lineHeight: "inherit" }}>
                             {t("editProfile")}
                         </Link>
-                        <form
-                            action={async () => {
-                                "use server";
-                                await signOut({ redirectTo: "/" });
-                            }}
-                            style={{ flex: 1 }}
-                        >
-                            <button type="submit" className="btn btn-outline" style={{ width: "100%" }}>
-                                {t("signOut")}
-                            </button>
-                        </form>
+                        <SignOutButton style={{ flex: 1, width: "100%" }} />
                     </div>
                 </div>
 

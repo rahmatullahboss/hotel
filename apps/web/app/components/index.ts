@@ -27,3 +27,4 @@ export { OYOReviewCard } from "./OYOReviewCard";
 export { OYOSectionTabs } from "./OYOSectionTabs";
 export { OYOFiltersPanel } from "./OYOFiltersPanel";
 export { OYOHotelCard } from "./OYOHotelCard";
+export { SignOutButton } from "./SignOutButton";
