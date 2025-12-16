@@ -20,7 +20,7 @@ interface OYORatingsBreakdownProps {
 export function OYORatingsBreakdown({
     averageRating,
     totalReviews,
-    ratingLabel = "EXCELLENT",
+    ratingLabel,
     breakdown,
     isISOCertified = true,
 }: OYORatingsBreakdownProps) {
@@ -37,23 +37,23 @@ export function OYORatingsBreakdown({
 
     const ratings = breakdown || defaultBreakdown;
 
-    const getRatingLabel = (rating: number) => {
-        if (rating >= 4.5) return "EXCELLENT";
-        if (rating >= 4.0) return "VERY GOOD";
-        if (rating >= 3.5) return "GOOD";
-        if (rating >= 3.0) return "AVERAGE";
-        return "BELOW AVERAGE";
+    const getRatingLabel = (rating: number): string => {
+        if (rating >= 4.5) return t("ratings.excellent");
+        if (rating >= 4.0) return t("ratings.veryGood");
+        if (rating >= 3.5) return t("ratings.good");
+        if (rating >= 3.0) return t("ratings.average");
+        return t("ratings.belowAverage");
     };
 
     return (
         <div className="oyo-ratings-section">
-            <h2 className="oyo-section-title">Ratings and reviews</h2>
+            <h2 className="oyo-section-title">{t("ratings.title")}</h2>
 
             {/* ISO Certified Badge */}
             {isISOCertified && (
                 <div className="oyo-iso-badge">
                     <MdVerified size={14} />
-                    <span>ISO CERTIFIED</span>
+                    <span>{t("ratings.certified")}</span>
                 </div>
             )}
 
@@ -64,8 +64,8 @@ export function OYORatingsBreakdown({
                         {averageRating.toFixed(1)}
                         <FiStar size={12} />
                     </div>
-                    <div className="oyo-rating-label">{getRatingLabel(averageRating)}</div>
-                    <div className="oyo-rating-count">{totalReviews} ratings</div>
+                    <div className="oyo-rating-label">{ratingLabel || getRatingLabel(averageRating)}</div>
+                    <div className="oyo-rating-count">{t("ratings.ratingsCount", { count: totalReviews })}</div>
                 </div>
 
                 {/* Breakdown Bars */}

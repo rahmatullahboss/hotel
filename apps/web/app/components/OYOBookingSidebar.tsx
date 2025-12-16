@@ -59,8 +59,8 @@ export function OYOBookingSidebar({
         <div className="oyo-booking-sidebar">
             {/* Login Promo Banner */}
             <div className="oyo-promo-banner">
-                <span className="promo-text">LOGIN NOW TO GET UPTO 15% LOWER PRICES</span>
-                <button className="promo-btn">LOGIN</button>
+                <span className="promo-text">{t("sidebar.loginPromo")}</span>
+                <button className="promo-btn">{t("sidebar.login")}</button>
             </div>
 
             {/* Price Section */}
@@ -70,11 +70,11 @@ export function OYOBookingSidebar({
                     {discount > 0 && (
                         <>
                             <span className="oyo-price-original">৳{basePrice.toLocaleString()}</span>
-                            <span className="oyo-discount-badge">{discount}% off</span>
+                            <span className="oyo-discount-badge">{discount}% {t("sidebar.off")}</span>
                         </>
                     )}
                 </div>
-                <div className="oyo-taxes">+ taxes & fees: ৳{taxesAndFees}</div>
+                <div className="oyo-taxes">+ {t("sidebar.taxesAndFees")}: ৳{taxesAndFees}</div>
             </div>
 
             {/* Date Picker */}
@@ -103,7 +103,7 @@ export function OYOBookingSidebar({
                     </div>
                     <div className="oyo-guests-item">
                         <FiUsers size={14} />
-                        <span>{guests} Room, {guests} Guest</span>
+                        <span>{t("sidebar.roomGuest", { rooms: 1, guests: guests })}</span>
                     </div>
                 </div>
             </div>
@@ -119,50 +119,51 @@ export function OYOBookingSidebar({
             <div className="oyo-coupon-section">
                 <div className="oyo-coupon-applied">
                     <FiTag size={16} className="coupon-icon" />
-                    <span className="coupon-text">WELCOME20 coupon applied</span>
+                    <span className="coupon-text">WELCOME20 {t("sidebar.couponApplied")}</span>
                     <span className="coupon-discount">-৳{Math.round(savings * 0.1)}</span>
                     <MdVerified size={16} className="coupon-check" />
                 </div>
-                <button className="oyo-more-offers-btn">MORE OFFERS</button>
+                <button className="oyo-more-offers-btn">{t("sidebar.moreOffers")}</button>
             </div>
 
             {/* Savings & Total */}
             <div className="oyo-summary">
                 <div className="oyo-summary-row">
-                    <span>Your savings</span>
+                    <span>{t("sidebar.yourSavings")}</span>
                     <span className="oyo-savings">৳{savings.toLocaleString()}</span>
                 </div>
                 <div className="oyo-summary-row oyo-total-row">
-                    <span>Total price</span>
+                    <span>{t("sidebar.totalPrice")}</span>
                     <span className="oyo-total">৳{totalPrice.toLocaleString()}</span>
                 </div>
-                <div className="oyo-taxes-note">Including taxes & fees ⓘ</div>
+                <div className="oyo-taxes-note">{t("sidebar.includingTaxes")} ⓘ</div>
             </div>
 
             {/* Book Now Button */}
             <button className="oyo-book-btn" onClick={onBookNow} disabled={!isSelected}>
-                Continue to Book
+                {t("sidebar.continueToBook")}
             </button>
 
             {/* Social Proof */}
             <div className="oyo-social-proof">
                 <FiZap size={14} className="proof-icon" />
-                <span>{bookingsCount.toLocaleString()}+ people booked this Vibe in last 6 months</span>
+                <span>{t("sidebar.bookedCount", { count: bookingsCount.toLocaleString() })}</span>
             </div>
 
             {/* Policy Links */}
             <div className="oyo-policy-links">
                 <a href="#" className="oyo-policy-link">
-                    Cancellation Policy ⓘ
+                    {t("sidebar.cancellationPolicy")} ⓘ
                 </a>
                 <div className="oyo-safety-note">
                     <FiShield size={14} />
-                    <span>Follow safety measures advised at the hotel</span>
+                    <span>{t("sidebar.safetyMeasures")}</span>
                 </div>
                 <div className="oyo-terms">
-                    By proceeding, you agree to our <a href="/terms">Guest Policies</a>.
+                    {t("sidebar.agreeToTerms")} <a href="/terms">{t("sidebar.guestPolicies")}</a>.
                 </div>
             </div>
         </div>
     );
 }
+

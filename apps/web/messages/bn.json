@@ -110,7 +110,66 @@
         "checkOutTime": "চেক-আউট: দুপুর ১২:০০ টা",
         "cancellationPolicy": "বাতিল: চেক-ইনের ২৪ ঘন্টা আগে পর্যন্ত বিনামূল্যে বাতিল",
         "bookNow": "এখনই বুক করুন",
-        "payAtHotel": "হোটেলে পেমেন্ট"
+        "payAtHotel": "হোটেলে পেমেন্ট",
+        "sections": {
+            "amenities": "সুবিধাসমূহ",
+            "aboutVibe": "এই ভাইব সম্পর্কে",
+            "chooseRoom": "রুম নির্বাচন করুন",
+            "ratingsReviews": "রেটিং ও রিভিউ",
+            "hotelRules": "হোটেল নিয়মাবলী",
+            "whatsNearby": "কাছাকাছি কী আছে?"
+        },
+        "highlights": {
+            "sanitized": "স্যানিটাইজড রুম",
+            "support24x7": "২৪/৭ সাপোর্ট",
+            "freeWifi": "ফ্রি ওয়াইফাই",
+            "secureBooking": "নিরাপদ বুকিং",
+            "verified": "ভাইব ভেরিফাইড"
+        },
+        "ratings": {
+            "title": "রেটিং ও রিভিউ",
+            "certified": "ISO সার্টিফাইড",
+            "excellent": "অসাধারণ",
+            "veryGood": "খুব ভালো",
+            "good": "ভালো",
+            "average": "গড়",
+            "belowAverage": "গড়ের নিচে",
+            "ratingsCount": "{count} টি রেটিং"
+        },
+        "policies": {
+            "title": "হোটেল নীতিমালা",
+            "checkIn": "চেক-ইন",
+            "checkOut": "চেক-আউট",
+            "couplesWelcome": "দম্পতিদের স্বাগতম",
+            "idProof": "স্থানীয় বা বাহিরের ID দিয়ে চেক-ইন করা যায় (PAN কার্ড গ্রহণযোগ্য নয়)",
+            "viewPolicy": "অতিথি নীতি দেখুন"
+        },
+        "sidebar": {
+            "loginPromo": "লগইন করলে ১৫% পর্যন্ত কম দামে পাবেন",
+            "login": "লগইন",
+            "taxesAndFees": "ট্যাক্স ও ফি",
+            "roomGuest": "{rooms} রুম, {guests} অতিথি",
+            "couponApplied": "কুপন প্রয়োগ হয়েছে",
+            "moreOffers": "আরও অফার",
+            "yourSavings": "আপনার সঞ্চয়",
+            "totalPrice": "মোট মূল্য",
+            "includingTaxes": "ট্যাক্স ও ফি সহ",
+            "continueToBook": "বুকিং করতে এগিয়ে যান",
+            "bookedCount": "গত ৬ মাসে {count}+ জন এই ভাইব বুক করেছেন",
+            "cancellationPolicy": "বাতিল নীতি",
+            "safetyMeasures": "হোটেলের পরামর্শ অনুযায়ী নিরাপত্তা ব্যবস্থা মেনে চলুন",
+            "agreeToTerms": "এগিয়ে যাওয়ার মাধ্যমে, আপনি আমাদের সাথে সম্মত হচ্ছেন",
+            "guestPolicies": "অতিথি নীতিমালা",
+            "off": "ছাড়"
+        },
+        "reviews": {
+            "showMore": "আরও দেখুন",
+            "seeAll": "সব রিভিউ দেখুন",
+            "noReviews": "এখনও কোনো রিভিউ নেই"
+        },
+        "checkInRating": "চেক-ইন রেটিং",
+        "delightfulExperience": "আনন্দদায়ক অভিজ্ঞতা",
+        "companyServiced": "কোম্পানি সার্ভিসড"
     },
     "hotel": {
         "rating": "রেটিং",

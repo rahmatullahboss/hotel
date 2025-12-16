@@ -15,6 +15,7 @@ import {
     OYOSectionTabs,
 } from "../../components";
 import { getHotelById, getAvailableRooms, RoomWithDetails } from "../../actions/hotels";
+import { getHotelReviews, getHotelRatingBreakdown } from "../../actions/review";
 import { FiMapPin, FiStar, FiClock, FiXCircle, FiCreditCard, FiArrowLeft } from "react-icons/fi";
 import { FaWifi, FaSnowflake, FaTv, FaParking, FaSwimmingPool, FaUtensils, FaDumbbell, FaSpa, FaCoffee, FaConciergeBell } from "react-icons/fa";
 
@@ -24,6 +25,23 @@ const HotelMap = lazy(() =>
 );
 
 interface Room extends RoomWithDetails { }
+
+// Review interface
+interface Review {
+    id: string;
+    rating: number;
+    title: string | null;
+    content: string | null;
+    createdAt: Date;
+    userName: string | null;
+}
+
+// Rating breakdown interface
+interface RatingBreakdown {
+    stars: number;
+    percentage: number;
+    count: number;
+}
 
 interface HotelDetail {
     id: string;
@@ -62,31 +80,7 @@ const getAmenityIcon = (amenity: string) => {
     return icons[amenity] || <FaWifi size={16} />;
 };
 
-// Section tabs configuration
-const SECTION_TABS = [
-    { id: "amenities", label: "Amenities" },
-    { id: "about", label: "About this Vibe" },
-    { id: "rooms", label: "Choose your room" },
-    { id: "reviews", label: "Ratings and Reviews" },
-    { id: "policies", label: "Hotel Rules" },
-    { id: "location", label: "What's nearby" },
-];
-
-// Mock reviews (replace with actual data)
-const MOCK_REVIEWS = [
-    {
-        name: "Rahmat Khan",
-        date: "2025-02-23",
-        rating: 5,
-        text: "Great experience staying in this hotel. Excellent location, very near and walking distance to shopping area and local restaurants.",
-    },
-    {
-        name: "Pabitra Behera",
-        date: "2025-01-04",
-        rating: 5,
-        text: "Very good behavior, I will recommend this hotel. Thank you!",
-    },
-];
+// Section tabs will use translations
 
 export default function HotelDetailPage() {
     const params = useParams();
@@ -101,12 +95,28 @@ export default function HotelDetailPage() {
     const [selectedRoom, setSelectedRoom] = useState<Room | null>(null);
     const [detailRoom, setDetailRoom] = useState<Room | null>(null);
 
+    // Reviews state
+    const [reviews, setReviews] = useState<Review[]>([]);
+    const [ratingBreakdown, setRatingBreakdown] = useState<RatingBreakdown[]>([]);
+    const [showAllAmenities, setShowAllAmenities] = useState(false);
+    const [showAllReviews, setShowAllReviews] = useState(false);
+
     // Default dates: today and tomorrow
     const today = new Date().toISOString().split("T")[0]!;
     const tomorrow = new Date(Date.now() + 86400000).toISOString().split("T")[0]!;
     const [checkIn, setCheckIn] = useState(today);
     const [checkOut, setCheckOut] = useState(tomorrow);
     const [guests, setGuests] = useState(2);
+
+    // Section tabs with translations
+    const SECTION_TABS = [
+        { id: "amenities", label: t("sections.amenities") },
+        { id: "about", label: t("sections.aboutVibe") },
+        { id: "rooms", label: t("sections.chooseRoom") },
+        { id: "reviews", label: t("sections.ratingsReviews") },
+        { id: "policies", label: t("sections.hotelRules") },
+        { id: "location", label: t("sections.whatsNearby") },
+    ];
 
     // Fetch hotel data
     useEffect(() => {
@@ -122,6 +132,22 @@ export default function HotelDetailPage() {
             setLoading(false);
         }
         fetchHotel();
+    }, [hotelId]);
+
+    // Fetch reviews and rating breakdown
+    useEffect(() => {
+        async function fetchReviews() {
+            if (!hotelId) return;
+
+            const [reviewsData, breakdownData] = await Promise.all([
+                getHotelReviews(hotelId),
+                getHotelRatingBreakdown(hotelId),
+            ]);
+
+            setReviews(reviewsData.reviews);
+            setRatingBreakdown(breakdownData.breakdown);
+        }
+        fetchReviews();
     }, [hotelId]);
 
     // Fetch available rooms when dates change
@@ -242,7 +268,7 @@ export default function HotelDetailPage() {
                                         fontSize: "0.625rem",
                                         marginTop: "0.5rem",
                                     }}>
-                                        🏢 Company-Serviced
+                                        🏢 {t("companyServiced")}
                                     </span>
                                 )}
                             </div>
@@ -252,7 +278,7 @@ export default function HotelDetailPage() {
                                     <span style={{ marginLeft: "0.25rem" }}>{parseFloat(hotel.rating || "0").toFixed(1)}</span>
                                 </div>
                                 <div style={{ fontSize: "0.75rem", color: "var(--color-text-secondary)", marginTop: "0.25rem" }}>
-                                    {hotel.reviewCount} Ratings
+                                    {t("ratings.ratingsCount", { count: hotel.reviewCount })}
                                 </div>
                             </div>
                         </div>
@@ -260,9 +286,9 @@ export default function HotelDetailPage() {
                         {/* Check-in Rating */}
                         <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginTop: "0.75rem", fontSize: "0.875rem" }}>
                             <span>🔒</span>
-                            <span>5.0 · Check-in rating</span>
+                            <span>5.0 · {t("checkInRating")}</span>
                             <span style={{ color: "var(--color-text-secondary)" }}>›</span>
-                            <span style={{ color: "var(--color-text-secondary)" }}>Delightful experience</span>
+                            <span style={{ color: "var(--color-text-secondary)" }}>{t("delightfulExperience")}</span>
                         </div>
                     </div>
 
@@ -274,9 +300,9 @@ export default function HotelDetailPage() {
 
                     {/* Amenities Section */}
                     <div id="amenities" style={{ marginTop: "1.5rem" }}>
-                        <h2 className="oyo-section-title">Amenities</h2>
+                        <h2 className="oyo-section-title">{t("sections.amenities")}</h2>
                         <div className="amenities-grid">
-                            {hotel.amenities.slice(0, 6).map((amenity) => (
+                            {(showAllAmenities ? hotel.amenities : hotel.amenities.slice(0, 6)).map((amenity: string) => (
                                 <div key={amenity} className="amenity-grid-item">
                                     <div className="amenity-grid-icon">
                                         {getAmenityIcon(amenity)}
@@ -286,8 +312,11 @@ export default function HotelDetailPage() {
                             ))}
                         </div>
                         {hotel.amenities.length > 6 && (
-                            <button style={{ color: "#22c55e", background: "none", border: "none", marginTop: "0.75rem", cursor: "pointer", fontSize: "0.875rem" }}>
-                                Show More
+                            <button
+                                onClick={() => setShowAllAmenities(!showAllAmenities)}
+                                style={{ color: "#22c55e", background: "none", border: "none", marginTop: "0.75rem", cursor: "pointer", fontSize: "0.875rem" }}
+                            >
+                                {showAllAmenities ? t("reviews.showMore").replace("More", "Less") : t("reviews.showMore")}
                             </button>
                         )}
                     </div>
@@ -295,16 +324,16 @@ export default function HotelDetailPage() {
                     {/* About Section */}
                     {hotel.description && (
                         <div id="about" style={{ marginTop: "1.5rem" }}>
-                            <h2 className="oyo-section-title">About this Vibe</h2>
+                            <h2 className="oyo-section-title">{t("sections.aboutVibe")}</h2>
                             <p style={{ fontSize: "0.875rem", color: "var(--color-text-secondary)", lineHeight: 1.6 }}>
                                 {hotel.description}
                             </p>
                         </div>
                     )}
 
-                    {/* Room Selection - OYO Style */}
+                    {/* Room Selection */}
                     <div id="rooms" style={{ marginTop: "1.5rem" }}>
-                        <h2 className="oyo-section-title">Choose your room</h2>
+                        <h2 className="oyo-section-title">{t("sections.chooseRoom")}</h2>
                         {rooms.length > 0 ? (
                             <div>
                                 {rooms.map((room) => (
@@ -344,50 +373,64 @@ export default function HotelDetailPage() {
                         <OYORatingsBreakdown
                             averageRating={parseFloat(hotel.rating || "4.6")}
                             totalReviews={hotel.reviewCount}
+                            breakdown={ratingBreakdown.length > 0 ? ratingBreakdown : undefined}
                         />
 
                         {/* Reviews */}
                         <div style={{ marginTop: "1rem" }}>
-                            {MOCK_REVIEWS.map((review, index) => (
-                                <OYOReviewCard
-                                    key={index}
-                                    reviewerName={review.name}
-                                    reviewDate={review.date}
-                                    rating={review.rating}
-                                    reviewText={review.text}
-                                />
-                            ))}
-                            <button style={{ color: "#22c55e", background: "none", border: "none", marginTop: "1rem", cursor: "pointer", fontSize: "0.875rem" }}>
-                                See all reviews
-                            </button>
+                            {reviews.length > 0 ? (
+                                <>
+                                    {(showAllReviews ? reviews : reviews.slice(0, 3)).map((review: Review) => (
+                                        <OYOReviewCard
+                                            key={review.id}
+                                            reviewerName={review.userName || "Guest"}
+                                            reviewDate={review.createdAt.toISOString().split("T")[0] || ""}
+                                            rating={review.rating}
+                                            reviewText={review.content || ""}
+                                        />
+                                    ))}
+                                    {reviews.length > 3 && (
+                                        <button
+                                            onClick={() => setShowAllReviews(!showAllReviews)}
+                                            style={{ color: "#22c55e", background: "none", border: "none", marginTop: "1rem", cursor: "pointer", fontSize: "0.875rem" }}
+                                        >
+                                            {showAllReviews ? t("reviews.showMore").replace("More", "Less") : t("reviews.seeAll")}
+                                        </button>
+                                    )}
+                                </>
+                            ) : (
+                                <p style={{ color: "var(--color-text-secondary)", fontSize: "0.875rem" }}>
+                                    {t("reviews.noReviews")}
+                                </p>
+                            )}
                         </div>
                     </div>
 
                     {/* Policies Section */}
                     <div id="policies" style={{ marginTop: "1.5rem" }}>
-                        <h2 className="oyo-section-title">Hotel policies</h2>
+                        <h2 className="oyo-section-title">{t("policies.title")}</h2>
                         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem", marginBottom: "1rem" }}>
                             <div style={{ padding: "1rem", border: "1px solid var(--color-border)", borderRadius: "0.5rem" }}>
-                                <div style={{ fontSize: "0.75rem", color: "var(--color-text-secondary)" }}>Check-in</div>
+                                <div style={{ fontSize: "0.75rem", color: "var(--color-text-secondary)" }}>{t("policies.checkIn")}</div>
                                 <div style={{ fontSize: "1rem", fontWeight: "600" }}>12:00 PM</div>
                             </div>
                             <div style={{ padding: "1rem", border: "1px solid var(--color-border)", borderRadius: "0.5rem" }}>
-                                <div style={{ fontSize: "0.75rem", color: "var(--color-text-secondary)" }}>Check-out</div>
+                                <div style={{ fontSize: "0.75rem", color: "var(--color-text-secondary)" }}>{t("policies.checkOut")}</div>
                                 <div style={{ fontSize: "1rem", fontWeight: "600" }}>11:00 AM</div>
                             </div>
                         </div>
                         <ul style={{ fontSize: "0.875rem", color: "var(--color-text-secondary)", paddingLeft: "1.25rem" }}>
-                            <li style={{ marginBottom: "0.5rem" }}>• Couples are welcome</li>
-                            <li style={{ marginBottom: "0.5rem" }}>• Guests can check in using any local or outstation ID proof (PAN card not accepted)</li>
+                            <li style={{ marginBottom: "0.5rem" }}>• {t("policies.couplesWelcome")}</li>
+                            <li style={{ marginBottom: "0.5rem" }}>• {t("policies.idProof")}</li>
                         </ul>
                         <button style={{ color: "#d40000", background: "none", border: "none", marginTop: "0.75rem", cursor: "pointer", fontSize: "0.875rem" }}>
-                            View Guest Policy
+                            {t("policies.viewPolicy")}
                         </button>
                     </div>
 
                     {/* Location Map */}
                     <div id="location" style={{ marginTop: "1.5rem", marginBottom: "6rem" }}>
-                        <h2 className="oyo-section-title">What's nearby?</h2>
+                        <h2 className="oyo-section-title">{t("sections.whatsNearby")}</h2>
                         {hotel.latitude && hotel.longitude && (
                             <div style={{ borderRadius: "0.75rem", overflow: "hidden", height: 200 }}>
                                 <Suspense

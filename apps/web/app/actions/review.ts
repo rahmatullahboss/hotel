@@ -212,3 +212,44 @@ export async function canReviewBooking(
         return { canReview: false, reason: "Error checking eligibility" };
     }
 }
+
+/**
+ * Get rating breakdown by stars for a hotel
+ */
+export async function getHotelRatingBreakdown(hotelId: string): Promise<{
+    breakdown: Array<{ stars: number; percentage: number; count: number }>;
+    totalReviews: number;
+}> {
+    try {
+        // Get count of reviews for each rating (1-5)
+        const results = await db
+            .select({
+                rating: reviews.rating,
+                count: count(reviews.id),
+            })
+            .from(reviews)
+            .where(and(eq(reviews.hotelId, hotelId), eq(reviews.isVisible, true)))
+            .groupBy(reviews.rating);
+
+        const totalReviews = results.reduce((sum: number, r: typeof results[number]) => sum + r.count, 0);
+
+        // Build breakdown for stars 5 to 1
+        const breakdown = [5, 4, 3, 2, 1].map(stars => {
+            const found = results.find((r: typeof results[number]) => r.rating === stars);
+            const reviewCount = found?.count || 0;
+            return {
+                stars,
+                count: reviewCount,
+                percentage: totalReviews > 0 ? Math.round((reviewCount / totalReviews) * 100) : 0,
+            };
+        });
+
+        return { breakdown, totalReviews };
+    } catch (error) {
+        console.error("Error fetching rating breakdown:", error);
+        return {
+            breakdown: [5, 4, 3, 2, 1].map(stars => ({ stars, count: 0, percentage: 0 })),
+            totalReviews: 0,
+        };
+    }
+}

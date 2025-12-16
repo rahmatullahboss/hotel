@@ -111,18 +111,67 @@
         "cancellationPolicy": "Cancellation: Free cancellation up to 24 hours before check-in",
         "bookNow": "Book Now",
         "payAtHotel": "Pay at Hotel",
+        "sections": {
+            "amenities": "Amenities",
+            "aboutVibe": "About this Vibe",
+            "chooseRoom": "Choose your room",
+            "ratingsReviews": "Ratings and Reviews",
+            "hotelRules": "Hotel Rules",
+            "whatsNearby": "What's nearby"
+        },
         "highlights": {
             "sanitized": "Daily Sanitized",
             "support24x7": "24/7 Support",
             "freeWifi": "Free WiFi",
-            "secureBooking": "Secure Booking"
+            "secureBooking": "Secure Booking",
+            "verified": "Vibe Verified"
+        },
+        "ratings": {
+            "title": "Ratings and reviews",
+            "certified": "ISO CERTIFIED",
+            "excellent": "EXCELLENT",
+            "veryGood": "VERY GOOD",
+            "good": "GOOD",
+            "average": "AVERAGE",
+            "belowAverage": "BELOW AVERAGE",
+            "ratingsCount": "{count} ratings"
         },
         "policies": {
+            "title": "Hotel policies",
             "checkIn": "Check-in",
             "checkOut": "Check-out",
+            "couplesWelcome": "Couples are welcome",
+            "idProof": "Guests can check in using any local or outstation ID proof (PAN card not accepted)",
+            "viewPolicy": "View Guest Policy",
             "cancellation": "Cancellation",
             "idRequired": "ID Required"
-        }
+        },
+        "sidebar": {
+            "loginPromo": "LOGIN NOW TO GET UPTO 15% LOWER PRICES",
+            "login": "LOGIN",
+            "taxesAndFees": "taxes & fees",
+            "roomGuest": "{rooms} Room, {guests} Guest",
+            "couponApplied": "coupon applied",
+            "moreOffers": "MORE OFFERS",
+            "yourSavings": "Your savings",
+            "totalPrice": "Total price",
+            "includingTaxes": "Including taxes & fees",
+            "continueToBook": "Continue to Book",
+            "bookedCount": "{count}+ people booked this Vibe in last 6 months",
+            "cancellationPolicy": "Cancellation Policy",
+            "safetyMeasures": "Follow safety measures advised at the hotel",
+            "agreeToTerms": "By proceeding, you agree to our",
+            "guestPolicies": "Guest Policies",
+            "off": "off"
+        },
+        "reviews": {
+            "showMore": "Show More",
+            "seeAll": "See all reviews",
+            "noReviews": "No reviews yet"
+        },
+        "checkInRating": "Check-in rating",
+        "delightfulExperience": "Delightful experience",
+        "companyServiced": "Company-Serviced"
     },
     "hotel": {
         "rating": "Rating",
