@@ -79,6 +79,7 @@ export default async function HomePage() {
                   amenities={hotel.amenities}
                   payAtHotel={hotel.payAtHotel}
                   vibeCode={hotel.vibeCode}
+                  category={hotel.category}
                 />
               ))
             ) : (

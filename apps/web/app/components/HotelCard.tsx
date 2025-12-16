@@ -3,6 +3,36 @@
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 
+// Category type matching DB schema
+type HotelCategory = "CLASSIC" | "PREMIUM" | "BUSINESS";
+
+// Category badge colors (matching vibeBranding utility)
+const getCategoryColor = (category: string | null | undefined): string => {
+    switch (category) {
+        case "PREMIUM":
+            return "#F59E0B"; // Amber/Gold
+        case "BUSINESS":
+            return "#3B82F6"; // Blue
+        case "CLASSIC":
+        default:
+            return "#10B981"; // Green
+    }
+};
+
+// Category display labels
+const getCategoryLabel = (category: string | null | undefined): string | null => {
+    switch (category) {
+        case "PREMIUM":
+            return "Premium";
+        case "BUSINESS":
+            return "Business";
+        case "CLASSIC":
+            return "Classic";
+        default:
+            return null;
+    }
+};
+
 interface HotelCardProps {
     id: string;
     name: string;
@@ -14,6 +44,7 @@ interface HotelCardProps {
     amenities: string[];
     payAtHotel?: boolean;
     vibeCode?: string | null;
+    category?: string | null;
 }
 
 export function HotelCard({
@@ -27,12 +58,15 @@ export function HotelCard({
     amenities,
     payAtHotel = false,
     vibeCode,
+    category,
 }: HotelCardProps) {
     const t = useTranslations("hotel");
     const tCommon = useTranslations("common");
 
     // Format display name with Vibe branding
     const displayName = vibeCode ? `Vibe ${vibeCode} ${name}` : name;
+    const categoryLabel = getCategoryLabel(category);
+    const categoryColor = getCategoryColor(category);
 
     return (
         <Link href={`/hotels/${id}`} className="card hotel-card">
@@ -44,21 +78,27 @@ export function HotelCard({
                     className="card-image"
                     loading="lazy"
                 />
-                {payAtHotel && (
+                {/* Category Badge (top-left) */}
+                {categoryLabel && (
                     <span
-                        className="badge-pay-hotel"
                         style={{
                             position: "absolute",
                             top: "0.75rem",
                             left: "0.75rem",
+                            backgroundColor: categoryColor,
+                            color: "white",
+                            padding: "0.25rem 0.5rem",
+                            borderRadius: "4px",
+                            fontSize: "0.75rem",
+                            fontWeight: "600",
                         }}
                     >
-                        {t("payAtHotel")}
+                        {categoryLabel}
                     </span>
                 )}
+                {/* Vibe Code Badge (top-right) */}
                 {vibeCode && (
                     <span
-                        className="badge-vibe"
                         style={{
                             position: "absolute",
                             top: "0.75rem",
