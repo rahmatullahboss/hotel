@@ -192,31 +192,30 @@ export default function BookingDetailsScreen() {
                 />
 
                 <View className="p-5 -mt-6">
-                    {/* Hotel Info Card */}
                     <View className="bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-lg mb-4">
                         <View className="flex-row items-start justify-between mb-3">
                             <View className="flex-1 mr-3">
-                                <Text className="text-xl font-bold text-gray-900 dark:text-white mb-1">
+                                <Text className="text-xl font-bold text-gray-900 dark:text-white mb-1" numberOfLines={2}>
                                     {booking.hotelName}
                                 </Text>
                                 {booking.hotelLocation && (
                                     <View className="flex-row items-center gap-1">
                                         <FontAwesome name="map-marker" size={12} color="#9CA3AF" />
-                                        <Text className="text-sm text-gray-500 dark:text-gray-400">
+                                        <Text className="text-sm text-gray-500 dark:text-gray-400 flex-1" numberOfLines={2}>
                                             {booking.hotelLocation}
                                         </Text>
                                     </View>
                                 )}
                             </View>
-                            <View className={`flex-row items-center px-3 py-1.5 rounded-lg gap-1.5 ${status.bgClass}`}>
+                            <View className={`flex-row items-center px-3 py-1.5 rounded-lg gap-1.5 flex-shrink max-w-[40%] ${status.bgClass}`}>
                                 <FontAwesome name={status.icon} size={12} color={status.color} />
-                                <Text className={`text-xs font-bold ${status.textClass}`}>
+                                <Text className={`text-xs font-bold flex-shrink ${status.textClass}`} numberOfLines={1}>
                                     {t(`bookings.status.${booking.status.toLowerCase()}`)}
                                 </Text>
                             </View>
                         </View>
 
-                        <Text className="text-base text-gray-600 dark:text-gray-300 mb-2">{roomName}</Text>
+                        <Text className="text-base text-gray-600 dark:text-gray-300 mb-2" numberOfLines={1}>{roomName}</Text>
 
                         {/* Dates */}
                         <View className="flex-row items-center bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4 mt-2">

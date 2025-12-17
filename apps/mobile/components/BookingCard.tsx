@@ -184,9 +184,9 @@ export default function BookingCard({ booking }: BookingCardProps) {
                                     )}
                                 </View>
                                 {/* Status Badge */}
-                                <View className={`flex-row items-center px-2.5 py-1.5 rounded-lg gap-1.5 ${status.bgClass}`}>
+                                <View className={`flex-row items-center px-2.5 py-1.5 rounded-lg gap-1.5 flex-shrink max-w-[40%] ${status.bgClass}`}>
                                     <FontAwesome name={status.icon} size={12} color={status.color} />
-                                    <Text className={`text-xs font-bold ${status.textClass}`}>
+                                    <Text className={`text-xs font-bold flex-shrink ${status.textClass}`} numberOfLines={1}>
                                         {t(`bookings.status.${booking.status.toLowerCase()}`)}
                                     </Text>
                                 </View>

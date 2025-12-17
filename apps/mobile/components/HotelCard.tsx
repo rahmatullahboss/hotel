@@ -132,11 +132,11 @@ export default function HotelCard({ hotel, index, distance }: HotelCardProps) {
 
                 {/* Price Section */}
                 <View className="flex-row items-center justify-between">
-                    <View>
+                    <View className="flex-1 flex-shrink mr-3">
                         <Text className="text-xs text-gray-400 dark:text-gray-500 mb-0.5">
                             {t('home.startingFrom')}
                         </Text>
-                        <Text className="text-xl font-bold text-primary">
+                        <Text className="text-xl font-bold text-primary" numberOfLines={1}>
                             {t('common.currency')}{formatPrice(hotel.lowestPrice || 0)}
                             <Text className="text-sm font-normal text-gray-500 dark:text-gray-400">
                                 {' '}{t('common.perNight', '/night')}

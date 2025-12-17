@@ -44,12 +44,12 @@ export default function CityCard({ name, image, hotels, onPress }: CityCardProps
 
                         {/* Content */}
                         <View className="p-3">
-                            <Text className="text-white text-base font-bold">
+                            <Text className="text-white text-base font-bold" numberOfLines={1}>
                                 {name}
                             </Text>
                             <View className="flex-row items-center gap-1">
                                 <FontAwesome name="building-o" size={10} color="rgba(255,255,255,0.8)" />
-                                <Text className="text-white/80 text-xs">
+                                <Text className="text-white/80 text-xs" numberOfLines={1}>
                                     {hotels} {t('search.hotels')}
                                 </Text>
                             </View>
@@ -58,10 +58,10 @@ export default function CityCard({ name, image, hotels, onPress }: CityCardProps
                 ) : (
                     <View className="flex-1 bg-gray-100 dark:bg-gray-800 justify-center items-center p-4">
                         <Text className="text-4xl mb-2">{image}</Text>
-                        <Text className="text-sm font-semibold text-gray-900 dark:text-white">
+                        <Text className="text-sm font-semibold text-gray-900 dark:text-white" numberOfLines={1}>
                             {name}
                         </Text>
-                        <Text className="text-xs text-gray-500 dark:text-gray-400">
+                        <Text className="text-xs text-gray-500 dark:text-gray-400" numberOfLines={1}>
                             {hotels} {t('search.hotels')}
                         </Text>
                     </View>

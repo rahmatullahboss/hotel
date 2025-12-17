@@ -55,24 +55,24 @@ export default function ReviewCard({ review, showBreakdown = false }: ReviewCard
                     )}
                 </View>
                 <View className="flex-1">
-                    <Text className={`font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                    <Text className={`font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`} numberOfLines={1}>
                         {review.userName}
                     </Text>
-                    <Text className="text-xs text-gray-400">{formatDate(review.createdAt)}</Text>
+                    <Text className="text-xs text-gray-400" numberOfLines={1}>{formatDate(review.createdAt)}</Text>
                 </View>
                 <StarRating rating={review.rating} size={14} />
             </View>
 
             {/* Title */}
             {review.title && (
-                <Text className={`font-semibold mb-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                <Text className={`font-semibold mb-2 ${isDark ? 'text-white' : 'text-gray-900'}`} numberOfLines={2}>
                     {review.title}
                 </Text>
             )}
 
             {/* Content */}
             {review.content && (
-                <Text className={`text-sm mb-3 ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
+                <Text className={`text-sm mb-3 ${isDark ? 'text-gray-300' : 'text-gray-600'}`} numberOfLines={4}>
                     {review.content}
                 </Text>
             )}
@@ -113,7 +113,7 @@ export default function ReviewCard({ review, showBreakdown = false }: ReviewCard
                     <Text className="text-xs font-semibold text-primary mb-1">
                         {t('reviews.hotelResponse', 'Hotel Response')}
                     </Text>
-                    <Text className={`text-sm ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
+                    <Text className={`text-sm ${isDark ? 'text-gray-300' : 'text-gray-600'}`} numberOfLines={3}>
                         {review.hotelResponse}
                     </Text>
                 </View>
