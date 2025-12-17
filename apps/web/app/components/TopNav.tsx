@@ -14,7 +14,7 @@ export function TopNav() {
     return (
         <nav className="top-nav">
             <Link href="/" className="top-nav-logo">
-                Vibe
+                ZinoRooms
             </Link>
 
             <div className="top-nav-links">

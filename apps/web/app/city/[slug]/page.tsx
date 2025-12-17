@@ -118,7 +118,7 @@ export default async function CityPage({ params }: CityPageProps) {
                                     imageUrl={hotel.imageUrl}
                                     amenities={hotel.amenities}
                                     payAtHotel={hotel.payAtHotel}
-                                    vibeCode={hotel.vibeCode}
+                                    zinoCode={hotel.zinoCode}
                                     category={hotel.category}
                                 />
                             ))}

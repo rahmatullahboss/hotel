@@ -29,7 +29,7 @@ export function DesktopHeader() {
                 {/* Logo */}
                 <Link href="/" className="desktop-header-logo">
                     <span className="logo-icon"><FaHotel size={24} /></span>
-                    <span className="logo-text">Vibe Hotels</span>
+                    <span className="logo-text">ZinoRooms</span>
                 </Link>
 
                 {/* Navigation */}

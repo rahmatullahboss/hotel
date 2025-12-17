@@ -6,8 +6,8 @@ import { SessionProvider } from "next-auth/react";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Vibe Admin",
-  description: "Admin Dashboard for Vibe Hospitality Network",
+  title: "ZinoRooms Admin",
+  description: "Admin Dashboard for ZinoRooms Network",
 };
 
 export default function RootLayout({

@@ -22,7 +22,7 @@ function ErrorContent() {
             <div className="container" style={{ maxWidth: "400px", margin: "0 auto" }}>
                 <div style={{ textAlign: "center", marginBottom: "2rem" }}>
                     <h1 style={{ fontSize: "2rem", fontWeight: 800, color: "var(--color-primary)" }}>
-                        Vibe Manager
+                        ZinoRooms Manager
                     </h1>
                 </div>
 

@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "Vibe Hospitality",
-    "slug": "vibe-hospitality",
+    "name": "ZinoRooms",
+    "slug": "zinorooms",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "vibehospitality",
+    "scheme": "zinorooms",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "splash": {
@@ -15,13 +15,13 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.vibehospitality.app",
+      "bundleIdentifier": "com.zinorooms.app",
       "infoPlist": {
-        "NSCameraUsageDescription": "Allow Vibe Hospitality to access your camera for QR code scanning and ID verification.",
-        "NSPhotoLibraryUsageDescription": "Allow Vibe Hospitality to access your photos for uploading profile pictures.",
-        "NSMicrophoneUsageDescription": "Allow Vibe Hospitality to access your microphone.",
-        "NSCalendarsUsageDescription": "Allow Vibe Hospitality to add your bookings to your calendar.",
-        "NSContactsUsageDescription": "Allow Vibe Hospitality to access your contacts for referral invitations."
+        "NSCameraUsageDescription": "Allow ZinoRooms to access your camera for QR code scanning and ID verification.",
+        "NSPhotoLibraryUsageDescription": "Allow ZinoRooms to access your photos for uploading profile pictures.",
+        "NSMicrophoneUsageDescription": "Allow ZinoRooms to access your microphone.",
+        "NSCalendarsUsageDescription": "Allow ZinoRooms to add your bookings to your calendar.",
+        "NSContactsUsageDescription": "Allow ZinoRooms to access your contacts for referral invitations."
       }
     },
     "android": {
@@ -31,7 +31,7 @@
       },
       "edgeToEdgeEnabled": true,
       "navigationBarColor": "#FFFFFF",
-      "package": "com.vibehospitality.app",
+      "package": "com.zinorooms.app",
       "permissions": [
         "CAMERA",
         "READ_EXTERNAL_STORAGE",
@@ -56,9 +56,9 @@
       [
         "expo-location",
         {
-          "locationAlwaysAndWhenInUsePermission": "Allow Vibe Hospitality to use your location to find nearby hotels.",
-          "locationAlwaysPermission": "Allow Vibe Hospitality to use your location to find nearby hotels.",
-          "locationWhenInUsePermission": "Allow Vibe Hospitality to use your location to find nearby hotels."
+          "locationAlwaysAndWhenInUsePermission": "Allow ZinoRooms to use your location to find nearby hotels.",
+          "locationAlwaysPermission": "Allow ZinoRooms to use your location to find nearby hotels.",
+          "locationWhenInUsePermission": "Allow ZinoRooms to use your location to find nearby hotels."
         }
       ],
       [
@@ -70,15 +70,15 @@
       [
         "expo-camera",
         {
-          "cameraPermission": "Allow Vibe Hospitality to access your camera for QR code scanning and ID verification.",
-          "microphonePermission": "Allow Vibe Hospitality to access your microphone."
+          "cameraPermission": "Allow ZinoRooms to access your camera for QR code scanning and ID verification.",
+          "microphonePermission": "Allow ZinoRooms to access your microphone."
         }
       ],
       [
         "expo-image-picker",
         {
-          "photosPermission": "Allow Vibe Hospitality to access your photos for uploading profile pictures and ID documents.",
-          "cameraPermission": "Allow Vibe Hospitality to take photos for profile pictures and ID verification."
+          "photosPermission": "Allow ZinoRooms to access your photos for uploading profile pictures and ID documents.",
+          "cameraPermission": "Allow ZinoRooms to take photos for profile pictures and ID verification."
         }
       ],
       [
@@ -91,7 +91,7 @@
       [
         "expo-calendar",
         {
-          "calendarPermission": "Allow Vibe Hospitality to add your bookings to your calendar."
+          "calendarPermission": "Allow ZinoRooms to add your bookings to your calendar."
         }
       ]
     ],

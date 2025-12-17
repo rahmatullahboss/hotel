@@ -6,7 +6,7 @@ import { useTranslations } from "next-intl";
 // Category type matching DB schema
 type HotelCategory = "CLASSIC" | "PREMIUM" | "BUSINESS";
 
-// Category badge colors (matching vibeBranding utility)
+// Category badge colors (matching zinoBranding utility)
 const getCategoryColor = (category: string | null | undefined): string => {
     switch (category) {
         case "PREMIUM":
@@ -43,7 +43,7 @@ interface HotelCardProps {
     imageUrl: string;
     amenities: string[];
     payAtHotel?: boolean;
-    vibeCode?: string | null;
+    zinoCode?: string | null;
     category?: string | null;
 }
 
@@ -57,14 +57,14 @@ export function HotelCard({
     imageUrl,
     amenities,
     payAtHotel = false,
-    vibeCode,
+    zinoCode,
     category,
 }: HotelCardProps) {
     const t = useTranslations("hotel");
     const tCommon = useTranslations("common");
 
-    // Show "Vibe Hotel Name" (brand prefix), vibeCode number shown as badge
-    const displayName = vibeCode ? `Vibe ${name}` : name;
+    // Show "Zino Hotel Name" (brand prefix), zinoCode number shown as badge
+    const displayName = zinoCode ? `Zino ${name}` : name;
     const categoryLabel = getCategoryLabel(category);
     const categoryColor = getCategoryColor(category);
 
@@ -96,8 +96,8 @@ export function HotelCard({
                         {categoryLabel}
                     </span>
                 )}
-                {/* Vibe Code Badge (top-right) */}
-                {vibeCode && (
+                {/* Zino Code Badge (top-right) */}
+                {zinoCode && (
                     <span
                         style={{
                             position: "absolute",
@@ -111,7 +111,7 @@ export function HotelCard({
                             fontWeight: "600",
                         }}
                     >
-                        {vibeCode}
+                        {zinoCode}
                     </span>
                 )}
             </div>

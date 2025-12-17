@@ -5,7 +5,7 @@ import { hotels, users } from "@repo/db/schema";
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { auth } from "../../auth";
-import { generateVibeCode } from "@repo/db/utils/vibeBranding";
+import { generateZinoCode } from "@repo/db/utils/zinoBranding";
 
 export interface HotelRegistrationInput {
     name: string;
@@ -24,7 +24,7 @@ export interface HotelRegistrationInput {
  */
 export async function submitHotelRegistration(
     input: HotelRegistrationInput
-): Promise<{ success: boolean; hotelId?: string; vibeCode?: string; error?: string }> {
+): Promise<{ success: boolean; hotelId?: string; zinoCode?: string; error?: string }> {
     try {
         const session = await auth();
         if (!session?.user?.id) {
@@ -42,23 +42,23 @@ export async function submitHotelRegistration(
             return { success: false, error: "You already have a hotel registered" };
         }
 
-        // Get all existing vibe codes to generate a unique one
+        // Get all existing zino codes to generate a unique one
         const existingCodes = await db
-            .select({ vibeCode: hotels.vibeCode })
+            .select({ zinoCode: hotels.zinoCode })
             .from(hotels);
         const codes = existingCodes
-            .map((h: typeof existingCodes[number]) => h.vibeCode)
+            .map((h: typeof existingCodes[number]) => h.zinoCode)
             .filter((code: string | null): code is string => code !== null);
 
-        const vibeCode = generateVibeCode(codes);
+        const zinoCode = generateZinoCode(codes);
 
-        // Create hotel with PENDING status and auto-generated vibeCode
+        // Create hotel with PENDING status and auto-generated zinoCode
         const [newHotel] = await db
             .insert(hotels)
             .values({
                 ownerId: userId,
                 name: input.name,
-                vibeCode: vibeCode,
+                zinoCode: zinoCode,
                 category: "CLASSIC", // Default category, can be updated later
                 description: input.description,
                 address: input.address,
@@ -68,7 +68,7 @@ export async function submitHotelRegistration(
                 longitude: input.longitude?.toString(),
                 status: "PENDING",
             })
-            .returning({ id: hotels.id, vibeCode: hotels.vibeCode });
+            .returning({ id: hotels.id, zinoCode: hotels.zinoCode });
 
         if (!newHotel) {
             return { success: false, error: "Failed to create hotel" };
@@ -84,7 +84,7 @@ export async function submitHotelRegistration(
         return {
             success: true,
             hotelId: newHotel.id,
-            vibeCode: newHotel.vibeCode || vibeCode
+            zinoCode: newHotel.zinoCode || zinoCode
         };
     } catch (error) {
         console.error("Error submitting hotel registration:", error);

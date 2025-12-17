@@ -1,6 +1,6 @@
 {
     "common": {
-        "appName": "Vibe Hotels",
+        "appName": "ZinoRooms",
         "loading": "Loading...",
         "loadingMap": "Loading map...",
         "loadingHotels": "Loading hotels...",
@@ -49,7 +49,7 @@
         "heroSubtitle": "Book verified hotels at the best prices in Bangladesh",
         "featuredHotels": "Featured Hotels",
         "noHotels": "No hotels available at the moment. Check back soon!",
-        "whyBook": "Why Book with Vibe?",
+        "whyBook": "Why Book with ZinoRooms?",
         "verifiedProperties": "Verified Properties",
         "verifiedDesc": "All hotels personally inspected for quality",
         "bestPrices": "Best Prices",
@@ -113,7 +113,7 @@
         "payAtHotel": "Pay at Hotel",
         "sections": {
             "amenities": "Amenities",
-            "aboutVibe": "About this Vibe",
+            "aboutZino": "About this Zino",
             "chooseRoom": "Choose your room",
             "ratingsReviews": "Ratings and Reviews",
             "hotelRules": "Hotel Rules",
@@ -124,7 +124,7 @@
             "support24x7": "24/7 Support",
             "freeWifi": "Free WiFi",
             "secureBooking": "Secure Booking",
-            "verified": "Vibe Verified"
+            "verified": "Zino Verified"
         },
         "ratings": {
             "title": "Ratings and reviews",
@@ -157,7 +157,7 @@
             "totalPrice": "Total price",
             "includingTaxes": "Including taxes & fees",
             "continueToBook": "Continue to Book",
-            "bookedCount": "{count}+ people booked this Vibe in last 6 months",
+            "bookedCount": "{count}+ people booked this Zino in last 6 months",
             "cancellationPolicy": "Cancellation Policy",
             "safetyMeasures": "Follow safety measures advised at the hotel",
             "agreeToTerms": "By proceeding, you agree to our",
@@ -367,7 +367,7 @@
         "partners": "For Partners",
         "terms": "Terms of Service",
         "privacy": "Privacy Policy",
-        "copyright": "© {year} Vibe Hotels. All rights reserved."
+        "copyright": "© {year} ZinoRooms. All rights reserved."
     },
     "auth": {
         "title": "Sign In",
@@ -476,8 +476,8 @@
         "copy": "Copy",
         "share": "Share",
         "shareHint": "Share your code with friends to earn ৳100 for each successful booking",
-        "shareTitle": "Join Vibe Hotels",
-        "shareMessage": "Use my referral code {code} when you sign up on Vibe Hotels and get ৳50 off your first booking!",
+        "shareTitle": "Join ZinoRooms",
+        "shareMessage": "Use my referral code {code} when you sign up on ZinoRooms and get ৳50 off your first booking!",
         "totalReferrals": "Total Referrals",
         "pending": "Pending",
         "earned": "Earned",

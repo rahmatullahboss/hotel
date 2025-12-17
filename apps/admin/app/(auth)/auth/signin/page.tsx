@@ -27,7 +27,7 @@ function SignInContent() {
         <div className="card" style={{ padding: "2.5rem", width: "100%", maxWidth: "420px" }}>
             <div style={{ textAlign: "center", marginBottom: "2rem" }}>
                 <h1 style={{ fontSize: "2rem", fontWeight: 800, color: "var(--color-primary)", marginBottom: "0.5rem" }}>
-                    Vibe Admin
+                    ZinoRooms Admin
                 </h1>
                 <p style={{ color: "var(--color-text-secondary)" }}>
                     Secure access for administrators
@@ -88,7 +88,7 @@ function SignInContent() {
                     <input
                         type="email"
                         className="form-input"
-                        placeholder="admin@vibe.com"
+                        placeholder="admin@zinorooms.com"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                     />

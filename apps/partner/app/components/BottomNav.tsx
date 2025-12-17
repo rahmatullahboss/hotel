@@ -109,7 +109,7 @@ export function BottomNav({ role = "OWNER" }: BottomNavProps) {
     return (
         <nav className="bottom-nav">
             {/* Logo for desktop sidebar */}
-            <div className="nav-logo">Vibe Manager</div>
+            <div className="nav-logo">ZinoRooms Manager</div>
 
             {navItems.map(({ href, labelKey, Icon }) => {
                 const isActive = pathname === href;

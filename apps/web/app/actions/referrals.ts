@@ -20,10 +20,10 @@ import { revalidatePath } from "next/cache";
  */
 function generateReferralCode(userName: string): string {
     // Use first part of name + random alphanumeric
-    const namePart = (userName || "VIBE")
+    const namePart = (userName || "ZINO")
         .split(" ")[0]
         ?.toUpperCase()
-        .slice(0, 4) || "VIBE";
+        .slice(0, 4) || "ZINO";
     const randomPart = Math.random().toString(36).substring(2, 6).toUpperCase();
     return `${namePart}-${randomPart}`;
 }

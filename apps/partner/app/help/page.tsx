@@ -77,7 +77,7 @@ export default async function HelpPage() {
                         </div>
                     </a>
                     <a
-                        href="mailto:partners@vibehotels.com"
+                        href="mailto:partners@zinorooms.com"
                         className="card"
                         style={{
                             padding: "1.25rem",

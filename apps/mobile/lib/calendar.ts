@@ -43,16 +43,16 @@ async function getDefaultCalendarId(): Promise<string | null> {
     // Create a new calendar if none available (Android)
     if (Platform.OS === 'android') {
         const newCalendarId = await Calendar.createCalendarAsync({
-            title: 'Vibe Hotels',
+            title: 'ZinoRooms',
             color: '#E63946',
             entityType: Calendar.EntityTypes.EVENT,
             source: {
                 isLocalAccount: true,
-                name: 'Vibe Hotels',
+                name: 'ZinoRooms',
                 type: Calendar.SourceType.LOCAL,
             },
-            name: 'Vibe Hotels',
-            ownerAccount: 'Vibe Hotels',
+            name: 'ZinoRooms',
+            ownerAccount: 'ZinoRooms',
             accessLevel: Calendar.CalendarAccessLevel.OWNER,
         });
         return newCalendarId;

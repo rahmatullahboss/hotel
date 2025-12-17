@@ -25,7 +25,7 @@ export function HotelHighlights({ payAtHotelEnabled, isVerified }: HotelHighligh
             {isVerified && (
                 <div className="highlight-badge verified">
                     <MdVerified size={18} />
-                    <span>Vibe Verified</span>
+                    <span>Zino Verified</span>
                 </div>
             )}
 

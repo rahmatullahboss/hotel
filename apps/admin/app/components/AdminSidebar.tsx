@@ -79,7 +79,7 @@ export function AdminSidebar({ isOpen = false, onClose }: AdminSidebarProps) {
                 </nav>
 
                 <div className="sidebar-footer">
-                    <div className="sidebar-version">Vibe Admin v1.0.0</div>
+                    <div className="sidebar-version">ZinoRooms Admin v1.0.0</div>
                 </div>
             </aside>
         </>

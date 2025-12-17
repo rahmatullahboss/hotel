@@ -15,7 +15,7 @@ interface ShareBookingParams {
     checkOut: string;
 }
 
-const APP_URL_BASE = 'https://vibehospitality.com';
+const APP_URL_BASE = 'https://zinorooms.com';
 
 /**
  * Share hotel with others via native share dialog
