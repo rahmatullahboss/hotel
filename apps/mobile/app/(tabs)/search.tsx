@@ -344,10 +344,15 @@ export default function SearchScreen() {
                                     size={14}
                                     color={activeFilter === filter.id ? '#fff' : filter.color}
                                 />
-                                <Text className={`text-sm font-semibold ${activeFilter === filter.id
-                                    ? 'text-white'
-                                    : 'text-gray-700 dark:text-gray-300'
-                                    }`}>
+                                <Text
+                                    className={`text-sm font-semibold flex-shrink ${activeFilter === filter.id
+                                        ? 'text-white'
+                                        : 'text-gray-700 dark:text-gray-300'
+                                        }`}
+                                    numberOfLines={1}
+                                    ellipsizeMode="tail"
+                                    style={{ includeFontPadding: false }}
+                                >
                                     {filter.label}
                                 </Text>
                             </TouchableOpacity>

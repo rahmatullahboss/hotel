@@ -127,10 +127,13 @@ export default function AllHotelsScreen() {
                             color={activeFilter === filter.id ? '#fff' : (filter.color || '#6B7280')}
                         />
                         <Text
-                            className={`text-sm font-semibold ${activeFilter === filter.id
+                            className={`text-sm font-semibold flex-shrink ${activeFilter === filter.id
                                 ? 'text-white'
                                 : 'text-gray-700 dark:text-gray-300'
                                 }`}
+                            numberOfLines={1}
+                            ellipsizeMode="tail"
+                            style={{ includeFontPadding: false }}
                         >
                             {t(filter.labelKey)}
                         </Text>
@@ -144,17 +147,19 @@ export default function AllHotelsScreen() {
                 {SORT_KEYS.map((option) => (
                     <TouchableOpacity
                         key={option.id}
-                        className={`px-4 py-2 rounded-full ${sortBy === option.id
+                        className={`flex-row items-center px-3 py-1.5 rounded-lg ${sortBy === option.id
                             ? 'bg-gray-800 dark:bg-gray-200'
                             : 'bg-gray-200 dark:bg-gray-700'
                             }`}
                         onPress={() => setSortBy(option.id)}
                     >
                         <Text
-                            className={`text-sm font-medium ${sortBy === option.id
+                            className={`text-sm font-medium flex-shrink ${sortBy === option.id
                                 ? 'text-white dark:text-gray-900'
                                 : 'text-gray-600 dark:text-gray-300'
                                 }`}
+                            numberOfLines={1}
+                            ellipsizeMode="tail"
                             style={{ includeFontPadding: false }}
                         >
                             {t(option.labelKey)}
