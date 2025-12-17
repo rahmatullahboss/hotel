@@ -4,6 +4,7 @@ import * as Device from 'expo-device';
 import * as Notifications from 'expo-notifications';
 import Constants from 'expo-constants';
 import api, { getToken } from '../lib/api';
+import { devLog, devWarn, devError } from '../lib/logger';
 
 // Configure notification handler for foreground notifications
 Notifications.setNotificationHandler({
@@ -103,7 +104,7 @@ export function usePushNotifications() {
                 // Register token with backend
                 const { error } = await api.registerPushToken(token, Platform.OS as 'ios' | 'android');
                 if (error) {
-                    console.warn('Failed to register push token with server:', error);
+                    devWarn('Failed to register push token with server:', error);
                 }
             }
 
@@ -137,7 +138,7 @@ export function usePushNotifications() {
                     isRegistered: false,
                 }));
             } catch (error) {
-                console.error('Failed to unregister push token:', error);
+                devError('Failed to unregister push token:', error);
             }
         }
     }, [state.expoPushToken]);
@@ -153,7 +154,7 @@ export function usePushNotifications() {
         responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
             const data = response.notification.request.content.data;
             // Handle notification tap - you can add navigation logic here
-            console.log('Notification tapped:', data);
+            devLog('Notification tapped:', data);
         });
 
         return () => {

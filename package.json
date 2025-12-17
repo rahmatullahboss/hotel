@@ -1,5 +1,5 @@
 {
-  "name": "vibe-hospitality",
+  "name": "zinorooms",
   "private": true,
   "scripts": {
     "build": "turbo run build",

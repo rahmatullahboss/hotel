@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Alert } from 'react-native';
 import api from '@/lib/api';
+import { devLog, devError } from '@/lib/logger';
 
 interface Hotel {
     id: string;
@@ -133,28 +134,28 @@ export function useBooking(hotelId: string | undefined, options?: UseBookingOpti
 
         try {
             if (isSaved) {
-                console.log('Attempting to unsave hotel:', hotelId);
+                devLog('Attempting to unsave hotel:', hotelId);
                 const result = await api.unsaveHotel(hotelId);
-                console.log('Unsave result:', result);
+                devLog('Unsave result:', result);
                 if (result.error) {
-                    console.error('Unsave error:', result.error);
+                    devError('Unsave error:', result.error);
                     Alert.alert('Error', result.error);
                 } else {
                     setIsSaved(false);
                 }
             } else {
-                console.log('Attempting to save hotel:', hotelId);
+                devLog('Attempting to save hotel:', hotelId);
                 const result = await api.saveHotel(hotelId);
-                console.log('Save result:', result);
+                devLog('Save result:', result);
                 if (result.error) {
-                    console.error('Save error:', result.error);
+                    devError('Save error:', result.error);
                     Alert.alert('Error', result.error);
                 } else {
                     setIsSaved(true);
                 }
             }
         } catch (err) {
-            console.error('Toggle save error:', err);
+            devError('Toggle save error:', err);
             Alert.alert('Error', 'কিছু ভুল হয়েছে');
         }
 

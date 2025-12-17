@@ -18,6 +18,7 @@ import { BookingDatesProvider } from '@/contexts/BookingDatesContext';
 import Colors from '@/constants/Colors';
 import { initI18n } from '@/i18n';
 import api, { getToken } from '@/lib/api';
+import { devLog, devWarn, devError } from '@/lib/logger';
 
 // Configure notification handler for foreground notifications
 Notifications.setNotificationHandler({
@@ -112,76 +113,76 @@ function RootLayoutNav() {
   useEffect(() => {
     const initPushNotifications = async () => {
       try {
-        console.log('🔔 Starting push notification initialization...');
+        devLog('🔔 Starting push notification initialization...');
 
         // Check if user is authenticated
         const token = await getToken();
         if (!token) {
-          console.log('🔔 User not authenticated, skipping push setup');
+          devLog('🔔 User not authenticated, skipping push setup');
           return;
         }
-        console.log('🔔 User authenticated');
+        devLog('🔔 User authenticated');
 
         // Check if running on physical device
         if (!Device.isDevice) {
-          console.log('🔔 Push notifications require a physical device');
+          devLog('🔔 Push notifications require a physical device');
           return;
         }
-        console.log('🔔 Running on physical device');
+        devLog('🔔 Running on physical device');
 
         // Check/request permissions
         const { status: existingStatus } = await Notifications.getPermissionsAsync();
-        console.log('🔔 Existing permission status:', existingStatus);
+        devLog('🔔 Existing permission status:', existingStatus);
         let finalStatus = existingStatus;
 
         if (existingStatus !== 'granted') {
-          console.log('🔔 Requesting permission...');
+          devLog('🔔 Requesting permission...');
           const { status } = await Notifications.requestPermissionsAsync();
           finalStatus = status;
-          console.log('🔔 New permission status:', finalStatus);
+          devLog('🔔 New permission status:', finalStatus);
         }
 
         if (finalStatus !== 'granted') {
-          console.log('🔔 Push notification permission not granted');
+          devLog('🔔 Push notification permission not granted');
           return;
         }
-        console.log('🔔 Permission granted!');
+        devLog('🔔 Permission granted!');
 
         // Set up Android notification channel
         if (Platform.OS === 'android') {
-          console.log('🔔 Setting up Android notification channel...');
+          devLog('🔔 Setting up Android notification channel...');
           await Notifications.setNotificationChannelAsync('default', {
             name: 'Default',
             importance: Notifications.AndroidImportance.MAX,
             vibrationPattern: [0, 250, 250, 250],
             lightColor: '#E63946',
           });
-          console.log('🔔 Android notification channel created');
+          devLog('🔔 Android notification channel created');
         }
 
         // Get Expo push token
         const projectId = Constants.expoConfig?.extra?.eas?.projectId;
-        console.log('🔔 Project ID:', projectId);
+        devLog('🔔 Project ID:', projectId);
         if (!projectId) {
-          console.log('🔔 Project ID not found in app configuration');
+          devWarn('🔔 Project ID not found in app configuration');
           return;
         }
 
-        console.log('🔔 Getting Expo push token...');
+        devLog('🔔 Getting Expo push token...');
         const tokenData = await Notifications.getExpoPushTokenAsync({ projectId });
         const expoPushToken = tokenData.data;
-        console.log('🔔 Expo Push Token:', expoPushToken);
+        devLog('🔔 Expo Push Token obtained');
 
         // Register token with backend
-        console.log('🔔 Registering push token with backend...');
+        devLog('🔔 Registering push token with backend...');
         const { error } = await api.registerPushToken(expoPushToken, Platform.OS as 'ios' | 'android');
         if (error) {
-          console.warn('🔔 Failed to register push token:', error);
+          devWarn('🔔 Failed to register push token:', error);
         } else {
-          console.log('🔔 Push token registered successfully!');
+          devLog('🔔 Push token registered successfully!');
         }
       } catch (error) {
-        console.error('🔔 Error initializing push notifications:', error);
+        devError('🔔 Error initializing push notifications:', error);
       }
     };
 

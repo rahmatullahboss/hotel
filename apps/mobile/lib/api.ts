@@ -1,9 +1,21 @@
 import * as SecureStore from 'expo-secure-store';
+import { devLog, devError, devWarn } from './logger';
 
-// Configure your API base URL
-// In development, use your computer's IP address (not localhost)
-// For production, use your Vercel deployment URL
-const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:3000';
+// API Configuration
+const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL;
+
+// Validate API URL at startup (fail fast in development)
+if (!API_BASE_URL) {
+    const errorMessage = 'EXPO_PUBLIC_API_URL environment variable is required. Check your .env file.';
+    devError(errorMessage);
+    // In production, this will throw and crash the app - which is intentional
+    // We don't want the app to run without a valid API URL
+    throw new Error(errorMessage);
+}
+
+// Request configuration
+const REQUEST_TIMEOUT_MS = 15000; // 15 seconds
+const MAX_RETRIES = 2;
 
 // Token storage keys
 const TOKEN_KEY = 'auth_token';
@@ -13,16 +25,28 @@ export async function getToken(): Promise<string | null> {
     try {
         return await SecureStore.getItemAsync(TOKEN_KEY);
     } catch {
+        devWarn('Failed to retrieve auth token from secure store');
         return null;
     }
 }
 
 export async function setToken(token: string): Promise<void> {
-    await SecureStore.setItemAsync(TOKEN_KEY, token);
+    try {
+        await SecureStore.setItemAsync(TOKEN_KEY, token);
+        devLog('Auth token stored securely');
+    } catch (error) {
+        devError('Failed to store auth token:', error);
+        throw new Error('Failed to save authentication. Please try again.');
+    }
 }
 
 export async function removeToken(): Promise<void> {
-    await SecureStore.deleteItemAsync(TOKEN_KEY);
+    try {
+        await SecureStore.deleteItemAsync(TOKEN_KEY);
+        devLog('Auth token removed');
+    } catch (error) {
+        devError('Failed to remove auth token:', error);
+    }
 }
 
 // API request helper
@@ -31,11 +55,26 @@ interface ApiResponse<T> {
     error?: string;
 }
 
+/**
+ * Create an AbortController with timeout
+ */
+function createTimeoutController(timeoutMs: number): { controller: AbortController; timeoutId: ReturnType<typeof setTimeout> } {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+    return { controller, timeoutId };
+}
+
+/**
+ * Make an API request with timeout and optional retry
+ */
 async function apiRequest<T>(
     endpoint: string,
     options: RequestInit = {},
-    authToken?: string
+    authToken?: string,
+    retryCount = 0
 ): Promise<ApiResponse<T>> {
+    const { controller, timeoutId } = createTimeoutController(REQUEST_TIMEOUT_MS);
+
     try {
         const token = authToken || await getToken();
 
@@ -48,17 +87,43 @@ async function apiRequest<T>(
         const response = await fetch(`${API_BASE_URL}${endpoint}`, {
             ...options,
             headers,
+            signal: controller.signal,
         });
+
+        clearTimeout(timeoutId);
 
         if (!response.ok) {
             const errorData = await response.json().catch(() => ({}));
-            return { error: errorData.error || `HTTP ${response.status}` };
+            const errorMessage = errorData.error || errorData.message || `HTTP ${response.status}`;
+            devError(`API Error [${endpoint}]:`, errorMessage);
+            return { error: errorMessage };
         }
 
         const data = await response.json();
         return { data };
     } catch (error) {
-        return { error: error instanceof Error ? error.message : 'Network error' };
+        clearTimeout(timeoutId);
+
+        // Handle abort (timeout)
+        if (error instanceof Error && error.name === 'AbortError') {
+            devError(`API Timeout [${endpoint}]: Request exceeded ${REQUEST_TIMEOUT_MS}ms`);
+            return { error: 'Request timed out. Please check your connection and try again.' };
+        }
+
+        // Handle network errors with retry
+        if (error instanceof TypeError && error.message === 'Network request failed') {
+            if (retryCount < MAX_RETRIES) {
+                devWarn(`API Retry [${endpoint}]: Attempt ${retryCount + 1} of ${MAX_RETRIES}`);
+                // Exponential backoff: 1s, 2s
+                await new Promise(resolve => setTimeout(resolve, 1000 * (retryCount + 1)));
+                return apiRequest<T>(endpoint, options, authToken, retryCount + 1);
+            }
+            devError(`API Network Error [${endpoint}]: Failed after ${MAX_RETRIES} retries`);
+            return { error: 'Network error. Please check your internet connection.' };
+        }
+
+        devError(`API Error [${endpoint}]:`, error);
+        return { error: error instanceof Error ? error.message : 'An unexpected error occurred' };
     }
 }
 

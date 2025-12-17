@@ -17,6 +17,10 @@
         "./utils/vibeBranding": {
             "types": "./src/utils/vibeBranding.ts",
             "default": "./src/utils/vibeBranding.ts"
+        },
+        "./utils/zinoBranding": {
+            "types": "./src/utils/zinoBranding.ts",
+            "default": "./src/utils/zinoBranding.ts"
         }
     },
     "scripts": {
