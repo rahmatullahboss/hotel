@@ -92,3 +92,17 @@ export function getZinuBrandColor(category?: "CLASSIC" | "PREMIUM" | "BUSINESS")
             return "#E63946"; // Default Zinu Red
     }
 }
+
+/**
+ * Suggests a category based on the lowest room price
+ */
+export function suggestCategory(price: number): "CLASSIC" | "PREMIUM" | "BUSINESS" {
+    if (price >= 8000) {
+        return "PREMIUM";
+    }
+    if (price <= 3000) {
+        return "CLASSIC";
+    }
+    // Mid-range defaults to CLASSIC for now per migration logic
+    return "CLASSIC";
+}
