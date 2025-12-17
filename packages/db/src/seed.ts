@@ -47,7 +47,7 @@ const DEMO_CITIES = [
         slug: "dhaka",
         description: "Discover the best hotels in Dhaka, Bangladesh's vibrant capital. From luxury stays in Gulshan to budget-friendly options in Dhanmondi, find your perfect accommodation.",
         descriptionBn: "ঢাকার সেরা হোটেলগুলো খুঁজুন। গুলশানে বিলাসবহুল থেকে ধানমন্ডিতে বাজেট-ফ্রেন্ডলি অপশন।",
-        metaTitle: "Hotels in Dhaka - Best Verified Hotels | Vibe Hotels",
+        metaTitle: "Hotels in Dhaka - Best Verified Hotels | ZinoRooms",
         metaDescription: "Book verified hotels in Dhaka with free cancellation. Pay at hotel option available. Best prices guaranteed.",
         latitude: "23.8103",
         longitude: "90.4125",
@@ -59,7 +59,7 @@ const DEMO_CITIES = [
         slug: "cox-bazar",
         description: "Experience the world's longest natural sea beach. Book hotels in Cox's Bazar for an unforgettable beach vacation with stunning ocean views.",
         descriptionBn: "বিশ্বের দীর্ঘতম প্রাকৃতিক সমুদ্র সৈকতে থাকার জন্য কক্সবাজারের হোটেল বুক করুন।",
-        metaTitle: "Hotels in Cox's Bazar - Beach Resorts & Hotels | Vibe Hotels",
+        metaTitle: "Hotels in Cox's Bazar - Beach Resorts & Hotels | ZinoRooms",
         metaDescription: "Book beach hotels and resorts in Cox's Bazar. Ocean view rooms, best prices, and free cancellation.",
         latitude: "21.4272",
         longitude: "92.0058",
@@ -71,7 +71,7 @@ const DEMO_CITIES = [
         slug: "chittagong",
         description: "Find the best hotels in Chittagong, Bangladesh's port city. Perfect for business travelers and tourists exploring the hill tracts.",
         descriptionBn: "চট্টগ্রামের সেরা হোটেল খুঁজুন। ব্যবসায়িক ভ্রমণকারী এবং পর্যটকদের জন্য আদর্শ।",
-        metaTitle: "Hotels in Chittagong - Business & Leisure Hotels | Vibe Hotels",
+        metaTitle: "Hotels in Chittagong - Business & Leisure Hotels | ZinoRooms",
         metaDescription: "Book verified hotels in Chittagong. Business hotels, hill view stays, and budget options available.",
         latitude: "22.3569",
         longitude: "91.7832",
@@ -83,7 +83,7 @@ const DEMO_CITIES = [
         slug: "sylhet",
         description: "Explore Sylhet's tea gardens and natural beauty. Book hotels near Ratargul, Jaflong, and the city center.",
         descriptionBn: "সিলেটের চা বাগান এবং প্রাকৃতিক সৌন্দর্য উপভোগ করুন। রাতারগুল, জাফলং এর কাছে হোটেল।",
-        metaTitle: "Hotels in Sylhet - Tea Garden Hotels | Vibe Hotels",
+        metaTitle: "Hotels in Sylhet - Tea Garden Hotels | ZinoRooms",
         metaDescription: "Book hotels in Sylhet near tea gardens and tourist spots. Best prices and verified properties.",
         latitude: "24.8949",
         longitude: "91.8687",
@@ -95,7 +95,7 @@ const DEMO_CITIES = [
         slug: "rajshahi",
         description: "Stay in Rajshahi, the city of education and mangoes. Hotels near Varendra Museum, Padma River, and university area.",
         descriptionBn: "শিক্ষা ও আমের শহর রাজশাহীতে থাকুন। বরেন্দ্র জাদুঘর এবং পদ্মা নদীর কাছে হোটেল।",
-        metaTitle: "Hotels in Rajshahi - Affordable Stays | Vibe Hotels",
+        metaTitle: "Hotels in Rajshahi - Affordable Stays | ZinoRooms",
         metaDescription: "Find affordable hotels in Rajshahi. Near university, Padma River, and tourist attractions.",
         latitude: "24.3745",
         longitude: "88.6042",
@@ -107,7 +107,7 @@ const DEMO_CITIES = [
         slug: "khulna",
         description: "Gateway to the Sundarbans. Book hotels in Khulna for your next adventure to the world's largest mangrove forest.",
         descriptionBn: "সুন্দরবনের প্রবেশদ্বার। বিশ্বের বৃহত্তম ম্যানগ্রোভ বনে অ্যাডভেঞ্চারের জন্য হোটেল বুক করুন।",
-        metaTitle: "Hotels in Khulna - Sundarbans Gateway | Vibe Hotels",
+        metaTitle: "Hotels in Khulna - Sundarbans Gateway | ZinoRooms",
         metaDescription: "Book hotels in Khulna near Sundarbans. Perfect base for mangrove forest tours.",
         latitude: "22.8456",
         longitude: "89.5403",
@@ -119,7 +119,7 @@ const DEMO_CITIES = [
         slug: "rangpur",
         description: "Discover Rangpur in northern Bangladesh. Hotels for business and leisure travelers exploring the region.",
         descriptionBn: "উত্তর বাংলাদেশের রংপুর আবিষ্কার করুন। ব্যবসা ও অবসর ভ্রমণকারীদের জন্য হোটেল।",
-        metaTitle: "Hotels in Rangpur - Northern Bangladesh | Vibe Hotels",
+        metaTitle: "Hotels in Rangpur - Northern Bangladesh | ZinoRooms",
         metaDescription: "Book verified hotels in Rangpur. Affordable stays in northern Bangladesh.",
         latitude: "25.7439",
         longitude: "89.2752",
@@ -131,7 +131,7 @@ const DEMO_CITIES = [
         slug: "mymensingh",
         description: "Stay in Mymensingh, home to Bangladesh Agricultural University. Hotels near the city center and university campus.",
         descriptionBn: "বাংলাদেশ কৃষি বিশ্ববিদ্যালয়ের শহর ময়মনসিংহে থাকুন।",
-        metaTitle: "Hotels in Mymensingh - University City | Vibe Hotels",
+        metaTitle: "Hotels in Mymensingh - University City | ZinoRooms",
         metaDescription: "Find hotels in Mymensingh near university and city center. Best prices guaranteed.",
         latitude: "24.7471",
         longitude: "90.4203",
@@ -143,7 +143,7 @@ const DEMO_CITIES = [
         slug: "barishal",
         description: "Discover Barishal, the Venice of the East. Beautiful river views and waterways await you in this historic city.",
         descriptionBn: "প্রাচ্যের ভেনিস বরিশাল আবিষ্কার করুন। সুন্দর নদী দৃশ্য এবং জলপথ আপনার জন্য অপেক্ষা করছে।",
-        metaTitle: "Hotels in Barishal - River City Bangladesh | Vibe Hotels",
+        metaTitle: "Hotels in Barishal - River City Bangladesh | ZinoRooms",
         metaDescription: "Book hotels in Barishal, the Venice of East. Riverside hotels and budget stays available.",
         latitude: "22.7010",
         longitude: "90.3535",
@@ -154,7 +154,7 @@ const DEMO_CITIES = [
 
 const DEMO_HOTELS = [
     {
-        name: "Vibe City Center",
+        name: "Zino City Center",
         description: "Modern hotel in the heart of Dhaka with all amenities. Perfect for business travelers and tourists alike.",
         address: "123 Gulshan Avenue, Gulshan-2",
         city: "Dhaka",
@@ -173,7 +173,7 @@ const DEMO_HOTELS = [
         ],
     },
     {
-        name: "Vibe Beach Resort",
+        name: "Zino Beach Resort",
         description: "Relaxing beachside resort with stunning ocean views. Ideal for vacations and romantic getaways.",
         address: "Marine Drive, Cox's Bazar",
         city: "Cox's Bazar",
@@ -192,7 +192,7 @@ const DEMO_HOTELS = [
         ],
     },
     {
-        name: "Vibe Budget Stay",
+        name: "Zino Budget Stay",
         description: "Clean and affordable accommodation for budget-conscious travelers. Great location and value.",
         address: "45 Dhanmondi Road 27",
         city: "Dhaka",
@@ -761,14 +761,14 @@ async function seed() {
 
     // First, ensure we have a demo partner user
     let demoPartner = await db.query.users.findFirst({
-        where: eq(users.email, "demo-partner@vibehotel.com"),
+        where: eq(users.email, "demo-partner@zinorooms.com"),
     });
 
     if (!demoPartner) {
         console.log("Creating demo partner user...");
         const [newPartner] = await db.insert(users).values({
             name: "Demo Partner",
-            email: "demo-partner@vibehotel.com",
+            email: "demo-partner@zinorooms.com",
             role: "PARTNER",
         }).returning();
         demoPartner = newPartner;

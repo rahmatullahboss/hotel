@@ -30,7 +30,7 @@ export const referralCodes = pgTable("referralCodes", {
     userId: text("userId")
         .notNull()
         .references(() => users.id, { onDelete: "cascade" }),
-    code: text("code").notNull().unique(), // e.g., "VIBE-JOHN2024"
+    code: text("code").notNull().unique(), // e.g., "ZINO-JOHN2024"
     usageCount: integer("usageCount").default(0).notNull(), // Times this code was used
     maxUses: integer("maxUses"), // Null = unlimited
     referrerReward: decimal("referrerReward", { precision: 10, scale: 2 })
