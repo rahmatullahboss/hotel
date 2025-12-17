@@ -419,5 +419,24 @@
             "contact": "Email: support@vibehotels.com\nPhone: +880 1234-567890\nWhatsApp available 24/7",
             "points": "Earn loyalty points with every booking. 1 point = ৳1. Redeem points for discounts on future stays!"
         }
+    },
+    "allHotels": {
+        "title": "All Hotels",
+        "filters": {
+            "all": "All",
+            "budget": "Budget",
+            "premium": "Premium",
+            "topRated": "Top Rated"
+        },
+        "sort": {
+            "label": "Sort",
+            "rating": "Rating",
+            "priceLow": "Price: Low to",
+            "priceHigh": "Price: High to"
+        },
+        "hotelsFound": "{{count}} hotels found",
+        "hotelFound": "{{count}} hotel found",
+        "noMatch": "No hotels match your filters",
+        "clearFilters": "Clear Filters"
     }
 }

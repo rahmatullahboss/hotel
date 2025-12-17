@@ -25,19 +25,19 @@ interface Hotel {
     payAtHotel?: boolean;
 }
 
-// Filter options
-const FILTERS = [
-    { id: 'all', label: 'All', icon: 'th-large' },
-    { id: 'budget', label: 'Budget', icon: 'money', color: '#10B981' },
-    { id: 'premium', label: 'Premium', icon: 'star', color: '#F59E0B' },
-    { id: 'topRated', label: 'Top Rated', icon: 'thumbs-up', color: '#3B82F6' },
+// Filter options - labels will be translated in component
+const FILTER_KEYS = [
+    { id: 'all', labelKey: 'allHotels.filters.all', icon: 'th-large' },
+    { id: 'budget', labelKey: 'allHotels.filters.budget', icon: 'money', color: '#10B981' },
+    { id: 'premium', labelKey: 'allHotels.filters.premium', icon: 'star', color: '#F59E0B' },
+    { id: 'topRated', labelKey: 'allHotels.filters.topRated', icon: 'thumbs-up', color: '#3B82F6' },
 ];
 
-// Sort options
-const SORT_OPTIONS = [
-    { id: 'rating', label: 'Rating' },
-    { id: 'priceLow', label: 'Price ↑' },
-    { id: 'priceHigh', label: 'Price ↓' },
+// Sort options - labels will be translated in component
+const SORT_KEYS = [
+    { id: 'rating', labelKey: 'allHotels.sort.rating' },
+    { id: 'priceLow', labelKey: 'allHotels.sort.priceLow' },
+    { id: 'priceHigh', labelKey: 'allHotels.sort.priceHigh' },
 ];
 
 const BUDGET_MAX = 3000;
@@ -106,7 +106,7 @@ export default function AllHotelsScreen() {
                 showsHorizontalScrollIndicator={false}
                 contentContainerStyle={{ paddingHorizontal: 0, gap: 8 }}
             >
-                {FILTERS.map((filter) => (
+                {FILTER_KEYS.map((filter) => (
                     <TouchableOpacity
                         key={filter.id}
                         className={`flex-row items-center px-4 py-2 rounded-full gap-2 ${activeFilter === filter.id
@@ -132,7 +132,7 @@ export default function AllHotelsScreen() {
                                 : 'text-gray-700 dark:text-gray-300'
                                 }`}
                         >
-                            {filter.label}
+                            {t(filter.labelKey)}
                         </Text>
                     </TouchableOpacity>
                 ))}
@@ -140,8 +140,8 @@ export default function AllHotelsScreen() {
 
             {/* Sort Options */}
             <View className="flex-row items-center mt-3 flex-wrap gap-2">
-                <Text className="text-sm text-gray-500 dark:text-gray-400">Sort</Text>
-                {SORT_OPTIONS.map((option) => (
+                <Text className="text-sm text-gray-500 dark:text-gray-400">{t('allHotels.sort.label')}</Text>
+                {SORT_KEYS.map((option) => (
                     <TouchableOpacity
                         key={option.id}
                         className={`px-4 py-2 rounded-full ${sortBy === option.id
@@ -157,7 +157,7 @@ export default function AllHotelsScreen() {
                                 }`}
                             style={{ includeFontPadding: false }}
                         >
-                            {option.label}
+                            {t(option.labelKey)}
                         </Text>
                     </TouchableOpacity>
                 ))}
@@ -165,7 +165,7 @@ export default function AllHotelsScreen() {
 
             {/* Results count */}
             <Text className="text-sm text-gray-500 dark:text-gray-400 mt-3">
-                {filteredHotels.length} hotel{filteredHotels.length !== 1 ? 's' : ''} found
+                {t(filteredHotels.length === 1 ? 'allHotels.hotelFound' : 'allHotels.hotelsFound', { count: filteredHotels.length })}
             </Text>
         </View>
     );
@@ -175,7 +175,7 @@ export default function AllHotelsScreen() {
             <Stack.Screen
                 options={{
                     headerShown: true,
-                    headerTitle: 'All Hotels',
+                    headerTitle: t('allHotels.title'),
                     headerBackTitle: '',
                     headerStyle: { backgroundColor: '#E63946' },
                     headerTintColor: '#fff',
@@ -218,13 +218,13 @@ export default function AllHotelsScreen() {
                         <View className="items-center py-12">
                             <FontAwesome name="search" size={40} color="#9CA3AF" />
                             <Text className="text-lg font-semibold text-gray-900 dark:text-white mt-4">
-                                No hotels match your filters
+                                {t('allHotels.noMatch')}
                             </Text>
                             <TouchableOpacity
                                 className="mt-4 px-4 py-2 bg-primary rounded-full"
                                 onPress={() => setActiveFilter('all')}
                             >
-                                <Text className="text-white font-semibold">Clear Filters</Text>
+                                <Text className="text-white font-semibold">{t('allHotels.clearFilters')}</Text>
                             </TouchableOpacity>
                         </View>
                     }
