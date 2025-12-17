@@ -4,6 +4,7 @@
         "error": "Error",
         "currency": "৳",
         "perNight": "/night",
+        "taxAndFees": "+{{amount}} taxes & fees",
         "comingSoon": "Coming Soon",
         "share": "Share",
         "shareFailed": "Failed to share. Please try again.",
@@ -18,7 +19,7 @@
     },
     "home": {
         "loading": "Finding best hotels...",
-        "greeting": "Hello! 👋",
+        "greeting": "Hello!",
         "heroTitle": "Find your perfect stay",
         "searchPlaceholder": "Search city, hotel, or landmark",
         "filters": {
@@ -32,6 +33,10 @@
             "subtitle": "Get 20% OFF on your first stay",
             "button": "Book Now"
         },
+        "recommendedForYou": "Recommended for You",
+        "dealsAndDiscounts": "Deals & Discounts",
+        "recentlyViewed": "Recently Viewed",
+        "limitedOffer": "LIMITED OFFER",
         "topRated": "Top Rated Hotels",
         "seeAll": "See All",
         "noHotels": "No hotels available",

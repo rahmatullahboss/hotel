@@ -1,5 +1,8 @@
-// First booking discount constants
+// Pricing constants
 // Separated from actions to avoid "use server" export restrictions
+
+// Tax rate (15% for taxes and fees)
+export const TAX_RATE = 0.15;
 
 // First booking discount percentage (20%)
 export const FIRST_BOOKING_DISCOUNT_PERCENT = 20;

@@ -396,6 +396,9 @@ export default function HotelDetailScreen() {
                                                         {' '}{t('common.perNight')}
                                                     </Text>
                                                 </Text>
+                                                <Text className="text-[10px] text-gray-400 dark:text-gray-500 mt-0.5">
+                                                    {t('common.taxAndFees', { amount: `৳${formatPrice(Math.round(Number(room.dynamicPrice || room.basePrice || 0) * 0.15))}` })}
+                                                </Text>
                                             </View>
 
                                             {/* Book Button */}

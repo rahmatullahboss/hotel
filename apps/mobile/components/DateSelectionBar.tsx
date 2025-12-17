@@ -264,55 +264,52 @@ export default function DateSelectionBar({
 
     return (
         <>
-            <View className={`flex-row ${bgColor} rounded-2xl p-3 gap-2`} style={{
-                shadowColor: '#000',
-                shadowOffset: { width: 0, height: 2 },
-                shadowOpacity: 0.1,
-                shadowRadius: 8,
-            }}>
-                {/* Check-in */}
-                <TouchableOpacity
-                    className={`flex-1 p-3 rounded-xl border ${borderColor}`}
-                    onPress={openCalendar}
-                    activeOpacity={0.7}
-                >
-                    <Text className={`text-xs ${subtextColor} mb-1`}>
-                        {t('bookings.checkIn', 'Check-in')}
-                    </Text>
-                    <View className="flex-row items-center gap-2">
-                        <FontAwesome name="calendar" size={14} color="#E63946" />
-                        <Text className={`${textColor} font-semibold`}>
-                            {formatShortDate(checkIn)}
-                        </Text>
-                    </View>
-                </TouchableOpacity>
-
-                {/* Nights Badge */}
-                <View className="items-center justify-center px-2">
-                    <View className="bg-primary/10 px-3 py-1.5 rounded-lg">
-                        <Text className="text-primary text-xs font-bold">
-                            {nights} {nights === 1 ? t('booking.night', 'night') : t('booking.nights', 'nights')}
-                        </Text>
-                    </View>
+            <TouchableOpacity
+                className={`flex-row items-center ${bgColor} rounded-xl px-3 py-2.5`}
+                style={{
+                    shadowColor: '#000',
+                    shadowOffset: { width: 0, height: 2 },
+                    shadowOpacity: 0.08,
+                    shadowRadius: 6,
+                }}
+                onPress={openCalendar}
+                activeOpacity={0.7}
+            >
+                {/* Calendar Icon */}
+                <View className="w-8 h-8 rounded-lg bg-primary/10 items-center justify-center mr-2.5">
+                    <FontAwesome name="calendar" size={14} color="#E63946" />
                 </View>
 
-                {/* Check-out */}
-                <TouchableOpacity
-                    className={`flex-1 p-3 rounded-xl border ${borderColor}`}
-                    onPress={openCalendar}
-                    activeOpacity={0.7}
-                >
-                    <Text className={`text-xs ${subtextColor} mb-1`}>
+                {/* Check-in Date */}
+                <View className="flex-1">
+                    <Text className={`text-[10px] ${subtextColor} uppercase tracking-wide`}>
+                        {t('bookings.checkIn', 'Check-in')}
+                    </Text>
+                    <Text className={`${textColor} font-semibold text-sm`}>
+                        {formatShortDate(checkIn)}
+                    </Text>
+                </View>
+
+                {/* Nights Badge */}
+                <View className="bg-primary/10 px-2 py-1 rounded-md mx-2">
+                    <Text className="text-primary text-xs font-bold">
+                        {nights}N
+                    </Text>
+                </View>
+
+                {/* Check-out Date */}
+                <View className="flex-1 items-end">
+                    <Text className={`text-[10px] ${subtextColor} uppercase tracking-wide`}>
                         {t('bookings.checkOut', 'Check-out')}
                     </Text>
-                    <View className="flex-row items-center gap-2">
-                        <FontAwesome name="calendar" size={14} color="#E63946" />
-                        <Text className={`${textColor} font-semibold`}>
-                            {formatShortDate(checkOut)}
-                        </Text>
-                    </View>
-                </TouchableOpacity>
-            </View>
+                    <Text className={`${textColor} font-semibold text-sm`}>
+                        {formatShortDate(checkOut)}
+                    </Text>
+                </View>
+
+                {/* Chevron */}
+                <FontAwesome name="chevron-down" size={10} color="#9CA3AF" style={{ marginLeft: 8 }} />
+            </TouchableOpacity>
 
             {renderCalendarModal()}
         </>

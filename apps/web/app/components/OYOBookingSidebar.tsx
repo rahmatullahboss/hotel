@@ -43,7 +43,7 @@ export function OYOBookingSidebar({
     const today = new Date().toISOString().split("T")[0];
     const discount = basePrice > dynamicPrice ? Math.round(((basePrice - dynamicPrice) / basePrice) * 100) : 0;
     const savings = basePrice - dynamicPrice;
-    const taxesAndFees = Math.round(totalPrice * 0.12); // 12% tax estimate
+    const taxesAndFees = Math.round(totalPrice * 0.15); // 15% tax
 
     // Format date for display
     const formatDate = (dateStr: string) => {

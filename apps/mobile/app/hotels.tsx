@@ -36,8 +36,8 @@ const FILTERS = [
 // Sort options
 const SORT_OPTIONS = [
     { id: 'rating', label: 'Rating' },
-    { id: 'priceLow', label: 'Price: Low to High' },
-    { id: 'priceHigh', label: 'Price: High to Low' },
+    { id: 'priceLow', label: 'Price ↑' },
+    { id: 'priceHigh', label: 'Price ↓' },
 ];
 
 const BUDGET_MAX = 3000;
@@ -110,8 +110,8 @@ export default function AllHotelsScreen() {
                     <TouchableOpacity
                         key={filter.id}
                         className={`flex-row items-center px-4 py-2 rounded-full gap-2 ${activeFilter === filter.id
-                                ? 'bg-primary'
-                                : 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700'
+                            ? 'bg-primary'
+                            : 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700'
                             }`}
                         onPress={() => setActiveFilter(filter.id)}
                         style={activeFilter === filter.id ? {} : {
@@ -128,8 +128,8 @@ export default function AllHotelsScreen() {
                         />
                         <Text
                             className={`text-sm font-semibold ${activeFilter === filter.id
-                                    ? 'text-white'
-                                    : 'text-gray-700 dark:text-gray-300'
+                                ? 'text-white'
+                                : 'text-gray-700 dark:text-gray-300'
                                 }`}
                         >
                             {filter.label}
@@ -138,30 +138,28 @@ export default function AllHotelsScreen() {
                 ))}
             </ScrollView>
 
-            {/* Sort Dropdown */}
-            <View className="flex-row items-center mt-3 gap-2">
-                <Text className="text-sm text-gray-500 dark:text-gray-400">Sort by:</Text>
-                <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                    {SORT_OPTIONS.map((option) => (
-                        <TouchableOpacity
-                            key={option.id}
-                            className={`px-3 py-1.5 rounded-full mr-2 ${sortBy === option.id
-                                    ? 'bg-gray-800 dark:bg-gray-200'
-                                    : 'bg-gray-200 dark:bg-gray-700'
+            {/* Sort Options */}
+            <View className="flex-row items-center mt-3 flex-wrap gap-2">
+                <Text className="text-sm text-gray-500 dark:text-gray-400">Sort</Text>
+                {SORT_OPTIONS.map((option) => (
+                    <TouchableOpacity
+                        key={option.id}
+                        className={`px-3 py-1.5 rounded-full ${sortBy === option.id
+                            ? 'bg-gray-800 dark:bg-gray-200'
+                            : 'bg-gray-200 dark:bg-gray-700'
+                            }`}
+                        onPress={() => setSortBy(option.id)}
+                    >
+                        <Text
+                            className={`text-xs font-medium ${sortBy === option.id
+                                ? 'text-white dark:text-gray-900'
+                                : 'text-gray-600 dark:text-gray-300'
                                 }`}
-                            onPress={() => setSortBy(option.id)}
                         >
-                            <Text
-                                className={`text-xs font-medium ${sortBy === option.id
-                                        ? 'text-white dark:text-gray-900'
-                                        : 'text-gray-600 dark:text-gray-300'
-                                    }`}
-                            >
-                                {option.label}
-                            </Text>
-                        </TouchableOpacity>
-                    ))}
-                </ScrollView>
+                            {option.label}
+                        </Text>
+                    </TouchableOpacity>
+                ))}
             </View>
 
             {/* Results count */}

@@ -9,7 +9,6 @@ interface OYORoomCardProps {
     roomSize?: string;
     basePrice: number;
     dynamicPrice: number;
-    taxes?: number;
     photo?: string;
     isSelected: boolean;
     availableCount?: number;
@@ -22,13 +21,13 @@ export function OYORoomCard({
     roomSize = "9 sqm approx",
     basePrice,
     dynamicPrice,
-    taxes = 192,
     photo,
     isSelected,
     availableCount,
     onSelect,
 }: OYORoomCardProps) {
     const t = useTranslations("roomCard");
+    const taxes = Math.round(dynamicPrice * 0.15); // 15% tax
 
     return (
         <div className={`oyo-room-card ${isSelected ? "selected" : ""}`} onClick={onSelect}>

@@ -19,6 +19,7 @@ interface Hotel {
 interface HotelCardProps {
     hotel: Hotel;
     index: number;
+    distance?: number; // Distance in km for nearby hotels
 }
 
 // Get category display info
@@ -34,7 +35,7 @@ const getCategoryInfo = (category?: HotelCategory | null) => {
     }
 };
 
-export default function HotelCard({ hotel, index }: HotelCardProps) {
+export default function HotelCard({ hotel, index, distance }: HotelCardProps) {
     const router = useRouter();
     const { t, i18n } = useTranslation();
 
@@ -61,13 +62,14 @@ export default function HotelCard({ hotel, index }: HotelCardProps) {
             className="mb-4 rounded-2xl overflow-hidden bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700"
         >
             {/* Image Section */}
-            <View className="relative">
+            <View className="relative bg-gray-200 dark:bg-gray-700">
                 <Image
                     source={{
                         uri: hotel.imageUrl || 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=600',
                     }}
                     className="w-full h-48"
                     resizeMode="cover"
+                    style={{ backgroundColor: '#E5E7EB' }}
                 />
 
                 {/* Vibe Category Badge */}
@@ -89,6 +91,15 @@ export default function HotelCard({ hotel, index }: HotelCardProps) {
                         {Number(hotel.rating || 0).toFixed(1)}
                     </Text>
                 </View>
+
+                {/* Distance Badge (for nearby hotels) */}
+                {distance !== undefined && (
+                    <View className="absolute top-12 right-3 bg-green-500 px-2.5 py-1 rounded-lg">
+                        <Text className="text-white text-xs font-bold">
+                            {distance.toFixed(1)} km
+                        </Text>
+                    </View>
+                )}
 
                 {/* Location Badge */}
                 <View className="absolute bottom-3 left-3 flex-row items-center bg-black/60 px-3 py-1.5 rounded-lg gap-1.5 max-w-[70%]">

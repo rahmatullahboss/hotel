@@ -122,26 +122,27 @@ export default function SearchBar({
         <View style={{ zIndex: 999 }}>
             {/* Search Input */}
             <View
-                className="flex-row items-center rounded-2xl px-4 py-3.5 gap-3"
+                className="flex-row items-center rounded-xl px-3 py-2.5 gap-2.5"
                 style={{
                     backgroundColor: 'rgba(255,255,255,0.95)',
                     shadowColor: '#000',
-                    shadowOffset: { width: 0, height: 4 },
-                    shadowOpacity: 0.15,
-                    shadowRadius: 12,
+                    shadowOffset: { width: 0, height: 2 },
+                    shadowOpacity: 0.1,
+                    shadowRadius: 8,
                 }}
             >
-                <View className="w-10 h-10 rounded-xl bg-primary/10 items-center justify-center">
-                    <FontAwesome name="search" size={16} color="#E63946" />
+                <View className="w-8 h-8 rounded-lg bg-primary/10 items-center justify-center">
+                    <FontAwesome name="search" size={14} color="#E63946" />
                 </View>
                 <TextInput
-                    className="flex-1 text-base text-gray-900 font-medium"
+                    className="flex-1 text-sm text-gray-900 font-medium"
                     placeholder={placeholder || t('home.searchPlaceholder')}
                     placeholderTextColor="#9CA3AF"
                     value={searchQuery}
                     onChangeText={setSearchQuery}
                     onSubmitEditing={handleSubmit}
                     returnKeyType="search"
+                    style={{ paddingVertical: 0 }}
                 />
                 {searchQuery.length > 0 ? (
                     <TouchableOpacity onPress={() => setSearchQuery('')}>
@@ -149,10 +150,10 @@ export default function SearchBar({
                     </TouchableOpacity>
                 ) : showFilterButton ? (
                     <TouchableOpacity
-                        className="w-8 h-8 rounded-lg bg-primary items-center justify-center"
+                        className="w-7 h-7 rounded-md bg-primary items-center justify-center"
                         onPress={onFilterPress || (() => router.push('/(tabs)/search'))}
                     >
-                        <FontAwesome name="sliders" size={14} color="#fff" />
+                        <FontAwesome name="sliders" size={12} color="#fff" />
                     </TouchableOpacity>
                 ) : null}
             </View>

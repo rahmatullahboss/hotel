@@ -214,7 +214,11 @@ export default function BookingScreen() {
     const subtotalPrice = pricePerNight * nights;
     // Calculate first booking discount (20% with max ৳1000)
     const calculatedDiscount = isFirstBooking ? Math.min(Math.round(subtotalPrice * 0.2), 1000) : 0;
-    const totalPrice = subtotalPrice - calculatedDiscount;
+    const discountedSubtotal = subtotalPrice - calculatedDiscount;
+    // 15% tax and fees
+    const TAX_RATE = 0.15;
+    const taxAmount = Math.round(discountedSubtotal * TAX_RATE);
+    const totalPrice = discountedSubtotal + taxAmount;
 
     const handleBooking = async () => {
         // Check if user is authenticated
@@ -690,6 +694,16 @@ export default function BookingScreen() {
                                 </Text>
                             </View>
                         )}
+
+                        {/* Tax and Fees */}
+                        <View className="flex-row justify-between">
+                            <Text className="text-gray-600 dark:text-gray-400">
+                                {i18n.language === 'bn' ? 'ট্যাক্স ও ফি (১৫%)' : 'Taxes & Fees (15%)'}
+                            </Text>
+                            <Text className="text-gray-900 dark:text-white font-medium">
+                                {t('common.currency')}{formatPrice(taxAmount)}
+                            </Text>
+                        </View>
 
                         {/* Wallet deduction */}
                         {useWalletPartial && walletBalance > 0 && (

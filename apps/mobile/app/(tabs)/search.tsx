@@ -175,17 +175,13 @@ export default function SearchScreen() {
     };
 
     const handleNearMe = async () => {
-        Alert.alert(
-            'Coming Soon',
-            'Near Me search will be available in the production version.',
-            [{ text: 'OK' }]
-        );
+        router.push({ pathname: '/search-results', params: { nearby: 'true' } });
     };
 
 
     const handleFilter = async (filterId: string) => {
         if (filterId === 'nearby') {
-            await handleNearMe();
+            handleNearMe();
             return;
         }
 

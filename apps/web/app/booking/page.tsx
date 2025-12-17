@@ -9,7 +9,7 @@ import { createBooking } from "../actions/bookings";
 import { getUserProfile } from "../actions/profile";
 import { getWalletBalance } from "../actions/wallet";
 import { checkFirstBookingEligibility } from "../actions/first-booking";
-import { FIRST_BOOKING_DISCOUNT_PERCENT, FIRST_BOOKING_MAX_DISCOUNT } from "../constants";
+import { FIRST_BOOKING_DISCOUNT_PERCENT, FIRST_BOOKING_MAX_DISCOUNT, TAX_RATE } from "../constants";
 import { BottomNav, BookingQRCode } from "../components";
 import { FiLock, FiClock, FiCreditCard, FiSmartphone, FiCheck } from "react-icons/fi";
 import { FaHotel, FaWallet } from "react-icons/fa";
@@ -68,7 +68,10 @@ function BookingContent() {
     const firstBookingDiscount = isFirstBooking
         ? Math.min(Math.round(subtotalAmount * FIRST_BOOKING_DISCOUNT_PERCENT / 100), FIRST_BOOKING_MAX_DISCOUNT)
         : 0;
-    const totalAmount = subtotalAmount - firstBookingDiscount;
+    const discountedSubtotal = subtotalAmount - firstBookingDiscount;
+    // 15% tax and fees
+    const taxAmount = Math.round(discountedSubtotal * TAX_RATE);
+    const totalAmount = discountedSubtotal + taxAmount;
 
     // Get current payment method's advance requirement (after paymentMethod state is declared)
     const currentMethod = paymentMethods.find(m => m.id === paymentMethod);
@@ -587,8 +590,8 @@ function BookingContent() {
                                 )}
 
                                 <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.5rem" }}>
-                                    <span>{tCommon("taxesAndFees")}</span>
-                                    <span>{tCommon("included")}</span>
+                                    <span>{tCommon("taxesAndFees")} (15%)</span>
+                                    <span>৳{taxAmount.toLocaleString()}</span>
                                 </div>
                                 <div
                                     style={{

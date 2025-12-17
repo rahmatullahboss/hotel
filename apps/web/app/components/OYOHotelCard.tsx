@@ -140,7 +140,7 @@ export function OYOHotelCard({
                             )}
                         </div>
                         <div className="oyo-card-taxes">
-                            {t("taxesAndFees")}
+                            + {t("taxesAndFees")}
                         </div>
                     </div>
                     <div className="oyo-card-actions">
