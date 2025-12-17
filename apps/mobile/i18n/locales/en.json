@@ -181,7 +181,7 @@
         "copied": "Copied!",
         "share": "Share",
         "shareHint": "Share your code with friends and earn ৳100 when they book",
-        "shareMessage": "Use my referral code {{code}} to get ৳50 off your first booking on ZinoRooms!",
+        "shareMessage": "Use my referral code {{code}} to get ৳50 off your first booking on ZinuRooms!",
         "totalReferrals": "Total Referrals",
         "pending": "Pending",
         "earned": "Earned",
@@ -231,7 +231,7 @@
         "legalTitle": "Legal",
         "terms": "Terms of Service",
         "privacy": "Privacy Policy",
-        "chatBot": "Chat with Zino AI",
+        "chatBot": "Chat with Zinu AI",
         "instantHelp": "Get instant help 24/7"
     },
     "saved": {
@@ -378,7 +378,7 @@
         "alreadyHaveAccount": "Already have an account?",
         "login": "Login",
         "slide1": {
-            "title": "Welcome to Zino",
+            "title": "Welcome to Zinu",
             "description": "Find and book the perfect hotel for your next adventure. Thousands of verified hotels at your fingertips."
         },
         "slide2": {
@@ -396,7 +396,7 @@
     },
     "chat": {
         "title": "Support Chat",
-        "welcome": "Hi! 👋 I'm Zino Assistant. How can I help you today?",
+        "welcome": "Hi! 👋 I'm Zinu Assistant. How can I help you today?",
         "placeholder": "Type your message...",
         "notUnderstood": "I'm not sure I understand. Here are some topics I can help with:",
         "quickReplies": {
@@ -414,9 +414,9 @@
             "cancel": "Go to My Trips, select your booking, and tap \"Cancel Booking\". Refunds depend on cancellation policy - usually full refund if cancelled 24+ hours before check-in.",
             "payment": "We accept bKash, Nagad, Credit/Debit cards, and Pay at Hotel option. Your payment is 100% secure with encrypted transactions.",
             "checkin": "Use our Self Check-in feature! Scan the QR code at the hotel reception to instantly check in without waiting in queue.",
-            "refund": "Refunds are credited to your Zino Wallet within 24 hours of cancellation. You can use wallet balance for future bookings.",
-            "wallet": "Zino Wallet stores your cashback rewards and refunds. You earn 5% cashback on every booking! Use wallet balance at checkout.",
-            "contact": "Email: support@zinorooms.com\nPhone: +880 1234-567890\nWhatsApp available 24/7",
+            "refund": "Refunds are credited to your Zinu Wallet within 24 hours of cancellation. You can use wallet balance for future bookings.",
+            "wallet": "Zinu Wallet stores your cashback rewards and refunds. You earn 5% cashback on every booking! Use wallet balance at checkout.",
+            "contact": "Email: support@zinurooms.com\nPhone: +880 1234-567890\nWhatsApp available 24/7",
             "points": "Earn loyalty points with every booking. 1 point = ৳1. Redeem points for discounts on future stays!"
         }
     },

@@ -1,5 +1,5 @@
 {
-  "name": "zinorooms",
+  "name": "zinurooms",
   "private": true,
   "scripts": {
     "build": "turbo run build",

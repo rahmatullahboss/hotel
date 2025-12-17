@@ -43,16 +43,16 @@ async function getDefaultCalendarId(): Promise<string | null> {
     // Create a new calendar if none available (Android)
     if (Platform.OS === 'android') {
         const newCalendarId = await Calendar.createCalendarAsync({
-            title: 'ZinoRooms',
+            title: 'ZinuRooms',
             color: '#E63946',
             entityType: Calendar.EntityTypes.EVENT,
             source: {
                 isLocalAccount: true,
-                name: 'ZinoRooms',
+                name: 'ZinuRooms',
                 type: Calendar.SourceType.LOCAL,
             },
-            name: 'ZinoRooms',
-            ownerAccount: 'ZinoRooms',
+            name: 'ZinuRooms',
+            ownerAccount: 'ZinuRooms',
             accessLevel: Calendar.CalendarAccessLevel.OWNER,
         });
         return newCalendarId;

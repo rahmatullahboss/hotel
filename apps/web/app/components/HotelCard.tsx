@@ -43,7 +43,7 @@ interface HotelCardProps {
     imageUrl: string;
     amenities: string[];
     payAtHotel?: boolean;
-    zinoCode?: string | null;
+    zinuCode?: string | null;
     category?: string | null;
 }
 
@@ -57,14 +57,14 @@ export function HotelCard({
     imageUrl,
     amenities,
     payAtHotel = false,
-    zinoCode,
+    zinuCode,
     category,
 }: HotelCardProps) {
     const t = useTranslations("hotel");
     const tCommon = useTranslations("common");
 
-    // Show "Zino Hotel Name" (brand prefix), zinoCode number shown as badge
-    const displayName = zinoCode ? `Zino ${name}` : name;
+    // Show "Zinu Hotel Name" (brand prefix), zinuCode number shown as badge
+    const displayName = zinuCode ? `Zinu ${name}` : name;
     const categoryLabel = getCategoryLabel(category);
     const categoryColor = getCategoryColor(category);
 
@@ -96,8 +96,8 @@ export function HotelCard({
                         {categoryLabel}
                     </span>
                 )}
-                {/* Zino Code Badge (top-right) */}
-                {zinoCode && (
+                {/* Zinu Code Badge (top-right) */}
+                {zinuCode && (
                     <span
                         style={{
                             position: "absolute",
@@ -111,7 +111,7 @@ export function HotelCard({
                             fontWeight: "600",
                         }}
                     >
-                        {zinoCode}
+                        {zinuCode}
                     </span>
                 )}
             </div>

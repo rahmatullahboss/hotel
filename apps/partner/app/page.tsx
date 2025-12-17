@@ -42,7 +42,7 @@ export default async function DashboardPage() {
           marginBottom: "0.75rem",
           color: "var(--color-text-primary)"
         }}>
-          Welcome to ZinoRooms Manager
+          Welcome to ZinuRooms Manager
         </h1>
         <p style={{
           color: "var(--color-text-secondary)",
@@ -143,7 +143,7 @@ export default async function DashboardPage() {
           fontSize: "0.75rem",
           color: "var(--color-text-muted)"
         }}>
-          Questions? Contact support@zinorooms.com
+          Questions? Contact support@zinurooms.com
         </div>
       </main>
     );
@@ -207,7 +207,7 @@ export default async function DashboardPage() {
       {/* Header */}
       <header className="page-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
         <div>
-          <h1 className="page-title">ZinoRooms Manager</h1>
+          <h1 className="page-title">ZinuRooms Manager</h1>
           <p style={{ color: "var(--color-text-secondary)", fontSize: "0.875rem" }}>
             {hotel.name}, {hotel.city}
           </p>

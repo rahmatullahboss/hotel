@@ -44,9 +44,9 @@ export const hotels = pgTable("hotels", {
         .notNull()
         .references(() => users.id, { onDelete: "cascade" }),
     name: text("name").notNull(),
-    // Zino branding - auto-generated unique code (e.g., ZR10001)
-    zinoCode: text("zinoCode").unique(),
-    // Hotel category for branding (Zino Classic, Zino Premium, Zino Business)
+    // Zinu branding - auto-generated unique code (e.g., ZR10001)
+    zinuCode: text("zinuCode").unique(),
+    // Hotel category for branding (Zinu Classic, Zinu Premium, Zinu Business)
     category: text("category", { enum: ["CLASSIC", "PREMIUM", "BUSINESS"] })
         .default("CLASSIC")
         .notNull(),

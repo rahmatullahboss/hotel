@@ -1,22 +1,22 @@
 /**
- * Zino Branding Utilities
+ * Zinu Branding Utilities
  * 
  * OYO-style branding system for consistent hotel naming:
- * - Auto-generates unique Zino codes (ZR10001, ZR10002, etc.)
- * - Formats display names with branding (Zino ZR10001 Hotel Sunrise)
- * - Category-based branding (Zino Classic, Zino Premium, Zino Business)
+ * - Auto-generates unique Zinu codes (ZR10001, ZR10002, etc.)
+ * - Formats display names with branding (Zinu ZR10001 Hotel Sunrise)
+ * - Category-based branding (Zinu Classic, Zinu Premium, Zinu Business)
  */
 
 export type HotelCategory = "CLASSIC" | "PREMIUM" | "BUSINESS";
 
 /**
- * Generate a unique Zino code for a hotel
+ * Generate a unique Zinu code for a hotel
  * Format: ZR + 5-digit number (e.g., ZR10001)
  * 
  * @param existingCodes - Array of existing zino codes to avoid duplicates
  * @returns A unique zino code
  */
-export function generateZinoCode(existingCodes: string[] = []): string {
+export function generateZinuCode(existingCodes: string[] = []): string {
     const prefix = "ZR";
     const startNumber = 10001;
 
@@ -37,45 +37,45 @@ export function generateZinoCode(existingCodes: string[] = []): string {
 }
 
 /**
- * Format hotel display name with Zino branding
+ * Format hotel display name with Zinu branding
  * 
  * Examples:
- * - formatZinoDisplayName({ name: "Hotel Sunrise", zinoCode: "ZR10001" }) 
- *   => "Zino ZR10001 Hotel Sunrise"
- * - formatZinoDisplayName({ name: "Hotel Sunrise", zinoCode: "ZR10001", category: "PREMIUM" }) 
- *   => "Zino Premium ZR10001"
- * - formatZinoDisplayName({ name: "Hotel Sunrise", zinoCode: "ZR10001", showCategory: true }) 
- *   => "Zino Classic ZR10001"
+ * - formatZinuDisplayName({ name: "Hotel Sunrise", zinuCode: "ZR10001" }) 
+ *   => "Zinu ZR10001 Hotel Sunrise"
+ * - formatZinuDisplayName({ name: "Hotel Sunrise", zinuCode: "ZR10001", category: "PREMIUM" }) 
+ *   => "Zinu Premium ZR10001"
+ * - formatZinuDisplayName({ name: "Hotel Sunrise", zinuCode: "ZR10001", showCategory: true }) 
+ *   => "Zinu Classic ZR10001"
  */
-export function formatZinoDisplayName(options: {
+export function formatZinuDisplayName(options: {
     name: string;
-    zinoCode?: string | null;
+    zinuCode?: string | null;
     category?: HotelCategory | null;
     showCategory?: boolean;
-    shortFormat?: boolean; // Only show "Zino ZR10001" without hotel name
+    shortFormat?: boolean; // Only show "Zinu ZR10001" without hotel name
 }): string {
-    const { name, zinoCode, category, showCategory = false, shortFormat = false } = options;
+    const { name, zinuCode, category, showCategory = false, shortFormat = false } = options;
 
     // If no zino code, just return original name
-    if (!zinoCode) {
+    if (!zinuCode) {
         return name;
     }
 
     const categoryLabel = getCategoryLabel(category);
 
     if (shortFormat) {
-        // Short format: "Zino ZR10001" or "Zino Premium ZR10001"
+        // Short format: "Zinu ZR10001" or "Zinu Premium ZR10001"
         return showCategory && categoryLabel
-            ? `Zino ${categoryLabel} ${zinoCode}`
-            : `Zino ${zinoCode}`;
+            ? `Zinu ${categoryLabel} ${zinuCode}`
+            : `Zinu ${zinuCode}`;
     }
 
-    // Full format: "Zino ZR10001 Hotel Sunrise" or "Zino Premium ZR10001 Hotel Sunrise"
+    // Full format: "Zinu ZR10001 Hotel Sunrise" or "Zinu Premium ZR10001 Hotel Sunrise"
     if (showCategory && categoryLabel) {
-        return `Zino ${categoryLabel} ${zinoCode}`;
+        return `Zinu ${categoryLabel} ${zinuCode}`;
     }
 
-    return `Zino ${zinoCode} ${name}`;
+    return `Zinu ${zinuCode} ${name}`;
 }
 
 /**

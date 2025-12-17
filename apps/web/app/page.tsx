@@ -78,7 +78,7 @@ export default async function HomePage() {
                   imageUrl={hotel.imageUrl}
                   amenities={hotel.amenities}
                   payAtHotel={hotel.payAtHotel}
-                  zinoCode={hotel.zinoCode}
+                  zinuCode={hotel.zinuCode}
                   category={hotel.category}
                 />
               ))

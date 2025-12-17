@@ -18,7 +18,7 @@ interface OYOHotelCardProps {
     basePrice: number;
     dynamicPrice: number;
     badge?: string;
-    zinoCode?: string;
+    zinuCode?: string;
 }
 
 const amenityIcons: Record<string, React.ReactNode> = {
@@ -48,12 +48,12 @@ export function OYOHotelCard({
     basePrice,
     dynamicPrice,
     badge,
-    zinoCode,
+    zinuCode,
 }: OYOHotelCardProps) {
     const t = useTranslations("hotelCard");
 
     const discount = basePrice > dynamicPrice ? Math.round(((basePrice - dynamicPrice) / basePrice) * 100) : 0;
-    const displayName = zinoCode ? `Zino ${name}` : name;
+    const displayName = zinuCode ? `Zinu ${name}` : name;
     const mainImage = images[0] || "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800";
     const thumbnails = images.slice(1, 4);
 

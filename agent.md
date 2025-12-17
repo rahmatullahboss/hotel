@@ -1,10 +1,10 @@
 # Helper Guide for AI Agents
 
-This document provides context and guidelines for AI agents working on the **ZinoRooms** project.
+This document provides context and guidelines for AI agents working on the **ZinuRooms** project.
 
 ## Project Overview
 
-ZinoRooms is a hotel booking platform built as a Monorepo. It serves travelers (User App), partners (Hotel Owners), and administrators.
+ZinuRooms is a hotel booking platform built as a Monorepo. It serves travelers (User App), partners (Hotel Owners), and administrators.
 
 - **Monorepo Manager**: TurboRepo (`npm`)
 - **Key Apps**:
@@ -144,7 +144,7 @@ mcp_expo-docs_get_expo_api_reference(module: "expo-location")
 
 The Global CSS (`apps/web/app/globals.css`) defines:
 - **Colors**:
-  - Primary: Zino Red (`#E63946`)
+  - Primary: Zinu Red (`#E63946`)
   - Secondary: Deep Navy (`#1D3557`)
   - Background: Off-white (`#F1FAEE`) for hygiene feel.
 - **Components**:

@@ -18,9 +18,9 @@
             "types": "./src/utils/vibeBranding.ts",
             "default": "./src/utils/vibeBranding.ts"
         },
-        "./utils/zinoBranding": {
-            "types": "./src/utils/zinoBranding.ts",
-            "default": "./src/utils/zinoBranding.ts"
+        "./utils/zinuBranding": {
+            "types": "./src/utils/zinuBranding.ts",
+            "default": "./src/utils/zinuBranding.ts"
         }
     },
     "scripts": {

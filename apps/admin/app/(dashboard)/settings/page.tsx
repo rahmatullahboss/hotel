@@ -18,7 +18,7 @@ export default function SettingsPage() {
                                 <div>
                                     <p style={{ fontWeight: 500 }}>Site Name</p>
                                     <p style={{ fontSize: "0.875rem", color: "var(--color-text-secondary)" }}>
-                                        ZinoRooms Network
+                                        ZinuRooms Network
                                     </p>
                                 </div>
                                 <button className="btn btn-outline btn-sm">Edit</button>

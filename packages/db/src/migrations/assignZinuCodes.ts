@@ -1,19 +1,19 @@
 /**
- * Migration Script: Assign Zino Codes to Existing Hotels
+ * Migration Script: Assign Zinu Codes to Existing Hotels
  * 
  * This script assigns unique ZR codes to all hotels that don't have one yet.
  * It also auto-categorizes hotels based on their lowest price.
  * 
- * Run with: npx dotenv -e .env -- npx tsx packages/db/src/migrations/assignZinoCodes.ts
+ * Run with: npx dotenv -e .env -- npx tsx packages/db/src/migrations/assignZinuCodes.ts
  */
 
 import { db } from "../index";
 import { hotels, rooms } from "../schema";
 import { eq, isNull, sql } from "drizzle-orm";
-import { generateZinoCode, suggestCategory } from "../utils/zinoBranding";
+import { generateZinuCode, suggestCategory } from "../utils/zinuBranding";
 
-async function assignZinoCodes() {
-    console.log("🚀 Starting Zino code assignment migration...\n");
+async function assignZinuCodes() {
+    console.log("🚀 Starting Zinu code assignment migration...\n");
 
     try {
         // Get all hotels without a zino code
@@ -21,35 +21,35 @@ async function assignZinoCodes() {
             .select({
                 id: hotels.id,
                 name: hotels.name,
-                zinoCode: hotels.zinoCode,
+                zinuCode: hotels.zinuCode,
                 lowestPrice: sql<number>`MIN(${rooms.basePrice})`.as("lowestPrice"),
             })
             .from(hotels)
             .leftJoin(rooms, eq(rooms.hotelId, hotels.id))
-            .where(isNull(hotels.zinoCode))
+            .where(isNull(hotels.zinuCode))
             .groupBy(hotels.id);
 
         if (hotelsWithoutCode.length === 0) {
-            console.log("✅ All hotels already have Zino codes!");
+            console.log("✅ All hotels already have Zinu codes!");
             process.exit(0);
         }
 
-        console.log(`📊 Found ${hotelsWithoutCode.length} hotels without Zino codes\n`);
+        console.log(`📊 Found ${hotelsWithoutCode.length} hotels without Zinu codes\n`);
 
         // Get all existing zino codes
         const existingCodes = await db
-            .select({ zinoCode: hotels.zinoCode })
+            .select({ zinuCode: hotels.zinuCode })
             .from(hotels)
-            .where(sql`${hotels.zinoCode} IS NOT NULL`);
+            .where(sql`${hotels.zinuCode} IS NOT NULL`);
 
         const codes = existingCodes
-            .map((h: { zinoCode: string | null }) => h.zinoCode)
+            .map((h: { zinuCode: string | null }) => h.zinuCode)
             .filter((code: string | null): code is string => code !== null);
 
         // Assign codes to each hotel
         let assigned = 0;
         for (const hotel of hotelsWithoutCode) {
-            const newCode = generateZinoCode([...codes]);
+            const newCode = generateZinuCode([...codes]);
             codes.push(newCode); // Add to list to prevent duplicates
 
             // Determine category based on price
@@ -58,7 +58,7 @@ async function assignZinoCodes() {
             await db
                 .update(hotels)
                 .set({
-                    zinoCode: newCode,
+                    zinuCode: newCode,
                     category: category,
                 })
                 .where(eq(hotels.id, hotel.id));
@@ -68,7 +68,7 @@ async function assignZinoCodes() {
             console.log(`    → Code: ${newCode}, Category: ${category}`);
         }
 
-        console.log(`\n✅ Successfully assigned ${assigned} Zino codes!`);
+        console.log(`\n✅ Successfully assigned ${assigned} Zinu codes!`);
         console.log("\n📋 Summary:");
         console.log(`   - Hotels processed: ${assigned}`);
         console.log("   - Code format: ZR10001, ZR10002, ...");
@@ -85,4 +85,4 @@ async function assignZinoCodes() {
     process.exit(0);
 }
 
-assignZinoCodes();
+assignZinuCodes();

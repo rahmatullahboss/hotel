@@ -29,7 +29,7 @@ function SignInContent() {
                 {/* Logo */}
                 <div style={{ textAlign: "center", marginBottom: "2rem" }}>
                     <h1 style={{ fontSize: "2rem", fontWeight: 800, color: "var(--color-primary)" }}>
-                        ZinoRooms Manager
+                        ZinuRooms Manager
                     </h1>
                     <p style={{ color: "var(--color-text-secondary)" }}>
                         Sign in to manage your hotel

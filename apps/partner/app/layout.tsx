@@ -16,7 +16,7 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "ZinoRooms Manager - Partner Dashboard",
+  title: "ZinuRooms Manager - Partner Dashboard",
   description: "Manage your hotel inventory, bookings, and earnings",
 };
 

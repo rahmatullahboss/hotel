@@ -37,7 +37,7 @@ function SignInContent() {
                     <div style={{ textAlign: "center", marginBottom: "2rem" }}>
                         <Link href="/" style={{ textDecoration: "none" }}>
                             <h1 style={{ fontSize: "2.5rem", fontWeight: 800, color: "var(--color-primary)" }}>
-                                ZinoRooms
+                                ZinuRooms
                             </h1>
                         </Link>
                         <p style={{ color: "var(--color-text-secondary)" }}>

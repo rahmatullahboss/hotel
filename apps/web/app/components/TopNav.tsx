@@ -14,7 +14,7 @@ export function TopNav() {
     return (
         <nav className="top-nav">
             <Link href="/" className="top-nav-logo">
-                ZinoRooms
+                ZinuRooms
             </Link>
 
             <div className="top-nav-links">

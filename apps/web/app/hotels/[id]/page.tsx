@@ -55,7 +55,7 @@ interface HotelDetail {
     payAtHotelEnabled: boolean;
     latitude: string | null;
     longitude: string | null;
-    zinoCode?: string | null;
+    zinuCode?: string | null;
 }
 
 // Amenity icon mapping
@@ -202,7 +202,7 @@ export default function HotelDetailPage() {
         );
     }
 
-    const displayName = hotel.zinoCode ? `Zino ${hotel.name}` : hotel.name;
+    const displayName = hotel.zinuCode ? `Zinu ${hotel.name}` : hotel.name;
     const selectedPrice = selectedRoom?.dynamicPrice ?? Number(selectedRoom?.basePrice || 0);
     const selectedBasePrice = Number(selectedRoom?.basePrice || 0);
     const nights = selectedRoom?.nights ?? 1;
@@ -256,7 +256,7 @@ export default function HotelDetailPage() {
                                 <p style={{ fontSize: "0.875rem", color: "var(--color-text-secondary)", margin: "0.25rem 0" }}>
                                     {hotel.address}, {hotel.city}
                                 </p>
-                                {hotel.zinoCode && (
+                                {hotel.zinuCode && (
                                     <span style={{
                                         display: "inline-block",
                                         background: "rgba(0,0,0,0.7)",

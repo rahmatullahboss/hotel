@@ -265,7 +265,7 @@ function HotelsContent() {
                                         basePrice={Math.round(hotel.lowestPrice * 1.3)}
                                         dynamicPrice={hotel.lowestPrice}
                                         badge={hotel.category === "PREMIUM" ? "Premium" : hotel.category === "BUSINESS" ? "Business" : undefined}
-                                        zinoCode={hotel.zinoCode ?? undefined}
+                                        zinuCode={hotel.zinuCode ?? undefined}
                                     />
                                 ))}
 

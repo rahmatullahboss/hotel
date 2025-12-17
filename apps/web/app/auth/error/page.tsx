@@ -42,7 +42,7 @@ export default function AuthErrorPage() {
                 <div className="container" style={{ maxWidth: "400px" }}>
                     <div style={{ textAlign: "center", marginBottom: "2rem" }}>
                         <Link href="/" style={{ fontSize: "2.5rem", fontWeight: 800, color: "var(--color-primary)", textDecoration: "none" }}>
-                            ZinoRooms
+                            ZinuRooms
                         </Link>
                     </div>
 
