@@ -251,7 +251,7 @@ export default function HotelDetailScreen() {
                         </View>
 
                         {/* Description */}
-                        <Text className="text-base text-gray-700 dark:text-gray-300 leading-6 mb-5">
+                        <Text className="text-base text-gray-700 dark:text-gray-300 leading-6 mb-5" numberOfLines={5}>
                             {hotel.description}
                         </Text>
 
@@ -369,13 +369,13 @@ export default function HotelDetailScreen() {
                                     <View className="p-4">
                                         {/* Room Name & Guest Count */}
                                         <View className="flex-row items-center justify-between mb-3">
-                                            <Text className="text-lg font-bold text-gray-900 dark:text-white">
+                                            <Text className="text-lg font-bold text-gray-900 dark:text-white flex-1 flex-shrink mr-2" numberOfLines={1}>
                                                 {room.name || room.type}
                                             </Text>
                                             {room.availableCount !== undefined && room.availableCount > 0 && (
-                                                <View className="flex-row items-center gap-1">
+                                                <View className="flex-row items-center gap-1 flex-shrink-0">
                                                     <FontAwesome name="users" size={11} color="#6B7280" />
-                                                    <Text className="text-gray-500 text-sm">
+                                                    <Text className="text-gray-500 text-sm" numberOfLines={1}>
                                                         {t('hotel.upToGuests', { count: room.maxGuests })}
                                                     </Text>
                                                 </View>

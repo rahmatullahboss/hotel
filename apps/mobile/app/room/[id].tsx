@@ -152,17 +152,17 @@ export default function RoomDetailsScreen() {
                             Room Details
                         </Text>
                         <View className="flex-row flex-wrap gap-4">
-                            <View className="flex-row items-center">
+                            <View className="flex-row items-center flex-1">
                                 <FontAwesome name="users" size={16} color="#6B7280" />
-                                <Text className="ml-2 text-gray-600">2 Guests</Text>
+                                <Text className="ml-2 text-gray-600 flex-1" numberOfLines={1}>2 Guests</Text>
                             </View>
-                            <View className="flex-row items-center">
+                            <View className="flex-row items-center flex-1">
                                 <FontAwesome name="bed" size={16} color="#6B7280" />
-                                <Text className="ml-2 text-gray-600">1 King Bed</Text>
+                                <Text className="ml-2 text-gray-600 flex-1" numberOfLines={1}>1 King Bed</Text>
                             </View>
-                            <View className="flex-row items-center">
+                            <View className="flex-row items-center flex-1">
                                 <FontAwesome name="arrows-alt" size={16} color="#6B7280" />
-                                <Text className="ml-2 text-gray-600">32 m²</Text>
+                                <Text className="ml-2 text-gray-600 flex-1" numberOfLines={1}>32 m²</Text>
                             </View>
                         </View>
                     </View>
