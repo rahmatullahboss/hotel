@@ -318,7 +318,7 @@ export default function HomeScreen() {
                         {hotel.city}
                       </Text>
                       <View className="flex-row items-center justify-between mt-1.5 gap-2">
-                        <View className="flex-row items-center">
+                        <View className="flex-row items-center flex-shrink-0">
                           <FontAwesome name="star" size={10} color="#F59E0B" />
                           <Text
                             className="text-xs font-medium text-gray-700 dark:text-gray-300 ml-1"
@@ -329,7 +329,7 @@ export default function HomeScreen() {
                         </View>
                         {hotel.lowestPrice && (
                           <Text
-                            className="text-sm font-bold text-primary flex-shrink"
+                            className="text-sm font-bold text-primary flex-shrink text-right"
                             style={{ includeFontPadding: false }}
                             numberOfLines={1}
                           >
