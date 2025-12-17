@@ -118,10 +118,22 @@ function HotelsContent() {
         setSelectedHotelId(hotelId);
     }, []);
 
-    // Popular locations for the current city
+    // Popular locations for the current city - now translated
     const popularLocations = city
-        ? ["Downtown", "Airport Area", "Beach Side", "City Center", "Business District"]
-        : ["Dhaka", "Chittagong", "Cox's Bazar", "Sylhet", "Kolkata"];
+        ? [
+            tListing("popularLocationsDefault.downtown"),
+            tListing("popularLocationsDefault.airportArea"),
+            tListing("popularLocationsDefault.beachSide"),
+            tListing("popularLocationsDefault.cityCenter"),
+            tListing("popularLocationsDefault.businessDistrict")
+        ]
+        : [
+            tListing("popularCities.dhaka"),
+            tListing("popularCities.chittagong"),
+            tListing("popularCities.coxsBazar"),
+            tListing("popularCities.sylhet"),
+            tListing("popularCities.kolkata")
+        ];
 
     return (
         <>

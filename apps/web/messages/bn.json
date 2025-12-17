@@ -629,6 +629,20 @@
         "previousPage": "← আগে",
         "nextPage": "পরে →",
         "pageInfo": "পৃষ্ঠা {current} / {total}",
-        "hotelCount": "({count} হোটেল)"
+        "hotelCount": "({count} হোটেল)",
+        "popularLocationsDefault": {
+            "downtown": "ডাউনটাউন",
+            "airportArea": "বিমানবন্দর এলাকা",
+            "beachSide": "সমুদ্র সৈকত",
+            "cityCenter": "শহর কেন্দ্র",
+            "businessDistrict": "ব্যবসায়িক এলাকা"
+        },
+        "popularCities": {
+            "dhaka": "ঢাকা",
+            "chittagong": "চট্টগ্রাম",
+            "coxsBazar": "কক্সবাজার",
+            "sylhet": "সিলেট",
+            "kolkata": "কলকাতা"
+        }
     }
 }

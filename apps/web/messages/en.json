@@ -631,6 +631,20 @@
         "previousPage": "← Previous",
         "nextPage": "Next →",
         "pageInfo": "Page {current} of {total}",
-        "hotelCount": "({count} hotels)"
+        "hotelCount": "({count} hotels)",
+        "popularLocationsDefault": {
+            "downtown": "Downtown",
+            "airportArea": "Airport Area",
+            "beachSide": "Beach Side",
+            "cityCenter": "City Center",
+            "businessDistrict": "Business District"
+        },
+        "popularCities": {
+            "dhaka": "Dhaka",
+            "chittagong": "Chittagong",
+            "coxsBazar": "Cox's Bazar",
+            "sylhet": "Sylhet",
+            "kolkata": "Kolkata"
+        }
     }
 }
