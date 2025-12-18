@@ -278,7 +278,8 @@
         "insufficientBalance": "অপর্যাপ্ত ব্যালেন্স",
         "instantPayment": "ওয়ালেট থেকে তাৎক্ষণিক পেমেন্ট",
         "walletPaymentFailed": "ওয়ালেট পেমেন্ট ব্যর্থ। আবার চেষ্টা করুন।",
-        "firstBookingDiscount": "প্রথম বুকিং ছাড় (২০%)"
+        "firstBookingDiscount": "প্রথম বুকিং ছাড় (২০%)",
+        "payAtHotelFull": "হোটেল চেক-ইনে সম্পূর্ণ টাকা পরিশোধ করুন"
     },
     "wallet": {
         "title": "ওয়ালেট",
