@@ -96,19 +96,21 @@ export default function HomeScreen() {
       setHotels(DUMMY_HOTELS);
     }
 
-    // Count hotels by city
+    // Count hotels by city (case-insensitive)
     const cityHotelCounts: Record<string, number> = {};
     fetchedHotels.forEach(hotel => {
-      const city = hotel.city;
-      cityHotelCounts[city] = (cityHotelCounts[city] || 0) + 1;
+      const city = hotel.city?.toLowerCase().trim();
+      if (city) {
+        cityHotelCounts[city] = (cityHotelCounts[city] || 0) + 1;
+      }
     });
 
     const { data: citiesData, error: citiesError } = await api.getCities();
     if (!citiesError && citiesData && citiesData.length > 0) {
-      // Merge hotel counts into cities
+      // Merge hotel counts into cities (case-insensitive lookup)
       const citiesWithCounts = citiesData.map((city: City) => ({
         ...city,
-        hotelCount: cityHotelCounts[city.name] || city.hotelCount || 0,
+        hotelCount: cityHotelCounts[city.name?.toLowerCase().trim()] || city.hotelCount || 0,
       }));
       setCities(citiesWithCounts.slice(0, 4));
     } else {
