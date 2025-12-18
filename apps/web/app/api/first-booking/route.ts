@@ -1,23 +1,23 @@
-import { NextResponse } from "next/server";
-import { auth } from "@/auth";
+import { NextRequest, NextResponse } from "next/server";
+import { getUserIdFromRequest } from "@/lib/mobile-auth";
 import { checkFirstBookingEligibility, calculateFirstBookingDiscount } from "@/app/actions/first-booking";
 
 /**
  * GET /api/first-booking/check
  * Check if the current user is eligible for first booking offer
  */
-export async function GET(request: Request) {
+export async function GET(request: NextRequest) {
     try {
-        const session = await auth();
+        const userId = await getUserIdFromRequest(request);
 
-        if (!session?.user?.id) {
+        if (!userId) {
             return NextResponse.json(
                 { eligible: false, message: "Not authenticated" },
                 { status: 401 }
             );
         }
 
-        const eligibility = await checkFirstBookingEligibility(session.user.id);
+        const eligibility = await checkFirstBookingEligibility(userId);
 
         return NextResponse.json(eligibility);
     } catch (error) {
@@ -33,11 +33,11 @@ export async function GET(request: Request) {
  * POST /api/first-booking/check
  * Calculate discount for a specific amount
  */
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
     try {
-        const session = await auth();
+        const userId = await getUserIdFromRequest(request);
 
-        if (!session?.user?.id) {
+        if (!userId) {
             return NextResponse.json(
                 { eligible: false, discount: 0, message: "Not authenticated" },
                 { status: 401 }
@@ -54,7 +54,7 @@ export async function POST(request: Request) {
             );
         }
 
-        const result = await calculateFirstBookingDiscount(session.user.id, amount);
+        const result = await calculateFirstBookingDiscount(userId, amount);
 
         return NextResponse.json({
             eligible: result.eligible,
