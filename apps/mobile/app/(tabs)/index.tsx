@@ -255,9 +255,9 @@ export default function HomeScreen() {
             activeOpacity={0.95}
           >
             <View
-              className="rounded-2xl p-5 overflow-hidden"
+              className="rounded-2xl p-5 overflow-hidden relative"
               style={{
-                backgroundColor: Colors.primary,
+                backgroundColor: '#1D3557',
                 shadowColor: '#1D3557',
                 shadowOffset: { width: 0, height: 4 },
                 shadowOpacity: 0.3,
@@ -265,6 +265,12 @@ export default function HomeScreen() {
                 elevation: 6,
               }}
             >
+              {/* Texture Elements - Decorative Circles */}
+              <View className="absolute -top-10 -right-10 w-40 h-40 rounded-full border-2 border-white/10" />
+              <View className="absolute top-4 -right-8 w-24 h-24 rounded-full bg-white/10" />
+              <View className="absolute -bottom-6 -left-6 w-28 h-28 rounded-full border-2 border-white/10" />
+              <View className="absolute bottom-5 left-20 w-4 h-4 rounded-full bg-white/15" />
+              <View className="absolute top-8 right-28 w-3 h-3 rounded-full bg-white/15" />
               <View className="flex-row items-center justify-between">
                 <View className="flex-1">
                   <View className="bg-white/20 self-start px-2.5 py-1 rounded-full mb-2">

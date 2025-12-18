@@ -45,12 +45,7 @@ export function ProfileHeader({
                 className="absolute inset-0"
                 style={{
                     height: 220 + insets.top,
-                    backgroundColor: '#E63946', // Using explicit hex to avoid circular dependency or extra import if Colors not available easily, but better to use Colors.
-                    // Checking imports... ProfileHeader doesn't import Colors.
-                    // I'll stick to #E63946 for now given the snippet context, or better, import Colors.
-                    // Actually, let's just use the hex code provided in the user request matching styling to ensure exact match 'same to same'.
-                    // Or I can add the import.
-                    // Plan: Use specific hex #E63946 for simplicity here as Colors.ts was just updated to this too.
+                    backgroundColor: '#E63946',
                 }}
             />
 
