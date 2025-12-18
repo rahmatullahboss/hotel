@@ -175,25 +175,26 @@ export default function AllHotelsScreen() {
 
             {/* Sort Options */}
             <View className="flex-row items-center mt-3">
-                <Text className="text-sm text-gray-500 dark:text-gray-400 mr-2">
+                <Text className="text-sm text-gray-500 dark:text-gray-400 mr-2 font-medium">
                     {t('allHotels.sort.label')}
                 </Text>
                 <ScrollView
                     horizontal
                     showsHorizontalScrollIndicator={false}
-                    contentContainerStyle={{ gap: 8 }}
+                    contentContainerStyle={{ gap: 8, paddingRight: 16 }}
+                    className="flex-1"
                 >
                     {SORT_KEYS.map((option) => (
                         <TouchableOpacity
                             key={option.id}
                             onPress={() => setSortBy(option.id as 'rating' | 'priceLow' | 'priceHigh')}
-                            className={`rounded-full border ${sortBy === option.id
+                            className={`flex-row items-center justify-center rounded-full border ${sortBy === option.id
                                 ? 'bg-primary border-primary'
                                 : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700'
                                 }`}
                             style={{
                                 paddingHorizontal: 16,
-                                paddingVertical: 6,
+                                paddingVertical: 8,
                                 minWidth: 60,
                             }}
                         >

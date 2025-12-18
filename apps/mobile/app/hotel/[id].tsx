@@ -19,6 +19,7 @@ import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { useBooking } from '@/hooks/useBooking';
 import { useBookingDates } from '@/contexts/BookingDatesContext';
 import { shareHotel } from '@/lib/share';
+import RoomCard from '@/components/RoomCard';
 
 const { width, height } = Dimensions.get('window');
 const HERO_HEIGHT = height * 0.5;
@@ -326,14 +327,26 @@ export default function HotelDetailScreen() {
 
                     {/* Available Rooms */}
                     {rooms.length > 0 && (
-                        <View className="mt-4">
-                            <Text className="text-lg font-bold text-gray-900 mb-4">
-                                Available Rooms
-                            </Text>
+                        <View className="mt-6">
+                            <View className="flex-row items-center justify-between mb-4">
+                                <Text className="text-lg font-bold text-gray-900">
+                                    Available Rooms
+                                </Text>
+                                {rooms.length > 3 && (
+                                    <Text className="text-sm font-medium" style={{ color: ACCENT_COLOR }}>
+                                        View All ({rooms.length})
+                                    </Text>
+                                )}
+                            </View>
                             {rooms.slice(0, 3).map((room) => (
-                                <TouchableOpacity
+                                <RoomCard
                                     key={room.id}
-                                    className="bg-gray-50 rounded-2xl p-4 mb-3 flex-row"
+                                    room={room}
+                                    hotelName={hotel.name}
+                                    hotelCity={hotel.city}
+                                    hotelId={hotel.id}
+                                    checkIn={formatCheckIn()}
+                                    checkOut={formatCheckOut()}
                                     onPress={() => router.push({
                                         pathname: '/booking/[id]',
                                         params: {
@@ -351,20 +364,7 @@ export default function HotelDetailScreen() {
                                             roomIds: room.roomIds ? JSON.stringify(room.roomIds) : '',
                                         }
                                     } as any)}
-                                >
-                                    <Image
-                                        source={{ uri: room.photos?.[0] || 'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=400' }}
-                                        className="w-20 h-20 rounded-xl"
-                                    />
-                                    <View className="flex-1 ml-3 justify-center">
-                                        <Text className="font-bold text-gray-900">{room.name || room.type}</Text>
-                                        <Text className="text-xs text-gray-400 mt-1">👥 Up to {room.maxGuests} guests</Text>
-                                        <Text className="font-bold mt-1" style={{ color: ACCENT_COLOR }}>
-                                            ৳ {formatPrice(Number(room.dynamicPrice || room.basePrice))}/night
-                                        </Text>
-                                    </View>
-                                    <FontAwesome name="chevron-right" size={14} color="#9CA3AF" style={{ alignSelf: 'center' }} />
-                                </TouchableOpacity>
+                                />
                             ))}
                         </View>
                     )}
