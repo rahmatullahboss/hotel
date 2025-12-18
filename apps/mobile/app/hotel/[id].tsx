@@ -7,34 +7,46 @@ import {
     TouchableOpacity,
     ActivityIndicator,
     Dimensions,
-    Animated,
 } from 'react-native';
-import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { LinearGradient } from 'expo-linear-gradient';
+import { BlurView } from 'expo-blur';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { useBooking } from '@/hooks/useBooking';
-import { shareHotel } from '@/lib/share';
 import { useBookingDates } from '@/contexts/BookingDatesContext';
 import { Alert } from 'react-native';
 
-const { width } = Dimensions.get('window');
-const HEADER_HEIGHT = 280;
-const ACCENT_COLOR = '#E63946';
+const { width, height } = Dimensions.get('window');
+const HERO_HEIGHT = height * 0.5;
+const NAVY_BLUE = '#1D3557';
 
 // Amenity icons matching reference design
 const AMENITY_CONFIG: Record<string, { icon: string; label: string }> = {
-    'WiFi': { icon: '📶', label: 'WiFi' },
-    'AC': { icon: '❄️', label: 'AC' },
-    'Parking': { icon: '🅿️', label: 'Parking' },
-    'Pool': { icon: '🏊', label: 'Pool' },
-    'Gym': { icon: '💪', label: 'Gym' },
-    'Restaurant': { icon: '🍽️', label: 'Dinner' },
-    'Spa': { icon: '💆', label: 'Spa' },
-    'Hot Tub': { icon: '🛁', label: 'Hot Tub' },
-    'Room Service': { icon: '🛎️', label: 'Service' },
-    'Breakfast': { icon: '🍳', label: 'Breakfast' },
+    'WiFi': { icon: 'wifi', label: 'Free Wifi' },
+    'AC': { icon: 'snowflake-o', label: 'AC' },
+    'Parking': { icon: 'car', label: 'Parking' },
+    'Pool': { icon: 'tint', label: 'Pool' },
+    'Gym': { icon: 'heartbeat', label: 'Gym' },
+    'Restaurant': { icon: 'cutlery', label: 'Restaurant' },
+    'Spa': { icon: 'leaf', label: 'Spa' },
+    'Hot Tub': { icon: 'bath', label: 'Hot Tub' },
+    'Room Service': { icon: 'bell', label: 'Service' },
+    'Breakfast': { icon: 'coffee', label: 'Breakfast' },
+    'Bar': { icon: 'glass', label: 'Bar' },
+    'Business': { icon: 'briefcase', label: 'Business' },
+    'Sunning': { icon: 'sun-o', label: 'Sunning' },
 };
+
+// Default amenities if none exist
+const DEFAULT_AMENITIES = [
+    { icon: 'sun-o', label: 'Sunning', key: 'sunning' },
+    { icon: 'wifi', label: 'Free Wifi', key: 'wifi' },
+    { icon: 'cutlery', label: 'Restaurant', key: 'restaurant' },
+    { icon: 'glass', label: 'Bar', key: 'bar' },
+    { icon: 'briefcase', label: 'Business', key: 'business' },
+];
 
 export default function HotelDetailScreen() {
     const { id } = useLocalSearchParams<{ id: string }>();
@@ -61,7 +73,7 @@ export default function HotelDetailScreen() {
     if (loading) {
         return (
             <View className="flex-1 items-center justify-center bg-white">
-                <ActivityIndicator size="large" color={ACCENT_COLOR} />
+                <ActivityIndicator size="large" color={NAVY_BLUE} />
             </View>
         );
     }
@@ -73,7 +85,7 @@ export default function HotelDetailScreen() {
                     {error || t('hotel.notFound')}
                 </Text>
                 <TouchableOpacity onPress={() => router.back()}>
-                    <Text style={{ color: ACCENT_COLOR }}>{t('hotel.goBack')}</Text>
+                    <Text style={{ color: NAVY_BLUE }}>{t('hotel.goBack')}</Text>
                 </TouchableOpacity>
             </View>
         );
@@ -89,20 +101,18 @@ export default function HotelDetailScreen() {
         : Number(hotel.lowestPrice || 0);
 
     // Get amenity display items
-    const displayAmenities = (hotel.amenities || []).slice(0, 4).map((a, i) => {
-        const config = AMENITY_CONFIG[a] || { icon: '✨', label: a };
+    const displayAmenities = (hotel.amenities || []).slice(0, 6).map((a, i) => {
+        const config = AMENITY_CONFIG[a] || { icon: 'star', label: a };
         return { ...config, key: `${a}-${i}` };
     });
 
-    // Add default amenities if none exist
-    if (displayAmenities.length === 0) {
-        displayAmenities.push(
-            { icon: '🛏️', label: '2 Beds', key: 'beds' },
-            { icon: '🍽️', label: 'Dinner', key: 'dinner' },
-            { icon: '🛁', label: 'Hot Tub', key: 'hottub' },
-            { icon: '❄️', label: '1 Ac', key: 'ac' }
-        );
-    }
+    // Use default amenities if none exist
+    const amenities = displayAmenities.length > 0 ? displayAmenities : DEFAULT_AMENITIES;
+
+    // Get preview images
+    const previewImages = hotel.images?.length > 0
+        ? hotel.images.slice(0, 6)
+        : [hotel.coverImage || 'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=400'];
 
     return (
         <View className="flex-1 bg-white">
@@ -113,91 +123,154 @@ export default function HotelDetailScreen() {
                 showsVerticalScrollIndicator={false}
                 bounces={false}
             >
-                {/* Hero Image Section */}
-                <View className="relative" style={{ height: HEADER_HEIGHT }}>
+                {/* Hero Image Section with Overlay */}
+                <View className="relative" style={{ height: HERO_HEIGHT }}>
                     <Image
                         source={{
                             uri: hotel.coverImage || hotel.images?.[0] || 'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=800',
                         }}
-                        style={{ width, height: HEADER_HEIGHT }}
+                        style={{ width, height: HERO_HEIGHT }}
                         resizeMode="cover"
                     />
 
-                    {/* Header Buttons */}
+                    {/* Gradient Overlay */}
+                    <LinearGradient
+                        colors={['transparent', 'rgba(0,0,0,0.7)']}
+                        style={{
+                            position: 'absolute',
+                            bottom: 0,
+                            left: 0,
+                            right: 0,
+                            height: HERO_HEIGHT * 0.5,
+                        }}
+                    />
+
+                    {/* Header with Semi-transparent Buttons */}
                     <View
                         style={{ position: 'absolute', top: insets.top + 8, left: 16, right: 16 }}
-                        className="flex-row justify-between"
+                        className="flex-row items-center justify-between"
                     >
                         {/* Back Button */}
                         <TouchableOpacity
-                            className="w-10 h-10 rounded-full bg-white items-center justify-center"
                             onPress={() => router.back()}
                             activeOpacity={0.8}
                             style={{
-                                shadowColor: '#000',
-                                shadowOffset: { width: 0, height: 2 },
-                                shadowOpacity: 0.1,
-                                shadowRadius: 4,
-                                elevation: 3,
+                                width: 40,
+                                height: 40,
+                                borderRadius: 20,
+                                backgroundColor: 'rgba(255,255,255,0.25)',
+                                alignItems: 'center',
+                                justifyContent: 'center',
                             }}
                         >
-                            <FontAwesome name="chevron-left" size={16} color="#1F2937" />
+                            <FontAwesome name="chevron-left" size={16} color="#fff" />
                         </TouchableOpacity>
 
-                        {/* Title & Menu */}
-                        <Text className="text-lg font-bold text-white">Details</Text>
+                        {/* Title */}
+                        <Text className="text-lg font-semibold text-white">Detail Hotels</Text>
 
+                        {/* Menu Button */}
                         <TouchableOpacity
-                            className="w-10 h-10 rounded-full bg-white items-center justify-center"
                             activeOpacity={0.8}
                             style={{
-                                shadowColor: '#000',
-                                shadowOffset: { width: 0, height: 2 },
-                                shadowOpacity: 0.1,
-                                shadowRadius: 4,
-                                elevation: 3,
+                                width: 40,
+                                height: 40,
+                                borderRadius: 20,
+                                backgroundColor: 'rgba(255,255,255,0.25)',
+                                alignItems: 'center',
+                                justifyContent: 'center',
                             }}
                         >
-                            <FontAwesome name="ellipsis-v" size={16} color="#1F2937" />
+                            <FontAwesome name="ellipsis-h" size={16} color="#fff" />
                         </TouchableOpacity>
                     </View>
 
-                    {/* Rating Badge */}
+                    {/* Hotel Info Overlay at Bottom */}
                     <View
-                        className="absolute top-4 left-4 flex-row items-center px-2.5 py-1.5 rounded-lg gap-1"
-                        style={{ backgroundColor: '#F59E0B', marginTop: insets.top + 48 }}
+                        style={{
+                            position: 'absolute',
+                            bottom: 20,
+                            left: 20,
+                            right: 20,
+                        }}
                     >
-                        <FontAwesome name="star" size={12} color="#fff" />
-                        <Text className="text-white font-bold text-sm">
-                            {Number(hotel.rating).toFixed(1)}
+                        {/* Hotel Name */}
+                        <Text className="text-2xl font-bold text-white mb-1" numberOfLines={2}>
+                            {hotel.name}
                         </Text>
+
+                        {/* Location */}
+                        <View className="flex-row items-center gap-1">
+                            <FontAwesome name="map-marker" size={14} color="#fff" />
+                            <Text className="text-sm text-white/80">{hotel.city}</Text>
+                        </View>
+                    </View>
+
+                    {/* Price Badge */}
+                    <View
+                        style={{
+                            position: 'absolute',
+                            bottom: 20,
+                            right: 20,
+                            backgroundColor: NAVY_BLUE,
+                            paddingHorizontal: 16,
+                            paddingVertical: 10,
+                            borderRadius: 12,
+                        }}
+                    >
+                        <Text className="text-xl font-bold text-white">
+                            ${formatPrice(price)}
+                        </Text>
+                        <Text className="text-xs text-white/70 text-center">/Night</Text>
                     </View>
                 </View>
 
                 {/* Content Section */}
-                <View className="px-5 pt-5 pb-32">
-                    {/* Location */}
-                    <View className="flex-row items-center gap-1 mb-2">
-                        <FontAwesome name="map-marker" size={14} color={ACCENT_COLOR} />
-                        <Text className="text-sm text-gray-500">{hotel.city}</Text>
-                    </View>
-
-                    {/* Hotel Name */}
-                    <Text className="text-2xl font-bold text-gray-900 mb-2">
-                        {hotel.name}
+                <View className="px-5 pt-6 pb-32">
+                    {/* Overview Section */}
+                    <Text className="text-lg font-bold text-gray-900 mb-3">
+                        Overview
+                    </Text>
+                    <Text className="text-sm text-gray-500 leading-6 mb-6" numberOfLines={3}>
+                        {hotel.description || `${hotel.name} is a highly recommended property in ${hotel.city}. Experience great layout and amazing views...`}
                     </Text>
 
-                    {/* Price */}
-                    <View className="flex-row items-baseline mb-6">
-                        <Text className="text-2xl font-bold" style={{ color: ACCENT_COLOR }}>
-                            ${formatPrice(price)}
-                        </Text>
-                        <Text className="text-gray-400 ml-1">/ night</Text>
-                    </View>
-
-                    {/* What We Offer */}
+                    {/* Amenities Section */}
                     <Text className="text-lg font-bold text-gray-900 mb-4">
-                        What We Offer
+                        Amenities
+                    </Text>
+                    <ScrollView
+                        horizontal
+                        showsHorizontalScrollIndicator={false}
+                        contentContainerStyle={{ gap: 24 }}
+                        className="mb-6"
+                    >
+                        {amenities.map((amenity) => (
+                            <View
+                                key={amenity.key}
+                                className="items-center"
+                                style={{ minWidth: 70 }}
+                            >
+                                <View
+                                    className="w-14 h-14 rounded-2xl items-center justify-center mb-2"
+                                    style={{ backgroundColor: '#F8F9FA', borderWidth: 1, borderColor: '#E5E7EB' }}
+                                >
+                                    <FontAwesome
+                                        name={amenity.icon as any}
+                                        size={22}
+                                        color={NAVY_BLUE}
+                                    />
+                                </View>
+                                <Text className="text-xs text-gray-600 text-center" numberOfLines={1}>
+                                    {amenity.label}
+                                </Text>
+                            </View>
+                        ))}
+                    </ScrollView>
+
+                    {/* Preview Section */}
+                    <Text className="text-lg font-bold text-gray-900 mb-4">
+                        Preview
                     </Text>
                     <ScrollView
                         horizontal
@@ -205,39 +278,28 @@ export default function HotelDetailScreen() {
                         contentContainerStyle={{ gap: 12 }}
                         className="mb-6"
                     >
-                        {displayAmenities.map((amenity) => (
-                            <View
-                                key={amenity.key}
-                                className="px-4 py-2.5 rounded-full bg-gray-100 flex-row items-center gap-2"
+                        {previewImages.map((imageUri, index) => (
+                            <TouchableOpacity
+                                key={`preview-${index}`}
+                                activeOpacity={0.9}
                             >
-                                <Text className="text-base">{amenity.icon}</Text>
-                                <Text className="text-sm font-medium text-gray-700">
-                                    {amenity.label}
-                                </Text>
-                            </View>
+                                <Image
+                                    source={{ uri: imageUri }}
+                                    className="rounded-xl"
+                                    style={{ width: 80, height: 80 }}
+                                    resizeMode="cover"
+                                />
+                            </TouchableOpacity>
                         ))}
                     </ScrollView>
 
-                    {/* Description */}
-                    <Text className="text-lg font-bold text-gray-900 mb-3">
-                        Description
-                    </Text>
-                    <Text className="text-sm text-gray-500 leading-6 mb-2">
-                        {hotel.description || `Set in ${hotel.city}, this beautiful hotel offers accommodation with a garden, private parking and a shared lounge.`}
-                    </Text>
-                    <TouchableOpacity>
-                        <Text className="text-sm font-semibold" style={{ color: ACCENT_COLOR }}>
-                            Show more
-                        </Text>
-                    </TouchableOpacity>
-
-                    {/* Rooms Preview */}
+                    {/* Available Rooms */}
                     {rooms.length > 0 && (
-                        <View className="mt-8">
+                        <View className="mt-4">
                             <Text className="text-lg font-bold text-gray-900 mb-4">
                                 Available Rooms
                             </Text>
-                            {rooms.slice(0, 2).map((room) => (
+                            {rooms.slice(0, 3).map((room) => (
                                 <TouchableOpacity
                                     key={room.id}
                                     className="bg-gray-50 rounded-2xl p-4 mb-3 flex-row"
@@ -266,7 +328,7 @@ export default function HotelDetailScreen() {
                                     <View className="flex-1 ml-3 justify-center">
                                         <Text className="font-bold text-gray-900">{room.name || room.type}</Text>
                                         <Text className="text-xs text-gray-400 mt-1">👥 Up to {room.maxGuests} guests</Text>
-                                        <Text className="font-bold mt-1" style={{ color: ACCENT_COLOR }}>
+                                        <Text className="font-bold mt-1" style={{ color: NAVY_BLUE }}>
                                             ${formatPrice(room.dynamicPrice || room.basePrice)}/night
                                         </Text>
                                     </View>
@@ -280,7 +342,7 @@ export default function HotelDetailScreen() {
 
             {/* Bottom Bar */}
             <View
-                className="absolute bottom-0 left-0 right-0 bg-white px-5 py-4 flex-row items-center justify-between"
+                className="absolute bottom-0 left-0 right-0 bg-white px-5 py-4 flex-row items-center"
                 style={{
                     paddingBottom: insets.bottom + 16,
                     shadowColor: '#000',
@@ -290,19 +352,30 @@ export default function HotelDetailScreen() {
                     elevation: 10,
                 }}
             >
-                {/* Message Button */}
+                {/* Favorite/Heart Button */}
                 <TouchableOpacity
-                    className="w-12 h-12 rounded-full bg-gray-100 items-center justify-center"
+                    className="w-14 h-14 rounded-full items-center justify-center"
+                    style={{ borderWidth: 1.5, borderColor: '#E5E7EB' }}
+                    onPress={handleToggleSave}
+                    disabled={savingState === 'saving'}
                 >
-                    <FontAwesome name="comment-o" size={20} color="#374151" />
+                    {savingState === 'saving' ? (
+                        <ActivityIndicator size="small" color={NAVY_BLUE} />
+                    ) : (
+                        <FontAwesome
+                            name={isSaved ? "heart" : "heart-o"}
+                            size={22}
+                            color={isSaved ? "#E63946" : "#374151"}
+                        />
+                    )}
                 </TouchableOpacity>
 
                 {/* Book Now Button */}
                 <TouchableOpacity
                     className="flex-1 ml-4 py-4 rounded-full items-center"
                     style={{
-                        backgroundColor: ACCENT_COLOR,
-                        shadowColor: ACCENT_COLOR,
+                        backgroundColor: NAVY_BLUE,
+                        shadowColor: NAVY_BLUE,
                         shadowOffset: { width: 0, height: 4 },
                         shadowOpacity: 0.3,
                         shadowRadius: 8,
