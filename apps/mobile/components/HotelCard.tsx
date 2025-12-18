@@ -23,16 +23,18 @@ interface HotelCardProps {
 }
 
 // Get category display info
-const getCategoryInfo = (category?: HotelCategory | null) => {
-    switch (category) {
-        case 'PREMIUM':
-            return { label: 'Zinu Premium', color: '#F59E0B', bgColor: 'bg-amber-500' };
-        case 'BUSINESS':
-            return { label: 'Business', color: '#3B82F6', bgColor: 'bg-blue-500' };
-        case 'CLASSIC':
-        default:
-            return { label: 'Zinu Classic', color: '#10B981', bgColor: 'bg-emerald-500' };
+const getCategoryInfo = (hotel: Hotel) => {
+    // Dynamic logic to match Details page
+    const price = Number(hotel.lowestPrice || 0);
+    const rating = Number(hotel.rating || 0);
+    const isPremium = price >= 8000 || rating >= 4.5;
+
+    if (isPremium) {
+        return { label: 'Zinu Premium', color: '#F59E0B', bgColor: 'bg-amber-500' };
     }
+    // Business logic check could be added here if needed, but for now defaulting to Classic if not Premium
+    // consistent with Details page which prioritizes Premium/Classic distinction
+    return { label: 'Zinu Classic', color: '#10B981', bgColor: 'bg-emerald-500' };
 };
 
 export default function HotelCard({ hotel, index, distance }: HotelCardProps) {
@@ -50,10 +52,10 @@ export default function HotelCard({ hotel, index, distance }: HotelCardProps) {
         router.push(`/hotel/${hotel.id}`);
     };
 
-    const categoryInfo = getCategoryInfo(hotel.category);
+    const categoryInfo = getCategoryInfo(hotel);
 
-    // Show "Zinu Hotel Name" (brand prefix), vibeCode number shown as badge
-    const displayName = hotel.name.toLowerCase().startsWith('zinu') ? hotel.name : `Zinu ${hotel.name}`;
+    // Show "Zinu Hotel Name" (brand prefix)
+    const displayName = hotel.name.toLowerCase().startsWith('zinu') ? hotel.name : `Zinu ${hotel.name.replace(/^Vibe\s+/i, '')}`;
 
     return (
         <TouchableOpacity
@@ -73,21 +75,19 @@ export default function HotelCard({ hotel, index, distance }: HotelCardProps) {
                 />
 
                 {/* Vibe Category Badge */}
-                {hotel.category && (
-                    <View
-                        className="absolute top-3 left-3 flex-row items-center px-2.5 py-1.5 rounded-lg gap-1.5 max-w-[60%]"
-                        style={{ backgroundColor: categoryInfo.color }}
-                    >
-                        <Text className="text-white text-xs font-bold flex-shrink" numberOfLines={1} ellipsizeMode="tail">
-                            {categoryInfo.label}
-                        </Text>
-                    </View>
-                )}
+                <View
+                    className="absolute top-3 left-3 flex-row items-center px-2.5 py-1.5 rounded-lg gap-1.5 max-w-[60%]"
+                    style={{ backgroundColor: categoryInfo.color }}
+                >
+                    <Text className="text-white text-xs font-bold flex-shrink" numberOfLines={1} ellipsizeMode="tail">
+                        {categoryInfo.label}
+                    </Text>
+                </View>
 
                 {/* Rating Badge */}
-                <View className="absolute top-3 right-3 flex-row items-center bg-white dark:bg-gray-900 px-2.5 py-1.5 rounded-lg gap-1.5">
+                <View className="absolute top-3 right-3 flex-row items-center bg-black/60 backdrop-blur-sm px-2.5 py-1.5 rounded-full gap-1.5">
                     <FontAwesome name="star" size={12} color="#F59E0B" />
-                    <Text className="text-gray-900 dark:text-white text-sm font-bold" numberOfLines={1} ellipsizeMode="clip">
+                    <Text className="text-white text-xs font-bold">
                         {Number(hotel.rating || 0).toFixed(1)}
                     </Text>
                 </View>
@@ -104,15 +104,15 @@ export default function HotelCard({ hotel, index, distance }: HotelCardProps) {
                 {/* Location Badge */}
                 <View className="absolute bottom-3 left-3 flex-row items-center bg-black/60 px-2.5 py-1.5 rounded-lg gap-1.5">
                     <FontAwesome name="map-marker" size={11} color="#fff" />
-                    <Text className="text-white text-xs font-medium min-w-[50px]" style={{ includeFontPadding: false }}>
+                    <Text className="text-white text-xs font-medium" style={{ includeFontPadding: false }}>
                         {hotel.city}
                     </Text>
                 </View>
 
-                {/* Vibe Code Badge */}
+                {/* Zinu ID Badge (Bottom Right) */}
                 {hotel.vibeCode && (
-                    <View className="absolute bottom-3 right-3 bg-primary/90 px-2.5 py-1.5 rounded-lg">
-                        <Text className="text-white text-xs font-bold" numberOfLines={1} ellipsizeMode="clip">
+                    <View className="absolute bottom-3 right-3 bg-red-600 px-2.5 py-1.5 rounded-lg">
+                        <Text className="text-white text-xs font-bold">
                             {hotel.vibeCode}
                         </Text>
                     </View>

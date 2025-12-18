@@ -244,7 +244,7 @@ export async function createBkashPayment(
         console.error("bKash create payment error:", error);
         return {
             success: false,
-            error: "Payment service unavailable",
+            error: error instanceof Error ? error.message : "Payment service unavailable",
         };
     }
 }

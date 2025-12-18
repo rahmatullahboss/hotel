@@ -2,10 +2,8 @@ import { useState, useEffect } from 'react';
 import {
     View,
     Text,
-    FlatList,
     TouchableOpacity,
     ActivityIndicator,
-    Alert,
 } from 'react-native';
 import { useRouter, useLocalSearchParams, Stack } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -14,6 +12,7 @@ import FontAwesome from '@expo/vector-icons/FontAwesome';
 import * as Location from 'expo-location';
 import api from '@/lib/api';
 import HotelCard from '@/components/HotelCard';
+import HotelListWithFilters from '@/components/HotelListWithFilters';
 
 interface Hotel {
     id: string;
@@ -145,40 +144,15 @@ export default function SearchResultsScreen() {
                         <Text className="text-white font-bold">Go Back</Text>
                     </TouchableOpacity>
                 </View>
-            ) : hotels.length === 0 ? (
-                <View className="flex-1 items-center justify-center p-5">
-                    <FontAwesome name="search" size={50} color="#9CA3AF" />
-                    <Text className="text-lg font-semibold text-gray-900 dark:text-white mt-4">
-                        No hotels found
-                    </Text>
-                    <Text className="text-sm text-gray-500 dark:text-gray-400 mt-2 text-center">
-                        {nearby === 'true' ? 'No hotels with location data available' : 'Try searching for a different location'}
-                    </Text>
-                    <TouchableOpacity
-                        className="mt-6 bg-primary px-6 py-3 rounded-full"
-                        onPress={() => router.back()}
-                    >
-                        <Text className="text-white font-bold">Go Back</Text>
-                    </TouchableOpacity>
-                </View>
             ) : (
-                <FlatList
-                    data={hotels}
-                    keyExtractor={(item) => item.id}
-                    renderItem={({ item, index }) => (
-                        <HotelCard
-                            hotel={item}
-                            index={index}
-                            distance={nearby === 'true' ? item.distance : undefined}
-                        />
-                    )}
-                    contentContainerStyle={{ padding: 16 }}
-                    showsVerticalScrollIndicator={false}
+                <HotelListWithFilters
+                    hotels={hotels}
                     ListHeaderComponent={
                         <Text className="text-sm text-gray-500 dark:text-gray-400 mb-4">
                             {hotels.length} hotel{hotels.length !== 1 ? 's' : ''} {nearby === 'true' ? 'near you' : `found in ${title}`}
                         </Text>
                     }
+                    noResultsMessage={nearby === 'true' ? 'No hotels with location data available' : 'Try searching for a different location'}
                 />
             )}
         </View>

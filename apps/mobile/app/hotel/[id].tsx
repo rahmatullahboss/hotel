@@ -56,11 +56,35 @@ export default function HotelDetailScreen() {
         extrapolate: 'clamp',
     });
 
-    const formatPrice = (price: number) => {
+    const formatPrice = (price: number | undefined | null) => {
+        const numPrice = Number(price || 0);
         if (i18n.language === 'bn') {
-            return price.toString().replace(/[0-9]/g, (d) => '০১২৩৪৫৬৭৮৯'[parseInt(d)]);
+            return numPrice.toString().replace(/[0-9]/g, (d) => '০১২৩৪৫৬৭৮৯'[parseInt(d)]);
         }
-        return Number(price).toLocaleString('en-US');
+        return numPrice.toLocaleString('en-US');
+    };
+
+    // Branding helper
+    const getCategoryInfo = (data: typeof hotel) => {
+        if (!data) return { label: 'Zinu Classic', color: '#10B981', textColor: '#FFFFFF' };
+
+        // Cast to any to avoid TS error if price is missing in type definition
+        const price = Number((data as any).price || data.rooms?.[0]?.basePrice || 0);
+        const rating = Number(data.rating || 0);
+        const isPremium = price >= 8000 || rating >= 4.5;
+
+        if (isPremium) {
+            return {
+                label: 'Zinu Premium',
+                color: '#F59E0B', // Amber-500
+                textColor: '#FFFFFF'
+            };
+        }
+        return {
+            label: 'Zinu Classic',
+            color: '#10B981', // Emerald-500
+            textColor: '#FFFFFF'
+        };
     };
 
     if (loading) {
@@ -83,6 +107,9 @@ export default function HotelDetailScreen() {
             </View>
         );
     }
+
+    const brandInfo = getCategoryInfo(hotel);
+    const displayName = hotel.name.startsWith('Zinu') ? hotel.name : `Zinu ${hotel.name.replace(/^Vibe\s+/i, '')}`;
 
     return (
         <SafeAreaView className="flex-1 bg-white dark:bg-gray-900" edges={['bottom']}>
@@ -137,7 +164,7 @@ export default function HotelDetailScreen() {
                             try {
                                 await shareHotel({
                                     hotelId: hotel.id,
-                                    hotelName: hotel.vibeCode ? `Vibe ${hotel.name}` : hotel.name,
+                                    hotelName: displayName,
                                     city: hotel.city,
                                     rating: Number(hotel.rating),
                                 });
@@ -184,6 +211,25 @@ export default function HotelDetailScreen() {
                     <View className="p-5">
                         {/* Badges Row */}
                         <View className="flex-row items-center gap-2 mb-3 flex-wrap">
+                            {/* Category Badge */}
+                            <View
+                                className="px-3 py-1.5 rounded-lg"
+                                style={{ backgroundColor: brandInfo.color }}
+                            >
+                                <Text className="text-white text-sm font-bold">
+                                    {brandInfo.label}
+                                </Text>
+                            </View>
+
+                            {/* Zinu ID Badge */}
+                            {hotel.vibeCode && (
+                                <View className="bg-red-600 px-3 py-1.5 rounded-lg">
+                                    <Text className="text-white text-sm font-bold">
+                                        {hotel.vibeCode}
+                                    </Text>
+                                </View>
+                            )}
+
                             {/* Rating Badge */}
                             <View className="flex-row items-center bg-black/80 px-3 py-1.5 rounded-lg gap-1.5">
                                 <FontAwesome name="star" size={14} color="#FFD700" />
@@ -191,36 +237,11 @@ export default function HotelDetailScreen() {
                                     {Number(hotel.rating || 0).toFixed(1)}
                                 </Text>
                             </View>
-                            {/* Vibe Code Badge */}
-                            {hotel.vibeCode && (
-                                <View className="bg-primary px-3 py-1.5 rounded-lg">
-                                    <Text className="text-white text-sm font-bold">
-                                        {hotel.vibeCode}
-                                    </Text>
-                                </View>
-                            )}
-                            {/* Category Badge */}
-                            {hotel.category && (
-                                <View
-                                    className="px-3 py-1.5 rounded-lg"
-                                    style={{
-                                        backgroundColor: hotel.category === 'PREMIUM' ? '#F59E0B'
-                                            : hotel.category === 'BUSINESS' ? '#3B82F6'
-                                                : '#10B981'
-                                    }}
-                                >
-                                    <Text className="text-white text-sm font-bold">
-                                        {hotel.category === 'PREMIUM' ? 'Premium'
-                                            : hotel.category === 'BUSINESS' ? 'Business'
-                                                : 'Classic'}
-                                    </Text>
-                                </View>
-                            )}
                         </View>
 
-                        {/* Hotel Name with Vibe brand prefix (code shown as badge) */}
+                        {/* Hotel Name with Zinu brand prefix */}
                         <Text className="text-3xl font-bold text-gray-900 dark:text-white mb-2 tracking-tight">
-                            {hotel.vibeCode ? `Vibe ${hotel.name}` : hotel.name}
+                            {displayName}
                         </Text>
 
                         {/* Location with Navigate Button */}
@@ -236,7 +257,7 @@ export default function HotelDetailScreen() {
                                     onPress={() => openNavigation({
                                         latitude: parseFloat(hotel.latitude!),
                                         longitude: parseFloat(hotel.longitude!),
-                                        name: hotel.name,
+                                        name: displayName,
                                         address: hotel.address,
                                     })}
                                     className="flex-row items-center gap-2 bg-blue-500 px-3 py-2 rounded-full ml-2"
