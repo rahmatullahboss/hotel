@@ -58,6 +58,7 @@ export default function HotelDetailScreen() {
 
     // Image gallery state
     const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
+    const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
 
     const {
         hotel,
@@ -262,9 +263,17 @@ export default function HotelDetailScreen() {
                     <Text className="text-lg font-bold text-gray-900 mb-3">
                         Overview
                     </Text>
-                    <Text className="text-sm text-gray-500 leading-6 mb-6" numberOfLines={3}>
+                    <Text
+                        className="text-sm text-gray-500 leading-6"
+                        numberOfLines={isDescriptionExpanded ? undefined : 3}
+                    >
                         {hotel.description || `${hotel.name} is a highly recommended property in ${hotel.city}. Experience great layout and amazing views...`}
                     </Text>
+                    <TouchableOpacity onPress={() => setIsDescriptionExpanded(!isDescriptionExpanded)}>
+                        <Text className="text-sm font-semibold mt-1 mb-6" style={{ color: ACCENT_COLOR }}>
+                            {isDescriptionExpanded ? 'Read Less' : 'Read More'}
+                        </Text>
+                    </TouchableOpacity>
 
                     {/* Amenities Section */}
                     <Text className="text-lg font-bold text-gray-900 mb-4">
