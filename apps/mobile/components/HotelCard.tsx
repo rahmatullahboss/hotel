@@ -5,8 +5,6 @@ import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
 import { LinearGradient } from 'expo-linear-gradient';
 
-const ACCENT_COLOR = '#E63946';
-
 interface Hotel {
     id: string;
     name: string;
@@ -29,13 +27,6 @@ export default function HotelCard({ hotel, index, distance }: HotelCardProps) {
     const { t, i18n } = useTranslation();
     const [isSaved, setIsSaved] = useState(false);
 
-    const formatPrice = (price: number) => {
-        if (i18n.language === 'bn') {
-            return price.toString().replace(/[0-9]/g, (d) => '০১২৩৪৫৬৭৮৯'[parseInt(d)]);
-        }
-        return Number(price).toLocaleString('en-US');
-    };
-
     // Generate Zinu ID
     const zinuId = hotel.vibeCode
         ? hotel.vibeCode
@@ -47,7 +38,7 @@ export default function HotelCard({ hotel, index, distance }: HotelCardProps) {
         router.push({
             pathname: `/hotel/${hotel.id}`,
             params: { zinuId }
-        });
+        } as any);
     };
 
     const rating = Number(hotel.rating || 0).toFixed(1);
@@ -85,9 +76,9 @@ export default function HotelCard({ hotel, index, distance }: HotelCardProps) {
 
                     {/* Smooth Gradient Overlay at Bottom */}
                     <LinearGradient
-                        colors={['transparent', 'rgba(0,0,0,0.3)', 'rgba(0,0,0,0.85)']}
-                        locations={[0, 0.4, 1]}
-                        className="absolute bottom-0 left-0 right-0 h-44"
+                        colors={['transparent', 'rgba(0,0,0,0.2)', 'rgba(0,0,0,0.75)']}
+                        locations={[0, 0.5, 1]}
+                        className="absolute bottom-0 left-0 right-0 h-40"
                         style={{
                             borderBottomLeftRadius: 24,
                             borderBottomRightRadius: 24,
@@ -96,7 +87,7 @@ export default function HotelCard({ hotel, index, distance }: HotelCardProps) {
                     />
 
                     {/* Text Content on Overlay */}
-                    <View className="absolute bottom-0 left-0 right-0 px-5 pb-5">
+                    <View className="absolute bottom-0 left-0 right-16 px-5 pb-5">
                         {/* Location with pin */}
                         <View className="flex-row items-center gap-1.5 mb-1">
                             <FontAwesome name="map-marker" size={14} color="rgba(255,255,255,0.85)" />
@@ -106,29 +97,35 @@ export default function HotelCard({ hotel, index, distance }: HotelCardProps) {
                         </View>
 
                         {/* Hotel Name */}
-                        <Text className="text-xl font-bold text-white mb-1" numberOfLines={1}>
+                        <Text className="text-xl font-bold text-white" numberOfLines={1}>
                             {hotel.name}
                         </Text>
-
-                        {/* Price */}
-                        <View className="flex-row items-baseline">
-                            <Text className="text-lg font-bold text-white">
-                                {t('common.currency')}{formatPrice(hotel.lowestPrice || 0)}
-                            </Text>
-                            <Text className="text-sm text-white/70 ml-1">/ night</Text>
-                        </View>
                     </View>
 
-                    {/* Rating Badge - Top Left (Golden) */}
-                    <View
-                        className="absolute top-4 left-4 flex-row items-center px-3 py-2 gap-1.5"
+                    {/* Arrow Button - Bottom Right */}
+                    <TouchableOpacity
+                        onPress={handlePress}
+                        className="absolute bottom-4 right-4 w-12 h-12 rounded-full items-center justify-center bg-white"
                         style={{
-                            backgroundColor: '#F59E0B',
-                            borderRadius: 12,
+                            shadowColor: '#000',
+                            shadowOffset: { width: 0, height: 2 },
+                            shadowOpacity: 0.15,
+                            shadowRadius: 4,
+                            elevation: 4,
                         }}
                     >
-                        <FontAwesome name="star" size={14} color="#fff" />
-                        <Text className="text-white font-bold text-sm">
+                        <FontAwesome name="arrow-right" size={16} color="#1F2937" style={{ transform: [{ rotate: '-45deg' }] }} />
+                    </TouchableOpacity>
+
+                    {/* Rating Badge - Top Left (Light background) */}
+                    <View
+                        className="absolute top-4 left-4 flex-row items-center px-3 py-2 gap-1.5 bg-white/90"
+                        style={{
+                            borderRadius: 20,
+                        }}
+                    >
+                        <FontAwesome name="star" size={14} color="#F59E0B" />
+                        <Text className="text-gray-900 font-bold text-sm">
                             {rating}
                         </Text>
                     </View>
@@ -154,29 +151,14 @@ export default function HotelCard({ hotel, index, distance }: HotelCardProps) {
                     {/* Distance Badge (for nearby hotels) */}
                     {distance !== undefined && (
                         <View
-                            className="absolute top-16 right-4 px-3 py-1.5"
-                            style={{
-                                backgroundColor: '#3B82F6',
-                                borderRadius: 10,
-                            }}
+                            className="absolute top-16 left-4 px-3 py-1.5 bg-blue-500"
+                            style={{ borderRadius: 10 }}
                         >
                             <Text className="text-white text-xs font-bold">
                                 {distance.toFixed(1)} km
                             </Text>
                         </View>
                     )}
-
-                    {/* Share/Send Button - Bottom Right (Primary) */}
-                    <TouchableOpacity
-                        className="absolute bottom-4 right-4 w-11 h-11 rounded-full items-center justify-center"
-                        style={{ backgroundColor: ACCENT_COLOR }}
-                        onPress={(e) => {
-                            e.stopPropagation();
-                            // Share functionality
-                        }}
-                    >
-                        <FontAwesome name="send" size={16} color="#fff" />
-                    </TouchableOpacity>
                 </View>
             </View>
         </TouchableOpacity>
