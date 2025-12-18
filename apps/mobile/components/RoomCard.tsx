@@ -75,11 +75,11 @@ export default function RoomCard({
     }));
 
     const handlePressIn = () => {
-        scale.value = withSpring(0.98, { damping: 15, stiffness: 300 });
+        scale.value = withSpring(0.995, { damping: 20, stiffness: 400 });
     };
 
     const handlePressOut = () => {
-        scale.value = withSpring(1, { damping: 15, stiffness: 300 });
+        scale.value = withSpring(1, { damping: 20, stiffness: 400 });
     };
 
     const formatPrice = (price: number | undefined | null) => {
