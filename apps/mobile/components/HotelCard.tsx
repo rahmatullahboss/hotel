@@ -4,7 +4,6 @@ import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
 import { LinearGradient } from 'expo-linear-gradient';
-import { BlurView } from 'expo-blur';
 
 interface Hotel {
     id: string;
@@ -126,18 +125,21 @@ export default function HotelCard({ hotel, index, distance }: HotelCardProps) {
                         <FontAwesome name="arrow-right" size={16} color="#1F2937" style={{ transform: [{ rotate: '-45deg' }] }} />
                     </TouchableOpacity>
 
-                    {/* Rating Badge - Top Left (Glass effect with blur) */}
-                    <BlurView
-                        intensity={50}
-                        tint="light"
+                    {/* Rating Badge - Top Left (Glass effect) */}
+                    <View
                         className="absolute top-4 left-4 flex-row items-center px-3 py-2 gap-1.5 overflow-hidden"
-                        style={{ borderRadius: 20 }}
+                        style={{
+                            borderRadius: 20,
+                            backgroundColor: 'rgba(255,255,255,0.2)',
+                            borderWidth: 1,
+                            borderColor: 'rgba(255,255,255,0.3)',
+                        }}
                     >
                         <FontAwesome name="star" size={14} color="#FBBF24" />
                         <Text className="text-white font-bold text-sm">
                             {rating}
                         </Text>
-                    </BlurView>
+                    </View>
 
                     {/* Heart Button - Top Right */}
                     <TouchableOpacity
