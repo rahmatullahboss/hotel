@@ -2,9 +2,9 @@ import { useRouter } from 'expo-router';
 import { View, Text, Image, TouchableOpacity } from 'react-native';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { useTranslation } from 'react-i18next';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { LinearGradient } from 'expo-linear-gradient';
-import { BlurView } from 'expo-blur';
+import api from '@/lib/api';
 
 interface Hotel {
     id: string;
@@ -15,6 +15,7 @@ interface Hotel {
     lowestPrice?: number;
     vibeCode?: string | null;
     serialNumber?: number | null;
+    isSaved?: boolean;
 }
 
 interface HotelCardProps {
@@ -26,7 +27,8 @@ interface HotelCardProps {
 export default function HotelCard({ hotel, index, distance }: HotelCardProps) {
     const router = useRouter();
     const { t, i18n } = useTranslation();
-    const [isSaved, setIsSaved] = useState(false);
+    const [isSaved, setIsSaved] = useState(hotel.isSaved || false);
+    const [saving, setSaving] = useState(false);
 
     // Generate Zinu ID
     const zinuId = hotel.vibeCode
@@ -40,6 +42,34 @@ export default function HotelCard({ hotel, index, distance }: HotelCardProps) {
             pathname: `/hotel/${hotel.id}`,
             params: { zinuId }
         } as any);
+    };
+
+    const handleSaveToggle = async () => {
+        if (saving) return;
+
+        setSaving(true);
+        const wasGaved = isSaved;
+
+        // Optimistic update
+        setIsSaved(!isSaved);
+
+        try {
+            if (wasGaved) {
+                const { error } = await api.unsaveHotel(hotel.id);
+                if (error) {
+                    setIsSaved(true); // Revert on error
+                }
+            } else {
+                const { error } = await api.saveHotel(hotel.id);
+                if (error) {
+                    setIsSaved(false); // Revert on error
+                }
+            }
+        } catch (e) {
+            setIsSaved(wasGaved); // Revert on error
+        } finally {
+            setSaving(false);
+        }
     };
 
     const rating = Number(hotel.rating || 0).toFixed(1);
@@ -146,11 +176,13 @@ export default function HotelCard({ hotel, index, distance }: HotelCardProps) {
                     <TouchableOpacity
                         onPress={(e) => {
                             e.stopPropagation();
-                            setIsSaved(!isSaved);
+                            handleSaveToggle();
                         }}
+                        disabled={saving}
                         className="absolute top-4 right-4 w-11 h-11 rounded-full items-center justify-center"
                         style={{
                             backgroundColor: isSaved ? '#EF4444' : 'rgba(0,0,0,0.4)',
+                            opacity: saving ? 0.7 : 1,
                         }}
                     >
                         <FontAwesome
