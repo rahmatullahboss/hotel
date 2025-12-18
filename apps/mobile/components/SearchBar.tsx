@@ -29,13 +29,9 @@ const POPULAR_CITIES = [
 ];
 
 interface SearchBarProps {
-    /** Placeholder text */
     placeholder?: string;
-    /** Whether to show the filter icon button */
     showFilterButton?: boolean;
-    /** Callback when filter button is pressed */
     onFilterPress?: () => void;
-    /** Search bar style variant */
     variant?: 'home' | 'search';
 }
 
@@ -52,7 +48,6 @@ export default function SearchBar({
     const [showSuggestions, setShowSuggestions] = useState(false);
     const [allHotels, setAllHotels] = useState<Hotel[]>([]);
 
-    // Fetch hotels for suggestions
     useEffect(() => {
         const fetchHotels = async () => {
             const { data, error } = await api.getHotels();
@@ -63,16 +58,10 @@ export default function SearchBar({
         fetchHotels();
     }, []);
 
-    // Show/hide suggestions based on query
     useEffect(() => {
-        if (searchQuery.length >= 1) {
-            setShowSuggestions(true);
-        } else {
-            setShowSuggestions(false);
-        }
+        setShowSuggestions(searchQuery.length >= 1);
     }, [searchQuery]);
 
-    // Get search suggestions (cities + hotels)
     const getSuggestions = useCallback(() => {
         if (searchQuery.length < 1) return [];
 
@@ -122,38 +111,47 @@ export default function SearchBar({
         <View style={{ zIndex: 999 }}>
             {/* Search Input */}
             <View
-                className="flex-row items-center rounded-xl px-3 py-2.5 gap-2.5"
+                className="flex-row items-center rounded-2xl px-4 py-3 gap-3"
                 style={{
-                    backgroundColor: 'rgba(255,255,255,0.95)',
+                    backgroundColor: '#FFFFFF',
                     shadowColor: '#000',
-                    shadowOffset: { width: 0, height: 2 },
-                    shadowOpacity: 0.1,
-                    shadowRadius: 8,
+                    shadowOffset: { width: 0, height: 4 },
+                    shadowOpacity: 0.08,
+                    shadowRadius: 12,
+                    elevation: 4,
                 }}
             >
-                <View className="w-8 h-8 rounded-lg bg-primary/10 items-center justify-center">
-                    <FontAwesome name="search" size={14} color="#E63946" />
+                {/* Search Icon */}
+                <View className="w-9 h-9 rounded-xl bg-primary/10 items-center justify-center">
+                    <FontAwesome name="search" size={16} color="#E63946" />
                 </View>
+
+                {/* Input Field */}
                 <TextInput
-                    className="flex-1 text-sm text-gray-900 font-medium"
+                    className="flex-1 text-base text-gray-900 font-medium"
                     placeholder={placeholder || t('home.searchPlaceholder')}
-                    placeholderTextColor="#9CA3AF"
+                    placeholderTextColor="#94A3B8"
                     value={searchQuery}
                     onChangeText={setSearchQuery}
                     onSubmitEditing={handleSubmit}
                     returnKeyType="search"
                     style={{ paddingVertical: 0 }}
                 />
+
+                {/* Clear/Filter Button */}
                 {searchQuery.length > 0 ? (
-                    <TouchableOpacity onPress={() => setSearchQuery('')}>
-                        <FontAwesome name="times-circle" size={18} color="#9CA3AF" />
+                    <TouchableOpacity
+                        onPress={() => setSearchQuery('')}
+                        className="w-8 h-8 items-center justify-center"
+                    >
+                        <FontAwesome name="times-circle" size={18} color="#94A3B8" />
                     </TouchableOpacity>
                 ) : showFilterButton ? (
                     <TouchableOpacity
-                        className="w-7 h-7 rounded-md bg-primary items-center justify-center"
+                        className="w-9 h-9 rounded-xl bg-primary items-center justify-center"
                         onPress={onFilterPress || (() => router.push('/(tabs)/search'))}
                     >
-                        <FontAwesome name="sliders" size={12} color="#fff" />
+                        <FontAwesome name="sliders" size={14} color="#fff" />
                     </TouchableOpacity>
                 ) : null}
             </View>
@@ -161,20 +159,21 @@ export default function SearchBar({
             {/* Suggestions Dropdown */}
             {showSuggestions && suggestions.length > 0 && (
                 <View
-                    className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-gray-800 rounded-xl overflow-hidden"
+                    className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-gray-800 rounded-2xl overflow-hidden"
                     style={{
                         zIndex: 9999,
                         elevation: 50,
                         shadowColor: '#000',
                         shadowOffset: { width: 0, height: 8 },
-                        shadowOpacity: 0.25,
-                        shadowRadius: 16,
+                        shadowOpacity: 0.15,
+                        shadowRadius: 20,
                     }}
                 >
                     {suggestions.map((item, index) => (
                         <TouchableOpacity
                             key={`${item.type}-${item.name}-${index}`}
-                            className="flex-row items-center px-4 py-3 border-b border-gray-100 dark:border-gray-700"
+                            className={`flex-row items-center px-4 py-3.5 ${index !== suggestions.length - 1 ? 'border-b border-gray-100 dark:border-gray-700' : ''
+                                }`}
                             onPress={() => {
                                 if (item.type === 'city') {
                                     handleCitySelect(item.name);
@@ -182,25 +181,31 @@ export default function SearchBar({
                                     handleHotelSelect((item as any).id);
                                 }
                             }}
+                            activeOpacity={0.7}
                         >
-                            <View className="w-8 h-8 rounded-full bg-primary/10 items-center justify-center mr-3">
-                                <FontAwesome
-                                    name={item.type === 'city' ? 'map-marker' : 'building'}
-                                    size={14}
-                                    color="#E63946"
-                                />
+                            {/* Icon */}
+                            <View className="w-10 h-10 rounded-xl bg-gray-100 dark:bg-gray-700 items-center justify-center mr-3">
+                                {item.type === 'city' ? (
+                                    <Text className="text-lg">📍</Text>
+                                ) : (
+                                    <Text className="text-lg">🏨</Text>
+                                )}
                             </View>
+
+                            {/* Text */}
                             <View className="flex-1">
-                                <Text className="text-sm font-semibold text-gray-900 dark:text-white">
+                                <Text className="text-base font-semibold text-gray-900 dark:text-white">
                                     {item.name}
                                 </Text>
-                                <Text className="text-xs text-gray-500">
+                                <Text className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
                                     {item.type === 'city'
                                         ? `${item.count} hotels`
                                         : (item as any).city}
                                 </Text>
                             </View>
-                            <FontAwesome name="chevron-right" size={12} color="#9CA3AF" />
+
+                            {/* Arrow */}
+                            <FontAwesome name="chevron-right" size={12} color="#CBD5E1" />
                         </TouchableOpacity>
                     ))}
                 </View>

@@ -147,12 +147,21 @@ export default function BookingCard({ booking }: BookingCardProps) {
     return (
         <TouchableOpacity
             onPress={handlePress}
-            activeOpacity={0.8}
+            activeOpacity={0.95}
             className="mb-4"
         >
-            <View className={`rounded-2xl overflow-hidden bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 ${isPast ? 'opacity-70' : ''}`}>
+            <View
+                className={`rounded-2xl overflow-hidden bg-white dark:bg-gray-800 ${isPast ? 'opacity-70' : ''}`}
+                style={{
+                    shadowColor: '#000',
+                    shadowOffset: { width: 0, height: 2 },
+                    shadowOpacity: 0.06,
+                    shadowRadius: 8,
+                    elevation: 3,
+                }}
+            >
                 {/* Status Accent Bar */}
-                <View className={`h-1 ${status.accentClass}`} />
+                <View className={`h-1.5 ${status.accentClass}`} />
 
                 <View className="p-4">
                     {/* Header with Image */}
