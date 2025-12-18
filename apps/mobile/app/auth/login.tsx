@@ -26,6 +26,7 @@ import { useGoogleAuth } from '@/hooks/useGoogleAuth';
 import { AnimatedGradientBackground } from '@/components/AnimatedGradientBackground';
 import { GlassmorphicCard } from '@/components/GlassmorphicCard';
 import { FloatingLabelInput } from '@/components/FloatingLabelInput';
+import { GoogleLogo } from '@/components/GoogleLogo';
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
@@ -207,9 +208,7 @@ export default function LoginScreen() {
                                 {googleLoading ? (
                                     <ActivityIndicator size="small" color="#4285F4" />
                                 ) : (
-                                    <View style={styles.googleIconContainer}>
-                                        <Text style={styles.googleG}>G</Text>
-                                    </View>
+                                    <GoogleLogo size={20} />
                                 )}
                                 <Text style={styles.googleButtonText}>
                                     {googleLoading ? 'Signing in...' : 'Continue with Google'}
