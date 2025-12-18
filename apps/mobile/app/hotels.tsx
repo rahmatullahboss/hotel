@@ -151,8 +151,8 @@ export default function AllHotelsScreen() {
                             }`}
                         onPress={() => setActiveFilter(filter.id)}
                         style={{
-                            paddingHorizontal: 20,
-                            paddingVertical: 12,
+                            paddingHorizontal: 16,
+                            paddingVertical: 8,
                         }}
                     >
                         <FontAwesome
@@ -165,7 +165,6 @@ export default function AllHotelsScreen() {
                                 ? 'text-white'
                                 : 'text-gray-700 dark:text-gray-300'
                                 }`}
-                            style={{ lineHeight: 24, flexShrink: 0 }}
                         >
                             {t(filter.labelKey)}
                         </Text>
@@ -175,10 +174,7 @@ export default function AllHotelsScreen() {
 
             {/* Sort Options */}
             <View className="flex-row items-center mt-3">
-                <Text
-                    className="text-sm text-gray-500 dark:text-gray-400 mr-2"
-                    style={{ lineHeight: 24 }}
-                >
+                <Text className="text-sm text-gray-500 dark:text-gray-400 mr-2">
                     {t('allHotels.sort.label')}
                 </Text>
                 <ScrollView
@@ -195,8 +191,8 @@ export default function AllHotelsScreen() {
                                 : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700'
                                 }`}
                             style={{
-                                paddingHorizontal: 20,
-                                paddingVertical: 10,
+                                paddingHorizontal: 16,
+                                paddingVertical: 6,
                             }}
                         >
                             <Text
@@ -204,7 +200,6 @@ export default function AllHotelsScreen() {
                                     ? 'text-white'
                                     : 'text-gray-600 dark:text-gray-300'
                                     }`}
-                                style={{ lineHeight: 24, flexShrink: 0 }}
                             >
                                 {t(option.labelKey)}
                             </Text>
@@ -214,10 +209,7 @@ export default function AllHotelsScreen() {
             </View>
 
             {/* Results count */}
-            <Text
-                className="text-sm text-gray-500 dark:text-gray-400 mt-3"
-                style={{ lineHeight: 24 }}
-            >
+            <Text className="text-sm text-gray-500 dark:text-gray-400 mt-3">
                 {t(getFilteredSortedHotels().length === 1 ? 'allHotels.hotelFound' : 'allHotels.hotelsFound', { count: getFilteredSortedHotels().length })}
             </Text>
         </View>
