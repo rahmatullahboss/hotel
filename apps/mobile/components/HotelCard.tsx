@@ -126,14 +126,14 @@ export default function HotelCard({ hotel, index, distance }: HotelCardProps) {
                         <FontAwesome name="arrow-right" size={16} color="#1F2937" style={{ transform: [{ rotate: '-45deg' }] }} />
                     </TouchableOpacity>
 
-                    {/* Rating Badge - Top Left (Glass blur effect) */}
+                    {/* Rating Badge - Top Left (Dark glass blur effect) */}
                     <BlurView
-                        intensity={100}
-                        tint="systemMaterialLight"
+                        intensity={80}
+                        tint="dark"
                         className="absolute top-4 left-4 flex-row items-center px-3 py-2 gap-1.5 overflow-hidden"
                         style={{
                             borderRadius: 20,
-                            backgroundColor: 'rgba(255,255,255,0.3)',
+                            backgroundColor: 'rgba(0,0,0,0.3)',
                         }}
                     >
                         <FontAwesome name="star" size={14} color="#FBBF24" />
