@@ -317,8 +317,12 @@ export default function ProfileScreen() {
                     <Text className="text-xs text-gray-400 dark:text-gray-500">
                         Zinu Rooms v1.0.0
                     </Text>
-                    <TouchableOpacity onPress={() => Linking.openURL('https://digitalcare.site')} activeOpacity={0.7}>
-                        <Text className="text-xs text-gray-300 dark:text-gray-600 mt-1">
+                    <TouchableOpacity
+                        onPress={() => Linking.openURL('https://digitalcare.site')}
+                        activeOpacity={0.7}
+                        className="mt-2"
+                    >
+                        <Text className="text-sm text-gray-500 dark:text-gray-400 font-medium">
                             Made with ❤️ by <Text style={{ color: '#E63946', fontWeight: 'bold' }}>DigitalCare</Text>
                         </Text>
                     </TouchableOpacity>
