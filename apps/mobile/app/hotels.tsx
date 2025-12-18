@@ -151,8 +151,7 @@ export default function AllHotelsScreen() {
                             }`}
                         onPress={() => setActiveFilter(filter.id)}
                         style={{
-                            paddingLeft: 10,
-                            paddingRight: 24,
+                            paddingHorizontal: 12,
                             paddingVertical: 6,
                         }}
                     >
@@ -193,9 +192,9 @@ export default function AllHotelsScreen() {
                                 : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700'
                                 }`}
                             style={{
-                                paddingLeft: 10,
-                                paddingRight: 24,
-                                paddingVertical: 4,
+                                paddingHorizontal: 16,
+                                paddingVertical: 6,
+                                minWidth: 60,
                             }}
                         >
                             <Text
@@ -203,6 +202,7 @@ export default function AllHotelsScreen() {
                                     fontSize: 12,
                                     fontWeight: '500',
                                     color: sortBy === option.id ? '#fff' : '#4B5563',
+                                    textAlign: 'center',
                                 }}
                             >
                                 {t(option.labelKey)}
