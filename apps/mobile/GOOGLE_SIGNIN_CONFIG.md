@@ -62,31 +62,51 @@ Each Android OAuth client in Google Cloud Console needs:
 | Client ID | `104361665388-erqs6259250hkjg13v378jshge11kaht` |
 | Used For | `webClientId` in Google Sign-In config |
 
-## Commands
+## Build Commands (Gradle)
 
-### Local Development
+### Development Build
+
 ```bash
-# Start dev server (uses APP_VARIANT=development from .env)
-npx expo start
+# 1. Set development variant in .env
+# APP_VARIANT=development (already set by default)
 
-# Prebuild for local Android build
+# 2. Prebuild native directories
 npx expo prebuild --clean
 
-# Build debug APK locally
+# 3. Set SDK path (required after each prebuild)
+echo "sdk.dir=$HOME/Library/Android/sdk" > android/local.properties
+
+# 4. Build debug APK
 cd android && ./gradlew assembleDebug
+
+# APK location: android/app/build/outputs/apk/debug/app-debug.apk
 ```
 
-### EAS Builds
+### Production Build
+
 ```bash
-# Development build (uses development profile)
-eas build --profile development --platform android
+# 1. Change APP_VARIANT in .env to production
+# APP_VARIANT=production
 
-# Production build
-eas build --profile production --platform android
+# 2. Prebuild native directories
+npx expo prebuild --clean
 
-# Production APK (instead of AAB)
-eas build --profile production-apk --platform android
+# 3. Set SDK path (required after each prebuild)
+echo "sdk.dir=$HOME/Library/Android/sdk" > android/local.properties
+
+# 4. Build release APK
+cd android && ./gradlew assembleRelease
+
+# APK location: android/app/build/outputs/apk/release/app-release.apk
 ```
+
+### Quick Reference
+
+| Build Type | APP_VARIANT | Gradle Command | Output |
+|------------|-------------|----------------|--------|
+| Debug APK | `development` | `./gradlew assembleDebug` | `apk/debug/app-debug.apk` |
+| Release APK | `production` | `./gradlew assembleRelease` | `apk/release/app-release.apk` |
+| Release AAB | `production` | `./gradlew bundleRelease` | `bundle/release/app-release.aab` |
 
 ## Getting SHA-1 Fingerprints
 
@@ -109,6 +129,13 @@ This error means Google Cloud Console is misconfigured. Check:
 2. SHA-1 fingerprint matches the keystore used to sign the APK
 3. The correct OAuth client is being used
 
+### SDK location not found
+
+Run this after each `npx expo prebuild --clean`:
+```bash
+echo "sdk.dir=$HOME/Library/Android/sdk" > android/local.properties
+```
+
 ### Common Issues
 
 | Issue | Solution |
@@ -116,25 +143,43 @@ This error means Google Cloud Console is misconfigured. Check:
 | Wrong package name | Verify `APP_VARIANT` is set correctly in `.env` |
 | SHA-1 mismatch | Regenerate fingerprint and update Google Cloud Console |
 | APK conflicts with production | Dev builds use `.dev` suffix, should install separately |
+| SDK location not found | Run `echo "sdk.dir=$HOME/Library/Android/sdk" > android/local.properties` |
 
 ## File Structure
 
 ```
 apps/mobile/
 ├── app.config.js          # Dynamic Expo config (reads APP_VARIANT)
-├── eas.json               # EAS build profiles with env vars
-├── .env                   # Local development environment
-├── .env.production        # Production reference (not used in builds)
+├── eas.json               # EAS config (optional, not used for Gradle builds)
+├── .env                   # Local environment (APP_VARIANT=development)
+├── .env.production        # Production reference
 └── android/
+    ├── local.properties           # SDK path (create after prebuild)
     └── app/
         ├── debug.keystore              # Debug signing (auto-generated)
         └── zinurooms-release.keystore  # Production signing
 ```
+
+## Switching Between Dev and Production
+
+### To switch to Production:
+1. Edit `.env`: change `APP_VARIANT=development` to `APP_VARIANT=production`
+2. Run `npx expo prebuild --clean`
+3. Run `echo "sdk.dir=$HOME/Library/Android/sdk" > android/local.properties`
+4. Build with Gradle
+
+### To switch back to Development:
+1. Edit `.env`: change `APP_VARIANT=production` to `APP_VARIANT=development`
+2. Run `npx expo prebuild --clean`
+3. Run `echo "sdk.dir=$HOME/Library/Android/sdk" > android/local.properties`
+4. Build with Gradle
 
 ## Important Notes for AI Assistants
 
 1. **Never mix client IDs** - Web Client ID goes in `webClientId`, Android Client is just for Google Cloud Console config
 2. **Package names must match** - The OAuth Android client package must exactly match the APK package
 3. **SHA-1 changes with keystore** - Different keystores = different SHA-1 = different OAuth clients needed
-4. **Prebuild required** - Any changes to `app.config.js` that affect native code require `npx expo prebuild --clean`
-5. **Don't commit `.env`** - It contains environment-specific values
+4. **Prebuild required** - Any changes to `app.config.js` or `APP_VARIANT` require `npx expo prebuild --clean`
+5. **local.properties reset** - Prebuild removes `local.properties`, must recreate it each time
+6. **Don't commit `.env`** - It contains environment-specific values
+7. **All builds use Gradle** - User prefers `./gradlew assembleDebug` or `./gradlew assembleRelease`, not EAS
