@@ -8,8 +8,7 @@ import {
     ActivityIndicator,
     Dimensions,
     Modal,
-    ActionSheetIOS,
-    Platform,
+    Alert,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -18,7 +17,6 @@ import { useTranslation } from 'react-i18next';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { useBooking } from '@/hooks/useBooking';
 import { useBookingDates } from '@/contexts/BookingDatesContext';
-import { Alert } from 'react-native';
 import { shareHotel } from '@/lib/share';
 
 const { width, height } = Dimensions.get('window');
@@ -91,35 +89,6 @@ export default function HotelDetailScreen() {
             console.log('Share cancelled or failed');
         }
     }, [hotel]);
-
-    // Handle menu button press
-    const handleMenuPress = useCallback(() => {
-        if (!hotel) return;
-
-        if (Platform.OS === 'ios') {
-            ActionSheetIOS.showActionSheetWithOptions(
-                {
-                    options: [t('common.cancel', 'Cancel'), t('common.share', 'Share')],
-                    cancelButtonIndex: 0,
-                },
-                (buttonIndex) => {
-                    if (buttonIndex === 1) {
-                        handleShare();
-                    }
-                }
-            );
-        } else {
-            // Android: show simple alert with options
-            Alert.alert(
-                t('hotel.options', 'Options'),
-                undefined,
-                [
-                    { text: t('common.share', 'Share'), onPress: handleShare },
-                    { text: t('common.cancel', 'Cancel'), style: 'cancel' },
-                ]
-            );
-        }
-    }, [hotel, handleShare, t]);
 
     // Handle preview image tap
     const handleImageTap = useCallback((index: number) => {
@@ -230,9 +199,9 @@ export default function HotelDetailScreen() {
                         {/* Title */}
                         <Text className="text-lg font-semibold text-white">Detail Hotels</Text>
 
-                        {/* Menu Button - with Share functionality */}
+                        {/* Share Button */}
                         <TouchableOpacity
-                            onPress={handleMenuPress}
+                            onPress={handleShare}
                             activeOpacity={0.8}
                             style={{
                                 width: 40,
@@ -243,7 +212,7 @@ export default function HotelDetailScreen() {
                                 justifyContent: 'center',
                             }}
                         >
-                            <FontAwesome name="ellipsis-h" size={16} color="#fff" />
+                            <FontAwesome name="share" size={16} color="#fff" />
                         </TouchableOpacity>
                     </View>
 
