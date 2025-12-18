@@ -314,18 +314,19 @@ export default function ProfileScreen() {
 
                 {/* App Info Footer */}
                 <View className="items-center py-8">
-                    <Text className="text-xs text-gray-400 dark:text-gray-500">
+                    <Text className="text-xs text-gray-400 dark:text-gray-500 mb-2">
                         Zinu Rooms v1.0.0
                     </Text>
-                    <TouchableOpacity
-                        onPress={() => Linking.openURL('https://digitalcare.site')}
-                        activeOpacity={0.7}
-                        className="mt-2"
-                    >
+                    <View className="flex-row items-center">
                         <Text className="text-sm text-gray-500 dark:text-gray-400 font-medium">
-                            Made with ❤️ by <Text style={{ color: '#E63946', fontWeight: 'bold' }}>DigitalCare</Text>
+                            Made with ❤️ by{' '}
                         </Text>
-                    </TouchableOpacity>
+                        <TouchableOpacity onPress={() => Linking.openURL('https://digitalcare.site')}>
+                            <Text style={{ color: '#E63946', fontWeight: 'bold', fontSize: 14 }}>
+                                DigitalCare
+                            </Text>
+                        </TouchableOpacity>
+                    </View>
                 </View>
 
                 <View className="h-5" />
