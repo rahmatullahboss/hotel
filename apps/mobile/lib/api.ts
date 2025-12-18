@@ -96,7 +96,19 @@ async function apiRequest<T>(
         if (!response.ok) {
             const errorData = await response.json().catch(() => ({}));
             const errorMessage = errorData.error || errorData.message || `HTTP ${response.status}`;
-            devError(`API Error [${endpoint}]:`, errorMessage);
+
+            // Don't log expected auth errors (user not logged in trying to access protected endpoints)
+            const isAuthError = response.status === 401 || response.status === 403;
+            const isExpectedAuthError = isAuthError && (
+                errorMessage.includes('Unauthorized') ||
+                errorMessage.includes('Authentication required') ||
+                errorMessage.includes('Not authenticated')
+            );
+
+            if (!isExpectedAuthError) {
+                devError(`API Error [${endpoint}]:`, errorMessage);
+            }
+
             return { error: errorMessage };
         }
 
