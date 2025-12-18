@@ -3,6 +3,7 @@ import { View, Text, Image, TouchableOpacity } from 'react-native';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
+import { LinearGradient } from 'expo-linear-gradient';
 
 const ACCENT_COLOR = '#E63946';
 
@@ -82,13 +83,14 @@ export default function HotelCard({ hotel, index, distance }: HotelCardProps) {
                         resizeMode="cover"
                     />
 
-                    {/* Dark Gradient Overlay at Bottom */}
-                    <View
-                        className="absolute bottom-0 left-0 right-0 h-40"
+                    {/* Smooth Gradient Overlay at Bottom */}
+                    <LinearGradient
+                        colors={['transparent', 'rgba(0,0,0,0.3)', 'rgba(0,0,0,0.85)']}
+                        locations={[0, 0.4, 1]}
+                        className="absolute bottom-0 left-0 right-0 h-44"
                         style={{
                             borderBottomLeftRadius: 24,
                             borderBottomRightRadius: 24,
-                            backgroundColor: 'rgba(0,0,0,0.55)',
                         }}
                         pointerEvents="none"
                     />
@@ -110,7 +112,7 @@ export default function HotelCard({ hotel, index, distance }: HotelCardProps) {
 
                         {/* Price */}
                         <View className="flex-row items-baseline">
-                            <Text className="text-lg font-bold" style={{ color: ACCENT_COLOR }}>
+                            <Text className="text-lg font-bold text-white">
                                 {t('common.currency')}{formatPrice(hotel.lowestPrice || 0)}
                             </Text>
                             <Text className="text-sm text-white/70 ml-1">/ night</Text>
@@ -131,7 +133,7 @@ export default function HotelCard({ hotel, index, distance }: HotelCardProps) {
                         </Text>
                     </View>
 
-                    {/* Heart Button - Top Right (Coral) */}
+                    {/* Heart Button - Top Right */}
                     <TouchableOpacity
                         onPress={(e) => {
                             e.stopPropagation();
@@ -139,11 +141,11 @@ export default function HotelCard({ hotel, index, distance }: HotelCardProps) {
                         }}
                         className="absolute top-4 right-4 w-11 h-11 rounded-full items-center justify-center"
                         style={{
-                            backgroundColor: isSaved ? '#EF4444' : '#F87171',
+                            backgroundColor: isSaved ? '#EF4444' : 'rgba(0,0,0,0.4)',
                         }}
                     >
                         <FontAwesome
-                            name="heart"
+                            name={isSaved ? 'heart' : 'heart-o'}
                             size={20}
                             color="#fff"
                         />

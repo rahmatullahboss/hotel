@@ -17,6 +17,7 @@ import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { useTranslation } from 'react-i18next';
 import api from '@/lib/api';
 import { useBookingDates } from '@/contexts/BookingDatesContext';
+import { LinearGradient } from 'expo-linear-gradient';
 
 const { width } = Dimensions.get('window');
 
@@ -233,13 +234,14 @@ export default function HomeScreen() {
                     resizeMode="cover"
                   />
 
-                  {/* Dark Gradient Overlay at Bottom */}
-                  <View
-                    className="absolute bottom-0 left-0 right-0 h-36"
+                  {/* Smooth Gradient Overlay at Bottom */}
+                  <LinearGradient
+                    colors={['transparent', 'rgba(0,0,0,0.3)', 'rgba(0,0,0,0.85)']}
+                    locations={[0, 0.4, 1]}
+                    className="absolute bottom-0 left-0 right-0 h-44"
                     style={{
                       borderBottomLeftRadius: 24,
                       borderBottomRightRadius: 24,
-                      backgroundColor: 'rgba(0,0,0,0.55)',
                     }}
                     pointerEvents="none"
                   />
@@ -259,7 +261,7 @@ export default function HomeScreen() {
 
                     {/* Price */}
                     <View className="flex-row items-baseline">
-                      <Text className="text-lg font-bold" style={{ color: '#E63946' }}>
+                      <Text className="text-lg font-bold text-white">
                         ৳{hotel.lowestPrice?.toLocaleString() || '0'}
                       </Text>
                       <Text className="text-sm text-white/70 ml-1">/ night</Text>
@@ -280,7 +282,7 @@ export default function HomeScreen() {
                     </Text>
                   </View>
 
-                  {/* Heart Button - Top Right (Coral) */}
+                  {/* Heart Button - Top Right */}
                   <TouchableOpacity
                     onPress={(e) => {
                       e.stopPropagation();
@@ -288,11 +290,11 @@ export default function HomeScreen() {
                     }}
                     className="absolute top-4 right-4 w-11 h-11 rounded-full items-center justify-center"
                     style={{
-                      backgroundColor: savedHotels.has(hotel.id) ? '#EF4444' : '#F87171',
+                      backgroundColor: savedHotels.has(hotel.id) ? '#EF4444' : 'rgba(0,0,0,0.4)',
                     }}
                   >
                     <FontAwesome
-                      name="heart"
+                      name={savedHotels.has(hotel.id) ? 'heart' : 'heart-o'}
                       size={20}
                       color="#fff"
                     />
