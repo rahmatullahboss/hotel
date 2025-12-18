@@ -15,7 +15,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { db, hotels, rooms, roomInventory, bookings, seasonalRules } from "@repo/db";
-import { eq, and, gte, lte, count } from "drizzle-orm";
+import { eq, and, gte, lte, count, sql } from "drizzle-orm";
 import { calculateDynamicPrice, type SeasonalRule } from "@repo/api";
 
 // Vercel Cron configuration
@@ -143,6 +143,8 @@ async function applyDynamicPricing() {
 
                 // Generate prices for next 90 days
                 const todayPrices: number[] = [];
+                const inventoryRecords: (typeof roomInventory.$inferInsert)[] = [];
+
                 for (const room of hotelRooms) {
                     const basePrice = parseFloat(room.basePrice);
 
@@ -169,27 +171,32 @@ async function applyDynamicPricing() {
                             todayPrices.push(priceBreakdown.finalPrice);
                         }
 
-                        // Upsert into roomInventory
-                        await db
-                            .insert(roomInventory)
-                            .values({
-                                roomId: room.id,
-                                date: dateStr,
-                                price: priceBreakdown.finalPrice.toFixed(2),
-                                status: "AVAILABLE",
-                            })
-                            .onConflictDoUpdate({
-                                target: [roomInventory.roomId, roomInventory.date],
-                                set: {
-                                    price: priceBreakdown.finalPrice.toFixed(2),
-                                    updatedAt: new Date(),
-                                },
-                            });
+                        // Collect record for batch insert
+                        inventoryRecords.push({
+                            roomId: room.id,
+                            date: dateStr,
+                            price: priceBreakdown.finalPrice.toFixed(2),
+                            status: "AVAILABLE",
+                        });
 
                         result.datesUpdated++;
                     }
 
                     result.roomsUpdated++;
+                }
+
+                // Batch upsert room inventory for the hotel
+                if (inventoryRecords.length > 0) {
+                    await db
+                        .insert(roomInventory)
+                        .values(inventoryRecords)
+                        .onConflictDoUpdate({
+                            target: [roomInventory.roomId, roomInventory.date],
+                            set: {
+                                price: sql`excluded.price`,
+                                updatedAt: new Date(),
+                            },
+                        });
                 }
 
                 // Update hotel's cached lowest price (single source of truth for listings)

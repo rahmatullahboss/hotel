@@ -2,7 +2,8 @@ import { DrizzleAdapter } from "@auth/drizzle-adapter";
 import type { NextAuthConfig } from "next-auth";
 import Google from "next-auth/providers/google";
 import Credentials from "next-auth/providers/credentials";
-import { users, accounts, sessions, verificationTokens, schema } from "@repo/db";
+import * as schema from "@repo/db/schema";
+const { users, accounts, sessions, verificationTokens } = schema;
 import { neon } from "@neondatabase/serverless";
 import { drizzle } from "drizzle-orm/neon-http";
 
@@ -53,12 +54,12 @@ const createQueryDb = () => {
  */
 export const getAuthConfig = (): NextAuthConfig => ({
     // Create adapter with fresh DB connection per request
-    adapter: DrizzleAdapter(createAdapterDb() as any, {
-        usersTable: users,
-        accountsTable: accounts,
-        sessionsTable: sessions,
-        verificationTokensTable: verificationTokens,
-    }),
+    // adapter: DrizzleAdapter(createAdapterDb() as any, {
+    //     usersTable: users,
+    //     accountsTable: accounts,
+    //     sessionsTable: sessions,
+    //     verificationTokensTable: verificationTokens,
+    // }),
 
     providers: [
         Google({
