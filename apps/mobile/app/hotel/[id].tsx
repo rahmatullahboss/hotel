@@ -292,7 +292,14 @@ export default function HotelDetailScreen() {
                                         color={ACCENT_COLOR}
                                     />
                                 </View>
-                                <Text className="text-xs text-gray-600 text-center">
+                                <Text
+                                    className="text-gray-600 text-center"
+                                    style={{
+                                        fontSize: 12,
+                                        lineHeight: 18,
+                                        paddingVertical: 2,
+                                    }}
+                                >
                                     {amenity.label}
                                 </Text>
                             </View>
