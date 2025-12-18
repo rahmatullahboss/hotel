@@ -4,10 +4,13 @@ import {
     Text,
     Dimensions,
     TouchableOpacity,
-    FlatList,
+    ImageBackground,
+    Animated,
+    PanResponder,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { LinearGradient } from 'expo-linear-gradient';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useTranslation } from 'react-i18next';
@@ -16,56 +19,26 @@ const { width, height } = Dimensions.get('window');
 
 const ONBOARDING_KEY = '@zinurooms_onboarding_completed';
 
-interface OnboardingSlide {
-    id: string;
-    icon: string;
-    iconColor: string;
-    bgColor: string;
-    title: string;
-    description: string;
-}
-
-const SLIDES: OnboardingSlide[] = [
-    {
-        id: '1',
-        icon: 'building',
-        iconColor: '#E63946',
-        bgColor: '#FEE2E2',
-        title: 'Welcome to Zinu Rooms',
-        description: 'Find and book the perfect hotel for your next adventure. Thousands of verified hotels at your fingertips.',
-    },
-    {
-        id: '2',
-        icon: 'bolt',
-        iconColor: '#F59E0B',
-        bgColor: '#FEF3C7',
-        title: 'Instant Booking',
-        description: 'Book your stay in seconds. Pay online or at the hotel - you choose what works best for you.',
-    },
-    {
-        id: '3',
-        icon: 'gift',
-        iconColor: '#10B981',
-        bgColor: '#D1FAE5',
-        title: 'Earn Rewards',
-        description: 'Get 5% cashback on every booking. Unlock badges, maintain streaks, and earn exclusive perks.',
-    },
-    {
-        id: '4',
-        icon: 'qrcode',
-        iconColor: '#3B82F6',
-        bgColor: '#DBEAFE',
-        title: 'Self Check-in',
-        description: 'Skip the queue! Use your QR code for instant self check-in and check-out at partner hotels.',
-    },
+// Beautiful destination images
+const BACKGROUNDS = [
+    'https://images.unsplash.com/photo-1573843981267-be1999ff37cd?w=800',
+    'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=800',
+    'https://images.unsplash.com/photo-1540541338287-41700207dee6?w=800',
 ];
 
 export default function OnboardingScreen() {
     const router = useRouter();
     const insets = useSafeAreaInsets();
     const { t } = useTranslation();
-    const flatListRef = useRef<FlatList>(null);
-    const [currentIndex, setCurrentIndex] = useState(0);
+    const [currentBg, setCurrentBg] = useState(0);
+
+    // Animation for swipe button
+    const slideAnim = useRef(new Animated.Value(0)).current;
+    const [isSliding, setIsSliding] = useState(false);
+
+    const SLIDER_WIDTH = width - 80;
+    const BUTTON_SIZE = 56;
+    const SLIDE_THRESHOLD = SLIDER_WIDTH - BUTTON_SIZE - 20;
 
     const completeOnboarding = async () => {
         try {
@@ -77,126 +50,122 @@ export default function OnboardingScreen() {
         }
     };
 
-    const goToNext = () => {
-        if (currentIndex < SLIDES.length - 1) {
-            flatListRef.current?.scrollToIndex({ index: currentIndex + 1, animated: true });
-        } else {
-            completeOnboarding();
-        }
-    };
-
-    const skipOnboarding = () => {
-        completeOnboarding();
-    };
-
-    const renderSlide = ({ item }: { item: OnboardingSlide }) => (
-        <View style={{ width, flex: 1 }} className="items-center px-8">
-            <View className="flex-1 items-center justify-center">
-                {/* Icon Container */}
-                <View
-                    className="w-32 h-32 rounded-full items-center justify-center mb-10"
-                    style={{ backgroundColor: item.bgColor }}
-                >
-                    <FontAwesome name={item.icon as any} size={56} color={item.iconColor} />
-                </View>
-
-                {/* Title */}
-                <Text
-                    className="text-3xl font-bold text-gray-900 text-center mb-4 px-4"
-                    numberOfLines={0}
-                >
-                    {t(`onboarding.slide${item.id}.title`, item.title)}
-                </Text>
-
-                {/* Description */}
-                <View className="w-full px-4">
-                    <Text
-                        className="text-base text-gray-500 text-center leading-7"
-                        numberOfLines={0}
-                    >
-                        {t(`onboarding.slide${item.id}.description`, item.description)}
-                    </Text>
-                </View>
-            </View>
-        </View>
-    );
-
-    const renderDots = () => (
-        <View className="flex-row items-center justify-center gap-2">
-            {SLIDES.map((_, index) => (
-                <View
-                    key={index}
-                    className={`h-2 rounded-full transition-all ${index === currentIndex ? 'bg-primary w-6' : 'bg-gray-300 w-2'
-                        }`}
-                />
-            ))}
-        </View>
-    );
+    const panResponder = useRef(
+        PanResponder.create({
+            onStartShouldSetPanResponder: () => true,
+            onMoveShouldSetPanResponder: () => true,
+            onPanResponderGrant: () => {
+                setIsSliding(true);
+            },
+            onPanResponderMove: (_, gestureState) => {
+                const newValue = Math.max(0, Math.min(gestureState.dx, SLIDE_THRESHOLD));
+                slideAnim.setValue(newValue);
+            },
+            onPanResponderRelease: (_, gestureState) => {
+                setIsSliding(false);
+                if (gestureState.dx >= SLIDE_THRESHOLD * 0.8) {
+                    // Complete the slide
+                    Animated.spring(slideAnim, {
+                        toValue: SLIDE_THRESHOLD,
+                        useNativeDriver: false,
+                    }).start(() => {
+                        completeOnboarding();
+                    });
+                } else {
+                    // Reset
+                    Animated.spring(slideAnim, {
+                        toValue: 0,
+                        useNativeDriver: false,
+                    }).start();
+                }
+            },
+        })
+    ).current;
 
     return (
-        <View className="flex-1 bg-white" style={{ paddingTop: insets.top }}>
-            {/* Skip Button */}
-            <View className="absolute top-0 right-0 z-10" style={{ paddingTop: insets.top + 16, paddingRight: 20 }}>
-                <TouchableOpacity onPress={skipOnboarding}>
-                    <Text className="text-gray-500 font-medium text-base">
-                        {t('onboarding.skip', 'Skip')}
-                    </Text>
-                </TouchableOpacity>
-            </View>
-
-            {/* Slides */}
-            <FlatList
-                ref={flatListRef}
-                data={SLIDES}
-                renderItem={renderSlide}
-                horizontal
-                pagingEnabled
-                showsHorizontalScrollIndicator={false}
-                keyExtractor={(item) => item.id}
-                onMomentumScrollEnd={(e) => {
-                    const index = Math.round(e.nativeEvent.contentOffset.x / width);
-                    setCurrentIndex(index);
-                }}
-                className="flex-1"
-                contentContainerStyle={{ alignItems: 'center' }}
-            />
-
-            {/* Bottom Section */}
-            <View className="px-6 pb-8" style={{ paddingBottom: insets.bottom + 24 }}>
-                {/* Dots */}
-                {renderDots()}
-
-                {/* Buttons */}
-                <View className="mt-8 gap-3">
-                    <TouchableOpacity
-                        onPress={goToNext}
-                        className="bg-primary py-4 rounded-xl"
-                        activeOpacity={0.8}
+        <View className="flex-1">
+            <ImageBackground
+                source={{ uri: BACKGROUNDS[currentBg] }}
+                style={{ flex: 1 }}
+                resizeMode="cover"
+            >
+                {/* Gradient Overlay */}
+                <LinearGradient
+                    colors={['transparent', 'rgba(0,0,0,0.3)', 'rgba(0,0,0,0.85)']}
+                    locations={[0, 0.5, 1]}
+                    style={{ flex: 1 }}
+                >
+                    {/* Content */}
+                    <View
+                        className="flex-1 justify-end"
+                        style={{ paddingBottom: insets.bottom + 32, paddingHorizontal: 24 }}
                     >
-                        <Text className="text-white text-center font-bold text-lg">
-                            {currentIndex === SLIDES.length - 1
-                                ? t('onboarding.getStarted', 'Get Started')
-                                : t('onboarding.next', 'Next')
-                            }
+                        {/* Title */}
+                        <Text className="text-white text-4xl font-bold leading-tight mb-4">
+                            Easy way to book your{'\n'}hotel with us!
                         </Text>
-                    </TouchableOpacity>
 
-                    {currentIndex === SLIDES.length - 1 && (
+                        {/* Subtitle */}
+                        <Text className="text-white/70 text-base mb-10 leading-6">
+                            Also book flight ticket, places, food and many more.
+                        </Text>
+
+                        {/* Swipe to Book Button */}
+                        <View
+                            className="rounded-full overflow-hidden"
+                            style={{
+                                backgroundColor: 'rgba(255,255,255,0.15)',
+                                borderWidth: 1,
+                                borderColor: 'rgba(255,255,255,0.2)',
+                            }}
+                        >
+                            <View
+                                className="flex-row items-center justify-between py-2 px-2"
+                                style={{ width: SLIDER_WIDTH }}
+                            >
+                                {/* Slider Button */}
+                                <Animated.View
+                                    style={{
+                                        transform: [{ translateX: slideAnim }],
+                                    }}
+                                    {...panResponder.panHandlers}
+                                >
+                                    <View
+                                        className="items-center justify-center rounded-full"
+                                        style={{
+                                            width: BUTTON_SIZE,
+                                            height: BUTTON_SIZE,
+                                            backgroundColor: '#E63946', // Primary red
+                                        }}
+                                    >
+                                        <FontAwesome name="arrow-right" size={20} color="#fff" />
+                                    </View>
+                                </Animated.View>
+
+                                {/* Text and Arrows */}
+                                <View className="flex-row items-center gap-3 pr-4">
+                                    <Text className="text-white font-semibold text-base">
+                                        Swipe to Book
+                                    </Text>
+                                    <Text className="text-white/60">›››</Text>
+                                </View>
+                            </View>
+                        </View>
+
+                        {/* Already have account */}
                         <TouchableOpacity
                             onPress={() => router.push('/auth/login')}
-                            className="py-3"
+                            className="mt-6 py-2"
                             activeOpacity={0.7}
                         >
-                            <Text className="text-gray-500 text-center font-medium">
-                                {t('onboarding.alreadyHaveAccount', 'Already have an account?')}{' '}
-                                <Text className="text-primary font-bold">
-                                    {t('onboarding.login', 'Login')}
-                                </Text>
+                            <Text className="text-white/60 text-center text-sm">
+                                Already have an account?{' '}
+                                <Text className="text-primary font-semibold">Login</Text>
                             </Text>
                         </TouchableOpacity>
-                    )}
-                </View>
-            </View>
+                    </View>
+                </LinearGradient>
+            </ImageBackground>
         </View>
     );
 }
