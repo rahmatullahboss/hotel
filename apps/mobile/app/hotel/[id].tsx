@@ -211,7 +211,7 @@ export default function HotelDetailScreen() {
                         </TouchableOpacity>
 
                         {/* Title */}
-                        <Text className="text-lg font-semibold text-white">Detail Hotels</Text>
+                        <Text className="text-lg font-semibold text-white">{t('hotel.detailTitle')}</Text>
 
                         {/* Share Button */}
                         <TouchableOpacity

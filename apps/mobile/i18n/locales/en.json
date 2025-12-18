@@ -107,6 +107,7 @@
     "hotel": {
         "notFound": "Hotel not found",
         "goBack": "Go Back",
+        "detailTitle": "Hotel Details",
         "overview": "Overview",
         "readMore": "Read More",
         "readLess": "Read Less",

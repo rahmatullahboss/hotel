@@ -107,6 +107,7 @@
     "hotel": {
         "notFound": "হোটেল পাওয়া যায়নি",
         "goBack": "ফিরে যান",
+        "detailTitle": "হোটেল বিবরণ",
         "overview": "সংক্ষিপ্ত বিবরণ",
         "readMore": "আরো পড়ুন",
         "readLess": "কম দেখুন",
