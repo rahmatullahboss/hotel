@@ -25,30 +25,30 @@ const { width, height } = Dimensions.get('window');
 const HERO_HEIGHT = height * 0.5;
 const ACCENT_COLOR = '#E63946';
 
-// Amenity icons matching reference design
-const AMENITY_CONFIG: Record<string, { icon: string; label: string }> = {
-    'WiFi': { icon: 'wifi', label: 'Free Wifi' },
-    'AC': { icon: 'snowflake-o', label: 'AC' },
-    'Parking': { icon: 'car', label: 'Parking' },
-    'Pool': { icon: 'tint', label: 'Pool' },
-    'Gym': { icon: 'heartbeat', label: 'Gym' },
-    'Restaurant': { icon: 'cutlery', label: 'Restaurant' },
-    'Spa': { icon: 'leaf', label: 'Spa' },
-    'Hot Tub': { icon: 'bath', label: 'Hot Tub' },
-    'Room Service': { icon: 'bell', label: 'Service' },
-    'Breakfast': { icon: 'coffee', label: 'Breakfast' },
-    'Bar': { icon: 'glass', label: 'Bar' },
-    'Business': { icon: 'briefcase', label: 'Business' },
-    'Sunning': { icon: 'sun-o', label: 'Sunning' },
+// Amenity icons - keys map to translation keys in amenities namespace
+const AMENITY_CONFIG: Record<string, { icon: string; key: string }> = {
+    'WiFi': { icon: 'wifi', key: 'freeWifi' },
+    'AC': { icon: 'snowflake-o', key: 'ac' },
+    'Parking': { icon: 'car', key: 'parking' },
+    'Pool': { icon: 'tint', key: 'pool' },
+    'Gym': { icon: 'heartbeat', key: 'gym' },
+    'Restaurant': { icon: 'cutlery', key: 'restaurant' },
+    'Spa': { icon: 'leaf', key: 'spa' },
+    'Hot Tub': { icon: 'bath', key: 'hotTub' },
+    'Room Service': { icon: 'bell', key: 'roomService' },
+    'Breakfast': { icon: 'coffee', key: 'breakfast' },
+    'Bar': { icon: 'glass', key: 'bar' },
+    'Business': { icon: 'briefcase', key: 'business' },
+    'Sunning': { icon: 'sun-o', key: 'sunning' },
 };
 
 // Default amenities if none exist
 const DEFAULT_AMENITIES = [
-    { icon: 'sun-o', label: 'Sunning', key: 'sunning' },
-    { icon: 'wifi', label: 'Free Wifi', key: 'wifi' },
-    { icon: 'cutlery', label: 'Restaurant', key: 'restaurant' },
-    { icon: 'glass', label: 'Bar', key: 'bar' },
-    { icon: 'briefcase', label: 'Business', key: 'business' },
+    { icon: 'sun-o', key: 'sunning', amenityKey: 'sunning' },
+    { icon: 'wifi', key: 'freeWifi', amenityKey: 'wifi' },
+    { icon: 'cutlery', key: 'restaurant', amenityKey: 'restaurant' },
+    { icon: 'glass', key: 'bar', amenityKey: 'bar' },
+    { icon: 'briefcase', key: 'business', amenityKey: 'business' },
 ];
 
 export default function HotelDetailScreen() {
@@ -135,8 +135,8 @@ export default function HotelDetailScreen() {
 
     // Get amenity display items
     const displayAmenities = (hotel.amenities || []).slice(0, 6).map((a, i) => {
-        const config = AMENITY_CONFIG[a] || { icon: 'star', label: a };
-        return { ...config, key: `${a}-${i}` };
+        const config = AMENITY_CONFIG[a] || { icon: 'star', key: a.toLowerCase().replace(/\s+/g, '') };
+        return { ...config, amenityKey: `${a}-${i}` };
     });
 
     // Use default amenities if none exist
@@ -300,7 +300,7 @@ export default function HotelDetailScreen() {
                     >
                         {amenities.map((amenity) => (
                             <View
-                                key={amenity.key}
+                                key={amenity.amenityKey}
                                 className="items-center px-2"
                             >
                                 <View
@@ -317,7 +317,7 @@ export default function HotelDetailScreen() {
                                     className="text-gray-600 text-center text-xs"
                                     style={{ paddingBottom: 4 }}
                                 >
-                                    {amenity.label}
+                                    {t(`amenities.${amenity.key}`)}
                                 </Text>
                             </View>
                         ))}

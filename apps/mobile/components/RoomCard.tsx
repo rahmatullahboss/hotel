@@ -3,10 +3,10 @@ import {
     View,
     Text,
     Image,
-    TouchableOpacity,
     Pressable,
 } from 'react-native';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
+import { useTranslation } from 'react-i18next';
 import Animated, {
     useAnimatedStyle,
     useSharedValue,
@@ -15,22 +15,22 @@ import Animated, {
 
 const ACCENT_COLOR = '#E63946';
 
-// Room amenity icons
-const ROOM_AMENITY_CONFIG: Record<string, { icon: string; label: string }> = {
-    'AC': { icon: 'snowflake-o', label: 'AC' },
-    'WiFi': { icon: 'wifi', label: 'WiFi' },
-    'TV': { icon: 'television', label: 'TV' },
-    'Minibar': { icon: 'glass', label: 'Minibar' },
-    'Balcony': { icon: 'leaf', label: 'Balcony' },
-    'Sea View': { icon: 'ship', label: 'Sea View' },
-    'City View': { icon: 'building', label: 'City View' },
-    'Pool View': { icon: 'tint', label: 'Pool' },
-    'King Bed': { icon: 'bed', label: 'King' },
-    'Twin Beds': { icon: 'bed', label: 'Twin' },
-    'Suite': { icon: 'star', label: 'Suite' },
-    'Jacuzzi': { icon: 'bath', label: 'Jacuzzi' },
-    'Kitchen': { icon: 'cutlery', label: 'Kitchen' },
-    'Safe': { icon: 'lock', label: 'Safe' },
+// Room amenity icons - keys map to translation keys
+const ROOM_AMENITY_CONFIG: Record<string, { icon: string; key: string }> = {
+    'AC': { icon: 'snowflake-o', key: 'ac' },
+    'WiFi': { icon: 'wifi', key: 'wifi' },
+    'TV': { icon: 'television', key: 'tv' },
+    'Minibar': { icon: 'glass', key: 'minibar' },
+    'Balcony': { icon: 'leaf', key: 'balcony' },
+    'Sea View': { icon: 'ship', key: 'seaView' },
+    'City View': { icon: 'building', key: 'cityView' },
+    'Pool View': { icon: 'tint', key: 'poolView' },
+    'King Bed': { icon: 'bed', key: 'kingBed' },
+    'Twin Beds': { icon: 'bed', key: 'twinBeds' },
+    'Suite': { icon: 'star', key: 'suite' },
+    'Jacuzzi': { icon: 'bath', key: 'jacuzzi' },
+    'Kitchen': { icon: 'cutlery', key: 'kitchen' },
+    'Safe': { icon: 'lock', key: 'safe' },
 };
 
 // Default room amenities to show if none exist
@@ -68,6 +68,7 @@ export default function RoomCard({
     checkOut,
     onPress,
 }: RoomCardProps) {
+    const { t } = useTranslation();
     const scale = useSharedValue(1);
 
     const animatedStyle = useAnimatedStyle(() => ({
@@ -126,7 +127,10 @@ export default function RoomCard({
                             style={{ backgroundColor: 'rgba(34, 197, 94, 0.9)' }}
                         >
                             <Text className="text-white text-xs font-semibold">
-                                {room.availableCount} {room.availableCount === 1 ? 'room' : 'rooms'} left
+                                {room.availableCount === 1
+                                    ? t('room.roomLeft', { count: room.availableCount })
+                                    : t('room.roomsLeft', { count: room.availableCount })
+                                }
                             </Text>
                         </View>
                     )}
@@ -139,7 +143,7 @@ export default function RoomCard({
                             ৳{formatPrice(price)}
                         </Text>
                         <Text className="text-white/70 text-xs text-center">
-                            /night
+                            {t('room.perNight')}
                         </Text>
                     </View>
                 </View>
@@ -154,7 +158,7 @@ export default function RoomCard({
                     {/* Amenities Row */}
                     <View className="flex-row flex-wrap gap-2 mb-3">
                         {displayAmenities.map((amenity, index) => {
-                            const config = ROOM_AMENITY_CONFIG[amenity] || { icon: 'check', label: amenity };
+                            const config = ROOM_AMENITY_CONFIG[amenity] || { icon: 'check', key: amenity.toLowerCase() };
                             return (
                                 <View
                                     key={`${amenity}-${index}`}
@@ -167,7 +171,7 @@ export default function RoomCard({
                                         color="#6B7280"
                                     />
                                     <Text className="text-gray-600 text-xs ml-1.5 font-medium">
-                                        {config.label}
+                                        {t(`amenities.${config.key}`, { defaultValue: amenity })}
                                     </Text>
                                 </View>
                             );
@@ -185,7 +189,7 @@ export default function RoomCard({
                                 <FontAwesome name="user" size={14} color={ACCENT_COLOR} />
                             </View>
                             <Text className="text-gray-600 text-sm">
-                                Up to <Text className="font-semibold text-gray-900">{room.maxGuests}</Text> guests
+                                {t('room.upToGuests', { count: room.maxGuests })} {t('room.guests')}
                             </Text>
                         </View>
 
@@ -195,7 +199,7 @@ export default function RoomCard({
                             style={{ backgroundColor: '#FEF2F2' }}
                         >
                             <Text className="text-sm font-semibold mr-1" style={{ color: ACCENT_COLOR }}>
-                                Book
+                                {t('room.book')}
                             </Text>
                             <FontAwesome name="chevron-right" size={10} color={ACCENT_COLOR} />
                         </View>
