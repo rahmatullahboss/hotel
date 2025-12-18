@@ -54,12 +54,12 @@ const createQueryDb = () => {
  */
 export const getAuthConfig = (): NextAuthConfig => ({
     // Create adapter with fresh DB connection per request
-    // adapter: DrizzleAdapter(createAdapterDb() as any, {
-    //     usersTable: users,
-    //     accountsTable: accounts,
-    //     sessionsTable: sessions,
-    //     verificationTokensTable: verificationTokens,
-    // }),
+    adapter: DrizzleAdapter(createAdapterDb() as any, {
+        usersTable: users,
+        accountsTable: accounts,
+        sessionsTable: sessions,
+        verificationTokensTable: verificationTokens,
+    }),
 
     providers: [
         Google({
