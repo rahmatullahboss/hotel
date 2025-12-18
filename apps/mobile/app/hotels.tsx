@@ -152,7 +152,7 @@ export default function AllHotelsScreen() {
                         onPress={() => setActiveFilter(filter.id)}
                         style={{
                             paddingLeft: 10,
-                            paddingRight: 16,
+                            paddingRight: 24,
                             paddingVertical: 6,
                         }}
                     >
@@ -194,7 +194,7 @@ export default function AllHotelsScreen() {
                                 }`}
                             style={{
                                 paddingLeft: 10,
-                                paddingRight: 16,
+                                paddingRight: 24,
                                 paddingVertical: 4,
                             }}
                         >
