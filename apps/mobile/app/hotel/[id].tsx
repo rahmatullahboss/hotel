@@ -9,6 +9,7 @@ import {
     Dimensions,
     Modal,
     Alert,
+    FlatList,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -154,14 +155,25 @@ export default function HotelDetailScreen() {
                 showsVerticalScrollIndicator={false}
                 bounces={false}
             >
-                {/* Hero Image Section with Overlay */}
                 <View className="relative" style={{ height: HERO_HEIGHT }}>
-                    <Image
-                        source={{
-                            uri: hotel.coverImage || hotel.images?.[0] || 'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=800',
+                    <FlatList
+                        data={previewImages}
+                        horizontal
+                        pagingEnabled
+                        showsHorizontalScrollIndicator={false}
+                        keyExtractor={(_, index) => `hero-${index}`}
+                        renderItem={({ item, index }) => (
+                            <TouchableOpacity activeOpacity={0.9} onPress={() => handleImageTap(index)}>
+                                <Image
+                                    source={{ uri: item }}
+                                    style={{ width, height: HERO_HEIGHT }}
+                                    resizeMode="cover"
+                                />
+                            </TouchableOpacity>
+                        )}
+                        onMomentumScrollEnd={(e) => {
+                            // Optional: Update current index state if needed for dots
                         }}
-                        style={{ width, height: HERO_HEIGHT }}
-                        resizeMode="cover"
                     />
 
                     {/* Gradient Overlay */}
@@ -300,38 +312,17 @@ export default function HotelDetailScreen() {
                                         color={ACCENT_COLOR}
                                     />
                                 </View>
-                                <Text className="text-gray-600 text-center text-xs">
+                                <Text
+                                    className="text-gray-600 text-center text-xs"
+                                    style={{ paddingBottom: 4 }}
+                                >
                                     {amenity.label}
                                 </Text>
                             </View>
                         ))}
                     </ScrollView>
 
-                    {/* Preview Section */}
-                    <Text className="text-lg font-bold text-gray-900 mb-4">
-                        Preview
-                    </Text>
-                    <ScrollView
-                        horizontal
-                        showsHorizontalScrollIndicator={false}
-                        contentContainerStyle={{ gap: 12 }}
-                        className="mb-6"
-                    >
-                        {previewImages.map((imageUri, index) => (
-                            <TouchableOpacity
-                                key={`preview-${index}`}
-                                activeOpacity={0.9}
-                                onPress={() => handleImageTap(index)}
-                            >
-                                <Image
-                                    source={{ uri: imageUri }}
-                                    className="rounded-xl"
-                                    style={{ width: 80, height: 80 }}
-                                    resizeMode="cover"
-                                />
-                            </TouchableOpacity>
-                        ))}
-                    </ScrollView>
+
 
                     {/* Available Rooms */}
                     {rooms.length > 0 && (
@@ -369,7 +360,7 @@ export default function HotelDetailScreen() {
                                         <Text className="font-bold text-gray-900">{room.name || room.type}</Text>
                                         <Text className="text-xs text-gray-400 mt-1">👥 Up to {room.maxGuests} guests</Text>
                                         <Text className="font-bold mt-1" style={{ color: ACCENT_COLOR }}>
-                                            ৳ {formatPrice(room.dynamicPrice || room.basePrice)}/night
+                                            ৳ {formatPrice(Number(room.dynamicPrice || room.basePrice))}/night
                                         </Text>
                                     </View>
                                     <FontAwesome name="chevron-right" size={14} color="#9CA3AF" style={{ alignSelf: 'center' }} />
