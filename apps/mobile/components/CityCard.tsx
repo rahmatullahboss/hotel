@@ -15,7 +15,7 @@ interface CityCardProps {
 // City images - Real photos of Bangladeshi landmarks
 const CITY_IMAGES: Record<string, string> = {
     'Dhaka': 'https://images.unsplash.com/photo-1596895111956-bf1cf0599ce5?w=400', // Lalbagh Fort, Dhaka
-    'Chittagong': 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400', // Chittagong port city
+    'Chittagong': 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=400', // Chittagong city view
     "Cox's Bazar": 'https://images.unsplash.com/photo-1519046904884-53103b34b206?w=400', // Cox's Bazar sea beach
     'Sylhet': 'https://images.unsplash.com/photo-1564507592333-c60657eea523?w=400', // Sylhet tea gardens
     'Rajshahi': 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=400', // Rajshahi heritage
