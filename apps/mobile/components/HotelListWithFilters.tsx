@@ -110,16 +110,20 @@ export default function HotelListWithFilters({
                 {FILTER_KEYS.map((filter) => (
                     <TouchableOpacity
                         key={filter.id}
-                        className={`flex-row items-center px-6 py-3 rounded-full gap-2 ${activeFilter === filter.id
+                        className={`flex-row items-center rounded-full gap-2 ${activeFilter === filter.id
                             ? 'bg-primary'
                             : 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700'
                             }`}
                         onPress={() => setActiveFilter(filter.id)}
-                        style={activeFilter === filter.id ? {} : {
-                            shadowColor: '#000',
-                            shadowOffset: { width: 0, height: 2 },
-                            shadowOpacity: 0.05,
-                            shadowRadius: 4,
+                        style={{
+                            paddingHorizontal: 24,
+                            paddingVertical: 12,
+                            ...(activeFilter !== filter.id && {
+                                shadowColor: '#000',
+                                shadowOffset: { width: 0, height: 2 },
+                                shadowOpacity: 0.05,
+                                shadowRadius: 4,
+                            })
                         }}
                     >
                         <FontAwesome
@@ -132,7 +136,7 @@ export default function HotelListWithFilters({
                                 ? 'text-white'
                                 : 'text-gray-700 dark:text-gray-300'
                                 }`}
-                            style={{ lineHeight: 22, textAlignVertical: 'center' }}
+                            style={{ lineHeight: 24, flexShrink: 0 }}
                         >
                             {t(filter.labelKey)}
                         </Text>
@@ -157,17 +161,21 @@ export default function HotelListWithFilters({
                         <TouchableOpacity
                             key={option.id}
                             onPress={() => setSortBy(option.id as 'rating' | 'priceLow' | 'priceHigh' | 'distance')}
-                            className={`px-6 py-3 rounded-full border ${sortBy === option.id
+                            className={`rounded-full border ${sortBy === option.id
                                 ? 'bg-primary border-primary'
                                 : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700'
                                 }`}
+                            style={{
+                                paddingHorizontal: 24,
+                                paddingVertical: 12,
+                            }}
                         >
                             <Text
                                 className={`text-sm font-medium ${sortBy === option.id
                                     ? 'text-white'
                                     : 'text-gray-600 dark:text-gray-300'
                                     }`}
-                                style={{ lineHeight: 22 }}
+                                style={{ lineHeight: 24, flexShrink: 0 }}
                             >
                                 {t(option.labelKey)}
                             </Text>
