@@ -60,9 +60,9 @@
         "instantBookingDesc": "Confirm your stay in just 3 clicks",
         "promo": {
             "badge": "LIMITED OFFER",
-            "title": "First Booking Offer!",
-            "subtitle": "Get 20% OFF on your first stay",
-            "button": "Book Now"
+            "title": "First Booking Offer on App!",
+            "subtitle": "Download our App to get 20% OFF (up to 1000 Taka) on your first stay",
+            "button": "Download App"
         }
     },
     "search": {
