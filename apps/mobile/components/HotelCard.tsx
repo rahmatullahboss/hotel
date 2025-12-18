@@ -118,11 +118,11 @@ export default function HotelCard({ hotel, index, distance }: HotelCardProps) {
                     />
 
                     {/* Text Content on Overlay */}
-                    <View className="absolute bottom-0 left-0 right-16 px-5 pb-5">
+                    <View className="absolute bottom-0 left-0 right-14 px-5 pb-5">
                         {/* Location with pin */}
                         <View className="flex-row items-center gap-1.5 mb-1">
                             <FontAwesome name="map-marker" size={14} color="rgba(255,255,255,0.85)" />
-                            <Text className="text-sm" style={{ color: 'rgba(255,255,255,0.85)' }}>
+                            <Text className="text-sm flex-1" style={{ color: 'rgba(255,255,255,0.85)' }} numberOfLines={1}>
                                 {hotel.city}
                             </Text>
                         </View>
