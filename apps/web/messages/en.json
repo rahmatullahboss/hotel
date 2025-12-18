@@ -77,6 +77,35 @@
             "title": "First Booking Offer on App!",
             "subtitle": "Download our App to get 20% OFF (up to 1000 Taka) on your first stay",
             "button": "Download App"
+        },
+        "appDownload": {
+            "title": "Your Next Stay is<br />One Tap Away",
+            "subtitle": "Download the Zinu Rooms app and unlock instant <strong>20% OFF</strong> on your first booking — plus earn wallet rewards with every stay.",
+            "badge": "App Exclusive Offer",
+            "stats": {
+                "rating": "App Rating",
+                "downloads": "Downloads",
+                "guests": "Happy Guests"
+            },
+            "features": {
+                "instant": "Instant Booking",
+                "rewards": "Wallet Rewards",
+                "secure": "Secure Payments"
+            },
+            "buttons": {
+                "getItOn": "GET IT ON",
+                "googlePlay": "Google Play",
+                "downloadOn": "Download on the",
+                "appStore": "App Store"
+            },
+            "mockup": {
+                "bookingConfirmed": "Booking Confirmed!",
+                "staySecured": "Your stay is secured",
+                "earned": "৳200 Earned",
+                "addedToWallet": "Added to wallet",
+                "deal": "DEAL",
+                "off": "20% OFF"
+            }
         }
     },
     "search": {

@@ -297,20 +297,20 @@ export default function HomeScreen() {
               {hotels.slice(0, 6).map((hotel) => (
                 <TouchableOpacity
                   key={hotel.id}
-                  className="w-44"
+                  className="w-56"
                   onPress={() => router.push(`/hotel/${hotel.id}`)}
                   activeOpacity={0.8}
                 >
                   <View className="rounded-xl overflow-hidden bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700">
                     <Image
                       source={{ uri: hotel.imageUrl || 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=400' }}
-                      className="w-full h-24"
+                      className="w-full h-32"
                       resizeMode="cover"
                     />
-                    <View className="p-2.5">
+                    <View className="p-3">
                       <Text
-                        className="text-sm font-semibold text-gray-900 dark:text-white"
-                        numberOfLines={1}
+                        className="text-sm font-semibold text-gray-900 dark:text-white mb-0.5"
+                        numberOfLines={2}
                       >
                         {hotel.name}
                       </Text>
@@ -321,8 +321,9 @@ export default function HomeScreen() {
                         <View className="flex-row items-center flex-shrink-0">
                           <FontAwesome name="star" size={10} color="#F59E0B" />
                           <Text
-                            className="text-xs font-medium text-gray-700 dark:text-gray-300 ml-1"
+                            className="text-xs font-medium text-gray-700 dark:text-gray-300 ml-1 min-w-[24px]"
                             style={{ includeFontPadding: false }}
+                            numberOfLines={1}
                           >
                             {hotel.rating ? (Number(hotel.rating) || 0).toFixed(1) : '0.0'}
                           </Text>

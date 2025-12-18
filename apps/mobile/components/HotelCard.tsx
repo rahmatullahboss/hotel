@@ -26,12 +26,12 @@ interface HotelCardProps {
 const getCategoryInfo = (category?: HotelCategory | null) => {
     switch (category) {
         case 'PREMIUM':
-            return { label: 'Premium', color: '#F59E0B', bgColor: 'bg-amber-500' };
+            return { label: 'Zinu Premium', color: '#F59E0B', bgColor: 'bg-amber-500' };
         case 'BUSINESS':
             return { label: 'Business', color: '#3B82F6', bgColor: 'bg-blue-500' };
         case 'CLASSIC':
         default:
-            return { label: 'Classic', color: '#10B981', bgColor: 'bg-emerald-500' };
+            return { label: 'Zinu Classic', color: '#10B981', bgColor: 'bg-emerald-500' };
     }
 };
 
@@ -52,8 +52,8 @@ export default function HotelCard({ hotel, index, distance }: HotelCardProps) {
 
     const categoryInfo = getCategoryInfo(hotel.category);
 
-    // Show "Vibe Hotel Name" (brand prefix), vibeCode number shown as badge
-    const displayName = hotel.vibeCode ? `Vibe ${hotel.name}` : hotel.name;
+    // Show "Zinu Hotel Name" (brand prefix), vibeCode number shown as badge
+    const displayName = hotel.name.toLowerCase().startsWith('zinu') ? hotel.name : `Zinu ${hotel.name}`;
 
     return (
         <TouchableOpacity
@@ -73,13 +73,13 @@ export default function HotelCard({ hotel, index, distance }: HotelCardProps) {
                 />
 
                 {/* Vibe Category Badge */}
-                {hotel.vibeCode && (
+                {hotel.category && (
                     <View
                         className="absolute top-3 left-3 flex-row items-center px-2.5 py-1.5 rounded-lg gap-1.5 max-w-[60%]"
                         style={{ backgroundColor: categoryInfo.color }}
                     >
                         <Text className="text-white text-xs font-bold flex-shrink" numberOfLines={1} ellipsizeMode="tail">
-                            Vibe {categoryInfo.label}
+                            {categoryInfo.label}
                         </Text>
                     </View>
                 )}
@@ -104,7 +104,7 @@ export default function HotelCard({ hotel, index, distance }: HotelCardProps) {
                 {/* Location Badge */}
                 <View className="absolute bottom-3 left-3 flex-row items-center bg-black/60 px-2.5 py-1.5 rounded-lg gap-1.5">
                     <FontAwesome name="map-marker" size={11} color="#fff" />
-                    <Text className="text-white text-xs font-medium" style={{ includeFontPadding: false }}>
+                    <Text className="text-white text-xs font-medium min-w-[50px]" style={{ includeFontPadding: false }}>
                         {hotel.city}
                     </Text>
                 </View>

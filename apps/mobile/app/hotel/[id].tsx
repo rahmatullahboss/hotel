@@ -375,7 +375,7 @@ export default function HotelDetailScreen() {
                                             {room.availableCount !== undefined && room.availableCount > 0 && (
                                                 <View className="flex-row items-center gap-1 flex-shrink-0">
                                                     <FontAwesome name="users" size={11} color="#6B7280" />
-                                                    <Text className="text-gray-500 text-sm" numberOfLines={1}>
+                                                    <Text className="text-gray-500 text-sm min-w-[90px] text-right" numberOfLines={1}>
                                                         {t('hotel.upToGuests', { count: room.maxGuests })}
                                                     </Text>
                                                 </View>

@@ -161,3 +161,5 @@ The Global CSS (`apps/web/app/globals.css`) defines:
 - **Leaflet SSR**: Map components using `react-leaflet` must be dynamically imported with `ssr: false` in Next.js to avoid "window is not defined" errors.
 - **Monorepo Imports**: Internal packages are imported via `@repo/*` (e.g., `import { db } from "@repo/db"`).
 - **Auth**: Usage of `auth()` from `auth.ts` (NextAuth v5 pattern).
+
+## commit after editing

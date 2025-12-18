@@ -23,11 +23,11 @@ const getCategoryColor = (category: string | null | undefined): string => {
 const getCategoryLabel = (category: string | null | undefined): string | null => {
     switch (category) {
         case "PREMIUM":
-            return "Premium";
+            return "Zinu Premium";
         case "BUSINESS":
             return "Business";
         case "CLASSIC":
-            return "Classic";
+            return "Zinu Classic";
         default:
             return null;
     }
@@ -64,7 +64,7 @@ export function HotelCard({
     const tCommon = useTranslations("common");
 
     // Show "Zinu Hotel Name" (brand prefix), zinuCode number shown as badge
-    const displayName = zinuCode ? `Zinu ${name}` : name;
+    const displayName = name.toLowerCase().startsWith("zinu") ? name : `Zinu ${name}`;
     const categoryLabel = getCategoryLabel(category);
     const categoryColor = getCategoryColor(category);
 

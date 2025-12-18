@@ -4,167 +4,163 @@ import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { FaGooglePlay, FaApple, FaStar, FaDownload, FaShieldAlt, FaBolt, FaGift } from "react-icons/fa";
 import { HiSparkles } from "react-icons/hi2";
+import { GooglePlayLogo } from "./GooglePlayLogo";
 
 export function AppDownloadSection() {
-  const t = useTranslations("home");
+    const t = useTranslations("home");
 
-  return (
-    <section className="app-download-section">
-      {/* Animated background elements */}
-      <div className="bg-orbs">
-        <div className="orb orb-1"></div>
-        <div className="orb orb-2"></div>
-        <div className="orb orb-3"></div>
-      </div>
-
-      <div className="container app-download-container">
-        <div className="app-content">
-          <div className="app-badge">
-            <HiSparkles className="badge-icon" />
-            <span>App Exclusive Offer</span>
-          </div>
-
-          <h2 className="app-title">
-            Your Next Stay is<br />
-            <span className="highlight">One Tap Away</span>
-          </h2>
-
-          <p className="app-subtitle">
-            Download the Zinu Rooms app and unlock instant <strong>20% OFF</strong> on your first booking — plus earn wallet rewards with every stay.
-          </p>
-
-          {/* Stats Row */}
-          <div className="app-stats">
-            <div className="stat-item">
-              <div className="stat-value">
-                <span className="stat-number">4.8</span>
-                <FaStar className="stat-star" />
-              </div>
-              <span className="stat-label">App Rating</span>
+    return (
+        <section className="app-download-section">
+            {/* Animated background elements */}
+            <div className="bg-orbs">
+                <div className="orb orb-1"></div>
+                <div className="orb orb-2"></div>
+                <div className="orb orb-3"></div>
             </div>
-            <div className="stat-divider"></div>
-            <div className="stat-item">
-              <div className="stat-value">
-                <span className="stat-number">50K+</span>
-              </div>
-              <span className="stat-label">Downloads</span>
-            </div>
-            <div className="stat-divider"></div>
-            <div className="stat-item">
-              <div className="stat-value">
-                <span className="stat-number">10K+</span>
-              </div>
-              <span className="stat-label">Happy Guests</span>
-            </div>
-          </div>
 
-          {/* Feature Pills */}
-          <div className="feature-pills">
-            <div className="feature-pill">
-              <FaBolt className="pill-icon" />
-              <span>Instant Booking</span>
-            </div>
-            <div className="feature-pill">
-              <FaGift className="pill-icon" />
-              <span>Wallet Rewards</span>
-            </div>
-            <div className="feature-pill">
-              <FaShieldAlt className="pill-icon" />
-              <span>Secure Payments</span>
-            </div>
-          </div>
-
-          <div className="store-buttons">
-            <Link href="#" className="store-btn google-play">
-              <FaGooglePlay className="store-icon" />
-              <div className="store-text">
-                <span className="store-small">GET IT ON</span>
-                <span className="store-large">Google Play</span>
-              </div>
-            </Link>
-            <Link href="#" className="store-btn app-store">
-              <FaApple className="store-icon apple" />
-              <div className="store-text">
-                <span className="store-small">Download on the</span>
-                <span className="store-large">App Store</span>
-              </div>
-            </Link>
-          </div>
-        </div>
-
-        <div className="app-visual">
-          {/* Glow effects behind phone */}
-          <div className="visual-glow"></div>
-          <div className="visual-glow-secondary"></div>
-
-          {/* Main phone mockup */}
-          <div className="phone-mockup">
-            <div className="phone-frame">
-              <div className="phone-notch"></div>
-              <div className="phone-screen">
-                {/* App UI Simulation */}
-                <div className="app-header">
-                  <div className="header-logo">Z</div>
-                  <div className="header-search"></div>
-                </div>
-                <div className="app-promo">
-                  <span className="promo-badge">DEAL</span>
-                  <span className="promo-text">20% OFF</span>
-                </div>
-                <div className="app-cards">
-                  <div className="hotel-card">
-                    <div className="card-image"></div>
-                    <div className="card-content">
-                      <div className="card-title"></div>
-                      <div className="card-rating">
-                        <FaStar className="tiny-star" />
-                        <span>4.9</span>
-                      </div>
-                      <div className="card-price"></div>
+            <div className="container app-download-container">
+                <div className="app-content">
+                    <div className="app-badge">
+                        <HiSparkles className="badge-icon" />
+                        <span>{t("appDownload.badge")}</span>
                     </div>
-                  </div>
-                  <div className="hotel-card">
-                    <div className="card-image"></div>
-                    <div className="card-content">
-                      <div className="card-title"></div>
-                      <div className="card-rating">
-                        <FaStar className="tiny-star" />
-                        <span>4.7</span>
-                      </div>
-                      <div className="card-price"></div>
+
+                    <h2 className="app-title" dangerouslySetInnerHTML={{ __html: t.raw("appDownload.title") }} />
+
+                    <p className="app-subtitle" dangerouslySetInnerHTML={{ __html: t.raw("appDownload.subtitle") }} />
+
+                    {/* Stats Row */}
+                    <div className="app-stats">
+                        <div className="stat-item">
+                            <div className="stat-value">
+                                <span className="stat-number">4.8</span>
+                                <FaStar className="stat-star" />
+                            </div>
+                            <span className="stat-label">{t("appDownload.stats.rating")}</span>
+                        </div>
+                        <div className="stat-divider"></div>
+                        <div className="stat-item">
+                            <div className="stat-value">
+                                <span className="stat-number">50K+</span>
+                            </div>
+                            <span className="stat-label">{t("appDownload.stats.downloads")}</span>
+                        </div>
+                        <div className="stat-divider"></div>
+                        <div className="stat-item">
+                            <div className="stat-value">
+                                <span className="stat-number">10K+</span>
+                            </div>
+                            <span className="stat-label">{t("appDownload.stats.guests")}</span>
+                        </div>
                     </div>
-                  </div>
+
+                    {/* Feature Pills */}
+                    <div className="feature-pills">
+                        <div className="feature-pill">
+                            <FaBolt className="pill-icon" />
+                            <span>{t("appDownload.features.instant")}</span>
+                        </div>
+                        <div className="feature-pill">
+                            <FaGift className="pill-icon" />
+                            <span>{t("appDownload.features.rewards")}</span>
+                        </div>
+                        <div className="feature-pill">
+                            <FaShieldAlt className="pill-icon" />
+                            <span>{t("appDownload.features.secure")}</span>
+                        </div>
+                    </div>
+
+                    <div className="store-buttons">
+                        <Link href="#" className="store-btn google-play">
+                            <GooglePlayLogo className="store-icon" />
+                            <div className="store-text">
+                                <span className="store-small">{t("appDownload.buttons.getItOn")}</span>
+                                <span className="store-large">{t("appDownload.buttons.googlePlay")}</span>
+                            </div>
+                        </Link>
+                        <Link href="#" className="store-btn app-store">
+                            <FaApple className="store-icon apple" />
+                            <div className="store-text">
+                                <span className="store-small">{t("appDownload.buttons.downloadOn")}</span>
+                                <span className="store-large">{t("appDownload.buttons.appStore")}</span>
+                            </div>
+                        </Link>
+                    </div>
                 </div>
-                <div className="app-nav">
-                  <div className="nav-item active"></div>
-                  <div className="nav-item"></div>
-                  <div className="nav-item"></div>
-                  <div className="nav-item"></div>
+
+                <div className="app-visual">
+                    {/* Glow effects behind phone */}
+                    <div className="visual-glow"></div>
+                    <div className="visual-glow-secondary"></div>
+
+                    {/* Main phone mockup */}
+                    <div className="phone-mockup">
+                        <div className="phone-frame">
+                            <div className="phone-notch"></div>
+                            <div className="phone-screen">
+                                {/* App UI Simulation */}
+                                <div className="app-header">
+                                    <div className="header-logo">Z</div>
+                                    <div className="header-search"></div>
+                                </div>
+                                <div className="app-promo">
+                                    <span className="promo-badge">{t("appDownload.mockup.deal")}</span>
+                                    <span className="promo-text">{t("appDownload.mockup.off")}</span>
+                                </div>
+                                <div className="app-cards">
+                                    <div className="hotel-card">
+                                        <div className="card-image"></div>
+                                        <div className="card-content">
+                                            <div className="card-title"></div>
+                                            <div className="card-rating">
+                                                <FaStar className="tiny-star" />
+                                                <span>4.9</span>
+                                            </div>
+                                            <div className="card-price"></div>
+                                        </div>
+                                    </div>
+                                    <div className="hotel-card">
+                                        <div className="card-image"></div>
+                                        <div className="card-content">
+                                            <div className="card-title"></div>
+                                            <div className="card-rating">
+                                                <FaStar className="tiny-star" />
+                                                <span>4.7</span>
+                                            </div>
+                                            <div className="card-price"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="app-nav">
+                                    <div className="nav-item active"></div>
+                                    <div className="nav-item"></div>
+                                    <div className="nav-item"></div>
+                                    <div className="nav-item"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Floating notification cards */}
+                    <div className="floating-notif notif-1">
+                        <FaDownload className="notif-icon" />
+                        <div className="notif-content">
+                            <span className="notif-title">{t("appDownload.mockup.bookingConfirmed")}</span>
+                            <span className="notif-sub">{t("appDownload.mockup.staySecured")}</span>
+                        </div>
+                    </div>
+
+                    <div className="floating-notif notif-2">
+                        <FaGift className="notif-icon gift" />
+                        <div className="notif-content">
+                            <span className="notif-title">{t("appDownload.mockup.earned")}</span>
+                            <span className="notif-sub">{t("appDownload.mockup.addedToWallet")}</span>
+                        </div>
+                    </div>
                 </div>
-              </div>
             </div>
-          </div>
 
-          {/* Floating notification cards */}
-          <div className="floating-notif notif-1">
-            <FaDownload className="notif-icon" />
-            <div className="notif-content">
-              <span className="notif-title">Booking Confirmed!</span>
-              <span className="notif-sub">Your stay is secured</span>
-            </div>
-          </div>
-
-          <div className="floating-notif notif-2">
-            <FaGift className="notif-icon gift" />
-            <div className="notif-content">
-              <span className="notif-title">৳200 Earned</span>
-              <span className="notif-sub">Added to wallet</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <style jsx>{`
+            <style jsx>{`
                 .app-download-section {
                     position: relative;
                     background: linear-gradient(160deg, #0a0a0f 0%, #111827 40%, #1e1e2f 100%);
@@ -859,6 +855,6 @@ export function AppDownloadSection() {
                     }
                 }
             `}</style>
-    </section>
-  );
+        </section>
+    );
 }
