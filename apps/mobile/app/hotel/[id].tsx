@@ -280,7 +280,7 @@ export default function HotelDetailScreen() {
                             <View
                                 key={amenity.key}
                                 className="items-center"
-                                style={{ minWidth: 70 }}
+                                style={{ minWidth: 80 }}
                             >
                                 <View
                                     className="w-14 h-14 rounded-2xl items-center justify-center mb-2"
@@ -292,7 +292,7 @@ export default function HotelDetailScreen() {
                                         color={ACCENT_COLOR}
                                     />
                                 </View>
-                                <Text className="text-xs text-gray-600 text-center" numberOfLines={1}>
+                                <Text className="text-xs text-gray-600 text-center">
                                     {amenity.label}
                                 </Text>
                             </View>
