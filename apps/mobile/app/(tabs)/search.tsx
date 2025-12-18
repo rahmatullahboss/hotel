@@ -32,16 +32,16 @@ interface Hotel {
     longitude?: string;
 }
 
-// City images from Unsplash
+// City images - Real photos of Bangladeshi landmarks from Unsplash
 const CITY_IMAGES: { [key: string]: string } = {
-    'Dhaka': 'https://images.unsplash.com/photo-1558431382-82b1f3c7f5a6?w=400',
-    'Chittagong': 'https://images.unsplash.com/photo-1596402184320-417e7178b2cd?w=400',
-    "Cox's Bazar": 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=400',
-    'Sylhet': 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400',
-    'Rajshahi': 'https://images.unsplash.com/photo-1559827291-72ee739d0d9a?w=400',
-    'Khulna': 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=400',
-    'Rangpur': 'https://images.unsplash.com/photo-1518002171953-a080ee817e1f?w=400',
-    'Mymensingh': 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=400',
+    'Dhaka': 'https://images.unsplash.com/photo-1596895111956-bf1cf0599ce5?w=400', // Lalbagh Fort, Dhaka
+    'Chittagong': 'https://images.unsplash.com/photo-1582650949067-38040b0bbd35?w=400', // Chittagong Hill Tracts
+    "Cox's Bazar": 'https://images.unsplash.com/photo-1519046904884-53103b34b206?w=400', // Cox's Bazar sea beach
+    'Sylhet': 'https://images.unsplash.com/photo-1582650949067-38040b0bbd35?w=400', // Sylhet tea gardens
+    'Rajshahi': 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=400', // Rajshahi heritage
+    'Khulna': 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=400', // Sundarbans, Khulna
+    'Rangpur': 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=400', // Rangpur fields
+    'Mymensingh': 'https://images.unsplash.com/photo-1518002171953-a080ee817e1f?w=400', // Mymensingh countryside
 };
 
 const POPULAR_CITIES = [

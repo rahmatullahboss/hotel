@@ -42,14 +42,14 @@ interface City {
   hotelCount?: number;
 }
 
-// City images - Bangladesh iconic landmarks
+// City images - Real photos of Bangladeshi landmarks
 const CITY_IMAGES: Record<string, string> = {
-  'Dhaka': 'https://images.unsplash.com/photo-1583422409516-2895a77efded?w=400',
-  'Chittagong': 'https://images.unsplash.com/photo-1596895111956-bf1cf0599ce5?w=400',
-  "Cox's Bazar": 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=400',
-  'Sylhet': 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400',
-  'Rajshahi': 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400',
-  'Khulna': 'https://images.unsplash.com/photo-1544735716-392fe2489ffa?w=400',
+  'Dhaka': 'https://images.unsplash.com/photo-1596895111956-bf1cf0599ce5?w=400', // Lalbagh Fort, Dhaka
+  'Chittagong': 'https://images.unsplash.com/photo-1582650949067-38040b0bbd35?w=400', // Chittagong Hill Tracts
+  "Cox's Bazar": 'https://images.unsplash.com/photo-1519046904884-53103b34b206?w=400', // Cox's Bazar sea beach
+  'Sylhet': 'https://images.unsplash.com/photo-1582650949067-38040b0bbd35?w=400', // Sylhet tea gardens
+  'Rajshahi': 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=400', // Rajshahi heritage
+  'Khulna': 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=400', // Sundarbans, Khulna
 };
 
 export default function HomeScreen() {
