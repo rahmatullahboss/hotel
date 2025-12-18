@@ -87,32 +87,16 @@ export default function HomeScreen() {
 
   const fetchData = async () => {
     const { data: hotelsData, error: hotelsError } = await api.getHotels();
-    let fetchedHotels: Hotel[] = [];
     if (!hotelsError && hotelsData && hotelsData.length > 0) {
-      fetchedHotels = hotelsData;
       setHotels(hotelsData);
     } else {
-      fetchedHotels = DUMMY_HOTELS;
       setHotels(DUMMY_HOTELS);
     }
 
-    // Count hotels by city (case-insensitive)
-    const cityHotelCounts: Record<string, number> = {};
-    fetchedHotels.forEach(hotel => {
-      const city = hotel.city?.toLowerCase().trim();
-      if (city) {
-        cityHotelCounts[city] = (cityHotelCounts[city] || 0) + 1;
-      }
-    });
-
+    // Use popular cities endpoint which includes hotel counts from DB
     const { data: citiesData, error: citiesError } = await api.getCities();
     if (!citiesError && citiesData && citiesData.length > 0) {
-      // Merge hotel counts into cities (case-insensitive lookup)
-      const citiesWithCounts = citiesData.map((city: City) => ({
-        ...city,
-        hotelCount: cityHotelCounts[city.name?.toLowerCase().trim()] || city.hotelCount || 0,
-      }));
-      setCities(citiesWithCounts.slice(0, 4));
+      setCities(citiesData.slice(0, 4));
     } else {
       setCities(DUMMY_CITIES);
     }
