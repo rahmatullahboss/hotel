@@ -35,9 +35,9 @@ interface Hotel {
 // City images - Real photos of Bangladeshi landmarks from Unsplash
 const CITY_IMAGES: { [key: string]: string } = {
     'Dhaka': 'https://images.unsplash.com/photo-1596895111956-bf1cf0599ce5?w=400', // Lalbagh Fort, Dhaka
-    'Chittagong': 'https://images.unsplash.com/photo-1582650949067-38040b0bbd35?w=400', // Chittagong Hill Tracts
+    'Chittagong': 'https://images.unsplash.com/photo-1590766940554-634f72d97d63?w=400', // Patenga Beach, Chittagong
     "Cox's Bazar": 'https://images.unsplash.com/photo-1519046904884-53103b34b206?w=400', // Cox's Bazar sea beach
-    'Sylhet': 'https://images.unsplash.com/photo-1582650949067-38040b0bbd35?w=400', // Sylhet tea gardens
+    'Sylhet': 'https://images.unsplash.com/photo-1564507592333-c60657eea523?w=400', // Sylhet tea gardens
     'Rajshahi': 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=400', // Rajshahi heritage
     'Khulna': 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=400', // Sundarbans, Khulna
     'Rangpur': 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=400', // Rangpur fields
