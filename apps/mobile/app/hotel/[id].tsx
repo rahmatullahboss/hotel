@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useState, useCallback } from 'react';
 import {
     View,
     Text,
@@ -7,9 +7,11 @@ import {
     TouchableOpacity,
     ActivityIndicator,
     Dimensions,
+    Modal,
+    ActionSheetIOS,
+    Platform,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { BlurView } from 'expo-blur';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 import { useTranslation } from 'react-i18next';
@@ -17,6 +19,7 @@ import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { useBooking } from '@/hooks/useBooking';
 import { useBookingDates } from '@/contexts/BookingDatesContext';
 import { Alert } from 'react-native';
+import { shareHotel } from '@/lib/share';
 
 const { width, height } = Dimensions.get('window');
 const HERO_HEIGHT = height * 0.5;
@@ -55,6 +58,9 @@ export default function HotelDetailScreen() {
     const insets = useSafeAreaInsets();
     const { checkIn, checkOut, setDates, formatCheckIn, formatCheckOut } = useBookingDates();
 
+    // Image gallery state
+    const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
+
     const {
         hotel,
         rooms,
@@ -69,6 +75,61 @@ export default function HotelDetailScreen() {
         const numPrice = Number(price || 0);
         return numPrice.toLocaleString('en-US');
     };
+
+    // Handle share action
+    const handleShare = useCallback(async () => {
+        if (!hotel) return;
+        try {
+            await shareHotel({
+                hotelId: hotel.id,
+                hotelName: hotel.name,
+                city: hotel.city,
+                rating: hotel.rating ? Number(hotel.rating) : undefined,
+            });
+        } catch (error) {
+            // User cancelled or share failed
+            console.log('Share cancelled or failed');
+        }
+    }, [hotel]);
+
+    // Handle menu button press
+    const handleMenuPress = useCallback(() => {
+        if (!hotel) return;
+
+        if (Platform.OS === 'ios') {
+            ActionSheetIOS.showActionSheetWithOptions(
+                {
+                    options: [t('common.cancel', 'Cancel'), t('common.share', 'Share')],
+                    cancelButtonIndex: 0,
+                },
+                (buttonIndex) => {
+                    if (buttonIndex === 1) {
+                        handleShare();
+                    }
+                }
+            );
+        } else {
+            // Android: show simple alert with options
+            Alert.alert(
+                t('hotel.options', 'Options'),
+                undefined,
+                [
+                    { text: t('common.share', 'Share'), onPress: handleShare },
+                    { text: t('common.cancel', 'Cancel'), style: 'cancel' },
+                ]
+            );
+        }
+    }, [hotel, handleShare, t]);
+
+    // Handle preview image tap
+    const handleImageTap = useCallback((index: number) => {
+        setSelectedImageIndex(index);
+    }, []);
+
+    // Handle close image modal
+    const handleCloseImageModal = useCallback(() => {
+        setSelectedImageIndex(null);
+    }, []);
 
     if (loading) {
         return (
@@ -98,7 +159,7 @@ export default function HotelDetailScreen() {
 
     const price = lowestPriceRoom
         ? Number(lowestPriceRoom.dynamicPrice || lowestPriceRoom.basePrice)
-        : Number(hotel.lowestPrice || 0);
+        : Number((hotel as any).lowestPrice || 0);
 
     // Get amenity display items
     const displayAmenities = (hotel.amenities || []).slice(0, 6).map((a, i) => {
@@ -169,8 +230,9 @@ export default function HotelDetailScreen() {
                         {/* Title */}
                         <Text className="text-lg font-semibold text-white">Detail Hotels</Text>
 
-                        {/* Menu Button */}
+                        {/* Menu Button - with Share functionality */}
                         <TouchableOpacity
+                            onPress={handleMenuPress}
                             activeOpacity={0.8}
                             style={{
                                 width: 40,
@@ -282,6 +344,7 @@ export default function HotelDetailScreen() {
                             <TouchableOpacity
                                 key={`preview-${index}`}
                                 activeOpacity={0.9}
+                                onPress={() => handleImageTap(index)}
                             >
                                 <Image
                                     source={{ uri: imageUri }}
@@ -357,9 +420,9 @@ export default function HotelDetailScreen() {
                     className="w-14 h-14 rounded-full items-center justify-center"
                     style={{ borderWidth: 1.5, borderColor: '#E5E7EB' }}
                     onPress={handleToggleSave}
-                    disabled={savingState === 'saving'}
+                    disabled={savingState === true}
                 >
-                    {savingState === 'saving' ? (
+                    {savingState === true ? (
                         <ActivityIndicator size="small" color={ACCENT_COLOR} />
                     ) : (
                         <FontAwesome
@@ -408,6 +471,106 @@ export default function HotelDetailScreen() {
                     <Text className="text-white font-bold text-lg">Book Now</Text>
                 </TouchableOpacity>
             </View>
+
+            {/* Full Screen Image Gallery Modal */}
+            <Modal
+                visible={selectedImageIndex !== null}
+                transparent={true}
+                animationType="fade"
+                onRequestClose={handleCloseImageModal}
+            >
+                <View className="flex-1 bg-black">
+                    {/* Close Button */}
+                    <TouchableOpacity
+                        onPress={handleCloseImageModal}
+                        style={{
+                            position: 'absolute',
+                            top: insets.top + 16,
+                            right: 16,
+                            zIndex: 10,
+                            width: 40,
+                            height: 40,
+                            borderRadius: 20,
+                            backgroundColor: 'rgba(255,255,255,0.2)',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                        }}
+                    >
+                        <FontAwesome name="close" size={20} color="#fff" />
+                    </TouchableOpacity>
+
+                    {/* Image Counter */}
+                    <View
+                        style={{
+                            position: 'absolute',
+                            top: insets.top + 16,
+                            left: 16,
+                            zIndex: 10,
+                            paddingHorizontal: 12,
+                            paddingVertical: 6,
+                            borderRadius: 16,
+                            backgroundColor: 'rgba(0,0,0,0.5)',
+                        }}
+                    >
+                        <Text className="text-white text-sm font-medium">
+                            {(selectedImageIndex ?? 0) + 1} / {previewImages.length}
+                        </Text>
+                    </View>
+
+                    {/* Scrollable Images */}
+                    <ScrollView
+                        horizontal
+                        pagingEnabled
+                        showsHorizontalScrollIndicator={false}
+                        contentOffset={{ x: (selectedImageIndex ?? 0) * width, y: 0 }}
+                        className="flex-1"
+                    >
+                        {previewImages.map((imageUri, index) => (
+                            <View
+                                key={`fullscreen-${index}`}
+                                style={{ width, height: '100%' }}
+                                className="items-center justify-center"
+                            >
+                                <Image
+                                    source={{ uri: imageUri }}
+                                    style={{ width: width - 32, height: height * 0.6 }}
+                                    resizeMode="contain"
+                                />
+                            </View>
+                        ))}
+                    </ScrollView>
+
+                    {/* Thumbnail Navigation */}
+                    <View
+                        style={{ paddingBottom: insets.bottom + 16 }}
+                        className="px-4"
+                    >
+                        <ScrollView
+                            horizontal
+                            showsHorizontalScrollIndicator={false}
+                            contentContainerStyle={{ gap: 8 }}
+                        >
+                            {previewImages.map((imageUri, index) => (
+                                <TouchableOpacity
+                                    key={`thumb-${index}`}
+                                    onPress={() => setSelectedImageIndex(index)}
+                                    style={{
+                                        borderWidth: selectedImageIndex === index ? 2 : 0,
+                                        borderColor: ACCENT_COLOR,
+                                        borderRadius: 8,
+                                    }}
+                                >
+                                    <Image
+                                        source={{ uri: imageUri }}
+                                        style={{ width: 60, height: 60, borderRadius: 6 }}
+                                        resizeMode="cover"
+                                    />
+                                </TouchableOpacity>
+                            ))}
+                        </ScrollView>
+                    </View>
+                </View>
+            </Modal>
         </View>
     );
 }
