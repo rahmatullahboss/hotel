@@ -83,10 +83,17 @@ export default function HomeScreen() {
 
   const [hotels, setHotels] = useState<Hotel[]>([]);
   const [cities, setCities] = useState<City[]>([]);
+  const [userName, setUserName] = useState<string>('');
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
   const fetchData = async () => {
+    // Fetch profile for greeting
+    const { data: profile } = await api.getProfile();
+    if (profile?.name) {
+      setUserName(profile.name);
+    }
+
     const { data: hotelsData, error: hotelsError } = await api.getHotels();
     if (!hotelsError && hotelsData && hotelsData.length > 0) {
       setHotels(hotelsData);
@@ -142,7 +149,7 @@ export default function HomeScreen() {
         <View className="flex-row justify-between items-center mb-4">
           <View className="flex-1">
             <Text className="text-2xl font-bold text-white">
-              {t('home.greeting')} 👋
+              {t('home.greeting')}{userName ? `, ${userName}` : ''} 👋
             </Text>
             <Text className="text-sm text-white/80 mt-0.5">
               {t('home.heroTitle')}

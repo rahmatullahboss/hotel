@@ -31,7 +31,7 @@ export default function NotificationsScreen() {
     });
     const [loading, setLoading] = useState(true);
     const [updating, setUpdating] = useState<string | null>(null);
-    const [testing, setTesting] = useState(false);
+
 
     const fetchPreferences = useCallback(async () => {
         const { data, error } = await api.getNotificationPreferences();
@@ -66,46 +66,7 @@ export default function NotificationsScreen() {
         setUpdating(null);
     };
 
-    const handleTestNotification = async () => {
-        setTesting(true);
-        try {
-            // First check if tokens are registered
-            const { data: tokenData } = await api.checkPushTokens();
-            console.log('Token check:', tokenData);
 
-            if (!tokenData?.hasTokens) {
-                Alert.alert(
-                    'No Push Token',
-                    `No push tokens found for your account. UserId: ${tokenData?.userId || 'unknown'}`,
-                    [{ text: 'OK' }]
-                );
-                setTesting(false);
-                return;
-            }
-
-            // Send test notification
-            const { data, error } = await api.testNotification();
-            console.log('Test notification result:', data, error);
-
-            if (data?.success) {
-                Alert.alert(
-                    '✓ Notification Sent',
-                    `Test notification sent to ${data.tokensFound} device(s). Check your notification tray!`,
-                    [{ text: 'OK' }]
-                );
-            } else {
-                Alert.alert(
-                    'Failed',
-                    data?.message || error || 'Could not send notification',
-                    [{ text: 'OK' }]
-                );
-            }
-        } catch (err) {
-            console.error('Test notification error:', err);
-            Alert.alert('Error', 'Failed to test notification');
-        }
-        setTesting(false);
-    };
 
     if (loading) {
         return (
@@ -201,29 +162,7 @@ export default function NotificationsScreen() {
                     ))}
                 </View>
 
-                {/* Test Notification */}
-                <View className="mx-5 mt-5">
-                    <TouchableOpacity
-                        onPress={handleTestNotification}
-                        disabled={testing}
-                        className="flex-row items-center justify-center p-4 rounded-xl bg-blue-500"
-                        activeOpacity={0.8}
-                    >
-                        {testing ? (
-                            <ActivityIndicator size="small" color="#fff" />
-                        ) : (
-                            <>
-                                <FontAwesome name="bell-o" size={18} color="#fff" />
-                                <Text className="text-white font-semibold ml-2">
-                                    Send Test Notification
-                                </Text>
-                            </>
-                        )}
-                    </TouchableOpacity>
-                    <Text className="text-xs text-gray-500 dark:text-gray-400 text-center mt-2">
-                        Tap to verify notifications are working properly
-                    </Text>
-                </View>
+
 
                 {/* Info */}
                 <View className="mx-5 mt-5 rounded-xl p-4 bg-white dark:bg-gray-800">
