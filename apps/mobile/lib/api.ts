@@ -80,6 +80,7 @@ async function apiRequest<T>(
 
         const headers: HeadersInit = {
             'Content-Type': 'application/json',
+            'x-client-platform': 'mobile', // Identify request as coming from mobile app
             ...(token ? { Authorization: `Bearer ${token}` } : {}),
             ...options.headers,
         };

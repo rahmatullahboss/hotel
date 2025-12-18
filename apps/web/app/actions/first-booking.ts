@@ -13,14 +13,30 @@ import {
 export type { FirstBookingEligibility }; // Re-export type if needed, or just let consumers import from constants
 
 
+import { headers } from "next/headers";
+
 /**
  * Check if a user is eligible for the first booking offer
  * A user is eligible if they have no confirmed/completed bookings
+ * AND the request comes from the mobile app (x-client-platform: mobile)
  * Cancelled bookings do NOT count as first booking
  */
 export async function checkFirstBookingEligibility(
     userId: string
 ): Promise<FirstBookingEligibility> {
+    const headersList = await headers();
+    const platform = headersList.get("x-client-platform");
+
+    // Restrict to Mobile App only
+    if (platform !== "mobile") {
+        return {
+            eligible: false,
+            discountPercent: 0,
+            maxDiscount: 0,
+            message: "First Booking Offer is available on App only",
+        };
+    }
+
     if (!userId) {
         return {
             eligible: false,
@@ -50,7 +66,7 @@ export async function checkFirstBookingEligibility(
                 eligible: true,
                 discountPercent: FIRST_BOOKING_DISCOUNT_PERCENT,
                 maxDiscount: FIRST_BOOKING_MAX_DISCOUNT,
-                message: "🎉 First Booking Offer: Get 20% OFF!",
+                message: "🎉 First Booking Offer: Use App to Get 20% OFF!",
             };
         }
 
