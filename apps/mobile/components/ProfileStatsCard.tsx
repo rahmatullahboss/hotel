@@ -34,7 +34,12 @@ export function ProfileStatsCard({ stats }: ProfileStatsCardProps) {
                             <Text className="text-lg font-bold text-gray-900 dark:text-white">
                                 {stat.value}
                             </Text>
-                            <Text className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                            <Text
+                                className="text-xs text-gray-500 dark:text-gray-400 mt-1 text-center px-1"
+                                numberOfLines={1}
+                                adjustsFontSizeToFit
+                                minimumFontScale={0.8}
+                            >
                                 {stat.label}
                             </Text>
                         </TouchableOpacity>
