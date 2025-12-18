@@ -133,13 +133,9 @@ export default function HotelCard({ hotel, index, distance }: HotelCardProps) {
                         </Text>
 
                         {/* Price */}
-                        <View className="flex-row items-baseline flex-wrap">
-                            <Text className="text-sm text-white/70 mr-1" style={{ flexShrink: 0 }}>Starting at</Text>
-                            <Text className="text-lg font-bold text-white" style={{ flexShrink: 0 }}>
-                                ৳{hotel.lowestPrice?.toLocaleString() || '0'}
-                            </Text>
-                            <Text className="text-sm text-white/70 ml-1" style={{ flexShrink: 0 }}>/night</Text>
-                        </View>
+                        <Text className="text-lg font-bold text-white">
+                            ৳{hotel.lowestPrice?.toLocaleString() || '0'}<Text className="text-sm font-normal text-white/70">/night</Text>
+                        </Text>
                     </View>
 
                     {/* Arrow Button - Bottom Right */}
