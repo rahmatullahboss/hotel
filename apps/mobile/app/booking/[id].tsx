@@ -689,7 +689,7 @@ export default function BookingScreen() {
                                         {i18n.language === 'bn' ? 'প্রথম বুকিং ছাড় (২০%)' : 'First Booking Discount (20%)'}
                                     </Text>
                                 </View>
-                                <Text className="text-yellow-700 dark:text-yellow-400 font-bold">
+                                <Text className="text-yellow-700 dark:text-yellow-400 font-bold min-w-[80px] text-right shrink-0">
                                     -{t('common.currency')}{formatPrice(calculatedDiscount)}
                                 </Text>
                             </View>
@@ -711,7 +711,7 @@ export default function BookingScreen() {
                                 <Text className="text-green-600 dark:text-green-400">
                                     {t('booking.walletDeduction', 'Wallet Deduction')}
                                 </Text>
-                                <Text className="text-green-600 dark:text-green-400 font-medium">
+                                <Text className="text-green-600 dark:text-green-400 font-medium min-w-[80px] text-right shrink-0">
                                     -{t('common.currency')}{formatPrice(Math.min(walletBalance, totalPrice))}
                                 </Text>
                             </View>
