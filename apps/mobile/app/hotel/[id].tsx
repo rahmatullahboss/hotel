@@ -251,7 +251,7 @@ export default function HotelDetailScreen() {
                         }}
                     >
                         <Text className="text-xl font-bold text-white">
-                            ${formatPrice(price)}
+                            ৳ {formatPrice(price)}
                         </Text>
                         <Text className="text-xs text-white/70 text-center">/Night</Text>
                     </View>
@@ -300,10 +300,7 @@ export default function HotelDetailScreen() {
                                         color={ACCENT_COLOR}
                                     />
                                 </View>
-                                <Text
-                                    className="text-gray-600 text-center text-xs"
-                                    style={{ maxWidth: 100 }}
-                                >
+                                <Text className="text-gray-600 text-center text-xs">
                                     {amenity.label}
                                 </Text>
                             </View>
@@ -372,7 +369,7 @@ export default function HotelDetailScreen() {
                                         <Text className="font-bold text-gray-900">{room.name || room.type}</Text>
                                         <Text className="text-xs text-gray-400 mt-1">👥 Up to {room.maxGuests} guests</Text>
                                         <Text className="font-bold mt-1" style={{ color: ACCENT_COLOR }}>
-                                            ${formatPrice(room.dynamicPrice || room.basePrice)}/night
+                                            ৳ {formatPrice(room.dynamicPrice || room.basePrice)}/night
                                         </Text>
                                     </View>
                                     <FontAwesome name="chevron-right" size={14} color="#9CA3AF" style={{ alignSelf: 'center' }} />
