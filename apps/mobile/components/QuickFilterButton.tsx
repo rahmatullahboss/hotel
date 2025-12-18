@@ -45,9 +45,9 @@ export default function QuickFilterButton({
             </View>
             {/* Label */}
             <Text
-                className="text-xs font-semibold text-gray-700 dark:text-gray-300 text-center"
-                numberOfLines={1}
-                ellipsizeMode="tail"
+                className="text-xs font-semibold text-gray-700 dark:text-gray-300 text-center w-full"
+                numberOfLines={2}
+                style={{ lineHeight: 16 }}
             >
                 {label}
             </Text>

@@ -128,11 +128,11 @@ export default function HotelListWithFilters({
                             color={activeFilter === filter.id ? '#fff' : (filter.color || '#6B7280')}
                         />
                         <Text
-                            className={`text-sm font-semibold py-0.5 ${activeFilter === filter.id
+                            className={`text-sm font-semibold ${activeFilter === filter.id
                                 ? 'text-white'
                                 : 'text-gray-700 dark:text-gray-300'
                                 }`}
-                        // Removed includeFontPadding: false to fix Bengali clipping
+                            style={{ lineHeight: 20 }}
                         >
                             {t(filter.labelKey)}
                         </Text>
@@ -142,7 +142,10 @@ export default function HotelListWithFilters({
 
             {/* Sort Options */}
             <View className="flex-row items-center mt-3 flex-wrap gap-2">
-                <Text className="text-sm text-gray-500 dark:text-gray-400 mr-2 py-1">
+                <Text
+                    className="text-sm text-gray-500 dark:text-gray-400 mr-2"
+                    style={{ lineHeight: 20 }}
+                >
                     {t('allHotels.sort.label')}
                 </Text>
                 {SORT_KEYS.map((option) => (
@@ -159,6 +162,7 @@ export default function HotelListWithFilters({
                                 ? 'text-white'
                                 : 'text-gray-600 dark:text-gray-300'
                                 }`}
+                            style={{ lineHeight: 20 }}
                         >
                             {t(option.labelKey)}
                         </Text>
@@ -167,7 +171,10 @@ export default function HotelListWithFilters({
             </View>
 
             {/* Results count */}
-            <Text className="text-sm text-gray-500 dark:text-gray-400 mt-3">
+            <Text
+                className="text-sm text-gray-500 dark:text-gray-400 mt-3"
+                style={{ lineHeight: 20 }}
+            >
                 {t(filteredHotels.length === 1 ? 'allHotels.hotelFound' : 'allHotels.hotelsFound', { count: filteredHotels.length })}
             </Text>
         </View>
