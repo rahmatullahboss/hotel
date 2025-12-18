@@ -110,7 +110,7 @@ export default function HotelListWithFilters({
                 {FILTER_KEYS.map((filter) => (
                     <TouchableOpacity
                         key={filter.id}
-                        className={`flex-row items-center px-4 py-2 rounded-full gap-2 ${activeFilter === filter.id
+                        className={`flex-row items-center px-4 py-3 rounded-full gap-2 ${activeFilter === filter.id
                             ? 'bg-primary'
                             : 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700'
                             }`}
@@ -132,7 +132,7 @@ export default function HotelListWithFilters({
                                 ? 'text-white'
                                 : 'text-gray-700 dark:text-gray-300'
                                 }`}
-                            style={{ lineHeight: 20 }}
+                            style={{ lineHeight: 22, textAlignVertical: 'center' }}
                         >
                             {t(filter.labelKey)}
                         </Text>
@@ -144,7 +144,7 @@ export default function HotelListWithFilters({
             <View className="flex-row items-center mt-3 flex-wrap gap-2">
                 <Text
                     className="text-sm text-gray-500 dark:text-gray-400 mr-2"
-                    style={{ lineHeight: 20 }}
+                    style={{ lineHeight: 22, textAlignVertical: 'center' }}
                 >
                     {t('allHotels.sort.label')}
                 </Text>
@@ -152,7 +152,7 @@ export default function HotelListWithFilters({
                     <TouchableOpacity
                         key={option.id}
                         onPress={() => setSortBy(option.id as 'rating' | 'priceLow' | 'priceHigh' | 'distance')}
-                        className={`px-4 py-2 rounded-full border mr-2 mb-2 shrink-0 ${sortBy === option.id
+                        className={`px-4 py-3 rounded-full border mr-2 mb-2 shrink-0 ${sortBy === option.id
                             ? 'bg-primary border-primary'
                             : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700'
                             }`}
@@ -162,7 +162,7 @@ export default function HotelListWithFilters({
                                 ? 'text-white'
                                 : 'text-gray-600 dark:text-gray-300'
                                 }`}
-                            style={{ lineHeight: 20 }}
+                            style={{ lineHeight: 22, textAlignVertical: 'center' }}
                         >
                             {t(option.labelKey)}
                         </Text>
@@ -173,7 +173,7 @@ export default function HotelListWithFilters({
             {/* Results count */}
             <Text
                 className="text-sm text-gray-500 dark:text-gray-400 mt-3"
-                style={{ lineHeight: 20 }}
+                style={{ lineHeight: 22, textAlignVertical: 'center' }}
             >
                 {t(filteredHotels.length === 1 ? 'allHotels.hotelFound' : 'allHotels.hotelsFound', { count: filteredHotels.length })}
             </Text>
