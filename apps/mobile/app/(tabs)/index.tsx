@@ -202,7 +202,7 @@ export default function HomeScreen() {
             </TouchableOpacity>
           </View>
 
-          {/* Hotel Cards - Matching Reference Design */}
+          {/* Hotel Cards - Full Photo with Overlay Text */}
           {hotels.slice(0, 5).map((hotel, index) => (
             <TouchableOpacity
               key={hotel.id}
@@ -211,28 +211,52 @@ export default function HomeScreen() {
               style={{ marginBottom: 20 }}
             >
               <View
-                className="overflow-hidden bg-white"
+                className="overflow-hidden"
                 style={{
                   borderRadius: 24,
                   shadowColor: '#000',
                   shadowOffset: { width: 0, height: 8 },
-                  shadowOpacity: 0.12,
+                  shadowOpacity: 0.15,
                   shadowRadius: 20,
                   elevation: 8,
                 }}
               >
-                {/* Hotel Image - Large with rounded corners */}
+                {/* Full Bleed Image */}
                 <View className="relative">
                   <Image
                     source={{ uri: hotel.imageUrl || 'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=600' }}
                     className="w-full"
                     style={{
-                      height: 240,
-                      borderTopLeftRadius: 24,
-                      borderTopRightRadius: 24,
+                      height: 280,
+                      borderRadius: 24,
                     }}
                     resizeMode="cover"
                   />
+
+                  {/* Dark Gradient Overlay at Bottom */}
+                  <View
+                    className="absolute bottom-0 left-0 right-0 h-36"
+                    style={{
+                      borderBottomLeftRadius: 24,
+                      borderBottomRightRadius: 24,
+                      backgroundColor: 'rgba(0,0,0,0.55)',
+                    }}
+                    pointerEvents="none"
+                  />
+
+                  {/* Text Content on Overlay */}
+                  <View className="absolute bottom-0 left-0 right-0 px-5 pb-5">
+                    {/* Location with pin */}
+                    <View className="flex-row items-center gap-1.5 mb-1">
+                      <FontAwesome name="map-marker" size={14} color="rgba(255,255,255,0.85)" />
+                      <Text className="text-sm" style={{ color: 'rgba(255,255,255,0.85)' }}>{hotel.city}</Text>
+                    </View>
+
+                    {/* Hotel Name */}
+                    <Text className="text-xl font-bold text-white" numberOfLines={1}>
+                      {hotel.name}
+                    </Text>
+                  </View>
 
                   {/* Rating Badge - Top Left (Golden) */}
                   <View
@@ -274,20 +298,6 @@ export default function HomeScreen() {
                     <FontAwesome name="send" size={16} color="#fff" />
                   </TouchableOpacity>
                 </View>
-
-                {/* Hotel Info - Minimal like reference */}
-                <View className="px-5 py-4">
-                  {/* Location with pin */}
-                  <View className="flex-row items-center gap-1.5 mb-1.5">
-                    <FontAwesome name="map-marker" size={14} color="#9CA3AF" />
-                    <Text className="text-sm text-gray-400">{hotel.city}</Text>
-                  </View>
-
-                  {/* Hotel Name - Large */}
-                  <Text className="text-xl font-bold text-gray-900" numberOfLines={1}>
-                    {hotel.name}
-                  </Text>
-                </View>
               </View>
             </TouchableOpacity>
           ))}
@@ -299,3 +309,4 @@ export default function HomeScreen() {
     </View>
   );
 }
+
