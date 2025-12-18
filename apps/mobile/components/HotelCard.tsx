@@ -117,15 +117,17 @@ export default function HotelCard({ hotel, index, distance }: HotelCardProps) {
                         <FontAwesome name="arrow-right" size={16} color="#1F2937" style={{ transform: [{ rotate: '-45deg' }] }} />
                     </TouchableOpacity>
 
-                    {/* Rating Badge - Top Left (Light background) */}
+                    {/* Rating Badge - Top Left (Glass effect) */}
                     <View
-                        className="absolute top-4 left-4 flex-row items-center px-3 py-2 gap-1.5 bg-white/90"
+                        className="absolute top-4 left-4 flex-row items-center px-3 py-2 gap-1.5"
                         style={{
                             borderRadius: 20,
+                            backgroundColor: 'rgba(255,255,255,0.75)',
+                            backdropFilter: 'blur(10px)',
                         }}
                     >
                         <FontAwesome name="star" size={14} color="#F59E0B" />
-                        <Text className="text-gray-900 font-bold text-sm">
+                        <Text className="text-gray-800 font-bold text-sm">
                             {rating}
                         </Text>
                     </View>
