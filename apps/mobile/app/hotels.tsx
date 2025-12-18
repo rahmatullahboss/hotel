@@ -161,10 +161,12 @@ export default function AllHotelsScreen() {
                             color={activeFilter === filter.id ? '#fff' : (filter.color || '#6B7280')}
                         />
                         <Text
-                            className={`text-sm font-semibold ${activeFilter === filter.id
-                                ? 'text-white'
-                                : 'text-gray-700 dark:text-gray-300'
-                                }`}
+                            style={{
+                                fontSize: 14,
+                                fontWeight: '600',
+                                color: activeFilter === filter.id ? '#fff' : '#374151',
+                                flexShrink: 0,
+                            }}
                         >
                             {t(filter.labelKey)}
                         </Text>
@@ -196,10 +198,12 @@ export default function AllHotelsScreen() {
                             }}
                         >
                             <Text
-                                className={`text-sm font-medium ${sortBy === option.id
-                                    ? 'text-white'
-                                    : 'text-gray-600 dark:text-gray-300'
-                                    }`}
+                                style={{
+                                    fontSize: 14,
+                                    fontWeight: '500',
+                                    color: sortBy === option.id ? '#fff' : '#4B5563',
+                                    flexShrink: 0,
+                                }}
                             >
                                 {t(option.labelKey)}
                             </Text>
