@@ -279,8 +279,7 @@ export default function HotelDetailScreen() {
                         {amenities.map((amenity) => (
                             <View
                                 key={amenity.key}
-                                className="items-center"
-                                style={{ minWidth: 80 }}
+                                className="items-center px-2"
                             >
                                 <View
                                     className="w-14 h-14 rounded-2xl items-center justify-center mb-2"
@@ -293,12 +292,8 @@ export default function HotelDetailScreen() {
                                     />
                                 </View>
                                 <Text
-                                    className="text-gray-600 text-center"
-                                    style={{
-                                        fontSize: 12,
-                                        lineHeight: 18,
-                                        paddingVertical: 2,
-                                    }}
+                                    className="text-gray-600 text-center text-xs"
+                                    style={{ maxWidth: 100 }}
                                 >
                                     {amenity.label}
                                 </Text>
