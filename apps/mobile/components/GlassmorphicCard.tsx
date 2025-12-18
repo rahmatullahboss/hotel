@@ -20,19 +20,19 @@ export function GlassmorphicCard({
         switch (intensity) {
             case 'light':
                 return {
-                    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                    borderColor: 'rgba(255, 255, 255, 0.2)',
+                    backgroundColor: 'rgba(255, 255, 255, 0.7)',
+                    borderColor: 'rgba(0, 0, 0, 0.05)',
                 };
             case 'strong':
                 return {
-                    backgroundColor: 'rgba(255, 255, 255, 0.25)',
-                    borderColor: 'rgba(255, 255, 255, 0.4)',
+                    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                    borderColor: 'rgba(0, 0, 0, 0.1)',
                 };
             case 'medium':
             default:
                 return {
-                    backgroundColor: 'rgba(255, 255, 255, 0.15)',
-                    borderColor: 'rgba(255, 255, 255, 0.3)',
+                    backgroundColor: 'rgba(255, 255, 255, 0.85)',
+                    borderColor: 'rgba(0, 0, 0, 0.08)',
                 };
         }
     };

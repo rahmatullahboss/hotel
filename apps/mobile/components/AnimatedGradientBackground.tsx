@@ -18,7 +18,7 @@ interface AnimatedGradientBackgroundProps {
 
 const AnimatedLinearGradient = Animated.createAnimatedComponent(LinearGradient);
 
-const DEFAULT_COLORS = ['#1D3557', '#1a2d4d', '#132238', '#1D3557'] as const;
+const DEFAULT_COLORS = ['#F8F9FA', '#F1F3F4', '#E8EAED', '#F8F9FA'] as const;
 
 /**
  * Premium animated gradient background component.
@@ -75,7 +75,7 @@ export function AnimatedGradientBackground({
             {/* Floating gradient orbs */}
             <Animated.View style={[styles.orb, styles.orb1, orb1Style]}>
                 <LinearGradient
-                    colors={['rgba(230, 57, 70, 0.35)', 'rgba(230, 57, 70, 0)']}
+                    colors={['rgba(230, 57, 70, 0.15)', 'rgba(230, 57, 70, 0)']}
                     style={styles.orbGradient}
                     start={{ x: 0.5, y: 0 }}
                     end={{ x: 0.5, y: 1 }}
@@ -84,7 +84,7 @@ export function AnimatedGradientBackground({
 
             <Animated.View style={[styles.orb, styles.orb2, orb2Style]}>
                 <LinearGradient
-                    colors={['rgba(193, 18, 31, 0.3)', 'rgba(193, 18, 31, 0)']}
+                    colors={['rgba(193, 18, 31, 0.12)', 'rgba(193, 18, 31, 0)']}
                     style={styles.orbGradient}
                     start={{ x: 0.5, y: 0 }}
                     end={{ x: 0.5, y: 1 }}
@@ -93,7 +93,7 @@ export function AnimatedGradientBackground({
 
             <Animated.View style={[styles.orb, styles.orb3, orb3Style]}>
                 <LinearGradient
-                    colors={['rgba(29, 53, 87, 0.4)', 'rgba(29, 53, 87, 0)']}
+                    colors={['rgba(29, 53, 87, 0.1)', 'rgba(29, 53, 87, 0)']}
                     style={styles.orbGradient}
                     start={{ x: 0.5, y: 0 }}
                     end={{ x: 0.5, y: 1 }}

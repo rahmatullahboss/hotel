@@ -205,9 +205,11 @@ export default function LoginScreen() {
                                 disabled={googleLoading || loading}
                             >
                                 {googleLoading ? (
-                                    <ActivityIndicator size="small" color="#DB4437" />
+                                    <ActivityIndicator size="small" color="#4285F4" />
                                 ) : (
-                                    <FontAwesome name="google" size={20} color="#fff" />
+                                    <View style={styles.googleIconContainer}>
+                                        <Text style={styles.googleG}>G</Text>
+                                    </View>
                                 )}
                                 <Text style={styles.googleButtonText}>
                                     {googleLoading ? 'Signing in...' : 'Continue with Google'}
@@ -272,13 +274,13 @@ const styles = StyleSheet.create({
     welcomeText: {
         fontSize: 32,
         fontWeight: '700',
-        color: '#fff',
+        color: '#111827',
         marginBottom: 8,
         letterSpacing: -0.5,
     },
     subtitleText: {
         fontSize: 16,
-        color: 'rgba(255, 255, 255, 0.7)',
+        color: '#6B7280',
         textAlign: 'center',
     },
     formContainer: {
@@ -324,26 +326,42 @@ const styles = StyleSheet.create({
     dividerLine: {
         flex: 1,
         height: 1,
-        backgroundColor: 'rgba(255, 255, 255, 0.2)',
+        backgroundColor: '#E5E7EB',
     },
     dividerText: {
         marginHorizontal: 16,
         fontSize: 14,
-        color: 'rgba(255, 255, 255, 0.5)',
+        color: '#9CA3AF',
     },
     googleButton: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: 'rgba(255, 255, 255, 0.1)',
+        backgroundColor: '#fff',
         paddingVertical: 14,
         borderRadius: 16,
         borderWidth: 1,
-        borderColor: 'rgba(255, 255, 255, 0.2)',
+        borderColor: '#E5E7EB',
         gap: 12,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.05,
+        shadowRadius: 4,
+        elevation: 2,
+    },
+    googleIconContainer: {
+        width: 24,
+        height: 24,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    googleG: {
+        fontSize: 20,
+        fontWeight: '700',
+        color: '#4285F4',
     },
     googleButtonText: {
-        color: '#fff',
+        color: '#374151',
         fontSize: 16,
         fontWeight: '500',
     },
@@ -356,7 +374,7 @@ const styles = StyleSheet.create({
         marginBottom: 16,
     },
     signUpText: {
-        color: 'rgba(255, 255, 255, 0.6)',
+        color: '#6B7280',
         fontSize: 15,
     },
     signUpLink: {
@@ -369,7 +387,7 @@ const styles = StyleSheet.create({
         paddingVertical: 12,
     },
     guestText: {
-        color: 'rgba(255, 255, 255, 0.5)',
+        color: '#9CA3AF',
         fontSize: 14,
     },
 });

@@ -71,7 +71,7 @@ export function FloatingLabelInput({
             color: interpolateColor(
                 focusAnimation.value,
                 [0, 1],
-                ['rgba(255, 255, 255, 0.6)', '#E63946']
+                ['#6B7280', '#E63946']
             ),
         };
     });
@@ -81,12 +81,12 @@ export function FloatingLabelInput({
             borderColor: interpolateColor(
                 focusAnimation.value,
                 [0, 1],
-                ['rgba(255, 255, 255, 0.2)', 'rgba(230, 57, 70, 0.6)']
+                ['#E5E7EB', 'rgba(230, 57, 70, 0.6)']
             ),
             backgroundColor: interpolateColor(
                 focusAnimation.value,
                 [0, 1],
-                ['rgba(255, 255, 255, 0.08)', 'rgba(255, 255, 255, 0.12)']
+                ['#F3F4F6', '#FEF2F2']
             ),
         };
     });
@@ -101,7 +101,7 @@ export function FloatingLabelInput({
         <Animated.View style={[styles.container, animatedContainerStyle]}>
             {icon && (
                 <Animated.View style={[styles.iconContainer, animatedIconStyle]}>
-                    <FontAwesome name={icon} size={18} color="#fff" />
+                    <FontAwesome name={icon} size={18} color="#6B7280" />
                 </Animated.View>
             )}
             <View style={styles.inputWrapper}>
@@ -128,7 +128,7 @@ export function FloatingLabelInput({
                     <FontAwesome
                         name={showPassword ? 'eye-slash' : 'eye'}
                         size={18}
-                        color="rgba(255, 255, 255, 0.6)"
+                        color="#9CA3AF"
                     />
                 </TouchableOpacity>
             )}
@@ -166,7 +166,7 @@ const styles = StyleSheet.create({
     },
     input: {
         fontSize: 16,
-        color: '#fff',
+        color: '#111827',
         paddingVertical: 8,
         paddingTop: 12,
     },
