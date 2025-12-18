@@ -151,7 +151,8 @@ export default function AllHotelsScreen() {
                             }`}
                         onPress={() => setActiveFilter(filter.id)}
                         style={{
-                            paddingHorizontal: 12,
+                            paddingLeft: 10,
+                            paddingRight: 16,
                             paddingVertical: 6,
                         }}
                     >
@@ -192,7 +193,8 @@ export default function AllHotelsScreen() {
                                 : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700'
                                 }`}
                             style={{
-                                paddingHorizontal: 12,
+                                paddingLeft: 10,
+                                paddingRight: 16,
                                 paddingVertical: 4,
                             }}
                         >
