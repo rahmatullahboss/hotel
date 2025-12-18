@@ -208,70 +208,83 @@ export default function HomeScreen() {
               key={hotel.id}
               onPress={() => router.push(`/hotel/${hotel.id}`)}
               activeOpacity={0.95}
-              style={{ marginBottom: 16 }}
+              style={{ marginBottom: 20 }}
             >
               <View
-                className="rounded-3xl overflow-hidden bg-white"
+                className="overflow-hidden bg-white"
                 style={{
+                  borderRadius: 24,
                   shadowColor: '#000',
-                  shadowOffset: { width: 0, height: 4 },
-                  shadowOpacity: 0.1,
-                  shadowRadius: 16,
-                  elevation: 5,
+                  shadowOffset: { width: 0, height: 8 },
+                  shadowOpacity: 0.12,
+                  shadowRadius: 20,
+                  elevation: 8,
                 }}
               >
-                {/* Hotel Image */}
+                {/* Hotel Image - Large with rounded corners */}
                 <View className="relative">
                   <Image
-                    source={{ uri: hotel.imageUrl || 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=600' }}
+                    source={{ uri: hotel.imageUrl || 'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=600' }}
                     className="w-full"
-                    style={{ height: 200 }}
+                    style={{
+                      height: 240,
+                      borderTopLeftRadius: 24,
+                      borderTopRightRadius: 24,
+                    }}
                     resizeMode="cover"
                   />
 
-                  {/* Rating Badge - Top Left */}
+                  {/* Rating Badge - Top Left (Golden) */}
                   <View
-                    className="absolute top-3 left-3 flex-row items-center px-2.5 py-1.5 rounded-lg gap-1"
-                    style={{ backgroundColor: '#F59E0B' }}
+                    className="absolute top-4 left-4 flex-row items-center px-3 py-2 gap-1.5"
+                    style={{
+                      backgroundColor: '#F59E0B',
+                      borderRadius: 12,
+                    }}
                   >
-                    <FontAwesome name="star" size={12} color="#fff" />
+                    <FontAwesome name="star" size={14} color="#fff" />
                     <Text className="text-white font-bold text-sm">
                       {Number(hotel.rating).toFixed(1)}
                     </Text>
                   </View>
 
-                  {/* Heart Button - Top Right */}
+                  {/* Heart Button - Top Right (Coral) */}
                   <TouchableOpacity
-                    onPress={() => toggleSaveHotel(hotel.id)}
-                    className="absolute top-3 right-3 w-10 h-10 rounded-full items-center justify-center"
-                    style={{ backgroundColor: savedHotels.has(hotel.id) ? '#EF4444' : 'rgba(0,0,0,0.3)' }}
+                    onPress={(e) => {
+                      e.stopPropagation();
+                      toggleSaveHotel(hotel.id);
+                    }}
+                    className="absolute top-4 right-4 w-11 h-11 rounded-full items-center justify-center"
+                    style={{
+                      backgroundColor: savedHotels.has(hotel.id) ? '#EF4444' : '#F87171',
+                    }}
                   >
                     <FontAwesome
-                      name={savedHotels.has(hotel.id) ? 'heart' : 'heart-o'}
-                      size={18}
+                      name="heart"
+                      size={20}
                       color="#fff"
                     />
                   </TouchableOpacity>
 
-                  {/* Share Button - Bottom Right of Image */}
+                  {/* Share/Send Button - Bottom Right (Primary) */}
                   <TouchableOpacity
-                    className="absolute bottom-3 right-3 w-10 h-10 rounded-full items-center justify-center"
+                    className="absolute bottom-4 right-4 w-11 h-11 rounded-full items-center justify-center"
                     style={{ backgroundColor: ACCENT_COLOR }}
                   >
-                    <FontAwesome name="send" size={14} color="#fff" />
+                    <FontAwesome name="send" size={16} color="#fff" />
                   </TouchableOpacity>
                 </View>
 
-                {/* Hotel Info */}
-                <View className="p-4">
-                  {/* Location */}
-                  <View className="flex-row items-center gap-1 mb-1">
-                    <FontAwesome name="map-marker" size={12} color="#9CA3AF" />
+                {/* Hotel Info - Minimal like reference */}
+                <View className="px-5 py-4">
+                  {/* Location with pin */}
+                  <View className="flex-row items-center gap-1.5 mb-1.5">
+                    <FontAwesome name="map-marker" size={14} color="#9CA3AF" />
                     <Text className="text-sm text-gray-400">{hotel.city}</Text>
                   </View>
 
-                  {/* Hotel Name */}
-                  <Text className="text-lg font-bold text-gray-900" numberOfLines={1}>
+                  {/* Hotel Name - Large */}
+                  <Text className="text-xl font-bold text-gray-900" numberOfLines={1}>
                     {hotel.name}
                   </Text>
                 </View>
