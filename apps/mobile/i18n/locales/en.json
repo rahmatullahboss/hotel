@@ -275,7 +275,16 @@
         "save": "Save Changes",
         "saving": "Saving...",
         "success": "Profile updated successfully",
-        "error": "Failed to update profile"
+        "error": "Failed to update profile",
+        "changePhoto": "Change Photo",
+        "chooseOption": "Choose an option",
+        "takePhoto": "Take Photo",
+        "chooseFromGallery": "Choose from Gallery",
+        "removePhoto": "Remove Photo",
+        "tapToChange": "Tap to change photo",
+        "permissionRequired": "Permission Required",
+        "galleryPermission": "Please allow access to your photo library to change your profile picture.",
+        "cameraPermission": "Please allow access to your camera to take a profile picture."
     },
     "qrScanner": {
         "title": "Self Check-in/out",

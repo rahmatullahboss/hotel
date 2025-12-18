@@ -69,7 +69,7 @@ export async function PATCH(request: NextRequest) {
         }
 
         const body = await request.json();
-        const { name, phone } = body;
+        const { name, phone, image } = body;
 
         // Update user
         await db
@@ -77,6 +77,7 @@ export async function PATCH(request: NextRequest) {
             .set({
                 ...(name && { name }),
                 ...(phone && { phone }),
+                ...(image !== undefined && { image }), // Allow setting to null or new value
             })
             .where(eq(users.id, userId));
 

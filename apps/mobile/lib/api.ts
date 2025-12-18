@@ -194,7 +194,7 @@ export const api = {
     // User
     getProfile: () => apiRequest<any>('/api/user/profile'),
 
-    updateProfile: (data: { name?: string; phone?: string }) => apiRequest<{ success: boolean; message: string }>('/api/user/profile', {
+    updateProfile: (data: { name?: string; phone?: string; image?: string | null }) => apiRequest<{ success: boolean; message: string }>('/api/user/profile', {
         method: 'PATCH',
         body: JSON.stringify(data),
     }),
