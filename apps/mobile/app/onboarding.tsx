@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import {
     View,
     Text,
@@ -7,6 +7,7 @@ import {
     ImageBackground,
     Animated,
     PanResponder,
+    StyleSheet,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -19,17 +20,6 @@ const { width, height } = Dimensions.get('window');
 
 const ONBOARDING_KEY = '@zinurooms_onboarding_completed';
 
-// Beautiful destination images
-const BACKGROUNDS = [
-    'https://images.unsplash.com/photo-1573843981267-be1999ff37cd?w=800',
-    'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=800',
-    'https://images.unsplash.com/photo-1540541338287-41700207dee6?w=800',
-];
-
-const { width, height } = Dimensions.get('window');
-
-const ONBOARDING_KEY = '@zinurooms_onboarding_completed';
-
 // High-quality vertical/portrait images for better mobile fit
 const BACKGROUNDS = [
     'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800&q=80', // Luxury Resort
@@ -37,6 +27,7 @@ const BACKGROUNDS = [
     'https://images.unsplash.com/photo-1582719508461-905c673771fd?w=800&q=80', // Modern Interior
     'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=800&q=80', // City View
 ];
+
 
 export default function OnboardingScreen() {
     const router = useRouter();
@@ -263,9 +254,6 @@ export default function OnboardingScreen() {
         </View>
     );
 }
-
-// Helper style
-import { StyleSheet } from 'react-native';
 
 // Export function to check if onboarding is completed
 export async function isOnboardingCompleted(): Promise<boolean> {
