@@ -675,7 +675,7 @@ export default function BookingScreen() {
                             <Text className="text-gray-600 dark:text-gray-400">
                                 {t('common.currency')}{formatPrice(pricePerNight)} × {i18n.language === 'bn' ? nights.toString().replace(/[0-9]/g, (d) => '০১২৩৪৫৬৭৮৯'[parseInt(d)]) : nights} {nights !== 1 ? t('booking.nights') : t('booking.night')}
                             </Text>
-                            <Text className="text-gray-900 dark:text-white font-medium">
+                            <Text className="text-gray-900 dark:text-white font-medium min-w-[80px] text-right">
                                 {t('common.currency')}{formatPrice(subtotalPrice)}
                             </Text>
                         </View>
@@ -700,7 +700,7 @@ export default function BookingScreen() {
                             <Text className="text-gray-600 dark:text-gray-400">
                                 {i18n.language === 'bn' ? 'ট্যাক্স ও ফি (১৫%)' : 'Taxes & Fees (15%)'}
                             </Text>
-                            <Text className="text-gray-900 dark:text-white font-medium">
+                            <Text className="text-gray-900 dark:text-white font-medium min-w-[80px] text-right">
                                 {t('common.currency')}{formatPrice(taxAmount)}
                             </Text>
                         </View>

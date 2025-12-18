@@ -431,8 +431,8 @@
         "sort": {
             "label": "সাজান",
             "rating": "রেটিং",
-            "priceLow": "দাম: কম থেকে",
-            "priceHigh": "দাম: বেশি থেকে"
+            "priceLow": "দাম: কম থেকে বেশি",
+            "priceHigh": "দাম: বেশি থেকে কম"
         },
         "hotelsFound": "{{count}}টি হোটেল পাওয়া গেছে",
         "hotelFound": "{{count}}টি হোটেল পাওয়া গেছে",

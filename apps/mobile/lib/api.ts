@@ -225,6 +225,17 @@ export const api = {
         body: JSON.stringify({ code }),
     }),
 
+    // Wallet Top-up
+    initiateWalletTopUp: (amount: number) => apiRequest<{
+        success: boolean;
+        redirectUrl?: string;
+        paymentID?: string;
+        error?: string;
+    }>('/api/user/wallet/top-up', {
+        method: 'POST',
+        body: JSON.stringify({ amount }),
+    }),
+
     // Achievements
     getAchievements: () => apiRequest<{
         streak: {

@@ -141,11 +141,11 @@ export default function AllHotelsScreen() {
 
             {/* Sort Options */}
             <View className="flex-row items-center mt-3 flex-wrap gap-2">
-                <Text className="text-sm text-gray-500 dark:text-gray-400">{t('allHotels.sort.label')}</Text>
+                <Text className="text-sm text-gray-500 dark:text-gray-400 min-w-[30px]">{t('allHotels.sort.label')}</Text>
                 {SORT_KEYS.map((option) => (
                     <TouchableOpacity
                         key={option.id}
-                        className={`flex-row items-center px-3 py-1.5 rounded-lg ${sortBy === option.id
+                        className={`flex-row items-center px-4 py-2 rounded-lg ${sortBy === option.id
                             ? 'bg-gray-800 dark:bg-gray-200'
                             : 'bg-gray-200 dark:bg-gray-700'
                             }`}
@@ -156,7 +156,6 @@ export default function AllHotelsScreen() {
                                 ? 'text-white dark:text-gray-900'
                                 : 'text-gray-600 dark:text-gray-300'
                                 }`}
-                            style={{ includeFontPadding: false }}
                         >
                             {t(option.labelKey)}
                         </Text>

@@ -431,8 +431,8 @@
         "sort": {
             "label": "Sort",
             "rating": "Rating",
-            "priceLow": "Price: Low to",
-            "priceHigh": "Price: High to"
+            "priceLow": "Price: Low to High",
+            "priceHigh": "Price: High to Low"
         },
         "hotelsFound": "{{count}} hotels found",
         "hotelFound": "{{count}} hotel found",
