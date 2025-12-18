@@ -70,8 +70,8 @@ export default function HotelDetailScreen() {
 
         // Cast to any to avoid TS error if price is missing in type definition
         const price = Number((data as any).price || data.rooms?.[0]?.basePrice || 0);
-        const rating = Number(data.rating || 0);
-        const isPremium = price >= 8000 || rating >= 4.5;
+        // CRITICAL UPDATE: Premium is ONLY based on price >= 8000, NOT rating
+        const isPremium = price >= 8000;
 
         if (isPremium) {
             return {
@@ -110,6 +110,17 @@ export default function HotelDetailScreen() {
 
     const brandInfo = getCategoryInfo(hotel);
     const displayName = hotel.name.startsWith('Zinu') ? hotel.name : `Zinu ${hotel.name.replace(/^Vibe\s+/i, '')}`;
+
+    // Get Zinu ID from params (passed from HotelCard) or fallback to vibeCode/serialNumber
+    // We try to use the param first for consistency
+    const params = useLocalSearchParams();
+    const passedZinuId = params.zinuId as string;
+
+    // Fallback generation matching HotelCard logic
+    // If we have backend serialNumber, use it. Otherwise fallback to hash.
+    const backendCodes = (hotel as any).vibeCode || ((hotel as any).serialNumber ? `ZN${(hotel as any).serialNumber.toString().padStart(4, '0')}` : null);
+    const fallbackId = `ZN${hotel.id.slice(0, 4).toUpperCase()}`;
+    const zinuId = passedZinuId || backendCodes || fallbackId;
 
     return (
         <SafeAreaView className="flex-1 bg-white dark:bg-gray-900" edges={['bottom']}>
@@ -222,13 +233,11 @@ export default function HotelDetailScreen() {
                             </View>
 
                             {/* Zinu ID Badge */}
-                            {hotel.vibeCode && (
-                                <View className="bg-red-600 px-3 py-1.5 rounded-lg">
-                                    <Text className="text-white text-sm font-bold">
-                                        {hotel.vibeCode}
-                                    </Text>
-                                </View>
-                            )}
+                            <View className="bg-red-600 px-3 py-1.5 rounded-lg">
+                                <Text className="text-white text-sm font-bold">
+                                    {zinuId}
+                                </Text>
+                            </View>
 
                             {/* Rating Badge */}
                             <View className="flex-row items-center bg-black/80 px-3 py-1.5 rounded-lg gap-1.5">

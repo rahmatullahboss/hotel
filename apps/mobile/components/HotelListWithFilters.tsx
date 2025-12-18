@@ -130,18 +130,17 @@ export default function HotelListWithFilters({
                 {SORT_KEYS.map((option) => (
                     <TouchableOpacity
                         key={option.id}
-                        className={`flex-row items-center px-4 py-2 rounded-lg shrink-0 ${sortBy === option.id
-                            ? 'bg-gray-800 dark:bg-gray-200'
-                            : 'bg-gray-200 dark:bg-gray-700'
-                            }`}
                         onPress={() => setSortBy(option.id)}
+                        className={`px-4 py-2 rounded-full border mr-2 mb-2 shrink-0 ${sortBy === option.id
+                            ? 'bg-primary border-primary'
+                            : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700'
+                            }`}
                     >
                         <Text
                             className={`text-sm font-medium ${sortBy === option.id
-                                ? 'text-white dark:text-gray-900'
+                                ? 'text-white'
                                 : 'text-gray-600 dark:text-gray-300'
                                 }`}
-                        // Removed includeFontPadding: false to fix Bengali clipping
                         >
                             {t(option.labelKey)}
                         </Text>

@@ -14,6 +14,7 @@ interface Hotel {
     lowestPrice?: number;
     vibeCode?: string | null;
     category?: HotelCategory | null;
+    serialNumber?: number | null;
 }
 
 interface HotelCardProps {
@@ -26,8 +27,8 @@ interface HotelCardProps {
 const getCategoryInfo = (hotel: Hotel) => {
     // Dynamic logic to match Details page
     const price = Number(hotel.lowestPrice || 0);
-    const rating = Number(hotel.rating || 0);
-    const isPremium = price >= 8000 || rating >= 4.5;
+    // CRITICAL UPDATE: Premium is ONLY based on price >= 8000, NOT rating
+    const isPremium = price >= 8000;
 
     if (isPremium) {
         return { label: 'Zinu Premium', color: '#F59E0B', bgColor: 'bg-amber-500' };
@@ -41,6 +42,8 @@ export default function HotelCard({ hotel, index, distance }: HotelCardProps) {
     const router = useRouter();
     const { t, i18n } = useTranslation();
 
+    const categoryInfo = getCategoryInfo(hotel);
+
     const formatPrice = (price: number) => {
         if (i18n.language === 'bn') {
             return price.toString().replace(/[0-9]/g, (d) => '০১২৩৪৫৬৭৮৯'[parseInt(d)]);
@@ -48,14 +51,23 @@ export default function HotelCard({ hotel, index, distance }: HotelCardProps) {
         return Number(price).toLocaleString('en-US');
     };
 
-    const handlePress = () => {
-        router.push(`/hotel/${hotel.id}`);
-    };
-
-    const categoryInfo = getCategoryInfo(hotel);
-
     // Show "Zinu Hotel Name" (brand prefix)
     const displayName = hotel.name.toLowerCase().startsWith('zinu') ? hotel.name : `Zinu ${hotel.name.replace(/^Vibe\s+/i, '')}`;
+
+    // Zinu ID Fallback if vibeCode is missing - Sequential based on backend serialNumber
+    // Fallback to index if serialNumber is missing (e.g. before data refresh)
+    const zinuId = hotel.vibeCode
+        ? hotel.vibeCode
+        : hotel.serialNumber
+            ? `ZN${hotel.serialNumber.toString().padStart(4, '0')}`
+            : `ZN${(index + 1).toString().padStart(4, '0')}`;
+
+    const handlePress = () => {
+        router.push({
+            pathname: `/hotel/${hotel.id}`,
+            params: { zinuId } // Pass the generated ID to details page
+        });
+    };
 
     return (
         <TouchableOpacity
@@ -101,22 +113,20 @@ export default function HotelCard({ hotel, index, distance }: HotelCardProps) {
                     </View>
                 )}
 
-                {/* Location Badge */}
-                <View className="absolute bottom-3 left-3 flex-row items-center bg-black/60 px-2.5 py-1.5 rounded-lg gap-1.5">
+                {/* Location Badge - Increased padding and added min-width to fix clipping */}
+                <View className="absolute bottom-3 left-3 flex-row items-center bg-black/60 px-3 pr-6 py-1.5 rounded-lg gap-1.5 min-w-[80px]">
                     <FontAwesome name="map-marker" size={11} color="#fff" />
-                    <Text className="text-white text-xs font-medium" style={{ includeFontPadding: false }}>
-                        {hotel.city}
+                    <Text className="text-white text-xs font-medium flex-shrink-0" style={{ includeFontPadding: false }}>
+                        {hotel.city}{'  '}
                     </Text>
                 </View>
 
                 {/* Zinu ID Badge (Bottom Right) */}
-                {hotel.vibeCode && (
-                    <View className="absolute bottom-3 right-3 bg-red-600 px-2.5 py-1.5 rounded-lg">
-                        <Text className="text-white text-xs font-bold">
-                            {hotel.vibeCode}
-                        </Text>
-                    </View>
-                )}
+                <View className="absolute bottom-3 right-3 bg-red-600 px-2.5 py-1.5 rounded-lg">
+                    <Text className="text-white text-xs font-bold">
+                        {zinuId}
+                    </Text>
+                </View>
             </View>
 
             {/* Content Section */}

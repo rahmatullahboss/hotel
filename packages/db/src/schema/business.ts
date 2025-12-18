@@ -8,6 +8,7 @@ import {
     jsonb,
     date,
     uniqueIndex,
+    pgSequence,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 import { users } from "./auth";
@@ -36,6 +37,12 @@ export type InventoryStatus = "AVAILABLE" | "OCCUPIED" | "BLOCKED";
 // HOTELS
 // ====================
 
+import { sql } from "drizzle-orm";
+
+// ...
+
+export const hotelIdSeq = pgSequence("hotel_id_seq");
+
 export const hotels = pgTable("hotels", {
     id: text("id")
         .primaryKey()
@@ -44,6 +51,8 @@ export const hotels = pgTable("hotels", {
         .notNull()
         .references(() => users.id, { onDelete: "cascade" }),
     name: text("name").notNull(),
+    // Auto-incrementing serial number using sequence
+    serialNumber: integer("serialNumber").default(sql`nextval('hotel_id_seq')`),
     // Zinu branding - auto-generated unique code (e.g., ZR10001)
     zinuCode: text("zinuCode").unique(),
     // Hotel category for branding (Zinu Classic, Zinu Premium, Zinu Business)

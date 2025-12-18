@@ -18,6 +18,7 @@ interface Hotel {
     category?: string | null;
     latitude?: string | null;
     longitude?: string | null;
+    serialNumber?: number | null;
 }
 
 interface Room {
