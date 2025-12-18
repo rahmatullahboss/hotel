@@ -145,27 +145,26 @@ export default function AllHotelsScreen() {
                 {FILTER_KEYS.map((filter) => (
                     <TouchableOpacity
                         key={filter.id}
-                        className={`flex-row items-center rounded-full gap-2 ${activeFilter === filter.id
+                        className={`flex-row items-center rounded-full gap-1.5 ${activeFilter === filter.id
                             ? 'bg-primary'
                             : 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700'
                             }`}
                         onPress={() => setActiveFilter(filter.id)}
                         style={{
-                            paddingHorizontal: 24,
-                            paddingVertical: 8,
+                            paddingHorizontal: 12,
+                            paddingVertical: 6,
                         }}
                     >
                         <FontAwesome
                             name={filter.icon as any}
-                            size={14}
+                            size={12}
                             color={activeFilter === filter.id ? '#fff' : (filter.color || '#6B7280')}
                         />
                         <Text
                             style={{
-                                fontSize: 14,
+                                fontSize: 12,
                                 fontWeight: '600',
                                 color: activeFilter === filter.id ? '#fff' : '#374151',
-                                flexShrink: 0,
                             }}
                         >
                             {t(filter.labelKey)}
@@ -193,16 +192,15 @@ export default function AllHotelsScreen() {
                                 : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700'
                                 }`}
                             style={{
-                                paddingHorizontal: 24,
-                                paddingVertical: 6,
+                                paddingHorizontal: 12,
+                                paddingVertical: 4,
                             }}
                         >
                             <Text
                                 style={{
-                                    fontSize: 14,
+                                    fontSize: 12,
                                     fontWeight: '500',
                                     color: sortBy === option.id ? '#fff' : '#4B5563',
-                                    flexShrink: 0,
                                 }}
                             >
                                 {t(option.labelKey)}
