@@ -20,11 +20,11 @@ interface ProfileStatsCardProps {
 export function ProfileStatsCard({ stats }: ProfileStatsCardProps) {
     return (
         <View className="mx-5 -mt-10 bg-white dark:bg-gray-800 rounded-2xl shadow-lg">
-            <View className="flex-row py-5">
+            <View className="flex-row py-5 px-2">
                 {stats.map((stat, index) => (
                     <React.Fragment key={stat.label}>
                         <TouchableOpacity
-                            className="flex-1 items-center"
+                            className="flex-1 items-center px-1"
                             onPress={stat.onPress}
                             activeOpacity={stat.onPress ? 0.7 : 1}
                         >
@@ -35,10 +35,8 @@ export function ProfileStatsCard({ stats }: ProfileStatsCardProps) {
                                 {stat.value}
                             </Text>
                             <Text
-                                className="text-xs text-gray-500 dark:text-gray-400 mt-1 text-center px-1"
-                                numberOfLines={1}
-                                adjustsFontSizeToFit
-                                minimumFontScale={0.8}
+                                className="text-xs text-gray-500 dark:text-gray-400 mt-1 text-center"
+                                style={{ lineHeight: 16, paddingVertical: 2 }}
                             >
                                 {stat.label}
                             </Text>
