@@ -2,6 +2,7 @@ import { BottomNav, SearchForm, HotelCard, Footer } from "./components";
 import { WhyBookGrid } from "./components/WhyBook";
 import { CitySelectorWrapper } from "./components/CitySelectorWrapper";
 import { FirstBookingBannerWrapper } from "./components/FirstBookingBannerWrapper";
+import { AppDownloadSection } from "./components/AppDownloadSection";
 import { getFeaturedHotels } from "./actions/hotels";
 import { getPopularCities } from "./actions/cities";
 import { getTranslations } from "next-intl/server";
@@ -24,25 +25,44 @@ export default async function HomePage() {
 
   return (
     <>
-      {/* Hero Section */}
-      <section className="hero">
-        <h1 className="hero-title">{t("heroTitle")}</h1>
-        <p className="hero-subtitle">
-          {t("heroSubtitle")}
-        </p>
+      {/* Hero Section - OYO Inspired */}
+      <section className="hero-section">
+        <div className="hero-background">
+          <div className="hero-overlay"></div>
+        </div>
+
+        <div className="hero-content container">
+          <h1 className="hero-title">{t("heroTitle")}</h1>
+          <p className="hero-subtitle">
+            {t("heroSubtitle")}
+          </p>
+
+          {/* Prominent Search Form */}
+          <div className="hero-search-wrapper">
+            <SearchForm />
+          </div>
+        </div>
       </section>
 
       {/* Main Content */}
-      <main className="container page-content" style={{ marginTop: "-2rem" }}>
-        {/* Search Form */}
-        <SearchForm />
+      <main className="container page-content">
 
-        {/* First Booking Offer Banner - Only shows to eligible first-time users */}
-        <FirstBookingBannerWrapper />
+        {/* First Booking Offer Banner */}
+        <div style={{ marginTop: "2rem" }}>
+          <FirstBookingBannerWrapper />
+        </div>
 
-        {/* City Selector - Browse by location */}
+        {/* Why Vibe - Trust Bar (Moved Up) */}
+        <section style={{ marginTop: "3rem" }}>
+          <h2 className="section-title" style={{ textAlign: "center", marginBottom: "1.5rem" }}>
+            {t("whyBook")}
+          </h2>
+          <WhyBookGrid items={whyBookItems} />
+        </section>
+
+        {/* City Selector - New Tile Design */}
         {cities.length > 0 && (
-          <section style={{ marginTop: "2rem" }}>
+          <section style={{ marginTop: "4rem" }}>
             <CitySelectorWrapper
               cities={cities.map((c) => ({
                 name: c.name,
@@ -55,7 +75,7 @@ export default async function HomePage() {
         )}
 
         {/* Featured Hotels */}
-        <section style={{ marginTop: "2rem" }}>
+        <section style={{ marginTop: "4rem" }}>
           <div className="section-header">
             <h2 className="section-title">{t("featuredHotels")}</h2>
             <a href="/hotels" className="section-link">
@@ -90,21 +110,17 @@ export default async function HomePage() {
           </div>
         </section>
 
-        {/* Why Vibe - Enhanced for desktop */}
-        <section style={{ marginTop: "3rem", marginBottom: "0" }}>
-          <h2 className="section-title" style={{ marginBottom: "1.5rem", textAlign: "center" }}>
-            {t("whyBook")}
-          </h2>
-
-          <WhyBookGrid items={whyBookItems} />
-        </section>
       </main>
+
+      {/* App Download Section - Full Width */}
+      <AppDownloadSection />
 
       {/* Footer (Desktop only) */}
       <Footer />
 
       {/* Bottom Navigation (Mobile only) */}
       <BottomNav />
+
     </>
   );
 }
