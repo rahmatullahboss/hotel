@@ -128,12 +128,12 @@ export default function HotelCard({ hotel, index, distance }: HotelCardProps) {
 
                     {/* Rating Badge - Top Left (Dark glass blur effect) */}
                     <BlurView
-                        intensity={40}
+                        intensity={20}
                         tint="dark"
                         className="absolute top-4 left-4 flex-row items-center px-3 py-2 gap-1.5 overflow-hidden"
                         style={{
                             borderRadius: 20,
-                            backgroundColor: 'rgba(0,0,0,0.3)',
+                            backgroundColor: 'rgba(0,0,0,0.2)',
                         }}
                     >
                         <FontAwesome name="star" size={14} color="#FBBF24" />
