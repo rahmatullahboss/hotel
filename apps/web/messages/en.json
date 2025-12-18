@@ -58,6 +58,20 @@
         "payAtHotelDesc": "Just 20% advance, pay rest at hotel",
         "instantBooking": "Instant Booking",
         "instantBookingDesc": "Confirm your stay in just 3 clicks",
+        "stats": {
+            "hotels": "Verified Hotels",
+            "cities": "Cities Covered",
+            "guests": "Happy Guests"
+        },
+        "whyUs": {
+            "badge": "Our Promise",
+            "title": "Book with Confidence",
+            "subtitle": "Your trusted partner for hotel bookings in Bangladesh",
+            "promise1": "100% Verified Hotels",
+            "promise2": "Best Price Guarantee",
+            "promise3": "24/7 Customer Support",
+            "exploreBtn": "Explore Hotels"
+        },
         "promo": {
             "badge": "LIMITED OFFER",
             "title": "First Booking Offer on App!",
