@@ -68,15 +68,23 @@ export default function HotelDetailScreen() {
     useFocusEffect(
         useCallback(() => {
             if (Platform.OS === 'android') {
-                // Hide navigation bar and set behavior to show on swipe
-                NavigationBar.setVisibilityAsync('hidden');
-                NavigationBar.setBehaviorAsync('overlay-swipe');
+                try {
+                    // Hide navigation bar and set behavior to show on swipe
+                    NavigationBar.setVisibilityAsync('hidden');
+                    NavigationBar.setBehaviorAsync('overlay-swipe');
+                } catch (e) {
+                    // Silently fail on unsupported devices
+                    console.log('NavigationBar not supported:', e);
+                }
             }
 
             return () => {
-                // Restore navigation bar when leaving screen
                 if (Platform.OS === 'android') {
-                    NavigationBar.setVisibilityAsync('visible');
+                    try {
+                        NavigationBar.setVisibilityAsync('visible');
+                    } catch (e) {
+                        // Silently fail
+                    }
                 }
             };
         }, [])
