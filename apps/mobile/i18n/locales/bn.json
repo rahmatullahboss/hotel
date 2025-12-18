@@ -75,6 +75,7 @@
         "guest": "অতিথি",
         "signIn": "সাইন ইন / রেজিস্টার",
         "darkMode": "ডার্ক মোড",
+        "goldMember": "গোল্ড সদস্য",
         "menu": {
             "myTrips": "আমার ট্রিপ",
             "wallet": "ওয়ালেট",
@@ -85,6 +86,18 @@
             "notifications": "নোটিফিকেশন",
             "offersRewards": "অফার ও পুরস্কার",
             "helpSupport": "সাহায্য ও সাপোর্ট"
+        },
+        "stats": {
+            "bookings": "বুকিং",
+            "wallet": "ওয়ালেট",
+            "points": "পয়েন্ট"
+        },
+        "sections": {
+            "account": "অ্যাকাউন্ট",
+            "travel": "বুকিং ও ভ্রমণ",
+            "rewards": "ওয়ালেট ও পুরস্কার",
+            "preferences": "পছন্দসমূহ",
+            "support": "সাহায্য"
         },
         "logout": "লগ আউট",
         "language": "ভাষা",

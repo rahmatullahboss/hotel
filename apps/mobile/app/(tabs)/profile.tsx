@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useFocusEffect } from 'expo-router';
 import {
     View,
@@ -6,16 +6,17 @@ import {
     ScrollView,
     TouchableOpacity,
     ActivityIndicator,
-    Image,
     Switch,
 } from 'react-native';
 import { useRouter } from 'expo-router';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '@/context/ThemeContext';
 import api, { removeToken } from '@/lib/api';
 import { changeLanguage } from '@/i18n';
+import { ProfileHeader } from '@/components/ProfileHeader';
+import { ProfileStatsCard } from '@/components/ProfileStatsCard';
+import { ProfileMenuSection, ProfileMenuItem } from '@/components/ProfileMenuSection';
 
 interface User {
     name: string;
@@ -23,31 +24,26 @@ interface User {
     image?: string;
 }
 
+interface WalletData {
+    balance: number;
+    points: number;
+}
+
 export default function ProfileScreen() {
     const router = useRouter();
     const { theme, toggleTheme } = useTheme();
-    const insets = useSafeAreaInsets();
     const { t, i18n } = useTranslation();
-
-    const MENU_ITEMS = [
-        { icon: 'pencil' as const, label: t('editProfile.title'), route: '/edit-profile' },
-        { icon: 'qrcode' as const, label: t('qrScanner.title'), route: '/qr-scanner' },
-        { icon: 'suitcase' as const, label: t('profile.menu.myTrips'), route: '/(tabs)/bookings' },
-        { icon: 'credit-card' as const, label: t('profile.menu.wallet'), route: '/wallet' },
-        { icon: 'gift' as const, label: t('profile.menu.referral'), route: '/referral' },
-        { icon: 'trophy' as const, label: t('profile.menu.achievements'), route: '/achievements' },
-        { icon: 'heart-o' as const, label: t('profile.menu.savedHotels'), route: '/saved' },
-        { icon: 'bell-o' as const, label: t('profile.menu.notifications'), route: '/notifications' },
-        { icon: 'tag' as const, label: t('profile.menu.offersRewards'), route: '/offers' },
-        { icon: 'question-circle-o' as const, label: t('profile.menu.helpSupport'), route: '/help' },
-    ];
 
     const [user, setUser] = useState<User | null>(null);
     const [loading, setLoading] = useState(true);
+    const [walletData, setWalletData] = useState<WalletData>({ balance: 0, points: 0 });
+    const [bookingsCount, setBookingsCount] = useState(0);
 
     useFocusEffect(
         useCallback(() => {
             fetchProfile();
+            fetchWalletData();
+            fetchBookingsCount();
         }, [])
     );
 
@@ -56,14 +52,29 @@ export default function ProfileScreen() {
         if (data) {
             setUser(data);
         } else if (error) {
-            // Clear user if not authenticated or API fails
             setUser(null);
         }
         setLoading(false);
     };
 
+    const fetchWalletData = async () => {
+        const { data } = await api.getWallet();
+        if (data) {
+            setWalletData({
+                balance: data.balance || 0,
+                points: data.loyalty?.points || 0,
+            });
+        }
+    };
+
+    const fetchBookingsCount = async () => {
+        const { data } = await api.getMyBookings();
+        if (data) {
+            setBookingsCount(data.length);
+        }
+    };
+
     const handleLogout = async () => {
-        // Clear user state immediately for instant UI update
         setUser(null);
         await removeToken();
         router.replace('/');
@@ -73,12 +84,94 @@ export default function ProfileScreen() {
         await changeLanguage(lang);
     };
 
+    // Menu sections configuration
+    const accountItems: ProfileMenuItem[] = [
+        {
+            icon: 'pencil',
+            label: t('editProfile.title'),
+            onPress: () => router.push('/edit-profile'),
+        },
+        {
+            icon: 'qrcode',
+            label: t('qrScanner.title'),
+            onPress: () => router.push('/qr-scanner'),
+        },
+    ];
+
+    const travelItems: ProfileMenuItem[] = [
+        {
+            icon: 'suitcase',
+            label: t('profile.menu.myTrips'),
+            onPress: () => router.push('/(tabs)/bookings'),
+        },
+        {
+            icon: 'heart-o',
+            label: t('profile.menu.savedHotels'),
+            onPress: () => router.push('/saved'),
+        },
+    ];
+
+    const rewardsItems: ProfileMenuItem[] = [
+        {
+            icon: 'credit-card',
+            label: t('profile.menu.wallet'),
+            onPress: () => router.push('/wallet'),
+        },
+        {
+            icon: 'gift',
+            label: t('profile.menu.referral'),
+            onPress: () => router.push('/referral'),
+        },
+        {
+            icon: 'trophy',
+            label: t('profile.menu.achievements'),
+            onPress: () => router.push('/achievements'),
+        },
+        {
+            icon: 'tag',
+            label: t('profile.menu.offersRewards'),
+            onPress: () => router.push('/achievements'),
+        },
+    ];
+
+    const supportItems: ProfileMenuItem[] = [
+        {
+            icon: 'bell-o',
+            label: t('profile.menu.notifications'),
+            onPress: () => router.push('/notifications'),
+        },
+        {
+            icon: 'question-circle-o',
+            label: t('profile.menu.helpSupport'),
+            onPress: () => router.push('/help'),
+        },
+    ];
+
+    // Stats configuration
+    const stats = [
+        {
+            icon: 'suitcase' as const,
+            value: bookingsCount,
+            label: t('profile.stats.bookings', 'Bookings'),
+            onPress: () => router.push('/(tabs)/bookings'),
+        },
+        {
+            icon: 'credit-card' as const,
+            value: `৳${walletData.balance}`,
+            label: t('profile.stats.wallet', 'Wallet'),
+            onPress: () => router.push('/wallet'),
+        },
+        {
+            icon: 'star' as const,
+            value: walletData.points,
+            label: t('profile.stats.points', 'Points'),
+            onPress: () => router.push('/achievements'),
+        },
+    ];
+
     if (loading) {
         return (
-            <View
-                className="flex-1 items-center justify-center bg-white dark:bg-gray-900"
-                style={{ paddingTop: insets.top }}
-            >
+            <View className="flex-1 items-center justify-center bg-gray-50 dark:bg-gray-900">
                 <ActivityIndicator size="large" color="#E63946" />
             </View>
         );
@@ -86,155 +179,143 @@ export default function ProfileScreen() {
 
     return (
         <View className="flex-1 bg-gray-50 dark:bg-gray-900">
-            {/* Header */}
-            <View
-                className="px-5 pb-7 items-center bg-primary rounded-b-3xl shadow-lg"
-                style={{ paddingTop: insets.top + 16 }}
-            >
-                {user ? (
-                    <>
-                        <View className="mb-3.5 relative">
-                            {user.image ? (
-                                <Image
-                                    source={{ uri: user.image }}
-                                    className="w-22 h-22 rounded-full border-4 border-white/50"
-                                    style={{ width: 88, height: 88 }}
-                                />
-                            ) : (
-                                <View className="w-22 h-22 rounded-full bg-white/35 items-center justify-center border-4 border-white/50" style={{ width: 88, height: 88 }}>
-                                    <Text className="text-4xl font-bold text-white">
-                                        {user.name?.charAt(0).toUpperCase() || 'U'}
-                                    </Text>
-                                </View>
-                            )}
-                            <View className="absolute -top-1.5 -left-1.5 w-24 h-24 rounded-full bg-white/10" style={{ width: 100, height: 100 }} />
-                        </View>
-                        <Text className="text-2xl font-bold text-white tracking-tight">
-                            {user.name}
-                        </Text>
-                        <Text className="text-sm text-white/85 mt-1">{user.email}</Text>
-                    </>
-                ) : (
-                    <>
-                        <View className="mb-3.5 relative">
-                            <View className="w-22 h-22 rounded-full bg-white/35 items-center justify-center border-4 border-white/50" style={{ width: 88, height: 88 }}>
-                                <FontAwesome name="user" size={36} color="#fff" />
-                            </View>
-                            <View className="absolute -top-1.5 -left-1.5 w-24 h-24 rounded-full bg-white/10" style={{ width: 100, height: 100 }} />
-                        </View>
-                        <Text className="text-2xl font-bold text-white">{t('profile.guest')}</Text>
-                        <TouchableOpacity
-                            className="mt-3.5 bg-white px-8 py-3 rounded-full shadow-md"
-                            onPress={() => router.push('/auth/login')}
-                            activeOpacity={0.8}
-                        >
-                            <Text className="text-primary font-semibold text-sm">
-                                {t('profile.signIn')}
-                            </Text>
-                        </TouchableOpacity>
-                    </>
-                )}
-            </View>
-
             <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
-                {/* Language Selector */}
-                <View className="mx-5 mt-5 bg-white dark:bg-gray-800 rounded-2xl overflow-hidden">
-                    <View className="flex-row items-center p-4 pb-2">
-                        <View className="w-11 h-11 rounded-xl bg-primary/10 items-center justify-center mr-3.5">
-                            <FontAwesome name="language" size={18} color="#E63946" />
-                        </View>
-                        <Text className="text-base font-medium text-gray-900 dark:text-white">
-                            {t('profile.language')}
-                        </Text>
-                    </View>
-                    <View className="flex-row px-4 pb-4 gap-3">
-                        <TouchableOpacity
-                            className={`flex-1 py-2.5 px-4 rounded-lg border items-center ${i18n.language === 'en'
-                                ? 'border-primary bg-primary/10'
-                                : 'border-gray-200 dark:border-gray-600'
-                                }`}
-                            onPress={() => handleLanguageChange('en')}
-                        >
-                            <Text
-                                className={`text-sm font-semibold ${i18n.language === 'en' ? 'text-primary' : 'text-gray-500 dark:text-gray-400'
-                                    }`}
-                            >
-                                {t('profile.english')}
-                            </Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                            className={`flex-1 py-2.5 px-4 rounded-lg border items-center ${i18n.language === 'bn'
-                                ? 'border-primary bg-primary/10'
-                                : 'border-gray-200 dark:border-gray-600'
-                                }`}
-                            onPress={() => handleLanguageChange('bn')}
-                        >
-                            <Text
-                                className={`text-sm font-semibold ${i18n.language === 'bn' ? 'text-primary' : 'text-gray-500 dark:text-gray-400'
-                                    }`}
-                            >
-                                {t('profile.bengali')}
-                            </Text>
-                        </TouchableOpacity>
-                    </View>
-                </View>
+                {/* Premium Header */}
+                <ProfileHeader
+                    user={user}
+                    membershipTier={t('profile.goldMember', 'Gold Member')}
+                    onSignIn={() => router.push('/auth/login')}
+                    onEditProfile={() => router.push('/edit-profile')}
+                    t={t}
+                />
 
-                {/* Theme Toggle */}
-                <View className="mx-5 mt-3 bg-white dark:bg-gray-800 rounded-2xl overflow-hidden">
-                    <View className="flex-row items-center p-4">
-                        <View className="w-11 h-11 rounded-xl bg-primary/10 items-center justify-center mr-3.5">
-                            <FontAwesome name="moon-o" size={18} color="#E63946" />
-                        </View>
-                        <Text className="flex-1 text-base font-medium text-gray-900 dark:text-white">
-                            {t('profile.darkMode')}
-                        </Text>
-                        <Switch
-                            value={theme === 'dark'}
-                            onValueChange={toggleTheme}
-                            trackColor={{ false: '#D1D5DB', true: '#E63946' }}
-                            thumbColor="#FFFFFF"
-                        />
-                    </View>
-                </View>
+                {/* Stats Card */}
+                {user && <ProfileStatsCard stats={stats} />}
 
-                {/* Menu Items */}
-                <View className="mx-5 mt-3 bg-white dark:bg-gray-800 rounded-2xl overflow-hidden">
-                    {MENU_ITEMS.map((item, index) => (
-                        <TouchableOpacity
-                            key={item.label}
-                            className={`flex-row items-center p-4 py-3.5 ${index < MENU_ITEMS.length - 1 ? 'border-b border-gray-100 dark:border-gray-700' : ''
-                                }`}
-                            onPress={() => router.push(item.route as any)}
-                            activeOpacity={0.7}
-                        >
-                            <View className="w-11 h-11 rounded-xl bg-primary/10 items-center justify-center mr-3.5">
-                                <FontAwesome name={item.icon} size={18} color="#E63946" />
+                {/* Account Section */}
+                {user && (
+                    <ProfileMenuSection
+                        title={t('profile.sections.account', 'Account')}
+                        items={accountItems}
+                    />
+                )}
+
+                {/* Travel Section */}
+                {user && (
+                    <ProfileMenuSection
+                        title={t('profile.sections.travel', 'Bookings & Travel')}
+                        items={travelItems}
+                    />
+                )}
+
+                {/* Rewards Section */}
+                {user && (
+                    <ProfileMenuSection
+                        title={t('profile.sections.rewards', 'Wallet & Rewards')}
+                        items={rewardsItems}
+                    />
+                )}
+
+                {/* Preferences Section */}
+                <View className="mx-5 mt-4">
+                    <Text className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2 ml-1">
+                        {t('profile.sections.preferences', 'Preferences')}
+                    </Text>
+
+                    <View className="bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-sm">
+                        {/* Language Selector */}
+                        <View className="px-4 py-3.5 border-b border-gray-100 dark:border-gray-700">
+                            <View className="flex-row items-center mb-3">
+                                <View className="w-10 h-10 rounded-xl bg-primary/10 items-center justify-center mr-3">
+                                    <FontAwesome name="language" size={18} color="#E63946" />
+                                </View>
+                                <Text className="text-base font-medium text-gray-900 dark:text-white">
+                                    {t('profile.language')}
+                                </Text>
+                            </View>
+                            <View className="flex-row gap-3 ml-13">
+                                <TouchableOpacity
+                                    className={`flex-1 py-2.5 rounded-xl items-center ${i18n.language === 'en'
+                                        ? 'bg-primary'
+                                        : 'bg-gray-100 dark:bg-gray-700'
+                                        }`}
+                                    onPress={() => handleLanguageChange('en')}
+                                >
+                                    <Text
+                                        className={`text-sm font-semibold ${i18n.language === 'en'
+                                            ? 'text-white'
+                                            : 'text-gray-600 dark:text-gray-300'
+                                            }`}
+                                    >
+                                        {t('profile.english')}
+                                    </Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity
+                                    className={`flex-1 py-2.5 rounded-xl items-center ${i18n.language === 'bn'
+                                        ? 'bg-primary'
+                                        : 'bg-gray-100 dark:bg-gray-700'
+                                        }`}
+                                    onPress={() => handleLanguageChange('bn')}
+                                >
+                                    <Text
+                                        className={`text-sm font-semibold ${i18n.language === 'bn'
+                                            ? 'text-white'
+                                            : 'text-gray-600 dark:text-gray-300'
+                                            }`}
+                                    >
+                                        {t('profile.bengali')}
+                                    </Text>
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+
+                        {/* Dark Mode Toggle */}
+                        <View className="flex-row items-center px-4 py-3.5">
+                            <View className="w-10 h-10 rounded-xl bg-primary/10 items-center justify-center mr-3">
+                                <FontAwesome name="moon-o" size={18} color="#E63946" />
                             </View>
                             <Text className="flex-1 text-base font-medium text-gray-900 dark:text-white">
-                                {item.label}
+                                {t('profile.darkMode')}
                             </Text>
-                            <FontAwesome name="chevron-right" size={14} color="#9CA3AF" />
-                        </TouchableOpacity>
-                    ))}
+                            <Switch
+                                value={theme === 'dark'}
+                                onValueChange={toggleTheme}
+                                trackColor={{ false: '#D1D5DB', true: '#E63946' }}
+                                thumbColor="#FFFFFF"
+                            />
+                        </View>
+                    </View>
                 </View>
+
+                {/* Support Section */}
+                <ProfileMenuSection
+                    title={t('profile.sections.support', 'Support')}
+                    items={supportItems}
+                />
 
                 {/* Logout Button */}
                 {user && (
-                    <TouchableOpacity
-                        className="mx-5 mt-4 flex-row items-center justify-center p-4 rounded-xl bg-red-50 dark:bg-red-900/20 gap-2.5"
-                        onPress={handleLogout}
-                    >
-                        <FontAwesome name="sign-out" size={18} color="#EF4444" />
-                        <Text className="text-base font-semibold text-red-500">
-                            {t('profile.logout')}
-                        </Text>
-                    </TouchableOpacity>
+                    <View className="mx-5 mt-6">
+                        <TouchableOpacity
+                            className="flex-row items-center justify-center py-4 rounded-2xl border-2 border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20"
+                            onPress={handleLogout}
+                            activeOpacity={0.7}
+                        >
+                            <FontAwesome name="sign-out" size={18} color="#EF4444" />
+                            <Text className="text-base font-semibold text-red-500 ml-2">
+                                {t('profile.logout')}
+                            </Text>
+                        </TouchableOpacity>
+                    </View>
                 )}
 
-                {/* App Info */}
-                <View className="items-center p-6">
+                {/* App Info Footer */}
+                <View className="items-center py-8">
                     <Text className="text-xs text-gray-400 dark:text-gray-500">
                         Zinu Rooms v1.0.0
+                    </Text>
+                    <Text className="text-xs text-gray-300 dark:text-gray-600 mt-1">
+                        Made with ❤️ in Bangladesh
                     </Text>
                 </View>
 
