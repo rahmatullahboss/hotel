@@ -7,6 +7,7 @@ import {
     TouchableOpacity,
     ActivityIndicator,
     Switch,
+    Linking,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
@@ -316,9 +317,11 @@ export default function ProfileScreen() {
                     <Text className="text-xs text-gray-400 dark:text-gray-500">
                         Zinu Rooms v1.0.0
                     </Text>
-                    <Text className="text-xs text-gray-300 dark:text-gray-600 mt-1">
-                        Made with ❤️ in Bangladesh
-                    </Text>
+                    <TouchableOpacity onPress={() => Linking.openURL('https://digitalcare.site')} activeOpacity={0.7}>
+                        <Text className="text-xs text-gray-300 dark:text-gray-600 mt-1">
+                            Made with ❤️ by <Text style={{ color: '#E63946', fontWeight: 'bold' }}>DigitalCare</Text>
+                        </Text>
+                    </TouchableOpacity>
                 </View>
 
                 <View className="h-5" />
