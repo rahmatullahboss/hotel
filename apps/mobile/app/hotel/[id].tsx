@@ -20,7 +20,7 @@ import { Alert } from 'react-native';
 
 const { width, height } = Dimensions.get('window');
 const HERO_HEIGHT = height * 0.5;
-const NAVY_BLUE = '#1D3557';
+const ACCENT_COLOR = '#E63946';
 
 // Amenity icons matching reference design
 const AMENITY_CONFIG: Record<string, { icon: string; label: string }> = {
@@ -73,7 +73,7 @@ export default function HotelDetailScreen() {
     if (loading) {
         return (
             <View className="flex-1 items-center justify-center bg-white">
-                <ActivityIndicator size="large" color={NAVY_BLUE} />
+                <ActivityIndicator size="large" color={ACCENT_COLOR} />
             </View>
         );
     }
@@ -85,7 +85,7 @@ export default function HotelDetailScreen() {
                     {error || t('hotel.notFound')}
                 </Text>
                 <TouchableOpacity onPress={() => router.back()}>
-                    <Text style={{ color: NAVY_BLUE }}>{t('hotel.goBack')}</Text>
+                    <Text style={{ color: ACCENT_COLOR }}>{t('hotel.goBack')}</Text>
                 </TouchableOpacity>
             </View>
         );
@@ -212,7 +212,7 @@ export default function HotelDetailScreen() {
                             position: 'absolute',
                             bottom: 20,
                             right: 20,
-                            backgroundColor: NAVY_BLUE,
+                            backgroundColor: ACCENT_COLOR,
                             paddingHorizontal: 16,
                             paddingVertical: 10,
                             borderRadius: 12,
@@ -258,7 +258,7 @@ export default function HotelDetailScreen() {
                                     <FontAwesome
                                         name={amenity.icon as any}
                                         size={22}
-                                        color={NAVY_BLUE}
+                                        color={ACCENT_COLOR}
                                     />
                                 </View>
                                 <Text className="text-xs text-gray-600 text-center" numberOfLines={1}>
@@ -328,7 +328,7 @@ export default function HotelDetailScreen() {
                                     <View className="flex-1 ml-3 justify-center">
                                         <Text className="font-bold text-gray-900">{room.name || room.type}</Text>
                                         <Text className="text-xs text-gray-400 mt-1">👥 Up to {room.maxGuests} guests</Text>
-                                        <Text className="font-bold mt-1" style={{ color: NAVY_BLUE }}>
+                                        <Text className="font-bold mt-1" style={{ color: ACCENT_COLOR }}>
                                             ${formatPrice(room.dynamicPrice || room.basePrice)}/night
                                         </Text>
                                     </View>
@@ -360,7 +360,7 @@ export default function HotelDetailScreen() {
                     disabled={savingState === 'saving'}
                 >
                     {savingState === 'saving' ? (
-                        <ActivityIndicator size="small" color={NAVY_BLUE} />
+                        <ActivityIndicator size="small" color={ACCENT_COLOR} />
                     ) : (
                         <FontAwesome
                             name={isSaved ? "heart" : "heart-o"}
@@ -374,8 +374,8 @@ export default function HotelDetailScreen() {
                 <TouchableOpacity
                     className="flex-1 ml-4 py-4 rounded-full items-center"
                     style={{
-                        backgroundColor: NAVY_BLUE,
-                        shadowColor: NAVY_BLUE,
+                        backgroundColor: ACCENT_COLOR,
+                        shadowColor: ACCENT_COLOR,
                         shadowOffset: { width: 0, height: 4 },
                         shadowOpacity: 0.3,
                         shadowRadius: 8,
