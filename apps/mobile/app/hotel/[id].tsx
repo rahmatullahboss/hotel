@@ -359,7 +359,14 @@ export default function HotelDetailScreen() {
                             rooms.map((room) => (
                                 <View
                                     key={room.id}
-                                    className="rounded-2xl mb-4 overflow-hidden bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700"
+                                    className="rounded-2xl mb-4 overflow-hidden bg-white dark:bg-gray-800"
+                                    style={{
+                                        shadowColor: '#000',
+                                        shadowOffset: { width: 0, height: 4 },
+                                        shadowOpacity: 0.08,
+                                        shadowRadius: 12,
+                                        elevation: 4,
+                                    }}
                                 >
                                     {/* Image with badges */}
                                     <View className="relative">
@@ -367,28 +374,28 @@ export default function HotelDetailScreen() {
                                             source={{
                                                 uri: room.photos?.[0] || 'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=400',
                                             }}
-                                            className="w-full h-44"
+                                            className="w-full h-48"
                                             resizeMode="cover"
                                         />
                                         {/* Room Type Badge */}
                                         <View className="absolute top-3 left-3 bg-primary px-3 py-1.5 rounded-lg max-w-[60%]">
-                                            <Text className="text-white text-xs font-bold flex-shrink" numberOfLines={1} ellipsizeMode="tail">
+                                            <Text className="text-white text-xs font-bold" numberOfLines={1}>
                                                 {room.type}
                                             </Text>
                                         </View>
-                                        {/* Available Count Badge - OYO/Booking.com style */}
+                                        {/* Available Count Badge */}
                                         {room.availableCount !== undefined && room.availableCount > 0 && (
-                                            <View className="absolute top-3 right-3 bg-orange-500 px-2.5 py-1.5 rounded-lg max-w-[50%]">
-                                                <Text className="text-white text-xs font-bold flex-shrink" numberOfLines={1} ellipsizeMode="tail">
-                                                    {room.availableCount} {room.availableCount === 1 ? 'room' : 'rooms'} left
+                                            <View className="absolute top-3 right-3 bg-orange-500 px-2.5 py-1.5 rounded-lg">
+                                                <Text className="text-white text-xs font-bold">
+                                                    {room.availableCount} left
                                                 </Text>
                                             </View>
                                         )}
-                                        {/* Guest Badge - move below if available count shown */}
+                                        {/* Guest Badge */}
                                         {(room.availableCount === undefined || room.availableCount === 0) && (
-                                            <View className="absolute top-3 right-3 flex-row items-center bg-white dark:bg-gray-900 px-2.5 py-1.5 rounded-lg gap-1.5">
-                                                <FontAwesome name="users" size={11} color="#E63946" />
-                                                <Text className="text-gray-900 dark:text-white text-sm font-bold">
+                                            <View className="absolute top-3 right-3 flex-row items-center bg-white/95 px-2.5 py-1.5 rounded-lg gap-1.5">
+                                                <Text className="text-sm">👥</Text>
+                                                <Text className="text-gray-900 text-sm font-bold">
                                                     {room.maxGuests}
                                                 </Text>
                                             </View>
@@ -396,16 +403,16 @@ export default function HotelDetailScreen() {
                                     </View>
 
                                     {/* Content */}
-                                    <View className="p-4">
+                                    <View className="p-5">
                                         {/* Room Name & Guest Count */}
-                                        <View className="flex-row items-center justify-between mb-3">
-                                            <Text className="text-lg font-bold text-gray-900 dark:text-white flex-1 flex-shrink mr-2" numberOfLines={1}>
+                                        <View className="flex-row items-center justify-between mb-4">
+                                            <Text className="text-xl font-bold text-gray-900 dark:text-white flex-1 mr-2" numberOfLines={1}>
                                                 {room.name || room.type}
                                             </Text>
                                             {room.availableCount !== undefined && room.availableCount > 0 && (
-                                                <View className="flex-row items-center gap-1 flex-shrink-0">
-                                                    <FontAwesome name="users" size={11} color="#6B7280" />
-                                                    <Text className="text-gray-500 text-sm min-w-[90px] text-right" numberOfLines={1}>
+                                                <View className="flex-row items-center gap-1.5">
+                                                    <Text className="text-sm">👥</Text>
+                                                    <Text className="text-gray-500 text-sm font-medium">
                                                         {t('hotel.upToGuests', { count: room.maxGuests })}
                                                     </Text>
                                                 </View>
@@ -413,27 +420,29 @@ export default function HotelDetailScreen() {
                                         </View>
 
                                         {/* Price and Book Section */}
-                                        <View className="flex-row items-center justify-between">
+                                        <View className="flex-row items-end justify-between">
                                             <View>
                                                 {room.dynamicPrice && room.dynamicPrice < Number(room.basePrice) && (
-                                                    <Text className="text-xs line-through text-gray-400">
+                                                    <Text className="text-xs line-through text-gray-400 mb-0.5">
                                                         {t('common.currency')}{formatPrice(Number(room.basePrice))}
                                                     </Text>
                                                 )}
-                                                <Text className="text-xl font-bold text-primary">
-                                                    {t('common.currency')}{formatPrice(Number(room.dynamicPrice || room.basePrice || 0))}
-                                                    <Text className="text-sm font-normal text-gray-500 dark:text-gray-400">
-                                                        {' '}{t('common.perNight')}
+                                                <View className="flex-row items-baseline">
+                                                    <Text className="text-2xl font-bold text-primary">
+                                                        {t('common.currency')}{formatPrice(Number(room.dynamicPrice || room.basePrice || 0))}
                                                     </Text>
-                                                </Text>
-                                                <Text className="text-[10px] text-gray-400 dark:text-gray-500 mt-0.5">
+                                                    <Text className="text-sm text-gray-400 dark:text-gray-500 ml-1">
+                                                        {t('common.perNight')}
+                                                    </Text>
+                                                </View>
+                                                <Text className="text-xs text-gray-400 dark:text-gray-500 mt-1">
                                                     {t('common.taxAndFees', { amount: `৳${formatPrice(Math.round(Number(room.dynamicPrice || room.basePrice || 0) * 0.15))}` })}
                                                 </Text>
                                             </View>
 
                                             {/* Book Button */}
                                             <TouchableOpacity
-                                                className={`px-5 py-2.5 rounded-full ${room.isAvailable !== false ? 'bg-primary' : 'bg-gray-400'}`}
+                                                className={`px-6 py-3 rounded-xl ${room.isAvailable !== false ? 'bg-primary' : 'bg-gray-400'}`}
                                                 disabled={room.isAvailable === false}
                                                 onPress={() => router.push({
                                                     pathname: '/booking/[id]',
@@ -447,16 +456,21 @@ export default function HotelDetailScreen() {
                                                         hotelCity: hotel.city,
                                                         roomImage: room.photos?.[0] || '',
                                                         hotelId: hotel.id,
-                                                        // Pass dates from context
                                                         checkIn: formatCheckIn(),
                                                         checkOut: formatCheckOut(),
-                                                        // Pass roomIds for auto room assignment
                                                         roomIds: room.roomIds ? JSON.stringify(room.roomIds) : '',
                                                     }
                                                 } as any)}
                                                 activeOpacity={0.85}
+                                                style={room.isAvailable !== false ? {
+                                                    shadowColor: '#E63946',
+                                                    shadowOffset: { width: 0, height: 4 },
+                                                    shadowOpacity: 0.3,
+                                                    shadowRadius: 8,
+                                                    elevation: 5,
+                                                } : {}}
                                             >
-                                                <Text className="text-white font-bold text-sm">
+                                                <Text className="text-white font-bold text-base">
                                                     {room.isAvailable !== false ? t('hotel.bookNow') : t('bookings.status.booked')}
                                                 </Text>
                                             </TouchableOpacity>

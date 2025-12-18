@@ -452,6 +452,7 @@
         },
         "sort": {
             "label": "Sort",
+            "distance": "Distance",
             "rating": "Rating",
             "priceLow": "Price: Low to High",
             "priceHigh": "Price: High to Low"

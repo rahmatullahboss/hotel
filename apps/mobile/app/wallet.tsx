@@ -36,11 +36,12 @@ interface WalletData {
     transactions: Transaction[];
 }
 
-const TIER_BG: Record<string, string> = {
-    BRONZE: 'bg-amber-700',
-    SILVER: 'bg-gray-400',
-    GOLD: 'bg-yellow-500',
-    PLATINUM: 'bg-gray-300',
+// Tier configuration with emojis and colors
+const TIER_CONFIG: Record<string, { emoji: string; name: string; color: string; bgClass: string }> = {
+    BRONZE: { emoji: '🥉', name: 'Bronze', color: '#CD7F32', bgClass: 'bg-amber-700' },
+    SILVER: { emoji: '🥈', name: 'Silver', color: '#C0C0C0', bgClass: 'bg-gray-400' },
+    GOLD: { emoji: '🥇', name: 'Gold', color: '#FFD700', bgClass: 'bg-yellow-500' },
+    PLATINUM: { emoji: '💎', name: 'Platinum', color: '#E5E4E2', bgClass: 'bg-gray-300' },
 };
 
 export default function WalletScreen() {
@@ -135,7 +136,7 @@ export default function WalletScreen() {
         );
     }
 
-    const tierBgClass = TIER_BG[data?.loyalty?.tier || 'BRONZE'] || TIER_BG.BRONZE;
+    const tierConfig = TIER_CONFIG[data?.loyalty?.tier || 'BRONZE'] || TIER_CONFIG.BRONZE;
 
     return (
         <View className="flex-1 bg-gray-50 dark:bg-gray-900">
@@ -155,34 +156,65 @@ export default function WalletScreen() {
                     <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#E63946" />
                 }
             >
-                <View className="mx-5 mt-5 p-6 rounded-2xl bg-secondary items-center">
-                    <Text className="text-white/80 text-sm mb-2">{t('wallet.balance')}</Text>
-                    <Text className="text-white text-4xl font-bold mb-4">
+                {/* Balance Card - Premium Gradient */}
+                <View
+                    className="mx-5 mt-5 p-6 rounded-3xl items-center overflow-hidden"
+                    style={{
+                        backgroundColor: '#1D3557',
+                        shadowColor: '#1D3557',
+                        shadowOffset: { width: 0, height: 8 },
+                        shadowOpacity: 0.4,
+                        shadowRadius: 16,
+                        elevation: 10,
+                    }}
+                >
+                    {/* Decorative circles */}
+                    <View className="absolute -top-10 -right-10 w-32 h-32 rounded-full bg-white/5" />
+                    <View className="absolute -bottom-8 -left-8 w-24 h-24 rounded-full bg-primary/20" />
+
+                    <Text className="text-white/70 text-sm mb-1">{t('wallet.balance')}</Text>
+                    <Text className="text-white text-5xl font-bold mb-5">
                         ৳{(data?.balance || 0).toLocaleString()}
                     </Text>
 
                     <TouchableOpacity
                         onPress={() => setShowAddMoneyModal(true)}
-                        className="bg-white/20 px-6 py-2.5 rounded-full border border-white/30 active:bg-white/30"
+                        className="bg-primary px-8 py-3 rounded-full"
+                        style={{
+                            shadowColor: '#E63946',
+                            shadowOffset: { width: 0, height: 4 },
+                            shadowOpacity: 0.3,
+                            shadowRadius: 8,
+                            elevation: 5,
+                        }}
                     >
-                        <Text className="text-white font-semibold flex-row items-center">
+                        <Text className="text-white font-bold text-base">
                             + Add Money
                         </Text>
                     </TouchableOpacity>
                 </View>
 
                 {/* Loyalty Points Card */}
-                <View className={`mx-5 mt-4 p-5 rounded-2xl ${tierBgClass}`}>
+                <View
+                    className={`mx-5 mt-4 p-5 rounded-2xl ${tierConfig.bgClass}`}
+                    style={{
+                        shadowColor: '#000',
+                        shadowOffset: { width: 0, height: 4 },
+                        shadowOpacity: 0.15,
+                        shadowRadius: 8,
+                        elevation: 5,
+                    }}
+                >
                     <View className="flex-row justify-between items-center">
                         <View>
-                            <Text className="text-white/90 text-xs">{t('wallet.loyaltyPoints')}</Text>
-                            <Text className="text-white text-3xl font-bold">
+                            <Text className="text-white/90 text-xs font-medium">{t('wallet.loyaltyPoints')}</Text>
+                            <Text className="text-white text-4xl font-bold">
                                 {(data?.loyalty?.points || 0).toLocaleString()}
                             </Text>
                         </View>
-                        <View className="bg-white/30 px-3 py-1.5 rounded-full">
-                            <Text className="text-white font-semibold text-xs">
-                                {data?.loyalty?.tier || 'BRONZE'} 🏆
+                        <View className="bg-white/25 px-4 py-2 rounded-full">
+                            <Text className="text-white font-bold text-sm">
+                                {tierConfig.emoji} {tierConfig.name}
                             </Text>
                         </View>
                     </View>
@@ -190,41 +222,48 @@ export default function WalletScreen() {
                 </View>
 
                 {/* Transactions */}
-                <View className="mx-5 mt-4 rounded-2xl p-4 bg-white dark:bg-gray-800">
-                    <Text className="text-base font-semibold text-gray-900 dark:text-white mb-4">
+                <View
+                    className="mx-5 mt-4 rounded-2xl p-5 bg-white dark:bg-gray-800"
+                    style={{
+                        shadowColor: '#000',
+                        shadowOffset: { width: 0, height: 2 },
+                        shadowOpacity: 0.06,
+                        shadowRadius: 8,
+                        elevation: 3,
+                    }}
+                >
+                    <Text className="text-lg font-bold text-gray-900 dark:text-white mb-4">
                         {t('wallet.transactions')}
                     </Text>
 
                     {data?.transactions && data.transactions.length > 0 ? (
-                        data.transactions.map((tx) => (
+                        data.transactions.map((tx, index) => (
                             <View
                                 key={tx.id}
-                                className="flex-row items-center py-3 border-b border-gray-100 dark:border-gray-700"
+                                className={`flex-row items-center py-4 ${index !== data.transactions.length - 1 ? 'border-b border-gray-100 dark:border-gray-700' : ''}`}
                             >
-                                <View className={`w-9 h-9 rounded-full items-center justify-center mr-3 ${tx.type === 'CREDIT' ? 'bg-green-100 dark:bg-green-900/30' : 'bg-red-100 dark:bg-red-900/30'}`}>
-                                    <FontAwesome
-                                        name={tx.type === 'CREDIT' ? 'arrow-down' : 'arrow-up'}
-                                        size={14}
-                                        color={tx.type === 'CREDIT' ? '#16a34a' : '#dc2626'}
-                                    />
+                                <View className={`w-11 h-11 rounded-xl items-center justify-center mr-3 ${tx.type === 'CREDIT' ? 'bg-green-100 dark:bg-green-900/30' : 'bg-red-100 dark:bg-red-900/30'}`}>
+                                    <Text className="text-lg">
+                                        {tx.type === 'CREDIT' ? '💰' : '💸'}
+                                    </Text>
                                 </View>
                                 <View className="flex-1">
-                                    <Text className="text-sm font-medium text-gray-900 dark:text-white">
+                                    <Text className="text-base font-semibold text-gray-900 dark:text-white">
                                         {tx.description}
                                     </Text>
                                     <Text className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
                                         {new Date(tx.createdAt).toLocaleDateString()}
                                     </Text>
                                 </View>
-                                <Text className={`text-sm font-semibold ${tx.type === 'CREDIT' ? 'text-green-600' : 'text-red-500'}`}>
-                                    {tx.type === 'CREDIT' ? '+' : '-'}৳{tx.amount}
+                                <Text className={`text-base font-bold ${tx.type === 'CREDIT' ? 'text-green-600' : 'text-red-500'}`}>
+                                    {tx.type === 'CREDIT' ? '+' : '-'}৳{tx.amount.toLocaleString()}
                                 </Text>
                             </View>
                         ))
                     ) : (
-                        <View className="items-center py-10">
-                            <FontAwesome name="history" size={40} color="#9CA3AF" />
-                            <Text className="text-sm text-gray-500 dark:text-gray-400 mt-3">
+                        <View className="items-center py-12">
+                            <Text className="text-5xl mb-4">📋</Text>
+                            <Text className="text-base font-medium text-gray-500 dark:text-gray-400">
                                 {t('wallet.noTransactions')}
                             </Text>
                         </View>

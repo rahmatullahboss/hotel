@@ -24,6 +24,7 @@ interface HotelListWithFiltersProps {
     onRefresh?: () => void;
     ListHeaderComponent?: React.ReactElement;
     noResultsMessage?: string;
+    defaultSortBy?: 'rating' | 'priceLow' | 'priceHigh' | 'distance';
 }
 
 // Filter options
@@ -34,12 +35,14 @@ const FILTER_KEYS = [
     { id: 'topRated', labelKey: 'allHotels.filters.topRated', icon: 'thumbs-up', color: '#3B82F6' },
 ];
 
-// Sort options
-const SORT_KEYS = [
+// Sort options (distance is added dynamically when applicable)
+const BASE_SORT_KEYS = [
     { id: 'rating', labelKey: 'allHotels.sort.rating' },
     { id: 'priceLow', labelKey: 'allHotels.sort.priceLow' },
     { id: 'priceHigh', labelKey: 'allHotels.sort.priceHigh' },
 ];
+
+const DISTANCE_SORT_KEY = { id: 'distance', labelKey: 'allHotels.sort.distance' };
 
 const BUDGET_MAX = 3000;
 const PREMIUM_MIN = 8000;
@@ -50,11 +53,23 @@ export default function HotelListWithFilters({
     refreshing = false,
     onRefresh,
     ListHeaderComponent,
-    noResultsMessage
+    noResultsMessage,
+    defaultSortBy
 }: HotelListWithFiltersProps) {
     const { t } = useTranslation();
     const [activeFilter, setActiveFilter] = useState('all');
-    const [sortBy, setSortBy] = useState('rating');
+
+    // Check if hotels have distance data (from nearby search)
+    const hasDistanceData = hotels.some(h => h.distance !== undefined);
+
+    // Determine initial sort: use defaultSortBy if provided, otherwise use distance if available, else rating
+    const initialSortBy = defaultSortBy || (hasDistanceData ? 'distance' : 'rating');
+    const [sortBy, setSortBy] = useState(initialSortBy);
+
+    // Build sort keys - include distance only when hotels have distance data
+    const SORT_KEYS = hasDistanceData
+        ? [DISTANCE_SORT_KEY, ...BASE_SORT_KEYS]
+        : BASE_SORT_KEYS;
 
     // Apply filter and sort
     const filteredHotels = useMemo(() => {
@@ -70,7 +85,10 @@ export default function HotelListWithFilters({
         }
 
         // Apply sort
-        if (sortBy === 'rating') {
+        if (sortBy === 'distance') {
+            // Sort by distance (nearest first)
+            result.sort((a, b) => (a.distance || Infinity) - (b.distance || Infinity));
+        } else if (sortBy === 'rating') {
             result.sort((a, b) => parseFloat(String(b.rating)) - parseFloat(String(a.rating)));
         } else if (sortBy === 'priceLow') {
             result.sort((a, b) => (a.lowestPrice || 0) - (b.lowestPrice || 0));
@@ -130,7 +148,7 @@ export default function HotelListWithFilters({
                 {SORT_KEYS.map((option) => (
                     <TouchableOpacity
                         key={option.id}
-                        onPress={() => setSortBy(option.id)}
+                        onPress={() => setSortBy(option.id as 'rating' | 'priceLow' | 'priceHigh' | 'distance')}
                         className={`px-4 py-2 rounded-full border mr-2 mb-2 shrink-0 ${sortBy === option.id
                             ? 'bg-primary border-primary'
                             : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700'

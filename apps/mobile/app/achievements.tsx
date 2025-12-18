@@ -131,48 +131,94 @@ export default function AchievementsScreen() {
                     <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#E63946" />
                 }
             >
-                {/* Streak Card */}
-                <View className="mx-5 mt-5 p-6 rounded-2xl bg-orange-500 items-center">
-                    <Text className="text-5xl mb-2">🔥</Text>
+                {/* Streak Card - Premium Gradient */}
+                <View
+                    className="mx-5 mt-5 p-6 rounded-3xl items-center overflow-hidden"
+                    style={{
+                        backgroundColor: '#F97316',
+                        shadowColor: '#F97316',
+                        shadowOffset: { width: 0, height: 8 },
+                        shadowOpacity: 0.4,
+                        shadowRadius: 16,
+                        elevation: 10,
+                    }}
+                >
+                    {/* Decorative circles */}
+                    <View className="absolute -top-8 -right-8 w-28 h-28 rounded-full bg-white/10" />
+                    <View className="absolute -bottom-6 -left-6 w-20 h-20 rounded-full bg-yellow-400/20" />
+
+                    <Text className="text-6xl mb-3">🔥</Text>
                     <View className="items-center">
-                        <Text className="text-white text-5xl font-extrabold">
+                        <Text className="text-white text-6xl font-extrabold">
                             {data?.streak?.currentStreak || 0}
                         </Text>
-                        <Text className="text-white/90 text-sm">{t('achievements.dayStreak')}</Text>
+                        <Text className="text-white/90 text-base font-medium mt-1">{t('achievements.dayStreak')}</Text>
                     </View>
                     {data?.streak?.nextReward && (
-                        <Text className="text-white/80 text-xs mt-3 text-center">
-                            {t('achievements.nextReward', {
-                                days: data.streak.daysUntilReward,
-                                reward: data.streak.nextReward.reward,
-                            })}
-                        </Text>
+                        <View className="bg-white/20 px-4 py-2 rounded-full mt-4">
+                            <Text className="text-white text-sm font-medium text-center">
+                                {t('achievements.nextReward', {
+                                    days: data.streak.daysUntilReward,
+                                    reward: data.streak.nextReward.reward,
+                                })}
+                            </Text>
+                        </View>
                     )}
                 </View>
 
                 {/* Streak Stats */}
                 <View className="flex-row mx-5 mt-5 gap-3">
-                    <View className="flex-1 p-4 rounded-xl bg-white dark:bg-gray-800 items-center">
-                        <Text className="text-xl font-bold text-gray-900 dark:text-white">
+                    <View
+                        className="flex-1 p-4 rounded-2xl bg-white dark:bg-gray-800 items-center"
+                        style={{
+                            shadowColor: '#000',
+                            shadowOffset: { width: 0, height: 2 },
+                            shadowOpacity: 0.06,
+                            shadowRadius: 8,
+                            elevation: 3,
+                        }}
+                    >
+                        <Text className="text-3xl mb-2">🏆</Text>
+                        <Text className="text-2xl font-bold text-gray-900 dark:text-white">
                             {data?.streak?.longestStreak || 0}
                         </Text>
-                        <Text className="text-xs text-gray-500 dark:text-gray-400 mt-1 text-center">
+                        <Text className="text-xs text-gray-500 dark:text-gray-400 mt-1 text-center font-medium">
                             {t('achievements.bestStreak')}
                         </Text>
                     </View>
-                    <View className="flex-1 p-4 rounded-xl bg-white dark:bg-gray-800 items-center">
-                        <Text className="text-xl font-bold text-gray-900 dark:text-white">
+                    <View
+                        className="flex-1 p-4 rounded-2xl bg-white dark:bg-gray-800 items-center"
+                        style={{
+                            shadowColor: '#000',
+                            shadowOffset: { width: 0, height: 2 },
+                            shadowOpacity: 0.06,
+                            shadowRadius: 8,
+                            elevation: 3,
+                        }}
+                    >
+                        <Text className="text-3xl mb-2">📅</Text>
+                        <Text className="text-2xl font-bold text-gray-900 dark:text-white">
                             {data?.streak?.totalLoginDays || 0}
                         </Text>
-                        <Text className="text-xs text-gray-500 dark:text-gray-400 mt-1 text-center">
+                        <Text className="text-xs text-gray-500 dark:text-gray-400 mt-1 text-center font-medium">
                             {t('achievements.totalDays')}
                         </Text>
                     </View>
-                    <View className="flex-1 p-4 rounded-xl bg-white dark:bg-gray-800 items-center">
-                        <Text className="text-xl font-bold text-gray-900 dark:text-white">
+                    <View
+                        className="flex-1 p-4 rounded-2xl bg-white dark:bg-gray-800 items-center"
+                        style={{
+                            shadowColor: '#000',
+                            shadowOffset: { width: 0, height: 2 },
+                            shadowOpacity: 0.06,
+                            shadowRadius: 8,
+                            elevation: 3,
+                        }}
+                    >
+                        <Text className="text-3xl mb-2">🎖️</Text>
+                        <Text className="text-2xl font-bold text-gray-900 dark:text-white">
                             {data?.earnedCount || 0}
                         </Text>
-                        <Text className="text-xs text-gray-500 dark:text-gray-400 mt-1 text-center">
+                        <Text className="text-xs text-gray-500 dark:text-gray-400 mt-1 text-center font-medium">
                             {t('achievements.badgesEarned')}
                         </Text>
                     </View>
@@ -186,14 +232,26 @@ export default function AchievementsScreen() {
                     if (categoryBadges.length === 0) return null;
 
                     return (
-                        <View key={category.key} className="mx-5 mt-4 p-4 rounded-2xl bg-white dark:bg-gray-800">
+                        <View
+                            key={category.key}
+                            className="mx-5 mt-4 p-5 rounded-2xl bg-white dark:bg-gray-800"
+                            style={{
+                                shadowColor: '#000',
+                                shadowOffset: { width: 0, height: 2 },
+                                shadowOpacity: 0.06,
+                                shadowRadius: 8,
+                                elevation: 3,
+                            }}
+                        >
                             <View className="flex-row items-center gap-2 mb-4">
-                                <FontAwesome
-                                    name={CATEGORY_ICONS[category.key] as any || 'trophy'}
-                                    size={18}
-                                    color="#E63946"
-                                />
-                                <Text className="text-base font-semibold text-gray-900 dark:text-white">
+                                <Text className="text-xl">
+                                    {category.key === 'STREAK' ? '🔥' :
+                                        category.key === 'BOOKING' ? '📆' :
+                                            category.key === 'EXPLORER' ? '🧭' :
+                                                category.key === 'REFERRAL' ? '🎁' :
+                                                    category.key === 'LOYALTY' ? '⭐' : '✍️'}
+                                </Text>
+                                <Text className="text-lg font-bold text-gray-900 dark:text-white">
                                     {category.label}
                                 </Text>
                             </View>
@@ -201,24 +259,25 @@ export default function AchievementsScreen() {
                                 {categoryBadges.map((badge) => (
                                     <View
                                         key={badge.id}
-                                        className={`w-[30%] p-3 rounded-xl items-center ${badge.isEarned
-                                            ? 'bg-primary/15'
-                                            : 'bg-gray-100 dark:bg-gray-700 opacity-60'
+                                        className={`w-[30%] p-4 rounded-xl items-center ${badge.isEarned
+                                            ? 'bg-primary/10'
+                                            : 'bg-gray-100 dark:bg-gray-700 opacity-50'
                                             }`}
                                     >
-                                        <Text className="text-3xl mb-2">{badge.icon}</Text>
+                                        <Text className="text-4xl mb-2">{badge.icon}</Text>
                                         <Text
-                                            className={`text-xs font-semibold text-center ${badge.isEarned ? 'text-gray-900 dark:text-white' : 'text-gray-500 dark:text-gray-400'
+                                            className={`text-xs font-bold text-center ${badge.isEarned ? 'text-gray-900 dark:text-white' : 'text-gray-500 dark:text-gray-400'
                                                 }`}
                                             numberOfLines={2}
-                                            ellipsizeMode="tail"
                                         >
                                             {i18n.language === 'bn' && badge.nameBn ? badge.nameBn : badge.name}
                                         </Text>
                                         {badge.isEarned ? (
-                                            <Text className="text-xs text-green-600 mt-1">✓ {t('achievements.earned')}</Text>
+                                            <View className="bg-green-100 dark:bg-green-900/30 px-2 py-0.5 rounded-full mt-2">
+                                                <Text className="text-xs text-green-600 font-medium">✓ {t('achievements.earned')}</Text>
+                                            </View>
                                         ) : (
-                                            <Text className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                            <Text className="text-xs text-gray-400 dark:text-gray-500 mt-2 font-medium">
                                                 +{badge.points} {t('achievements.points')}
                                             </Text>
                                         )}
