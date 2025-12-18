@@ -122,13 +122,13 @@ export default function HotelCard({ hotel, index, distance }: HotelCardProps) {
                         {/* Location with pin */}
                         <View className="flex-row items-center gap-1.5 mb-1">
                             <FontAwesome name="map-marker" size={14} color="rgba(255,255,255,0.85)" />
-                            <Text className="text-sm flex-1" style={{ color: 'rgba(255,255,255,0.85)' }} numberOfLines={1}>
+                            <Text className="text-sm flex-1" style={{ color: 'rgba(255,255,255,0.85)' }} numberOfLines={2}>
                                 {hotel.city}
                             </Text>
                         </View>
 
                         {/* Hotel Name */}
-                        <Text className="text-xl font-bold text-white mb-1" numberOfLines={1}>
+                        <Text className="text-xl font-bold text-white mb-1" numberOfLines={2}>
                             {hotel.name}
                         </Text>
 

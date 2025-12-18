@@ -1,7 +1,7 @@
 // OYO-style Hotel Booking App Colors
 // Using a vibrant red/coral theme similar to OYO
 
-const primaryColor = '#E23744'; // OYO Red
+const primaryColor = '#E63946'; // Vibe Red (was OYO Red)
 const primaryDark = '#C41E3A';  // Darker Red
 const primaryLight = '#FF6B7A'; // Lighter Red for accents
 const accentGold = '#FFB400';   // Gold accent

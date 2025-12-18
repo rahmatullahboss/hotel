@@ -105,19 +105,19 @@ export default function HotelListWithFilters({
             <ScrollView
                 horizontal
                 showsHorizontalScrollIndicator={false}
-                contentContainerStyle={{ paddingHorizontal: 0, gap: 8 }}
+                contentContainerStyle={{ gap: 8 }}
             >
                 {FILTER_KEYS.map((filter) => (
                     <TouchableOpacity
                         key={filter.id}
-                        className={`flex-row items-center rounded-full gap-2 ${activeFilter === filter.id
+                        className={`flex-row items-center rounded-full gap-1.5 ${activeFilter === filter.id
                             ? 'bg-primary'
                             : 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700'
                             }`}
                         onPress={() => setActiveFilter(filter.id)}
                         style={{
-                            paddingHorizontal: 24,
-                            paddingVertical: 12,
+                            paddingHorizontal: 12,
+                            paddingVertical: 6,
                             ...(activeFilter !== filter.id && {
                                 shadowColor: '#000',
                                 shadowOffset: { width: 0, height: 2 },
@@ -128,15 +128,15 @@ export default function HotelListWithFilters({
                     >
                         <FontAwesome
                             name={filter.icon as any}
-                            size={14}
+                            size={12}
                             color={activeFilter === filter.id ? '#fff' : (filter.color || '#6B7280')}
                         />
                         <Text
-                            className={`text-sm font-semibold ${activeFilter === filter.id
-                                ? 'text-white'
-                                : 'text-gray-700 dark:text-gray-300'
-                                }`}
-                            style={{ lineHeight: 24, flexShrink: 0 }}
+                            style={{
+                                fontSize: 12,
+                                fontWeight: '600',
+                                color: activeFilter === filter.id ? '#fff' : '#374151',
+                            }}
                         >
                             {t(filter.labelKey)}
                         </Text>
@@ -166,16 +166,18 @@ export default function HotelListWithFilters({
                                 : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700'
                                 }`}
                             style={{
-                                paddingHorizontal: 24,
-                                paddingVertical: 12,
+                                paddingHorizontal: 16,
+                                paddingVertical: 6,
+                                minWidth: 60,
                             }}
                         >
                             <Text
-                                className={`text-sm font-medium ${sortBy === option.id
-                                    ? 'text-white'
-                                    : 'text-gray-600 dark:text-gray-300'
-                                    }`}
-                                style={{ lineHeight: 24, flexShrink: 0 }}
+                                style={{
+                                    fontSize: 12,
+                                    fontWeight: '500',
+                                    color: sortBy === option.id ? '#fff' : '#4B5563',
+                                    textAlign: 'center',
+                                }}
                             >
                                 {t(option.labelKey)}
                             </Text>

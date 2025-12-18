@@ -14,6 +14,7 @@ import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { useTranslation } from 'react-i18next';
+import Colors from '@/constants/Colors';
 import api from '@/lib/api';
 import HotelCard from '@/components/HotelCard';
 import QuickFilterButton from '@/components/QuickFilterButton';
@@ -134,7 +135,7 @@ export default function HomeScreen() {
         className="px-5 pb-5"
         style={{
           paddingTop: insets.top + 16,
-          backgroundColor: '#E63946',
+          backgroundColor: Colors.primary,
         }}
       >
         {/* Greeting Row */}
@@ -256,7 +257,7 @@ export default function HomeScreen() {
             <View
               className="rounded-2xl p-5 overflow-hidden"
               style={{
-                backgroundColor: '#1D3557',
+                backgroundColor: Colors.primary,
                 shadowColor: '#1D3557',
                 shadowOffset: { width: 0, height: 4 },
                 shadowOpacity: 0.3,
