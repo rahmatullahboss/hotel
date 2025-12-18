@@ -253,9 +253,17 @@ export default function HomeScreen() {
                     </View>
 
                     {/* Hotel Name */}
-                    <Text className="text-xl font-bold text-white" numberOfLines={1}>
+                    <Text className="text-xl font-bold text-white mb-1" numberOfLines={1}>
                       {hotel.name}
                     </Text>
+
+                    {/* Price */}
+                    <View className="flex-row items-baseline">
+                      <Text className="text-lg font-bold" style={{ color: '#E63946' }}>
+                        ৳{hotel.lowestPrice?.toLocaleString() || '0'}
+                      </Text>
+                      <Text className="text-sm text-white/70 ml-1">/ night</Text>
+                    </View>
                   </View>
 
                   {/* Rating Badge - Top Left (Golden) */}
