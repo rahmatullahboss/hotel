@@ -35,8 +35,8 @@ export function ProfileStatsCard({ stats }: ProfileStatsCardProps) {
                                 {stat.value}
                             </Text>
                             <Text
-                                className="text-xs text-gray-500 dark:text-gray-400 mt-1 text-center"
-                                style={{ lineHeight: 16, paddingVertical: 2 }}
+                                className="text-[10px] text-gray-500 dark:text-gray-400 mt-1 text-center w-full"
+                                style={{ lineHeight: 14 }}
                             >
                                 {stat.label}
                             </Text>
