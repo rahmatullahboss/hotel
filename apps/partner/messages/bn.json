@@ -1,6 +1,6 @@
 {
     "common": {
-        "appName": "Vibe Manager",
+        "appName": "Zinu Rooms Manager",
         "loading": "লোড হচ্ছে...",
         "error": "ত্রুটি",
         "success": "সফল",
@@ -27,8 +27,8 @@
         "help": "সাহায্য"
     },
     "dashboard": {
-        "title": "Vibe Manager",
-        "welcome": "Vibe Manager এ স্বাগতম",
+        "title": "Zinu Rooms Manager",
+        "welcome": "Zinu Rooms Manager এ স্বাগতম",
         "registerHotel": "আপনার হোটেল নিবন্ধন করুন",
         "registerDescription": "বুকিং, ইনভেন্টরি এবং আয় এক জায়গায় পরিচালনা করতে আপনার হোটেল নিবন্ধন করুন।",
         "pendingApproval": "অনুমোদনের অপেক্ষায়",
@@ -39,7 +39,7 @@
         "setupRooms": "রুম ও মূল্য সেট করুন",
         "suspended": "স্থগিত",
         "suspendedDescription": "আপনার হোটেল স্থগিত করা হয়েছে। আরও তথ্যের জন্য সাপোর্টে যোগাযোগ করুন।",
-        "contactSupport": "প্রশ্ন আছে? support@vibehotel.com এ যোগাযোগ করুন"
+        "contactSupport": "প্রশ্ন আছে? support@zinurooms.com এ যোগাযোগ করুন"
     },
     "stats": {
         "monthlyRevenue": "মাসিক আয়",
@@ -105,7 +105,7 @@
         "commission": "২০% কমিশন",
         "language": "ভাষা",
         "languageDesc": "অ্যাপ ভাষা পরিবর্তন করুন",
-        "version": "Vibe Manager v1.0.0"
+        "version": "Zinu Rooms Manager v1.0.0"
     },
     "help": {
         "title": "সাহায্য ও সাপোর্ট",

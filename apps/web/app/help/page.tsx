@@ -43,7 +43,7 @@ export default function HelpPage() {
                     <div className="help-contact-grid">
                         {/* Email Support */}
                         <a
-                            href={`mailto:${SUPPORT_EMAIL}?subject=Help%20Request%20-%20Vibe%20Hotels`}
+                            href={`mailto:${SUPPORT_EMAIL}?subject=Help%20Request%20-%20Zinu%20Rooms`}
                             className="card help-contact-card"
                         >
                             <div className="help-contact-icon"><FiMail size={24} /></div>
@@ -77,7 +77,7 @@ export default function HelpPage() {
 
                         {/* WhatsApp Support */}
                         <a
-                            href={`https://wa.me/8801570260118?text=Hello%2C%20I%20need%20help%20with%20Vibe%20Hotels`}
+                            href={`https://wa.me/8801570260118?text=Hello%2C%20I%20need%20help%20with%20Zinu%20Rooms`}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="card help-contact-card"

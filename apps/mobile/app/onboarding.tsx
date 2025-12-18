@@ -14,7 +14,7 @@ import { useTranslation } from 'react-i18next';
 
 const { width, height } = Dimensions.get('window');
 
-const ONBOARDING_KEY = '@vibe_onboarding_completed';
+const ONBOARDING_KEY = '@zinurooms_onboarding_completed';
 
 interface OnboardingSlide {
     id: string;
@@ -31,7 +31,7 @@ const SLIDES: OnboardingSlide[] = [
         icon: 'building',
         iconColor: '#E63946',
         bgColor: '#FEE2E2',
-        title: 'Welcome to Vibe',
+        title: 'Welcome to Zinu Rooms',
         description: 'Find and book the perfect hotel for your next adventure. Thousands of verified hotels at your fingertips.',
     },
     {
@@ -101,7 +101,7 @@ export default function OnboardingScreen() {
                 </View>
 
                 {/* Title */}
-                <Text 
+                <Text
                     className="text-3xl font-bold text-gray-900 text-center mb-4 px-4"
                     numberOfLines={0}
                 >
@@ -110,7 +110,7 @@ export default function OnboardingScreen() {
 
                 {/* Description */}
                 <View className="w-full px-4">
-                    <Text 
+                    <Text
                         className="text-base text-gray-500 text-center leading-7"
                         numberOfLines={0}
                     >

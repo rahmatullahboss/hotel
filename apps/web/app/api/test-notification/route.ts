@@ -33,7 +33,7 @@ export async function POST(request: NextRequest) {
         // Send test notification
         const result = await sendPushNotification(userId, {
             title: "🔔 Test Notification",
-            body: "This is a test notification from Vibe Hotels!",
+            body: "This is a test notification from Zinu Rooms!",
             data: {
                 type: "TEST",
                 timestamp: new Date().toISOString(),

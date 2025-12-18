@@ -83,7 +83,7 @@ export default function LoginScreen() {
                         Welcome Back
                     </Text>
                     <Text className="text-base text-gray-500 dark:text-gray-400 text-center">
-                        Sign in to continue to Vibe Hospitality
+                        Sign in to continue to Zinu Rooms Hospitality
                     </Text>
                 </View>
 

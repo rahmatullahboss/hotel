@@ -1,6 +1,6 @@
 {
     "common": {
-        "appName": "Vibe Manager",
+        "appName": "Zinu Rooms Manager",
         "loading": "Loading...",
         "error": "Error",
         "success": "Success",
@@ -27,8 +27,8 @@
         "help": "Help"
     },
     "dashboard": {
-        "title": "Vibe Manager",
-        "welcome": "Welcome to Vibe Manager",
+        "title": "Zinu Rooms Manager",
+        "welcome": "Welcome to Zinu Rooms Manager",
         "registerHotel": "Register Your Hotel",
         "registerDescription": "Register your hotel to start managing bookings, inventory, and earnings all in one place.",
         "pendingApproval": "Pending Approval",
@@ -39,7 +39,7 @@
         "setupRooms": "Set up rooms & pricing",
         "suspended": "Suspended",
         "suspendedDescription": "Your hotel has been suspended. Please contact support for more information.",
-        "contactSupport": "Questions? Contact support@vibehotel.com"
+        "contactSupport": "Questions? Contact support@zinurooms.com"
     },
     "stats": {
         "monthlyRevenue": "Monthly Revenue",
@@ -105,7 +105,7 @@
         "commission": "20% Commission",
         "language": "Language",
         "languageDesc": "Change app language",
-        "version": "Vibe Manager v1.0.0"
+        "version": "Zinu Rooms Manager v1.0.0"
     },
     "help": {
         "title": "Help & Support",

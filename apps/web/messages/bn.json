@@ -1,6 +1,6 @@
 {
     "common": {
-        "appName": "Vibe Hotels",
+        "appName": "Zinu Rooms",
         "loading": "লোড হচ্ছে...",
         "loadingMap": "ম্যাপ লোড হচ্ছে...",
         "loadingHotels": "হোটেল লোড হচ্ছে...",
@@ -49,7 +49,7 @@
         "heroSubtitle": "বাংলাদেশে সেরা মূল্যে যাচাইকৃত হোটেল বুক করুন",
         "featuredHotels": "ফিচার্ড হোটেল",
         "noHotels": "বর্তমানে কোনো হোটেল উপলব্ধ নেই। শীঘ্রই আবার দেখুন!",
-        "whyBook": "Vibe এ কেন বুক করবেন?",
+        "whyBook": "Zinu Rooms এ কেন বুক করবেন?",
         "verifiedProperties": "যাচাইকৃত প্রপার্টি",
         "verifiedDesc": "সব হোটেল ব্যক্তিগতভাবে মান যাচাই করা",
         "bestPrices": "সেরা মূল্য",
@@ -113,7 +113,7 @@
         "payAtHotel": "হোটেলে পেমেন্ট",
         "sections": {
             "amenities": "সুবিধাসমূহ",
-            "aboutVibe": "এই ভাইব সম্পর্কে",
+            "aboutVibe": "এই Zinu Rooms সম্পর্কে",
             "chooseRoom": "রুম নির্বাচন করুন",
             "ratingsReviews": "রেটিং ও রিভিউ",
             "hotelRules": "হোটেল নিয়মাবলী",
@@ -124,7 +124,7 @@
             "support24x7": "২৪/৭ সাপোর্ট",
             "freeWifi": "ফ্রি ওয়াইফাই",
             "secureBooking": "নিরাপদ বুকিং",
-            "verified": "ভাইব ভেরিফাইড"
+            "verified": "Zinu Rooms ভেরিফাইড"
         },
         "ratings": {
             "title": "রেটিং ও রিভিউ",
@@ -155,7 +155,7 @@
             "totalPrice": "মোট মূল্য",
             "includingTaxes": "ট্যাক্স ও ফি সহ",
             "continueToBook": "বুকিং করতে এগিয়ে যান",
-            "bookedCount": "গত ৬ মাসে {count}+ জন এই ভাইব বুক করেছেন",
+            "bookedCount": "গত ৬ মাসে {count}+ জন এই Zinu Rooms বুক করেছেন",
             "cancellationPolicy": "বাতিল নীতি",
             "safetyMeasures": "হোটেলের পরামর্শ অনুযায়ী নিরাপত্তা ব্যবস্থা মেনে চলুন",
             "agreeToTerms": "এগিয়ে যাওয়ার মাধ্যমে, আপনি আমাদের সাথে সম্মত হচ্ছেন",
@@ -355,7 +355,7 @@
         "contact": "যোগাযোগ",
         "legal": "আইনি",
         "rights": "সর্বস্বত্ব সংরক্ষিত",
-        "description": "বাংলাদেশে প্রিমিয়াম হোটেল বুকিং অভিজ্ঞতা",
+        "subtitle": "বাংলাদেশে প্রিমিয়াম Zinu Rooms বুকিং অভিজ্ঞতা",
         "careers": "ক্যারিয়ার",
         "helpCenter": "হেল্প সেন্টার",
         "listProperty": "আপনার প্রপার্টি তালিকাভুক্ত করুন",
@@ -365,7 +365,7 @@
         "partners": "পার্টনারদের জন্য",
         "terms": "সেবার শর্তাবলী",
         "privacy": "গোপনীয়তা নীতি",
-        "copyright": "© {year} Vibe Hotels. সর্বস্বত্ব সংরক্ষিত।"
+        "copyright": "© {year} Zinu Rooms. সর্বস্বত্ব সংরক্ষিত।"
     },
     "auth": {
         "title": "সাইন ইন",
@@ -474,8 +474,8 @@
         "copy": "কপি",
         "share": "শেয়ার",
         "shareHint": "প্রতিটি সফল বুকিংয়ের জন্য ৳১০০ আয় করতে আপনার কোড বন্ধুদের সাথে শেয়ার করুন",
-        "shareTitle": "Vibe Hotels এ যোগ দিন",
-        "shareMessage": "Vibe Hotels এ সাইন আপ করার সময় আমার রেফারেল কোড {code} ব্যবহার করুন এবং আপনার প্রথম বুকিংয়ে ৳৫০ ছাড় পান!",
+        "shareTitle": "Zinu Rooms এ যোগ দিন",
+        "shareMessage": "Zinu Rooms এ সাইন আপ করার সময় আমার রেফারেল কোড {code} ব্যবহার করুন এবং আপনার প্রথম বুকিংয়ে ৳৫০ ছাড় পান!",
         "totalReferrals": "মোট রেফারেল",
         "pending": "পেন্ডিং",
         "earned": "অর্জিত",
@@ -647,7 +647,7 @@
     },
     "contact": {
         "title": "যোগাযোগ করুন",
-        "subtitle": "ভাইব হস্পিটালিটির সাথে যোগাযোগ করুন। আমরা আপনাকে সাহায্য করতে এখানে আছি।",
+        "subtitle": "Zinu Rooms হস্পিটালিটির সাথে যোগাযোগ করুন। আমরা আপনাকে সাহায্য করতে এখানে আছি।",
         "emailLabel": "আমাদের ইমেল করুন",
         "phoneLabel": "যেকোনো সময় কল করুন",
         "hoursTitle": "অফিস সময়",
@@ -681,7 +681,7 @@
         "hotelsCount": "যাচাইকৃত হোটেল",
         "citiesCount": "শহর কভার করা হয়েছে",
         "supportAvailable": "সাপোর্ট",
-        "whyChooseTitle": "কেন ভাইব বেছে নেবেন",
+        "whyChooseTitle": "কেন Zinu Rooms বেছে নেবেন",
         "reason1Title": "যাচাইকৃত প্রপার্টি",
         "reason1Description": "প্রতিটি হোটেল আমাদের টিম দ্বারা ব্যক্তিগতভাবে যাচাইকৃত।",
         "reason2Title": "সেরা মূল্যের গ্যারান্টি",
@@ -692,7 +692,7 @@
     "careers": {
         "title": "ক্যারিয়ার",
         "subtitle": "আমাদের টিমে যোগ দিন এবং হস্পিটালিটির ভবিষ্যৎ গড়তে সাহায্য করুন",
-        "whyJoinTitle": "কেন ভাইবে যোগ দেবেন?",
+        "whyJoinTitle": "কেন Zinu Rooms এ যোগ দেবেন?",
         "benefit1Title": "বৃদ্ধি",
         "benefit1Description": "দ্রুত ক্যারিয়ার গ্রোথ।",
         "benefit2Title": "কালচার",
@@ -717,7 +717,7 @@
     },
     "partner": {
         "title": "পার্টনার হোন",
-        "subtitle": "ভাইব হস্পিটালিটির সাথে আপনার ব্যবসা বাড়ান",
+        "subtitle": "Zinu Rooms হস্পিটালিটির সাথে আপনার ব্যবসা বাড়ান",
         "partnerLoginButton": "পার্টনার লগইন",
         "contactUsButton": "সেলসে যোগাযোগ",
         "benefitsTitle": "পার্টনার বেনিফিট",
@@ -748,7 +748,7 @@
         "feature4Title": "ট্রেইনিং",
         "feature4Description": "হস্পিটালিটি স্ট্যান্ডার্ডের উপর আপনার স্টাফদের ট্রেইনিং।",
         "ctaTitle": "ব্যবসা বাড়াতে প্রস্তুত?",
-        "ctaDescription": "ভাইবের সাথে যুক্ত হয়ে শত শত সফল পার্টনারের অংশ হোন।",
+        "ctaDescription": "Zinu Rooms এর সাথে যুক্ত হয়ে শত শত সফল পার্টনারের অংশ হোন।",
         "getStartedButton": "শুরু করুন"
     }
 }

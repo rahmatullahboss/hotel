@@ -1,6 +1,6 @@
 {
     "common": {
-        "appName": "ZinuRooms",
+        "appName": "Zinu Rooms",
         "loading": "Loading...",
         "loadingMap": "Loading map...",
         "loadingHotels": "Loading hotels...",
@@ -49,7 +49,7 @@
         "heroSubtitle": "Book verified hotels at the best prices in Bangladesh",
         "featuredHotels": "Featured Hotels",
         "noHotels": "No hotels available at the moment. Check back soon!",
-        "whyBook": "Why Book with ZinuRooms?",
+        "whyBook": "Why Book with Zinu Rooms?",
         "verifiedProperties": "Verified Properties",
         "verifiedDesc": "All hotels personally inspected for quality",
         "bestPrices": "Best Prices",
@@ -113,7 +113,7 @@
         "payAtHotel": "Pay at Hotel",
         "sections": {
             "amenities": "Amenities",
-            "aboutZinu": "About this Zinu",
+            "aboutZinu": "About this Zinu Rooms",
             "chooseRoom": "Choose your room",
             "ratingsReviews": "Ratings and Reviews",
             "hotelRules": "Hotel Rules",
@@ -124,7 +124,7 @@
             "support24x7": "24/7 Support",
             "freeWifi": "Free WiFi",
             "secureBooking": "Secure Booking",
-            "verified": "Zinu Verified"
+            "verified": "Zinu Rooms Verified"
         },
         "ratings": {
             "title": "Ratings and reviews",
@@ -157,7 +157,7 @@
             "totalPrice": "Total price",
             "includingTaxes": "Including taxes & fees",
             "continueToBook": "Continue to Book",
-            "bookedCount": "{count}+ people booked this Zinu in last 6 months",
+            "bookedCount": "{count}+ people booked this Zinu Rooms in last 6 months",
             "cancellationPolicy": "Cancellation Policy",
             "safetyMeasures": "Follow safety measures advised at the hotel",
             "agreeToTerms": "By proceeding, you agree to our",
@@ -367,7 +367,7 @@
         "partners": "For Partners",
         "terms": "Terms of Service",
         "privacy": "Privacy Policy",
-        "copyright": "© {year} ZinuRooms. All rights reserved."
+        "copyright": "© {year} Zinu Rooms. All rights reserved."
     },
     "auth": {
         "title": "Sign In",
@@ -476,8 +476,8 @@
         "copy": "Copy",
         "share": "Share",
         "shareHint": "Share your code with friends to earn ৳100 for each successful booking",
-        "shareTitle": "Join ZinuRooms",
-        "shareMessage": "Use my referral code {code} when you sign up on ZinuRooms and get ৳50 off your first booking!",
+        "shareTitle": "Join Zinu Rooms",
+        "shareMessage": "Use my referral code {code} when you sign up on Zinu Rooms and get ৳50 off your first booking!",
         "totalReferrals": "Total Referrals",
         "pending": "Pending",
         "earned": "Earned",
@@ -649,7 +649,7 @@
     },
     "contact": {
         "title": "Contact Us",
-        "subtitle": "Get in touch with Vibe Hospitality. We're here to help.",
+        "subtitle": "Get in touch with Zinu Rooms Hospitality. We're here to help.",
         "emailLabel": "Drop us a line",
         "phoneLabel": "Call us anytime",
         "hoursTitle": "Office Hours",
@@ -683,7 +683,7 @@
         "hotelsCount": "Verified Hotels",
         "citiesCount": "Cities Covered",
         "supportAvailable": "Support",
-        "whyChooseTitle": "Why Choose Vibe",
+        "whyChooseTitle": "Why Choose Zinu Rooms",
         "reason1Title": "Verified Properties",
         "reason1Description": "Every hotel is personally verified by our team.",
         "reason2Title": "Best Price Guarantee",
@@ -694,7 +694,7 @@
     "careers": {
         "title": "Careers",
         "subtitle": "Join our team and help build the future of hospitality",
-        "whyJoinTitle": "Why Join Vibe?",
+        "whyJoinTitle": "Why Join Zinu Rooms?",
         "benefit1Title": "Growth",
         "benefit1Description": "Rapid career growth opportunities.",
         "benefit2Title": "Culture",
@@ -719,7 +719,7 @@
     },
     "partner": {
         "title": "Partner With Us",
-        "subtitle": "Grow your business with Vibe Hospitality",
+        "subtitle": "Grow your business with Zinu Rooms Hospitality",
         "partnerLoginButton": "Partner Login",
         "contactUsButton": "Contact Sales",
         "benefitsTitle": "Partner Benefits",
@@ -750,7 +750,7 @@
         "feature4Title": "Training",
         "feature4Description": "Training for your staff on hospitality standards.",
         "ctaTitle": "Ready to Grow?",
-        "ctaDescription": "Join hundreds of successful partners on Vibe.",
+        "ctaDescription": "Join hundreds of successful partners on Zinu Rooms.",
         "getStartedButton": "Get Started"
     }
 }

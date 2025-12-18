@@ -19,11 +19,11 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "ZinuRooms - Book Verified Hotels",
+  title: "Zinu Rooms - Book Verified Hotels",
   description:
     "Book quality-assured hotels across Bangladesh. Verified properties, secure payments, 24/7 support.",
   openGraph: {
-    title: "ZinuRooms - Book Verified Hotels",
+    title: "Zinu Rooms - Book Verified Hotels",
     description: "Find and book clean, verified hotels at the best prices.",
     type: "website",
   },

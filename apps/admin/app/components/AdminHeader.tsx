@@ -32,7 +32,7 @@ export function AdminHeader({ onMenuClick }: AdminHeaderProps) {
                         <line x1="3" y1="18" x2="21" y2="18" />
                     </svg>
                 </button>
-                <span className="header-title">ZinuRooms Admin</span>
+                <span className="header-title">Zinu Rooms Admin</span>
             </div>
 
             <div className="header-right">

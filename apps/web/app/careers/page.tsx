@@ -4,8 +4,8 @@ import { FiBriefcase, FiTrendingUp, FiUsers, FiHeart } from "react-icons/fi";
 import Link from "next/link";
 
 export const metadata = {
-    title: "Careers - Vibe Hospitality",
-    description: "Join the Vibe Hospitality team and help transform hotel booking in Bangladesh.",
+    title: "Careers - Zinu Rooms",
+    description: "Join the Zinu Rooms team and help transform hotel booking in Bangladesh.",
 };
 
 export default async function CareersPage() {

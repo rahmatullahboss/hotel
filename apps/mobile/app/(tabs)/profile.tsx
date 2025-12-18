@@ -234,7 +234,7 @@ export default function ProfileScreen() {
                 {/* App Info */}
                 <View className="items-center p-6">
                     <Text className="text-xs text-gray-400 dark:text-gray-500">
-                        Vibe Hospitality v1.0.0
+                        Zinu Rooms v1.0.0
                     </Text>
                 </View>
 

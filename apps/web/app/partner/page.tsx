@@ -4,8 +4,8 @@ import { FiCheckCircle, FiDollarSign, FiTrendingUp, FiUsers } from "react-icons/
 import Link from "next/link";
 
 export const metadata = {
-    title: "Partner With Us - Vibe Hospitality",
-    description: "List your hotel on Vibe Hospitality and reach thousands of travelers across Bangladesh.",
+    title: "Partner With Us - Zinu Rooms",
+    description: "List your hotel on Zinu Rooms and reach thousands of travelers across Bangladesh.",
 };
 
 export default async function PartnerPage() {

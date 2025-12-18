@@ -30,7 +30,7 @@ export function Footer() {
                 <div className="footer-brand">
                     <Link href="/" className="footer-logo">
                         <span className="logo-icon"><FaHotel size={24} /></span>
-                        <span className="logo-text">ZinuRooms</span>
+                        <span className="logo-text">Zinu Rooms</span>
                     </Link>
                     <p className="footer-tagline">
                         {t("tagline")}

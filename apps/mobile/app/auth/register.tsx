@@ -85,7 +85,7 @@ export default function RegisterScreen() {
                     {/* Header */}
                     <View className="mb-8">
                         <Text className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-                            Join Vibe Hospitality
+                            Join Zinu Rooms Hospitality
                         </Text>
                         <Text className="text-base text-gray-500 dark:text-gray-400">
                             Create an account to start booking amazing stays
