@@ -141,33 +141,39 @@ export default function HotelListWithFilters({
             </ScrollView>
 
             {/* Sort Options */}
-            <View className="flex-row items-center mt-3 flex-wrap gap-2">
+            <View className="flex-row items-center mt-3">
                 <Text
                     className="text-sm text-gray-500 dark:text-gray-400 mr-2"
-                    style={{ lineHeight: 22, textAlignVertical: 'center' }}
+                    style={{ lineHeight: 22 }}
                 >
                     {t('allHotels.sort.label')}
                 </Text>
-                {SORT_KEYS.map((option) => (
-                    <TouchableOpacity
-                        key={option.id}
-                        onPress={() => setSortBy(option.id as 'rating' | 'priceLow' | 'priceHigh' | 'distance')}
-                        className={`px-4 py-3 rounded-full border mr-2 mb-2 shrink-0 ${sortBy === option.id
-                            ? 'bg-primary border-primary'
-                            : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700'
-                            }`}
-                    >
-                        <Text
-                            className={`text-sm font-medium ${sortBy === option.id
-                                ? 'text-white'
-                                : 'text-gray-600 dark:text-gray-300'
+                <ScrollView
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    contentContainerStyle={{ gap: 8 }}
+                >
+                    {SORT_KEYS.map((option) => (
+                        <TouchableOpacity
+                            key={option.id}
+                            onPress={() => setSortBy(option.id as 'rating' | 'priceLow' | 'priceHigh' | 'distance')}
+                            className={`px-4 py-3 rounded-full border ${sortBy === option.id
+                                ? 'bg-primary border-primary'
+                                : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700'
                                 }`}
-                            style={{ lineHeight: 22, textAlignVertical: 'center' }}
                         >
-                            {t(option.labelKey)}
-                        </Text>
-                    </TouchableOpacity>
-                ))}
+                            <Text
+                                className={`text-sm font-medium ${sortBy === option.id
+                                    ? 'text-white'
+                                    : 'text-gray-600 dark:text-gray-300'
+                                    }`}
+                                style={{ lineHeight: 22 }}
+                            >
+                                {t(option.labelKey)}
+                            </Text>
+                        </TouchableOpacity>
+                    ))}
+                </ScrollView>
             </View>
 
             {/* Results count */}
