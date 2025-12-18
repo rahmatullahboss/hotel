@@ -145,11 +145,15 @@ export default function AllHotelsScreen() {
                 {FILTER_KEYS.map((filter) => (
                     <TouchableOpacity
                         key={filter.id}
-                        className={`flex-row items-center px-4 py-2 rounded-full gap-2 ${activeFilter === filter.id
+                        className={`flex-row items-center rounded-full gap-2 ${activeFilter === filter.id
                             ? 'bg-primary'
                             : 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700'
                             }`}
                         onPress={() => setActiveFilter(filter.id)}
+                        style={{
+                            paddingHorizontal: 20,
+                            paddingVertical: 12,
+                        }}
                     >
                         <FontAwesome
                             name={filter.icon as any}
@@ -161,6 +165,7 @@ export default function AllHotelsScreen() {
                                 ? 'text-white'
                                 : 'text-gray-700 dark:text-gray-300'
                                 }`}
+                            style={{ lineHeight: 24, flexShrink: 0 }}
                         >
                             {t(filter.labelKey)}
                         </Text>
@@ -169,33 +174,50 @@ export default function AllHotelsScreen() {
             </ScrollView>
 
             {/* Sort Options */}
-            <View className="flex-row items-center mt-3 flex-wrap gap-2">
-                <Text className="text-sm text-gray-500 dark:text-gray-400 mr-2">
+            <View className="flex-row items-center mt-3">
+                <Text
+                    className="text-sm text-gray-500 dark:text-gray-400 mr-2"
+                    style={{ lineHeight: 24 }}
+                >
                     {t('allHotels.sort.label')}
                 </Text>
-                {SORT_KEYS.map((option) => (
-                    <TouchableOpacity
-                        key={option.id}
-                        onPress={() => setSortBy(option.id as 'rating' | 'priceLow' | 'priceHigh')}
-                        className={`px-3 py-1.5 rounded-full border ${sortBy === option.id
-                            ? 'bg-primary border-primary'
-                            : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700'
-                            }`}
-                    >
-                        <Text
-                            className={`text-sm font-medium ${sortBy === option.id
-                                ? 'text-white'
-                                : 'text-gray-600 dark:text-gray-300'
+                <ScrollView
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    contentContainerStyle={{ gap: 8 }}
+                >
+                    {SORT_KEYS.map((option) => (
+                        <TouchableOpacity
+                            key={option.id}
+                            onPress={() => setSortBy(option.id as 'rating' | 'priceLow' | 'priceHigh')}
+                            className={`rounded-full border ${sortBy === option.id
+                                ? 'bg-primary border-primary'
+                                : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700'
                                 }`}
+                            style={{
+                                paddingHorizontal: 20,
+                                paddingVertical: 10,
+                            }}
                         >
-                            {t(option.labelKey)}
-                        </Text>
-                    </TouchableOpacity>
-                ))}
+                            <Text
+                                className={`text-sm font-medium ${sortBy === option.id
+                                    ? 'text-white'
+                                    : 'text-gray-600 dark:text-gray-300'
+                                    }`}
+                                style={{ lineHeight: 24, flexShrink: 0 }}
+                            >
+                                {t(option.labelKey)}
+                            </Text>
+                        </TouchableOpacity>
+                    ))}
+                </ScrollView>
             </View>
 
             {/* Results count */}
-            <Text className="text-sm text-gray-500 dark:text-gray-400 mt-3">
+            <Text
+                className="text-sm text-gray-500 dark:text-gray-400 mt-3"
+                style={{ lineHeight: 24 }}
+            >
                 {t(getFilteredSortedHotels().length === 1 ? 'allHotels.hotelFound' : 'allHotels.hotelsFound', { count: getFilteredSortedHotels().length })}
             </Text>
         </View>
