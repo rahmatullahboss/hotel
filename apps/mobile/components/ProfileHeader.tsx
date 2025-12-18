@@ -16,13 +16,21 @@ interface ProfileHeaderProps {
     t: (key: string) => string;
 }
 
+// Tier display configuration
+const TIER_DISPLAY: Record<string, { name: string; emoji: string }> = {
+    BRONZE: { name: 'Bronze', emoji: '🥉' },
+    SILVER: { name: 'Silver', emoji: '🥈' },
+    GOLD: { name: 'Gold', emoji: '🥇' },
+    PLATINUM: { name: 'Platinum', emoji: '💎' },
+};
+
 /**
  * Premium profile header component with gradient background and glassmorphic card.
  * Displays user avatar, name, email, and membership tier.
  */
 export function ProfileHeader({
     user,
-    membershipTier = 'Member',
+    membershipTier = 'BRONZE',
     onSignIn,
     onEditProfile,
     t,
@@ -81,9 +89,8 @@ export function ProfileHeader({
 
                         {/* Membership Badge */}
                         <View className="flex-row items-center bg-white/20 px-4 py-1.5 rounded-full">
-                            <FontAwesome name="star" size={12} color="#FFD700" />
-                            <Text className="text-white text-xs font-semibold ml-1.5">
-                                {membershipTier}
+                            <Text className="text-white text-xs font-semibold">
+                                {TIER_DISPLAY[membershipTier]?.emoji || '🥉'} {TIER_DISPLAY[membershipTier]?.name || 'Bronze'} Member
                             </Text>
                         </View>
                     </View>

@@ -27,6 +27,7 @@ interface User {
 interface WalletData {
     balance: number;
     points: number;
+    tier: string;
 }
 
 export default function ProfileScreen() {
@@ -36,7 +37,7 @@ export default function ProfileScreen() {
 
     const [user, setUser] = useState<User | null>(null);
     const [loading, setLoading] = useState(true);
-    const [walletData, setWalletData] = useState<WalletData>({ balance: 0, points: 0 });
+    const [walletData, setWalletData] = useState<WalletData>({ balance: 0, points: 0, tier: 'BRONZE' });
     const [bookingsCount, setBookingsCount] = useState(0);
 
     useFocusEffect(
@@ -63,6 +64,7 @@ export default function ProfileScreen() {
             setWalletData({
                 balance: data.balance || 0,
                 points: data.loyalty?.points || 0,
+                tier: data.loyalty?.tier || 'BRONZE',
             });
         }
     };
@@ -183,7 +185,7 @@ export default function ProfileScreen() {
                 {/* Premium Header */}
                 <ProfileHeader
                     user={user}
-                    membershipTier={t('profile.goldMember', 'Gold Member')}
+                    membershipTier={walletData.tier}
                     onSignIn={() => router.push('/auth/login')}
                     onEditProfile={() => router.push('/edit-profile')}
                     t={t}
