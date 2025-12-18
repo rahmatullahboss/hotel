@@ -13,10 +13,12 @@ const { width, height } = Dimensions.get('window');
 
 interface AnimatedGradientBackgroundProps {
     children?: React.ReactNode;
-    colors?: string[];
+    colors?: readonly [string, string, ...string[]];
 }
 
 const AnimatedLinearGradient = Animated.createAnimatedComponent(LinearGradient);
+
+const DEFAULT_COLORS = ['#1D3557', '#1a2d4d', '#132238', '#1D3557'] as const;
 
 /**
  * Premium animated gradient background component.
@@ -24,7 +26,7 @@ const AnimatedLinearGradient = Animated.createAnimatedComponent(LinearGradient);
  */
 export function AnimatedGradientBackground({
     children,
-    colors = ['#1a1a2e', '#16213e', '#0f3460', '#1a1a2e'],
+    colors = DEFAULT_COLORS,
 }: AnimatedGradientBackgroundProps) {
     // Animated orb positions
     const orb1Y = useSharedValue(0);
@@ -73,7 +75,7 @@ export function AnimatedGradientBackground({
             {/* Floating gradient orbs */}
             <Animated.View style={[styles.orb, styles.orb1, orb1Style]}>
                 <LinearGradient
-                    colors={['rgba(99, 102, 241, 0.4)', 'rgba(99, 102, 241, 0)']}
+                    colors={['rgba(230, 57, 70, 0.35)', 'rgba(230, 57, 70, 0)']}
                     style={styles.orbGradient}
                     start={{ x: 0.5, y: 0 }}
                     end={{ x: 0.5, y: 1 }}
@@ -82,7 +84,7 @@ export function AnimatedGradientBackground({
 
             <Animated.View style={[styles.orb, styles.orb2, orb2Style]}>
                 <LinearGradient
-                    colors={['rgba(244, 114, 182, 0.35)', 'rgba(244, 114, 182, 0)']}
+                    colors={['rgba(193, 18, 31, 0.3)', 'rgba(193, 18, 31, 0)']}
                     style={styles.orbGradient}
                     start={{ x: 0.5, y: 0 }}
                     end={{ x: 0.5, y: 1 }}
@@ -91,7 +93,7 @@ export function AnimatedGradientBackground({
 
             <Animated.View style={[styles.orb, styles.orb3, orb3Style]}>
                 <LinearGradient
-                    colors={['rgba(139, 92, 246, 0.3)', 'rgba(139, 92, 246, 0)']}
+                    colors={['rgba(29, 53, 87, 0.4)', 'rgba(29, 53, 87, 0)']}
                     style={styles.orbGradient}
                     start={{ x: 0.5, y: 0 }}
                     end={{ x: 0.5, y: 1 }}

@@ -2,14 +2,33 @@ import { useState } from 'react';
 import {
     View,
     Text,
-    TextInput,
     TouchableOpacity,
     KeyboardAvoidingView,
     Platform,
     ScrollView,
+    ActivityIndicator,
+    StyleSheet,
+    Pressable,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, Stack } from 'expo-router';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
+import { LinearGradient } from 'expo-linear-gradient';
+import Animated, {
+    FadeIn,
+    FadeInDown,
+    FadeInUp,
+    useSharedValue,
+    useAnimatedStyle,
+    withSpring,
+} from 'react-native-reanimated';
+import { setToken } from '@/lib/api';
+import { useGoogleAuth } from '@/hooks/useGoogleAuth';
+import { AnimatedGradientBackground } from '@/components/AnimatedGradientBackground';
+import { GlassmorphicCard } from '@/components/GlassmorphicCard';
+import { FloatingLabelInput } from '@/components/FloatingLabelInput';
+
+const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
 export default function RegisterScreen() {
     const router = useRouter();
@@ -21,7 +40,20 @@ export default function RegisterScreen() {
     const [confirmPassword, setConfirmPassword] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const [showPassword, setShowPassword] = useState(false);
+
+    const { signInWithGoogle, loading: googleLoading, error: googleError, isReady } = useGoogleAuth();
+
+    // Button press animation
+    const buttonScale = useSharedValue(1);
+    const googleButtonScale = useSharedValue(1);
+
+    const buttonAnimatedStyle = useAnimatedStyle(() => ({
+        transform: [{ scale: buttonScale.value }],
+    }));
+
+    const googleButtonAnimatedStyle = useAnimatedStyle(() => ({
+        transform: [{ scale: googleButtonScale.value }],
+    }));
 
     const handleRegister = async () => {
         if (!name || !email || !password || !confirmPassword) {
@@ -58,7 +90,13 @@ export default function RegisterScreen() {
                 return;
             }
 
-            router.replace('/auth/login');
+            // Auto-login after registration
+            if (data.token) {
+                await setToken(data.token);
+                router.replace('/(tabs)');
+            } else {
+                router.replace('/auth/login');
+            }
         } catch (err) {
             setError('Network error. Please try again.');
         } finally {
@@ -66,138 +104,325 @@ export default function RegisterScreen() {
         }
     };
 
+    const handleGoogleSignUp = async () => {
+        if (!isReady) {
+            setError('Google Sign-In is not configured yet');
+            return;
+        }
+        await signInWithGoogle();
+    };
+
+    const handleButtonPressIn = (scale: { value: number }) => {
+        scale.value = withSpring(0.96, { damping: 15, stiffness: 300 });
+    };
+
+    const handleButtonPressOut = (scale: { value: number }) => {
+        scale.value = withSpring(1, { damping: 15, stiffness: 300 });
+    };
+
     return (
-        <>
-            <Stack.Screen
-                options={{
-                    headerShown: true,
-                    headerTitle: 'Create Account',
-                    headerBackTitle: 'Back',
-                    headerTintColor: '#111827',
-                    headerStyle: { backgroundColor: '#fff' },
-                }}
-            />
-            <KeyboardAvoidingView
-                className="flex-1 p-6 bg-white dark:bg-gray-900"
-                behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-            >
-                <ScrollView showsVerticalScrollIndicator={false}>
-                    {/* Header */}
-                    <View className="mb-8">
-                        <Text className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-                            Join Zinu Rooms Hospitality
-                        </Text>
-                        <Text className="text-base text-gray-500 dark:text-gray-400">
-                            Create an account to start booking amazing stays
-                        </Text>
-                    </View>
-
-                    {/* Form */}
-                    <View className="flex-1">
-                        {error && (
-                            <View className="flex-row items-center p-3 rounded-lg mb-4 bg-red-50 dark:bg-red-900/30 gap-2">
-                                <FontAwesome name="exclamation-circle" size={16} color="#EF4444" />
-                                <Text className="text-sm text-red-500 flex-1">{error}</Text>
-                            </View>
-                        )}
-
-                        <View className="flex-row items-center rounded-xl px-4 mb-4 bg-gray-100 dark:bg-gray-800">
-                            <FontAwesome name="user" size={18} color="#9CA3AF" style={{ width: 24, marginRight: 12 }} />
-                            <TextInput
-                                className="flex-1 py-4 text-base text-gray-900 dark:text-white"
-                                placeholder="Full name"
-                                placeholderTextColor="#9CA3AF"
-                                value={name}
-                                onChangeText={setName}
-                                autoCapitalize="words"
-                            />
-                        </View>
-
-                        <View className="flex-row items-center rounded-xl px-4 mb-4 bg-gray-100 dark:bg-gray-800">
-                            <FontAwesome name="envelope" size={18} color="#9CA3AF" style={{ width: 24, marginRight: 12 }} />
-                            <TextInput
-                                className="flex-1 py-4 text-base text-gray-900 dark:text-white"
-                                placeholder="Email address"
-                                placeholderTextColor="#9CA3AF"
-                                value={email}
-                                onChangeText={setEmail}
-                                keyboardType="email-address"
-                                autoCapitalize="none"
-                                autoCorrect={false}
-                            />
-                        </View>
-
-                        <View className="flex-row items-center rounded-xl px-4 mb-4 bg-gray-100 dark:bg-gray-800">
-                            <FontAwesome name="phone" size={18} color="#9CA3AF" style={{ width: 24, marginRight: 12 }} />
-                            <TextInput
-                                className="flex-1 py-4 text-base text-gray-900 dark:text-white"
-                                placeholder="Phone number (optional)"
-                                placeholderTextColor="#9CA3AF"
-                                value={phone}
-                                onChangeText={setPhone}
-                                keyboardType="phone-pad"
-                            />
-                        </View>
-
-                        <View className="flex-row items-center rounded-xl px-4 mb-4 bg-gray-100 dark:bg-gray-800">
-                            <FontAwesome name="lock" size={20} color="#9CA3AF" style={{ width: 24, marginRight: 12 }} />
-                            <TextInput
-                                className="flex-1 py-4 text-base text-gray-900 dark:text-white"
-                                placeholder="Password"
-                                placeholderTextColor="#9CA3AF"
-                                value={password}
-                                onChangeText={setPassword}
-                                secureTextEntry={!showPassword}
-                            />
-                            <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
-                                <FontAwesome
-                                    name={showPassword ? 'eye-slash' : 'eye'}
-                                    size={18}
-                                    color="#9CA3AF"
-                                />
-                            </TouchableOpacity>
-                        </View>
-
-                        <View className="flex-row items-center rounded-xl px-4 mb-4 bg-gray-100 dark:bg-gray-800">
-                            <FontAwesome name="lock" size={20} color="#9CA3AF" style={{ width: 24, marginRight: 12 }} />
-                            <TextInput
-                                className="flex-1 py-4 text-base text-gray-900 dark:text-white"
-                                placeholder="Confirm password"
-                                placeholderTextColor="#9CA3AF"
-                                value={confirmPassword}
-                                onChangeText={setConfirmPassword}
-                                secureTextEntry={!showPassword}
-                            />
-                        </View>
-
-                        <TouchableOpacity
-                            className={`p-4 rounded-xl items-center mt-2 bg-primary ${loading ? 'opacity-70' : ''}`}
-                            onPress={handleRegister}
-                            disabled={loading}
+        <AnimatedGradientBackground>
+            <SafeAreaView style={styles.container}>
+                <Stack.Screen options={{ headerShown: false }} />
+                <KeyboardAvoidingView
+                    style={styles.keyboardView}
+                    behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+                >
+                    <ScrollView
+                        showsVerticalScrollIndicator={false}
+                        contentContainerStyle={styles.scrollContent}
+                    >
+                        {/* Premium Header */}
+                        <Animated.View
+                            entering={FadeInDown.duration(600).delay(100)}
+                            style={styles.header}
                         >
-                            <Text className="text-white text-base font-semibold">
-                                {loading ? 'Creating account...' : 'Create Account'}
+                            <View style={styles.logoContainer}>
+                                <LinearGradient
+                                    colors={['#E63946', '#C1121F', '#780000']}
+                                    style={styles.logoGradient}
+                                    start={{ x: 0, y: 0 }}
+                                    end={{ x: 1, y: 1 }}
+                                >
+                                    <FontAwesome name="building" size={32} color="#fff" />
+                                </LinearGradient>
+                            </View>
+                            <Text style={styles.welcomeText}>Create Account</Text>
+                            <Text style={styles.subtitleText}>
+                                Join Zinu Rooms for amazing stays
                             </Text>
-                        </TouchableOpacity>
+                        </Animated.View>
 
-                        <Text className="text-xs text-gray-500 dark:text-gray-400 text-center mt-4 leading-5">
-                            By creating an account, you agree to our{' '}
-                            <Text className="text-primary">Terms of Service</Text> and{' '}
-                            <Text className="text-primary">Privacy Policy</Text>
-                        </Text>
-                    </View>
+                        {/* Glassmorphic Form Card */}
+                        <Animated.View
+                            entering={FadeInUp.duration(600).delay(300)}
+                        >
+                            <GlassmorphicCard intensity="medium">
+                                {/* Error Message */}
+                                {(error || googleError) && (
+                                    <Animated.View
+                                        entering={FadeIn.duration(300)}
+                                        style={styles.errorContainer}
+                                    >
+                                        <FontAwesome name="exclamation-circle" size={16} color="#F87171" />
+                                        <Text style={styles.errorText}>{error || googleError}</Text>
+                                    </Animated.View>
+                                )}
 
-                    {/* Footer */}
-                    <View className="flex-row justify-center mt-8 mb-6">
-                        <Text className="text-sm text-gray-500 dark:text-gray-400">
-                            Already have an account?{' '}
-                        </Text>
-                        <TouchableOpacity onPress={() => router.push('/auth/login')}>
-                            <Text className="text-sm font-semibold text-primary">Sign In</Text>
-                        </TouchableOpacity>
-                    </View>
-                </ScrollView>
-            </KeyboardAvoidingView>
-        </>
+                                {/* Google Sign Up - Top priority */}
+                                <AnimatedPressable
+                                    style={[styles.googleButton, googleButtonAnimatedStyle]}
+                                    onPress={handleGoogleSignUp}
+                                    onPressIn={() => handleButtonPressIn(googleButtonScale)}
+                                    onPressOut={() => handleButtonPressOut(googleButtonScale)}
+                                    disabled={googleLoading || loading}
+                                >
+                                    {googleLoading ? (
+                                        <ActivityIndicator size="small" color="#fff" />
+                                    ) : (
+                                        <FontAwesome name="google" size={20} color="#fff" />
+                                    )}
+                                    <Text style={styles.googleButtonText}>
+                                        {googleLoading ? 'Signing up...' : 'Continue with Google'}
+                                    </Text>
+                                </AnimatedPressable>
+
+                                {/* Divider */}
+                                <View style={styles.divider}>
+                                    <View style={styles.dividerLine} />
+                                    <Text style={styles.dividerText}>or sign up with email</Text>
+                                    <View style={styles.dividerLine} />
+                                </View>
+
+                                {/* Name Input */}
+                                <FloatingLabelInput
+                                    label="Full name"
+                                    icon="user"
+                                    value={name}
+                                    onChangeText={setName}
+                                    autoCapitalize="words"
+                                />
+
+                                {/* Email Input */}
+                                <FloatingLabelInput
+                                    label="Email address"
+                                    icon="envelope"
+                                    value={email}
+                                    onChangeText={setEmail}
+                                    keyboardType="email-address"
+                                    autoCapitalize="none"
+                                    autoCorrect={false}
+                                />
+
+                                {/* Phone Input */}
+                                <FloatingLabelInput
+                                    label="Phone number (optional)"
+                                    icon="phone"
+                                    value={phone}
+                                    onChangeText={setPhone}
+                                    keyboardType="phone-pad"
+                                />
+
+                                {/* Password Input */}
+                                <FloatingLabelInput
+                                    label="Password"
+                                    icon="lock"
+                                    value={password}
+                                    onChangeText={setPassword}
+                                    isPassword
+                                />
+
+                                {/* Confirm Password Input */}
+                                <FloatingLabelInput
+                                    label="Confirm password"
+                                    icon="lock"
+                                    value={confirmPassword}
+                                    onChangeText={setConfirmPassword}
+                                    isPassword
+                                />
+
+                                {/* Create Account Button */}
+                                <AnimatedPressable
+                                    style={[styles.signUpButton, buttonAnimatedStyle]}
+                                    onPress={handleRegister}
+                                    onPressIn={() => handleButtonPressIn(buttonScale)}
+                                    onPressOut={() => handleButtonPressOut(buttonScale)}
+                                    disabled={loading}
+                                >
+                                    <LinearGradient
+                                        colors={loading ? ['#9CA3AF', '#6B7280'] : ['#E63946', '#C1121F', '#780000']}
+                                        style={styles.signUpGradient}
+                                        start={{ x: 0, y: 0 }}
+                                        end={{ x: 1, y: 0 }}
+                                    >
+                                        {loading ? (
+                                            <ActivityIndicator size="small" color="#fff" />
+                                        ) : (
+                                            <Text style={styles.signUpText}>Create Account</Text>
+                                        )}
+                                    </LinearGradient>
+                                </AnimatedPressable>
+
+                                {/* Terms */}
+                                <Text style={styles.termsText}>
+                                    By creating an account, you agree to our{' '}
+                                    <Text style={styles.termsLink}>Terms of Service</Text> and{' '}
+                                    <Text style={styles.termsLink}>Privacy Policy</Text>
+                                </Text>
+                            </GlassmorphicCard>
+                        </Animated.View>
+
+                        {/* Footer */}
+                        <Animated.View
+                            entering={FadeInUp.duration(600).delay(500)}
+                            style={styles.footer}
+                        >
+                            <View style={styles.signInRow}>
+                                <Text style={styles.signInText}>Already have an account? </Text>
+                                <TouchableOpacity onPress={() => router.push('/auth/login')}>
+                                    <Text style={styles.signInLink}>Sign In</Text>
+                                </TouchableOpacity>
+                            </View>
+                        </Animated.View>
+                    </ScrollView>
+                </KeyboardAvoidingView>
+            </SafeAreaView>
+        </AnimatedGradientBackground>
     );
 }
+
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+    },
+    keyboardView: {
+        flex: 1,
+    },
+    scrollContent: {
+        paddingHorizontal: 24,
+        paddingBottom: 24,
+    },
+    header: {
+        alignItems: 'center',
+        marginTop: 24,
+        marginBottom: 24,
+    },
+    logoContainer: {
+        marginBottom: 20,
+    },
+    logoGradient: {
+        width: 72,
+        height: 72,
+        borderRadius: 20,
+        alignItems: 'center',
+        justifyContent: 'center',
+        shadowColor: '#E63946',
+        shadowOffset: { width: 0, height: 8 },
+        shadowOpacity: 0.4,
+        shadowRadius: 16,
+        elevation: 8,
+    },
+    welcomeText: {
+        fontSize: 28,
+        fontWeight: '700',
+        color: '#fff',
+        marginBottom: 8,
+        letterSpacing: -0.5,
+    },
+    subtitleText: {
+        fontSize: 15,
+        color: 'rgba(255, 255, 255, 0.7)',
+        textAlign: 'center',
+    },
+    errorContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: 'rgba(248, 113, 113, 0.15)',
+        paddingVertical: 12,
+        paddingHorizontal: 16,
+        borderRadius: 12,
+        marginBottom: 16,
+        gap: 10,
+    },
+    errorText: {
+        color: '#F87171',
+        fontSize: 14,
+        flex: 1,
+    },
+    googleButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: 'rgba(255, 255, 255, 0.1)',
+        paddingVertical: 14,
+        borderRadius: 16,
+        borderWidth: 1,
+        borderColor: 'rgba(255, 255, 255, 0.2)',
+        gap: 12,
+        marginBottom: 8,
+    },
+    googleButtonText: {
+        color: '#fff',
+        fontSize: 16,
+        fontWeight: '500',
+    },
+    divider: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginVertical: 20,
+    },
+    dividerLine: {
+        flex: 1,
+        height: 1,
+        backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    },
+    dividerText: {
+        marginHorizontal: 12,
+        fontSize: 13,
+        color: 'rgba(255, 255, 255, 0.5)',
+    },
+    signUpButton: {
+        marginTop: 8,
+        borderRadius: 16,
+        overflow: 'hidden',
+    },
+    signUpGradient: {
+        paddingVertical: 16,
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderRadius: 16,
+    },
+    signUpText: {
+        color: '#fff',
+        fontSize: 17,
+        fontWeight: '600',
+        letterSpacing: 0.3,
+    },
+    termsText: {
+        fontSize: 12,
+        color: 'rgba(255, 255, 255, 0.5)',
+        textAlign: 'center',
+        marginTop: 16,
+        lineHeight: 18,
+    },
+    termsLink: {
+        color: '#E63946',
+        fontWeight: '500',
+    },
+    footer: {
+        paddingVertical: 24,
+    },
+    signInRow: {
+        flexDirection: 'row',
+        justifyContent: 'center',
+    },
+    signInText: {
+        color: 'rgba(255, 255, 255, 0.6)',
+        fontSize: 15,
+    },
+    signInLink: {
+        color: '#E63946',
+        fontSize: 15,
+        fontWeight: '600',
+    },
+});

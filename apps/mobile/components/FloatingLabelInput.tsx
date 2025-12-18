@@ -71,7 +71,7 @@ export function FloatingLabelInput({
             color: interpolateColor(
                 focusAnimation.value,
                 [0, 1],
-                ['rgba(255, 255, 255, 0.6)', '#F472B6']
+                ['rgba(255, 255, 255, 0.6)', '#E63946']
             ),
         };
     });
@@ -81,7 +81,7 @@ export function FloatingLabelInput({
             borderColor: interpolateColor(
                 focusAnimation.value,
                 [0, 1],
-                ['rgba(255, 255, 255, 0.2)', 'rgba(244, 114, 182, 0.6)']
+                ['rgba(255, 255, 255, 0.2)', 'rgba(230, 57, 70, 0.6)']
             ),
             backgroundColor: interpolateColor(
                 focusAnimation.value,

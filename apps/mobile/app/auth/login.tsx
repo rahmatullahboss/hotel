@@ -93,11 +93,11 @@ export default function LoginScreen() {
         await signInWithGoogle();
     };
 
-    const handleButtonPressIn = (scale: Animated.SharedValue<number>) => {
+    const handleButtonPressIn = (scale: { value: number }) => {
         scale.value = withSpring(0.96, { damping: 15, stiffness: 300 });
     };
 
-    const handleButtonPressOut = (scale: Animated.SharedValue<number>) => {
+    const handleButtonPressOut = (scale: { value: number }) => {
         scale.value = withSpring(1, { damping: 15, stiffness: 300 });
     };
 
@@ -116,7 +116,7 @@ export default function LoginScreen() {
                     >
                         <View style={styles.logoContainer}>
                             <LinearGradient
-                                colors={['#F472B6', '#8B5CF6', '#6366F1']}
+                                colors={['#E63946', '#C1121F', '#780000']}
                                 style={styles.logoGradient}
                                 start={{ x: 0, y: 0 }}
                                 end={{ x: 1, y: 1 }}
@@ -176,7 +176,7 @@ export default function LoginScreen() {
                                 disabled={loading}
                             >
                                 <LinearGradient
-                                    colors={loading ? ['#9CA3AF', '#6B7280'] : ['#F472B6', '#8B5CF6', '#6366F1']}
+                                    colors={loading ? ['#9CA3AF', '#6B7280'] : ['#E63946', '#C1121F', '#780000']}
                                     style={styles.signInGradient}
                                     start={{ x: 0, y: 0 }}
                                     end={{ x: 1, y: 0 }}
@@ -263,7 +263,7 @@ const styles = StyleSheet.create({
         borderRadius: 24,
         alignItems: 'center',
         justifyContent: 'center',
-        shadowColor: '#F472B6',
+        shadowColor: '#E63946',
         shadowOffset: { width: 0, height: 8 },
         shadowOpacity: 0.4,
         shadowRadius: 16,
@@ -360,7 +360,7 @@ const styles = StyleSheet.create({
         fontSize: 15,
     },
     signUpLink: {
-        color: '#F472B6',
+        color: '#E63946',
         fontSize: 15,
         fontWeight: '600',
     },
