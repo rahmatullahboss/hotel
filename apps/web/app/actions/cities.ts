@@ -124,3 +124,49 @@ export async function getAllCitySlugs(): Promise<string[]> {
         return [];
     }
 }
+
+/**
+ * Sync hotel counts for all cities
+ * Updates the hotelCount column in cities table based on actual hotel data
+ */
+export async function syncCityHotelCounts(): Promise<{ updated: number; errors: string[] }> {
+    const errors: string[] = [];
+    let updated = 0;
+
+    try {
+        // Get all cities
+        const allCities = await db.query.cities.findMany();
+
+        for (const city of allCities) {
+            try {
+                // Count hotels for this city (case-insensitive match)
+                const [countResult] = await db
+                    .select({ count: sql<number>`count(*)` })
+                    .from(hotels)
+                    .where(
+                        and(
+                            ilike(hotels.city, `%${city.name}%`),
+                            eq(hotels.status, "ACTIVE")
+                        )
+                    );
+
+                const hotelCount = Number(countResult?.count || 0);
+
+                // Update city with new count
+                await db
+                    .update(cities)
+                    .set({ hotelCount })
+                    .where(eq(cities.id, city.id));
+
+                updated++;
+            } catch (err) {
+                errors.push(`Failed to update ${city.name}: ${err}`);
+            }
+        }
+
+        return { updated, errors };
+    } catch (error) {
+        console.error("Error syncing city hotel counts:", error);
+        throw error;
+    }
+}
