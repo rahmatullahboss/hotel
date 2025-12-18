@@ -14,28 +14,14 @@ interface QuickFilterButtonProps {
     onPress: () => void;
 }
 
-// Modern icon configuration with gradients and colors
-const ICON_CONFIG: Record<string, { icon: string; bgColor: string; iconColor: string }> = {
-    'location-arrow': {
-        icon: 'map-marker',
-        bgColor: '#EFF6FF',
-        iconColor: '#3B82F6',
-    },
-    'tag': {
-        icon: 'tag',
-        bgColor: '#ECFDF5',
-        iconColor: '#10B981',
-    },
-    'star': {
-        icon: 'diamond',
-        bgColor: '#FEF3C7',
-        iconColor: '#F59E0B',
-    },
-    'heart': {
-        icon: 'heart',
-        bgColor: '#FDF2F8',
-        iconColor: '#EC4899',
-    },
+const ACCENT_COLOR = '#E63946';
+
+// Icon configuration matching hotel details amenity style
+const ICON_CONFIG: Record<string, { icon: string }> = {
+    'location-arrow': { icon: 'map-marker' },
+    'tag': { icon: 'tag' },
+    'star': { icon: 'diamond' },
+    'heart': { icon: 'heart' },
 };
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
@@ -45,11 +31,7 @@ export default function QuickFilterButton({
     icon,
     onPress,
 }: QuickFilterButtonProps) {
-    const config = ICON_CONFIG[icon] || {
-        icon: 'building',
-        bgColor: '#FEF2F2',
-        iconColor: '#E63946',
-    };
+    const config = ICON_CONFIG[icon] || { icon: 'building' };
 
     const scale = useSharedValue(1);
 
@@ -73,22 +55,19 @@ export default function QuickFilterButton({
             style={animatedStyle}
             className="items-center flex-1"
         >
-            {/* Modern Icon Container */}
+            {/* Icon Container - matching hotel details amenity style */}
             <View
                 className="w-14 h-14 rounded-2xl items-center justify-center mb-2"
                 style={{
-                    backgroundColor: config.bgColor,
-                    shadowColor: config.iconColor,
-                    shadowOffset: { width: 0, height: 4 },
-                    shadowOpacity: 0.15,
-                    shadowRadius: 8,
-                    elevation: 4,
+                    backgroundColor: '#F8F9FA',
+                    borderWidth: 1,
+                    borderColor: '#E5E7EB',
                 }}
             >
                 <FontAwesome
                     name={config.icon as any}
                     size={22}
-                    color={config.iconColor}
+                    color={ACCENT_COLOR}
                 />
             </View>
             {/* Label */}
