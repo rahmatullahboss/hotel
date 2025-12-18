@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback } from 'react';
 import {
     View,
     Text,
@@ -10,14 +10,12 @@ import {
     Modal,
     Alert,
     FlatList,
-    Platform,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useLocalSearchParams, useRouter, Stack, useFocusEffect } from 'expo-router';
-import { useTranslation } from 'react-i18next'
+import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
+import { useTranslation } from 'react-i18next';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
-import * as NavigationBar from 'expo-navigation-bar';
 import { useBooking } from '@/hooks/useBooking';
 import { useBookingDates } from '@/contexts/BookingDatesContext';
 import { shareHotel } from '@/lib/share';
@@ -63,32 +61,6 @@ export default function HotelDetailScreen() {
     // Image gallery state
     const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
     const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
-
-    // Enable immersive mode (hide navigation bar) when screen is focused
-    useFocusEffect(
-        useCallback(() => {
-            if (Platform.OS === 'android') {
-                try {
-                    // Hide navigation bar and set behavior to show on swipe
-                    NavigationBar.setVisibilityAsync('hidden');
-                    NavigationBar.setBehaviorAsync('overlay-swipe');
-                } catch (e) {
-                    // Silently fail on unsupported devices
-                    console.log('NavigationBar not supported:', e);
-                }
-            }
-
-            return () => {
-                if (Platform.OS === 'android') {
-                    try {
-                        NavigationBar.setVisibilityAsync('visible');
-                    } catch (e) {
-                        // Silently fail
-                    }
-                }
-            };
-        }, [])
-    );
 
     const {
         hotel,
