@@ -31,7 +31,7 @@ export default function AllHotelsScreen() {
 
     const fetchHotels = async () => {
         // Request higher limit to get all hotels
-        const { data, error } = await api.getHotels({ limit: 100 });
+        const { data, error } = await api.getHotels({ limit: 500 });
         if (!error && data) {
             setAllHotels(data);
         }
