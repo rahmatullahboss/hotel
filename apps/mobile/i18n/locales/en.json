@@ -164,7 +164,9 @@
         "loginRequired": "Login Required",
         "loginRequiredMessage": "Please sign in to complete your booking. Your booking details will be saved.",
         "signIn": "Sign In",
-        "cancel": "Cancel"
+        "cancel": "Cancel",
+        "payAtHotelInfo": "Full payment at check-in",
+        "payAtHotelFull": "Pay full amount at hotel check-in"
     },
     "payment": {
         "title": "Complete Payment",
@@ -184,7 +186,8 @@
         "redirecting": "Payment Started",
         "checkStatusAfter": "Complete the payment in the browser. Then check your bookings for status.",
         "cannotOpen": "Cannot open payment page",
-        "failed": "Payment initiation failed"
+        "failed": "Payment initiation failed",
+        "gatewayComingSoon": "Online payment will be available soon. For now, please pay at the hotel during check-in."
     },
     "wallet": {
         "title": "Wallet",

@@ -18,13 +18,21 @@ import { useTranslation } from 'react-i18next';
 import api, { getToken } from '@/lib/api';
 
 // Payment method types (excluding standalone wallet - it's now a partial option)
-type PaymentMethod = 'PAY_AT_HOTEL' | 'BKASH' | 'NAGAD' | 'CARD';
+// TODO: Uncomment when payment gateway is implemented
+// type PaymentMethod = 'PAY_AT_HOTEL' | 'BKASH' | 'NAGAD' | 'CARD';
+type PaymentMethod = 'PAY_AT_HOTEL'; // Only pay at hotel for now
 
+// TODO: Uncomment when payment gateway is implemented
+// const PAYMENT_METHODS: { id: PaymentMethod; nameKey: string; icon: string; advancePercent: number; available: boolean }[] = [
+//     { id: 'PAY_AT_HOTEL', nameKey: 'payAtHotel', icon: 'building', advancePercent: 20, available: true },
+//     { id: 'BKASH', nameKey: 'bKash', icon: 'mobile', advancePercent: 100, available: true },
+//     { id: 'NAGAD', nameKey: 'nagad', icon: 'mobile', advancePercent: 100, available: false },
+//     { id: 'CARD', nameKey: 'card', icon: 'credit-card-alt', advancePercent: 100, available: false },
+// ];
+
+// Current: 100% pay at hotel (no advance payment required)
 const PAYMENT_METHODS: { id: PaymentMethod; nameKey: string; icon: string; advancePercent: number; available: boolean }[] = [
-    { id: 'PAY_AT_HOTEL', nameKey: 'payAtHotel', icon: 'building', advancePercent: 20, available: true },
-    { id: 'BKASH', nameKey: 'bKash', icon: 'mobile', advancePercent: 100, available: true },
-    { id: 'NAGAD', nameKey: 'nagad', icon: 'mobile', advancePercent: 100, available: false },
-    { id: 'CARD', nameKey: 'card', icon: 'credit-card-alt', advancePercent: 100, available: false },
+    { id: 'PAY_AT_HOTEL', nameKey: 'payAtHotel', icon: 'building', advancePercent: 0, available: true },
 ];
 
 export default function BookingScreen() {
@@ -286,18 +294,19 @@ export default function BookingScreen() {
 
             if (error) {
                 Alert.alert(t('common.error'), error);
-            } else if (data?.requiresPayment && data?.advanceAmount) {
-                // Wallet doesn't cover 20% advance - redirect to payment screen
-                router.replace({
-                    pathname: '/advance-payment',
-                    params: {
-                        bookingId: data.bookingId,
-                        amount: String(data.advanceAmount),
-                        hotelName: hotelName,
-                    },
-                });
+                // TODO: Uncomment when payment gateway is implemented
+                // } else if (data?.requiresPayment && data?.advanceAmount) {
+                //     // Wallet doesn't cover 20% advance - redirect to payment screen
+                //     router.replace({
+                //         pathname: '/advance-payment',
+                //         params: {
+                //             bookingId: data.bookingId,
+                //             amount: String(data.advanceAmount),
+                //             hotelName: hotelName,
+                //         },
+                //     });
             } else {
-                // Booking confirmed (wallet covered the advance or full payment)
+                // Booking confirmed - 100% pay at hotel
                 Alert.alert(
                     t('booking.confirmed'),
                     t('booking.confirmedMessage', { hotel: hotelName }),
@@ -600,8 +609,9 @@ export default function BookingScreen() {
                     </View>
                 )}
 
-                {/* Payment Method Selection - Only show if there's remaining amount */}
-                {(!useWalletPartial || walletBalance < totalPrice) && (
+                {/* Payment Method Selection - Commented out: Payment gateway not yet implemented
+                   TODO: Uncomment when bKash/Nagad payment gateway is ready */}
+                {/* {(!useWalletPartial || walletBalance < totalPrice) && (
                     <View className="bg-white dark:bg-gray-800 p-4 mb-4">
                         <Text className="text-lg font-bold text-gray-900 dark:text-white mb-4">
                             💳 {useWalletPartial ? t('booking.payRemaining', 'Pay Remaining Amount') : t('booking.paymentMethod', 'Payment Method')}
@@ -662,7 +672,25 @@ export default function BookingScreen() {
                             })}
                         </View>
                     </View>
-                )}
+                )} */}
+
+                {/* Pay at Hotel Info Banner */}
+                <View className="bg-blue-50 dark:bg-blue-900/20 p-4 mb-4 rounded-xl mx-4">
+                    <View className="flex-row items-center gap-3">
+                        <View className="w-10 h-10 rounded-full items-center justify-center bg-blue-500">
+                            <FontAwesome name="building" size={18} color="#fff" />
+                        </View>
+                        <View className="flex-1">
+                            <Text className="font-semibold text-blue-900 dark:text-blue-100">
+                                {t('booking.payAtHotel', 'Pay at Hotel')}
+                            </Text>
+                            <Text className="text-xs text-blue-700 dark:text-blue-300 mt-0.5">
+                                {t('booking.payAtHotelInfo', 'Full payment at check-in')}
+                            </Text>
+                        </View>
+                        <FontAwesome name="check-circle" size={22} color="#3B82F6" />
+                    </View>
+                </View>
 
                 {/* Price Breakdown */}
                 <View className="bg-white dark:bg-gray-800 p-4 mb-4">
@@ -726,8 +754,9 @@ export default function BookingScreen() {
                             </Text>
                         </View>
 
-                        {/* Show advance amount for Pay at Hotel - only if wallet doesn't cover 20% */}
-                        {paymentMethod === 'PAY_AT_HOTEL' && (() => {
+                        {/* 20% Advance Payment Logic - Commented out: Payment gateway not yet implemented
+                           TODO: Uncomment when bKash/Nagad payment gateway is ready */}
+                        {/* {paymentMethod === 'PAY_AT_HOTEL' && (() => {
                             const requiredAdvance = Math.round(totalPrice * 0.2);
                             const walletCoversAdvance = useWalletPartial && walletBalance >= requiredAdvance;
                             const remainingAdvance = useWalletPartial
@@ -736,7 +765,6 @@ export default function BookingScreen() {
                             const payAtHotelAmount = totalPrice - (useWalletPartial ? Math.min(walletBalance, totalPrice) : 0) - remainingAdvance;
 
                             if (walletCoversAdvance) {
-                                // Wallet covers 20% advance - no additional payment needed
                                 return (
                                     <View className="bg-green-50 dark:bg-green-900/20 p-3 rounded-xl mt-2">
                                         <Text className="text-green-700 dark:text-green-400 font-semibold text-center">
@@ -748,7 +776,6 @@ export default function BookingScreen() {
                                     </View>
                                 );
                             } else if (remainingAdvance > 0) {
-                                // Need to pay remaining advance
                                 return (
                                     <View className="bg-green-50 dark:bg-green-900/20 p-3 rounded-xl mt-2">
                                         <View className="flex-row justify-between items-center">
@@ -766,7 +793,14 @@ export default function BookingScreen() {
                                 );
                             }
                             return null;
-                        })()}
+                        })()} */}
+
+                        {/* Pay at Hotel - Full amount at check-in */}
+                        <View className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-xl mt-2">
+                            <Text className="text-blue-700 dark:text-blue-400 font-semibold text-center">
+                                💳 {t('booking.payAtHotelFull', 'Pay full amount at hotel check-in')}
+                            </Text>
+                        </View>
 
                         {/* Show fully covered message - for non Pay at Hotel methods */}
                         {paymentMethod !== 'PAY_AT_HOTEL' && useWalletPartial && walletBalance >= totalPrice && (
