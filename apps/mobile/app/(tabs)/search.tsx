@@ -57,10 +57,10 @@ const POPULAR_CITIES = [
 
 // Quick filter options
 const QUICK_FILTERS = [
-    { id: 'nearby', icon: 'map-marker', label: 'Near Me', color: '#10B981' },
-    { id: 'budget', icon: 'money', label: 'Budget', color: '#3B82F6' },
-    { id: 'luxury', icon: 'star', label: 'Premium', color: '#F59E0B' },
-    { id: 'couple', icon: 'heart', label: 'Couple', color: '#EC4899' },
+    { id: 'nearby', emoji: '📍', label: 'Near Me', color: '#10B981' },
+    { id: 'budget', emoji: '💰', label: 'Budget', color: '#3B82F6' },
+    { id: 'luxury', emoji: '⭐', label: 'Premium', color: '#F59E0B' },
+    { id: 'couple', emoji: '💕', label: 'Couple', color: '#EC4899' },
 ];
 
 // Price thresholds
@@ -254,20 +254,31 @@ export default function SearchScreen() {
 
                 {/* Search Bar */}
                 <View className="mt-5">
-                    <View className="flex-row items-center px-4 py-3.5 rounded-2xl bg-white dark:bg-gray-800 gap-3 shadow-xl">
-                        <FontAwesome name="search" size={18} color="#E63946" />
+                    <View
+                        className="flex-row items-center px-4 py-3.5 rounded-2xl bg-white dark:bg-gray-800 gap-3"
+                        style={{
+                            shadowColor: '#000',
+                            shadowOffset: { width: 0, height: 4 },
+                            shadowOpacity: 0.1,
+                            shadowRadius: 12,
+                            elevation: 5,
+                        }}
+                    >
+                        <View className="w-9 h-9 rounded-xl bg-primary/10 items-center justify-center">
+                            <FontAwesome name="search" size={16} color="#E63946" />
+                        </View>
                         <TextInput
-                            className="flex-1 text-base text-gray-900 dark:text-white"
+                            className="flex-1 text-base text-gray-900 dark:text-white font-medium"
                             placeholder={t('search.placeholder')}
-                            placeholderTextColor="#9CA3AF"
+                            placeholderTextColor="#94A3B8"
                             value={searchQuery}
                             onChangeText={setSearchQuery}
                             onSubmitEditing={handleSearchSubmit}
                             returnKeyType="search"
                         />
                         {searchQuery.length > 0 && (
-                            <TouchableOpacity onPress={() => setSearchQuery('')}>
-                                <FontAwesome name="times-circle" size={18} color="#9CA3AF" />
+                            <TouchableOpacity onPress={() => setSearchQuery('')} className="w-8 h-8 items-center justify-center">
+                                <FontAwesome name="times-circle" size={18} color="#94A3B8" />
                             </TouchableOpacity>
                         )}
                     </View>
@@ -339,11 +350,7 @@ export default function SearchScreen() {
                                     shadowRadius: 4,
                                 }}
                             >
-                                <FontAwesome
-                                    name={filter.icon as any}
-                                    size={14}
-                                    color={activeFilter === filter.id ? '#fff' : filter.color}
-                                />
+                                <Text className="text-base">{filter.emoji}</Text>
                                 <Text
                                     className={`text-sm font-semibold ${activeFilter === filter.id
                                         ? 'text-white'
@@ -456,15 +463,15 @@ export default function SearchScreen() {
                                     >
                                         <Image
                                             source={{ uri: CITY_IMAGES[city.name] }}
-                                            style={{ width: '100%', height: 100 }}
+                                            style={{ width: '100%', height: 120 }}
                                             resizeMode="cover"
                                         />
-                                        <View className="absolute inset-0 bg-black/30" />
-                                        <View className="absolute bottom-0 left-0 right-0 p-3">
+                                        <View className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                                        <View className="absolute bottom-0 left-0 right-0 p-3.5">
                                             <Text className="text-white font-bold text-base">
                                                 {city.name}
                                             </Text>
-                                            <Text className="text-white/80 text-xs">
+                                            <Text className="text-white/80 text-xs mt-0.5">
                                                 {city.hotels} hotels
                                             </Text>
                                         </View>
