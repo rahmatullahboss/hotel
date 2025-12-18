@@ -134,10 +134,11 @@ export default function HotelCard({ hotel, index, distance }: HotelCardProps) {
 
                         {/* Price */}
                         <View className="flex-row items-baseline flex-wrap">
+                            <Text className="text-sm text-white/70 mr-1" style={{ flexShrink: 0 }}>Starting at</Text>
                             <Text className="text-lg font-bold text-white" style={{ flexShrink: 0 }}>
                                 ৳{hotel.lowestPrice?.toLocaleString() || '0'}
                             </Text>
-                            <Text className="text-sm text-white/70 ml-1" style={{ flexShrink: 0 }}>/ night</Text>
+                            <Text className="text-sm text-white/70 ml-1" style={{ flexShrink: 0 }}>/night</Text>
                         </View>
                     </View>
 
