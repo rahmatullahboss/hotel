@@ -266,7 +266,7 @@ export default function HotelDetailScreen() {
                         <Text className="text-xl font-bold text-white">
                             ৳ {formatPrice(price)}
                         </Text>
-                        <Text className="text-xs text-white/70 text-center">/Night</Text>
+                        <Text className="text-xs text-white/70 text-center">{t('hotel.perNight')}</Text>
                     </View>
                 </View>
 
@@ -274,23 +274,23 @@ export default function HotelDetailScreen() {
                 <View className="px-5 pt-6 pb-32">
                     {/* Overview Section */}
                     <Text className="text-lg font-bold text-gray-900 mb-3">
-                        Overview
+                        {t('hotel.overview')}
                     </Text>
                     <Text
                         className="text-sm text-gray-500 leading-6"
                         numberOfLines={isDescriptionExpanded ? undefined : 3}
                     >
-                        {hotel.description || `${hotel.name} is a highly recommended property in ${hotel.city}. Experience great layout and amazing views...`}
+                        {hotel.description || t('hotel.defaultDescription', { name: hotel.name, city: hotel.city })}
                     </Text>
                     <TouchableOpacity onPress={() => setIsDescriptionExpanded(!isDescriptionExpanded)}>
                         <Text className="text-sm font-semibold mt-1 mb-6" style={{ color: ACCENT_COLOR }}>
-                            {isDescriptionExpanded ? 'Read Less' : 'Read More'}
+                            {isDescriptionExpanded ? t('hotel.readLess') : t('hotel.readMore')}
                         </Text>
                     </TouchableOpacity>
 
                     {/* Amenities Section */}
                     <Text className="text-lg font-bold text-gray-900 mb-4">
-                        Amenities
+                        {t('hotel.amenities')}
                     </Text>
                     <ScrollView
                         horizontal
@@ -330,11 +330,11 @@ export default function HotelDetailScreen() {
                         <View className="mt-6">
                             <View className="flex-row items-center justify-between mb-4">
                                 <Text className="text-lg font-bold text-gray-900">
-                                    Available Rooms
+                                    {t('hotel.availableRooms')}
                                 </Text>
                                 {rooms.length > 3 && (
                                     <Text className="text-sm font-medium" style={{ color: ACCENT_COLOR }}>
-                                        View All ({rooms.length})
+                                        {t('hotel.viewAll')} ({rooms.length})
                                     </Text>
                                 )}
                             </View>

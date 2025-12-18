@@ -107,12 +107,18 @@
     "hotel": {
         "notFound": "Hotel not found",
         "goBack": "Go Back",
+        "overview": "Overview",
+        "readMore": "Read More",
+        "readLess": "Read Less",
         "amenities": "Amenities",
         "availableRooms": "Available Rooms",
+        "viewAll": "View All",
         "noRooms": "No rooms available for selected dates",
         "upToGuests": "Up to {{count}} guests",
         "bookNow": "Book Now",
-        "roomNotFound": "Room not found"
+        "roomNotFound": "Room not found",
+        "perNight": "/Night",
+        "defaultDescription": "{{name}} is a highly recommended property in {{city}}. Experience great layout and amazing views..."
     },
     "booking": {
         "confirmBooking": "Confirm Booking",

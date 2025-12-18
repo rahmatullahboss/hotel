@@ -107,12 +107,18 @@
     "hotel": {
         "notFound": "হোটেল পাওয়া যায়নি",
         "goBack": "ফিরে যান",
+        "overview": "সংক্ষিপ্ত বিবরণ",
+        "readMore": "আরো পড়ুন",
+        "readLess": "কম দেখুন",
         "amenities": "সুবিধাসমূহ",
         "availableRooms": "উপলব্ধ রুম",
+        "viewAll": "সব দেখুন",
         "noRooms": "নির্বাচিত তারিখে কোনো রুম উপলব্ধ নেই",
         "upToGuests": "সর্বোচ্চ {{count}} জন অতিথি",
         "bookNow": "এখনই বুক করুন",
-        "roomNotFound": "রুম পাওয়া যায়নি"
+        "roomNotFound": "রুম পাওয়া যায়নি",
+        "perNight": "/রাত",
+        "defaultDescription": "{{name}} {{city}}-এ একটি অত্যন্ত সুপারিশকৃত প্রপার্টি। চমৎকার লেআউট এবং দারুণ দৃশ্য উপভোগ করুন..."
     },
     "booking": {
         "confirmBooking": "বুকিং নিশ্চিত করুন",
