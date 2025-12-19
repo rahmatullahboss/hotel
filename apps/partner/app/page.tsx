@@ -321,12 +321,7 @@ export default async function DashboardPage() {
 
                 <PriceCard
                   hotelId={hotel.id}
-                  pricing={{
-                    type: "standard",
-                    singleOccupancy: todaysPricing.single,
-                    doubleOccupancy: todaysPricing.double,
-                    tripleOccupancy: todaysPricing.triple,
-                  }}
+                  rooms={todaysPricing}
                   promotionPercent={activePromotion?.isActive ? Number(activePromotion.value) : 0}
                 />
               </div>

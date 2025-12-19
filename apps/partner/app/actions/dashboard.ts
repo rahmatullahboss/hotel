@@ -1320,23 +1320,24 @@ export async function getActivePromotion(hotelId: string) {
  */
 export async function getTodaysPricing(hotelId: string) {
     try {
-        const roomStats = await db
-            .select({
-                minPrice: sql<number>`min(${rooms.basePrice})`,
-                avgPrice: sql<number>`avg(${rooms.basePrice})`,
-            })
-            .from(rooms)
-            .where(eq(rooms.hotelId, hotelId));
+        // Fetch actual rooms for this hotel
+        const hotelRooms = await db.query.rooms.findMany({
+            where: eq(rooms.hotelId, hotelId),
+            orderBy: rooms.basePrice,
+            limit: 10 // Show up to 10 different room types
+        });
 
-        const base = Number(roomStats[0]?.minPrice) || 800;
-
-        return {
-            single: base,
-            double: base,
-            triple: Math.round(base * 1.4)
-        };
+        // Return actual room data with name, type, and price
+        return hotelRooms.map((room: typeof hotelRooms[number]) => ({
+            id: room.id,
+            name: room.name,
+            type: room.type,
+            basePrice: Number(room.basePrice),
+            currentPrice: Number(room.basePrice) // Can be enhanced with dynamic pricing later
+        }));
     } catch (error) {
-        return { single: 800, double: 1000, triple: 1500 };
+        console.error("Error fetching room pricing:", error);
+        return [];
     }
 }
 

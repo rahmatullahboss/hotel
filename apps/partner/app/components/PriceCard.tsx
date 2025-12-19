@@ -1,20 +1,21 @@
 import Link from "next/link";
 
-interface RoomPricing {
+interface Room {
+    id: string;
+    name: string;
     type: string;
-    singleOccupancy: number;
-    doubleOccupancy: number;
-    tripleOccupancy: number;
+    basePrice: number;
+    currentPrice: number;
 }
 
 interface PriceCardProps {
-    pricing: RoomPricing;
+    rooms: Room[];
     hotelId: string;
-    promotionPercent?: number; // Added promotion support
+    promotionPercent?: number;
 }
 
-export function PriceCard({ pricing, hotelId, promotionPercent = 0 }: PriceCardProps) {
-    // Calculate discounted prices if promotion is active
+export function PriceCard({ rooms, hotelId, promotionPercent = 0 }: PriceCardProps) {
+    // Calculate discounted price if promotion is active
     const hasPromotion = promotionPercent > 0;
     const applyDiscount = (price: number) => {
         if (!hasPromotion) return price;
@@ -45,78 +46,36 @@ export function PriceCard({ pricing, hotelId, promotionPercent = 0 }: PriceCardP
                 </Link>
             </div>
             <div className="oyo-card-body">
-                {/* Room Type Selector */}
-                <div style={{ marginBottom: "1rem" }}>
-                    <select
-                        style={{
-                            width: "100%",
-                            padding: "0.625rem 1rem",
-                            border: "1px solid #e5e7eb",
-                            borderRadius: "8px",
-                            fontSize: "0.875rem",
-                            background: "white",
-                            cursor: "pointer",
-                        }}
-                        defaultValue={pricing.type}
-                    >
-                        <option value="standard">Standard Room</option>
-                        <option value="deluxe">Deluxe Room</option>
-                        <option value="suite">Suite</option>
-                    </select>
-                </div>
-
-                {/* Pricing rows with promotion */}
-                <div className="oyo-price-row">
-                    <span className="oyo-price-label">Single occupancy</span>
-                    <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                        {hasPromotion && (
-                            <span style={{
-                                fontSize: "0.8125rem",
-                                color: "#9ca3af",
-                                textDecoration: "line-through"
-                            }}>
-                                ৳{pricing.singleOccupancy}
-                            </span>
-                        )}
-                        <span className="oyo-price-value" style={hasPromotion ? { color: "#10b981", fontWeight: 700 } : {}}>
-                            ৳{applyDiscount(pricing.singleOccupancy)}
-                        </span>
+                {rooms.length === 0 ? (
+                    <div style={{ padding: "1rem", textAlign: "center", color: "#9ca3af" }}>
+                        No rooms configured. Add rooms in inventory.
                     </div>
-                </div>
-                <div className="oyo-price-row">
-                    <span className="oyo-price-label">Double occupancy</span>
-                    <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                        {hasPromotion && (
-                            <span style={{
-                                fontSize: "0.8125rem",
-                                color: "#9ca3af",
-                                textDecoration: "line-through"
-                            }}>
-                                ৳{pricing.doubleOccupancy}
+                ) : (
+                    rooms.map((room) => (
+                        <div key={room.id} className="oyo-price-row">
+                            <span className="oyo-price-label">
+                                {room.name} • {room.type}
                             </span>
-                        )}
-                        <span className="oyo-price-value" style={hasPromotion ? { color: "#10b981", fontWeight: 700 } : {}}>
-                            ৳{applyDiscount(pricing.doubleOccupancy)}
-                        </span>
-                    </div>
-                </div>
-                <div className="oyo-price-row">
-                    <span className="oyo-price-label">Triple occupancy</span>
-                    <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                        {hasPromotion && (
-                            <span style={{
-                                fontSize: "0.8125rem",
-                                color: "#9ca3af",
-                                textDecoration: "line-through"
-                            }}>
-                                ৳{pricing.tripleOccupancy}
-                            </span>
-                        )}
-                        <span className="oyo-price-value" style={hasPromotion ? { color: "#10b981", fontWeight: 700 } : {}}>
-                            ৳{applyDiscount(pricing.tripleOccupancy)}
-                        </span>
-                    </div>
-                </div>
+                            <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                                {hasPromotion && (
+                                    <span style={{
+                                        fontSize: "0.8125rem",
+                                        color: "#9ca3af",
+                                        textDecoration: "line-through"
+                                    }}>
+                                        ৳{room.basePrice.toLocaleString()}
+                                    </span>
+                                )}
+                                <span
+                                    className="oyo-price-value"
+                                    style={hasPromotion ? { color: "#10b981", fontWeight: 700 } : {}}
+                                >
+                                    ৳{applyDiscount(room.basePrice).toLocaleString()}
+                                </span>
+                            </div>
+                        </div>
+                    ))
+                )}
             </div>
         </div>
     );
