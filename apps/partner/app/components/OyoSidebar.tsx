@@ -24,28 +24,22 @@ interface OyoSidebarProps {
 }
 
 const navItems = [
-    { href: "/", label: "Dashboard", icon: FiGrid },
-    { href: "/bookings", label: "Bookings", icon: FiCalendar },
-    { href: "/rooms", label: "Rooms", icon: FiHome },
-    { href: "/calendar", label: "Calendar", icon: FiCalendar },
-    { href: "/settings/pricing", label: "Pricing", icon: FiDollarSign },
-    { href: "/promotions", label: "Promotions", icon: FiTag },
-    { href: "/food-orders", label: "Food Orders", icon: FiPackage },
-    { href: "/repair", label: "Repair", icon: FiTool },
-    { href: "/supplies", label: "Supplies", icon: FiPackage },
-    { href: "/reviews", label: "Guest Review", icon: FiStar },
-    { href: "/housekeeping", label: "Housekeeping", icon: FiDroplet },
-    { href: "/portfolio", label: "Ranking", icon: FiTrendingUp },
-    { href: "/staff-performance", label: "My Staff", icon: FiUsers },
-    { href: "/earnings", label: "Reports", icon: FiFileText },
+    { href: "/", label: "হোম", icon: FiGrid },
+    { href: "/bookings", label: "বুকিং", icon: FiCalendar },
+    { href: "/inventory", label: "রুম", icon: FiHome },
+    { href: "/walkin", label: "ওয়াক-ইন", icon: FiUsers },
+    { href: "/reviews", label: "রিভিউ", icon: FiStar },
+    { href: "/portfolio", label: "পোর্টফোলিও", icon: FiTrendingUp },
+    { href: "/staff-performance", label: "স্টাফ", icon: FiUsers },
+    { href: "/earnings", label: "আয়", icon: FiFileText },
 ];
 
 const bottomNavItems = [
-    { href: "/settings", label: "Settings", icon: FiSettings },
-    { href: "/help", label: "Help", icon: FiHelpCircle },
+    { href: "/settings", label: "সেটিংস", icon: FiSettings },
+    { href: "/help", label: "সাহায্য", icon: FiHelpCircle },
 ];
 
-export function OyoSidebar({ hotelName = "ZinuRooms" }: OyoSidebarProps) {
+export function OyoSidebar({ hotelName = "Zinu" }: OyoSidebarProps) {
     const pathname = usePathname();
 
     const isActive = (href: string) => {
