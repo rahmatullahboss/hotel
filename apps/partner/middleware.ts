@@ -1,9 +1,8 @@
 import NextAuth from "next-auth";
 import Google from "next-auth/providers/google";
-import type { NextAuthConfig } from "next-auth";
+import type { NextAuthConfig, NextAuthResult } from "next-auth";
 
 // Edge-compatible auth config (no database adapter)
-// Middleware only needs to verify the JWT session, not query the database
 const authConfig: NextAuthConfig = {
     providers: [
         Google({
@@ -30,22 +29,15 @@ const authConfig: NextAuthConfig = {
         authorized({ auth, request: { nextUrl } }) {
             const isLoggedIn = !!auth?.user;
 
-            // Public paths that don't require authentication
             const publicPaths = ["/auth/signin", "/auth/error", "/api/auth", "/api/cron"];
             const isPublicPath = publicPaths.some(path => nextUrl.pathname.startsWith(path));
 
-            if (isPublicPath) {
-                return true;
-            }
-
-            // Redirect unauthenticated users to signin
+            if (isPublicPath) return true;
             if (!isLoggedIn) {
                 const signInUrl = new URL("/auth/signin", nextUrl);
                 signInUrl.searchParams.set("callbackUrl", nextUrl.pathname);
                 return Response.redirect(signInUrl);
             }
-
-            // Allow all authenticated users - role-based access is handled at page level
             return true;
         },
     },
@@ -55,11 +47,12 @@ const authConfig: NextAuthConfig = {
     },
 };
 
-export const { auth: middleware } = NextAuth(authConfig);
+const nextAuth: NextAuthResult = NextAuth(authConfig);
+
+export default nextAuth.auth;
 
 export const config = {
     matcher: [
-        // Match all paths except static files and api routes we want to exclude
         "/((?!_next/static|_next/image|favicon.ico|icons/|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
     ],
 };
