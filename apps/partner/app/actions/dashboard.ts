@@ -1339,3 +1339,69 @@ export async function getTodaysPricing(hotelId: string) {
         return { single: 800, double: 1000, triple: 1500 };
     }
 }
+
+/**
+ * Save or update a hotel promotion
+ */
+export async function savePromotion(
+    hotelId: string,
+    data: {
+        enabled: boolean;
+        discountPercent: number;
+    }
+): Promise<{ success: boolean; error?: string }> {
+    try {
+        const session = await auth();
+        if (!session?.user?.id) {
+            return { success: false, error: "Unauthorized" };
+        }
+
+        // Check if user owns this hotel
+        const hotel = await db.query.hotels.findFirst({
+            where: and(eq(hotels.id, hotelId), eq(hotels.ownerId, session.user.id)),
+        });
+
+        if (!hotel) {
+            return { success: false, error: "Hotel not found or not authorized" };
+        }
+
+        // Find existing "BASIC_PROMO" promotion for this hotel
+        const existingPromo = await db.query.promotions.findFirst({
+            where: and(
+                eq(promotions.hotelId, hotelId),
+                eq(promotions.code, `BASIC_${hotelId.substring(0, 8).toUpperCase()}`)
+            ),
+        });
+
+        const promoCode = `BASIC_${hotelId.substring(0, 8).toUpperCase()}`;
+
+        if (existingPromo) {
+            // Update existing promotion
+            await db
+                .update(promotions)
+                .set({
+                    isActive: data.enabled,
+                    value: data.discountPercent.toString(),
+                    updatedAt: new Date(),
+                })
+                .where(eq(promotions.id, existingPromo.id));
+        } else {
+            // Create new promotion
+            await db.insert(promotions).values({
+                hotelId,
+                code: promoCode,
+                name: "Basic Promotion",
+                description: "Partner discount to attract more customers",
+                type: "PERCENTAGE",
+                value: data.discountPercent.toString(),
+                isActive: data.enabled,
+            });
+        }
+
+        revalidatePath("/");
+        return { success: true };
+    } catch (error) {
+        console.error("Error saving promotion:", error);
+        return { success: false, error: "Failed to save promotion" };
+    }
+}

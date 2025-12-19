@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { getPartnerHotel, getDashboardStats, getUpcomingBookings, getTodaysCheckIns, getCurrentlyStaying, getTodaysCheckOuts, getAllPartnerHotels, getOccupancyHistory, getBookingSources, getMaintenanceIssues, getGuestReviewsSummary, getTodaysPricing } from "./actions/dashboard";
+import { getPartnerHotel, getDashboardStats, getUpcomingBookings, getTodaysCheckIns, getCurrentlyStaying, getTodaysCheckOuts, getAllPartnerHotels, getOccupancyHistory, getBookingSources, getMaintenanceIssues, getGuestReviewsSummary, getTodaysPricing, getActivePromotion } from "./actions/dashboard";
 import { getPartnerRole } from "./actions/getPartnerRole";
 import {
   BottomNav,
@@ -25,6 +25,7 @@ import { auth } from "../auth";
 import { getHighRiskBookings } from "./actions/prediction";
 import Link from "next/link";
 import { FiSearch, FiHelpCircle, FiBell, FiChevronDown, FiSettings } from "react-icons/fi";
+import { getIncentiveStats } from "./actions/incentives";
 
 export const dynamic = 'force-dynamic';
 
@@ -178,7 +179,7 @@ export default async function DashboardPage() {
   const currentRole = roleInfo?.role ?? "RECEPTIONIST";
 
   // State 4: Hotel is ACTIVE - Show full dashboard
-  const [stats, upcomingBookings, todaysCheckIns, currentlyStaying, todaysCheckOuts, allPartnerHotels, highRiskBookings, occupancyHistory, bookingSourcesData, maintenanceIssues, reviewsSummary, todaysPricing] = await Promise.all([
+  const [stats, upcomingBookings, todaysCheckIns, currentlyStaying, todaysCheckOuts, allPartnerHotels, highRiskBookings, occupancyHistory, bookingSourcesData, maintenanceIssues, reviewsSummary, todaysPricing, activePromotion, incentiveStats] = await Promise.all([
     getDashboardStats(hotel.id),
     getUpcomingBookings(hotel.id, 5),
     getTodaysCheckIns(hotel.id),
@@ -191,6 +192,8 @@ export default async function DashboardPage() {
     getMaintenanceIssues(hotel.id),
     getGuestReviewsSummary(hotel.id),
     getTodaysPricing(hotel.id),
+    getActivePromotion(hotel.id),
+    getIncentiveStats(),
   ]);
 
   // Calculate derived metrics
@@ -220,7 +223,7 @@ export default async function DashboardPage() {
     <div className="oyo-layout">
       {/* Header (Full Width) */}
       <header className="oyo-header">
-        <div style={{ display: "flex", alignItems: "center", gap: "1.5rem" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "1.5rem", flexShrink: 0 }}>
           {/* Logo */}
           <div style={{
             display: "flex",
@@ -229,14 +232,15 @@ export default async function DashboardPage() {
             fontWeight: 800,
             fontSize: "1.25rem",
             color: "#e63946",
-            minWidth: "160px"
+            minWidth: "180px", // Increased min-width
+            whiteSpace: "nowrap" // Prevent wrapping
           }}>
             <span style={{ fontSize: "1.5rem" }}>●</span>
             ZinuRooms OS
           </div>
 
           <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-            <h1 style={{ fontSize: "1.125rem", fontWeight: 700, margin: 0, color: "#374151" }}>Dashboard</h1>
+            {/* Removed "Dashboard" title as requested */}
             <HotelSwitcher currentHotel={hotel} hotels={allPartnerHotels} />
           </div>
         </div>
@@ -246,8 +250,8 @@ export default async function DashboardPage() {
           <input type="text" placeholder="Search Bookings" />
         </div>
 
-        <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-          <Link href="/walkin" className="oyo-new-booking-btn">
+        <div style={{ display: "flex", alignItems: "center", gap: "1rem", flexShrink: 0 }}>
+          <Link href="/walkin" className="oyo-new-booking-btn" style={{ whiteSpace: "nowrap" }}>
             New Booking
           </Link>
 
@@ -261,7 +265,7 @@ export default async function DashboardPage() {
             <Link href="/settings" className="oyo-header-icon">
               <FiSettings size={18} />
             </Link>
-            <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", cursor: "pointer" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", cursor: "pointer", maxWidth: "160px" }}>
               <div style={{
                 width: "32px",
                 height: "32px",
@@ -273,11 +277,20 @@ export default async function DashboardPage() {
                 justifyContent: "center",
                 fontSize: "0.875rem",
                 fontWeight: 600,
+                flexShrink: 0
               }}>
                 {session.user.name?.charAt(0) || "U"}
               </div>
-              <span style={{ fontSize: "0.875rem" }}>Hi, {session.user.name?.split(" ")[0]}</span>
-              <FiChevronDown size={14} />
+              <span style={{
+                fontSize: "0.875rem",
+                whiteSpace: "nowrap",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                maxWidth: "100px"
+              }}>
+                Hi, {session.user.name?.split(" ")[0]}
+              </span>
+              <FiChevronDown size={14} style={{ flexShrink: 0 }} />
             </div>
           </div>
         </div>
@@ -318,7 +331,11 @@ export default async function DashboardPage() {
               </div>
 
               {/* Promotion Banner */}
-              <PromoBanner />
+              <PromoBanner
+                hotelId={hotel.id}
+                enabled={activePromotion?.isActive ?? false}
+                discount={activePromotion ? Number(activePromotion.value) : 5}
+              />
 
               {/* High-Risk Bookings Alert */}
               {highRiskBookings.length > 0 && (
@@ -570,13 +587,15 @@ export default async function DashboardPage() {
               <div className="oyo-card">
                 <div className="oyo-card-header">
                   <span style={{ color: "#e63946", fontWeight: 600 }}>Incentive</span>
-                  <Link href="/earnings" className="oyo-card-link">Details</Link>
+                  <Link href="/incentives" className="oyo-card-link">Details</Link>
                 </div>
                 <div className="oyo-reward-card">
                   <div>
-                    <div className="oyo-reward-label">Rewards last week</div>
-                    <div className="oyo-reward-value">৳{stats.monthlyRevenue ? Math.round(stats.monthlyRevenue / 4) : 1588}</div>
-                    <div style={{ fontSize: "0.625rem", color: "#92400e" }}>Total Earned</div>
+                    <div className="oyo-reward-label">Total Earned</div>
+                    <div className="oyo-reward-value">৳{incentiveStats?.totalEarned?.toLocaleString() || 0}</div>
+                    <div style={{ fontSize: "0.625rem", color: "#92400e" }}>
+                      {incentiveStats?.active || 0} active • {incentiveStats?.completed || 0} completed
+                    </div>
                   </div>
                   <div className="oyo-reward-icon">🏆</div>
                 </div>
