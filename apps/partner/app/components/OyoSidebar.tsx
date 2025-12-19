@@ -21,6 +21,7 @@ import {
 
 interface OyoSidebarProps {
     hotelName?: string;
+    className?: string; // Add className prop support
 }
 
 const navItems = [
@@ -39,7 +40,7 @@ const bottomNavItems = [
     { href: "/help", label: "সাহায্য", icon: FiHelpCircle },
 ];
 
-export function OyoSidebar({ hotelName = "Zinu" }: OyoSidebarProps) {
+export function OyoSidebar({ hotelName = "Zinu", className = "" }: OyoSidebarProps) {
     const pathname = usePathname();
 
     const isActive = (href: string) => {
@@ -48,12 +49,7 @@ export function OyoSidebar({ hotelName = "Zinu" }: OyoSidebarProps) {
     };
 
     return (
-        <aside className="oyo-sidebar">
-            {/* Logo */}
-            <div className="oyo-sidebar-logo">
-                <span style={{ color: "#e63946" }}>●</span>
-                {hotelName}
-            </div>
+        <aside className={`oyo-sidebar ${className}`}>
 
             {/* Main Navigation */}
             <nav className="oyo-sidebar-nav">

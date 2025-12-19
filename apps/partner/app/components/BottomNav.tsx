@@ -136,9 +136,10 @@ const PortfolioIcon = ({ active }: { active: boolean }) => (
 
 interface BottomNavProps {
     role?: PartnerRole;
+    className?: string;
 }
 
-export function BottomNav({ role = "OWNER" }: BottomNavProps) {
+export function BottomNav({ role = "OWNER", className = "" }: BottomNavProps) {
     const pathname = usePathname();
     const t = useTranslations("nav");
 
@@ -157,7 +158,7 @@ export function BottomNav({ role = "OWNER" }: BottomNavProps) {
     const navItems = allNavItems.filter(item => item.roles.includes(role));
 
     return (
-        <nav className="bottom-nav">
+        <nav className={`bottom-nav ${className}`}>
             {/* Logo for desktop sidebar */}
             <div className="nav-logo">ZinuRooms Manager</div>
 
