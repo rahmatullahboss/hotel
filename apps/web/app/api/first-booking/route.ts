@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { getUserIdFromRequest } from "@/lib/mobile-auth";
 import { checkFirstBookingEligibility, calculateFirstBookingDiscount } from "@/app/actions/first-booking";
 
+export const dynamic = "force-dynamic";
+
 /**
  * GET /api/first-booking/check
  * Check if the current user is eligible for first booking offer

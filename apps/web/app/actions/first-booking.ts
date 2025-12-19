@@ -1,26 +1,18 @@
 "use server";
 
-import { db } from "@repo/db";
-import { bookings } from "@repo/db/schema";
 import { eq, and, ne, count } from "drizzle-orm";
 
 import {
     FIRST_BOOKING_DISCOUNT_PERCENT,
     FIRST_BOOKING_MAX_DISCOUNT,
-    FirstBookingEligibility
 } from "../constants";
+import type { FirstBookingEligibility } from "../constants";
 
-export type { FirstBookingEligibility }; // Re-export type if needed, or just let consumers import from constants
+// export type { FirstBookingEligibility }; // Re-export type if needed, or just let consumers import from constants
 
 
 import { headers } from "next/headers";
 
-/**
- * Check if a user is eligible for the first booking offer
- * A user is eligible if they have no confirmed/completed bookings
- * AND the request comes from the mobile app (x-client-platform: mobile)
- * Cancelled bookings do NOT count as first booking
- */
 export async function checkFirstBookingEligibility(
     userId: string
 ): Promise<FirstBookingEligibility> {
@@ -47,6 +39,9 @@ export async function checkFirstBookingEligibility(
     }
 
     try {
+        const { db } = await import("@repo/db");
+        const { bookings } = await import("@repo/db/schema");
+
         // Count confirmed or completed bookings (not cancelled/pending)
         const result = await db
             .select({ count: count() })
