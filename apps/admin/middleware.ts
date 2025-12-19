@@ -1,31 +1,35 @@
 import { auth } from "./auth";
+import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
 
-export const middleware = auth((req) => {
-    const { nextUrl } = req;
-    const isLoggedIn = !!req.auth?.user;
-    const isAdmin = (req.auth?.user as { role?: string })?.role === "ADMIN";
+export async function middleware(request: NextRequest) {
+    const session = await auth();
+    const { pathname } = request.nextUrl;
 
     // Public paths that don't require authentication
     const publicPaths = ["/auth/signin", "/auth/error", "/api/auth"];
-    const isPublicPath = publicPaths.some(path => nextUrl.pathname.startsWith(path));
+    const isPublicPath = publicPaths.some(path => pathname.startsWith(path));
 
     if (isPublicPath) {
-        return;
+        return NextResponse.next();
     }
 
     // Redirect unauthenticated users to signin
-    if (!isLoggedIn) {
-        const signInUrl = new URL("/auth/signin", nextUrl);
-        signInUrl.searchParams.set("callbackUrl", nextUrl.pathname);
-        return Response.redirect(signInUrl);
+    if (!session?.user) {
+        const signInUrl = new URL("/auth/signin", request.url);
+        signInUrl.searchParams.set("callbackUrl", pathname);
+        return NextResponse.redirect(signInUrl);
     }
 
     // Redirect non-admin users to error page
+    const isAdmin = (session.user as { role?: string })?.role === "ADMIN";
     if (!isAdmin) {
-        const errorUrl = new URL("/auth/error?error=AccessDenied", nextUrl);
-        return Response.redirect(errorUrl);
+        const errorUrl = new URL("/auth/error?error=AccessDenied", request.url);
+        return NextResponse.redirect(errorUrl);
     }
-});
+
+    return NextResponse.next();
+}
 
 export const config = {
     matcher: [
