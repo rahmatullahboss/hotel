@@ -2,7 +2,6 @@ import { redirect } from "next/navigation";
 import { getPartnerHotel, getDashboardStats, getUpcomingBookings, getTodaysCheckIns, getCurrentlyStaying, getTodaysCheckOuts, getAllPartnerHotels, getOccupancyHistory, getBookingSources, getMaintenanceIssues, getGuestReviewsSummary, getTodaysPricing, getActivePromotion, getPlatformPromotion } from "./actions/dashboard";
 import { getPartnerRole } from "./actions/getPartnerRole";
 import {
-  BottomNav,
   ScannerFAB,
   LogoutButton,
   HotelCheckInQR,
@@ -11,7 +10,6 @@ import {
   ExtendStayButton,
   NoShowButton,
   HighRiskBookings,
-  OyoSidebar,
   TodayStatus,
   PriceCard,
   PromoBanner,
@@ -20,11 +18,9 @@ import {
   GuestExpCard,
   ImprovementAreas,
 } from "./components";
-import { HotelSwitcher } from "./components/HotelSwitcher";
 import { auth } from "../auth";
 import { getHighRiskBookings } from "./actions/prediction";
 import Link from "next/link";
-import { FiSearch, FiHelpCircle, FiBell, FiChevronDown, FiSettings } from "react-icons/fi";
 import { getIncentiveStats } from "./actions/incentives";
 
 export const dynamic = 'force-dynamic';
@@ -221,481 +217,395 @@ export default async function DashboardPage() {
   const improvementItems = maintenanceIssues.length > 0 ? maintenanceIssues : [];
 
   return (
-    <div className="oyo-layout">
-      {/* Header (Full Width) */}
-      <header className="oyo-header">
-        <div style={{ display: "flex", alignItems: "center", gap: "1.5rem", flexShrink: 0 }}>
-          {/* Logo */}
-          <div style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "0.25rem",
-            fontWeight: 800,
-            fontSize: "1.25rem",
-            color: "#e63946",
-            minWidth: "180px", // Increased min-width
-            whiteSpace: "nowrap" // Prevent wrapping
-          }}>
-            <span style={{ fontSize: "1.5rem" }}>●</span>
-            ZinuRooms OS
+    <>
+      {/* Main Dashboard Content - layout shell provided by layout.tsx */}
+      <div className="oyo-dashboard-grid">
+        {/* Left Column - Main Content */}
+        <div className="oyo-dashboard-main">
+          {/* Top Row: Status + Price */}
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
+            <TodayStatus
+              checkInsLeft={todaysCheckIns.length - checkInsCompleted}
+              totalCheckIns={todaysCheckIns.length || stats.todayCheckIns}
+              checkOutsLeft={todaysCheckOuts.length - checkOutsCompleted}
+              totalCheckOuts={todaysCheckOuts.length || stats.todayCheckOuts}
+              roomsInUse={roomsInUse}
+              totalRooms={totalRooms}
+              eodOccupancy={eodOccupancy}
+              roomsLeft={totalRooms - roomsInUse}
+            />
+
+            <PriceCard
+              hotelId={hotel.id}
+              rooms={todaysPricing}
+              promotionPercent={activePromotion?.isActive ? Number(activePromotion.value) : 0}
+            />
           </div>
 
-          <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-            {/* Removed "Dashboard" title as requested */}
-            <HotelSwitcher currentHotel={hotel} hotels={allPartnerHotels} />
+          {/* Promotion Banner */}
+          <PromoBanner
+            hotelId={hotel.id}
+            enabled={activePromotion?.isActive ?? false}
+            discount={activePromotion ? Number(activePromotion.value) : 5}
+            additionalDiscount={platformPromotion ? Number(platformPromotion.value) : 0}
+          />
+
+          {/* High-Risk Bookings Alert */}
+          {highRiskBookings.length > 0 && (
+            <HighRiskBookings bookings={highRiskBookings} />
+          )}
+
+          {/* Today's Check-ins - Action List */}
+          <section className="oyo-card">
+            <div className="oyo-card-header">
+              <h2 className="oyo-card-title">📋 Today&apos;s Check-ins ({todaysCheckIns.length})</h2>
+              <Link href="/bookings" className="oyo-card-link">View All</Link>
+            </div>
+            <div className="oyo-card-body" style={{ padding: "0" }}>
+              {todaysCheckIns.length === 0 ? (
+                <div style={{ padding: "2rem", textAlign: "center", color: "#9ca3af" }}>
+                  ✓ No check-ins scheduled for today
+                </div>
+              ) : (
+                todaysCheckIns.slice(0, 5).map((booking) => {
+                  const nights = Math.ceil((new Date(booking.checkOut).getTime() - new Date(booking.checkIn).getTime()) / (1000 * 60 * 60 * 24));
+                  return (
+                    <div
+                      key={booking.id}
+                      style={{
+                        padding: "1rem 1.25rem",
+                        borderBottom: "1px solid #f3f4f6",
+                        borderLeft: `4px solid ${booking.status === "CHECKED_IN" ? "#10b981" : booking.status === "CONFIRMED" ? "#3b82f6" : "#f59e0b"}`,
+                      }}
+                    >
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "0.5rem" }}>
+                        <div>
+                          <div style={{ fontWeight: 600 }}>{booking.guestName}</div>
+                          <div style={{ fontSize: "0.8125rem", color: "#6b7280" }}>
+                            🚪 {booking.roomNumber} • 🌙 {nights} nights • 📞 {booking.guestPhone}
+                          </div>
+                        </div>
+                        <span
+                          style={{
+                            fontSize: "0.75rem",
+                            padding: "0.25rem 0.5rem",
+                            borderRadius: "4px",
+                            background: booking.status === "CHECKED_IN" ? "#dcfce7" : booking.status === "CONFIRMED" ? "#dbeafe" : "#fef3c7",
+                            color: booking.status === "CHECKED_IN" ? "#166534" : booking.status === "CONFIRMED" ? "#1e40af" : "#92400e",
+                          }}
+                        >
+                          {booking.status === "CHECKED_IN" ? "✓ Checked In" : booking.status === "CONFIRMED" ? "Ready" : "Pending"}
+                        </span>
+                      </div>
+
+                      {/* Payment & Actions */}
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "0.5rem" }}>
+                        <div style={{ fontSize: "0.875rem" }}>
+                          <span style={{ fontWeight: 600 }}>৳{booking.totalAmount.toLocaleString()}</span>
+                          {booking.advancePaid > 0 && (
+                            <span style={{ color: "#10b981", marginLeft: "0.5rem" }}>
+                              (৳{booking.advancePaid.toLocaleString()} paid)
+                            </span>
+                          )}
+                        </div>
+                        <div style={{ display: "flex", gap: "0.5rem" }}>
+                          {booking.status === "CONFIRMED" && booking.remainingAmount > 0 && booking.paymentStatus !== "PAID" && (
+                            <CollectPaymentButton
+                              bookingId={booking.id}
+                              hotelId={hotel.id}
+                              remainingAmount={booking.remainingAmount}
+                            />
+                          )}
+                          {booking.status === "CONFIRMED" && (
+                            <>
+                              <NoShowButton
+                                bookingId={booking.id}
+                                hotelId={hotel.id}
+                                guestName={booking.guestName}
+                                guestPhone={booking.guestPhone}
+                                advancePaid={booking.advancePaid}
+                              />
+                              <a
+                                href={`/scanner?bookingId=${booking.id}`}
+                                style={{
+                                  fontSize: "0.75rem",
+                                  padding: "0.375rem 0.75rem",
+                                  background: "#e63946",
+                                  color: "white",
+                                  borderRadius: "6px",
+                                  textDecoration: "none",
+                                }}
+                              >
+                                Check In →
+                              </a>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })
+              )}
+            </div>
+          </section>
+
+          {/* Today's Checkouts */}
+          {todaysCheckOuts.length > 0 && (
+            <section className="oyo-card">
+              <div className="oyo-card-header">
+                <h2 className="oyo-card-title">🚪 Today&apos;s Check-outs ({todaysCheckOuts.length})</h2>
+              </div>
+              <div className="oyo-card-body" style={{ padding: "0" }}>
+                {todaysCheckOuts.slice(0, 5).map((booking) => (
+                  <div
+                    key={booking.id}
+                    style={{
+                      padding: "1rem 1.25rem",
+                      borderBottom: "1px solid #f3f4f6",
+                      borderLeft: "4px solid #f59e0b",
+                    }}
+                  >
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "0.5rem" }}>
+                      <div>
+                        <div style={{ fontWeight: 600 }}>{booking.guestName}</div>
+                        <div style={{ fontSize: "0.8125rem", color: "#6b7280" }}>
+                          Room {booking.roomNumber} • 📞 {booking.guestPhone}
+                        </div>
+                      </div>
+                      <span style={{ fontSize: "0.75rem", padding: "0.25rem 0.5rem", borderRadius: "4px", background: "#fef3c7", color: "#92400e" }}>
+                        Due Today
+                      </span>
+                    </div>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "0.5rem" }}>
+                      <div style={{ fontSize: "0.875rem" }}>
+                        {booking.paymentStatus === "PAID" ? (
+                          <span style={{ color: "#10b981" }}>✅ Fully Paid</span>
+                        ) : (
+                          <span style={{ color: "#f59e0b" }}>⚠️ ৳{booking.remainingAmount.toLocaleString()} due</span>
+                        )}
+                      </div>
+                      <div style={{ display: "flex", gap: "0.5rem" }}>
+                        {booking.paymentStatus !== "PAID" && booking.remainingAmount > 0 && (
+                          <CollectPaymentButton
+                            bookingId={booking.id}
+                            hotelId={hotel.id}
+                            remainingAmount={booking.remainingAmount}
+                          />
+                        )}
+                        <ExtendStayButton
+                          bookingId={booking.id}
+                          hotelId={hotel.id}
+                          guestName={booking.guestName}
+                          pricePerNight={Math.round(booking.totalAmount / ((new Date(booking.checkOut).getTime() - new Date(booking.checkIn).getTime()) / (1000 * 60 * 60 * 24)))}
+                        />
+                        <CheckOutButton
+                          bookingId={booking.id}
+                          hotelId={hotel.id}
+                          guestName={booking.guestName}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
+
+          {/* Currently Staying */}
+          {currentlyStaying.length > 0 && (
+            <section className="oyo-card">
+              <div className="oyo-card-header">
+                <h2 className="oyo-card-title">🏨 Currently Staying ({currentlyStaying.length})</h2>
+              </div>
+              <div className="oyo-card-body" style={{ padding: "0" }}>
+                {currentlyStaying.slice(0, 5).map((booking) => {
+                  const checkOutDate = new Date(booking.checkOut);
+                  const today = new Date();
+                  const daysRemaining = Math.ceil((checkOutDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+
+                  return (
+                    <div
+                      key={booking.id}
+                      style={{
+                        padding: "1rem 1.25rem",
+                        borderBottom: "1px solid #f3f4f6",
+                        borderLeft: `4px solid ${daysRemaining <= 0 ? "#f59e0b" : "#10b981"}`,
+                      }}
+                    >
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                        <div>
+                          <div style={{ fontWeight: 600 }}>{booking.guestName}</div>
+                          <div style={{ fontSize: "0.8125rem", color: "#6b7280" }}>
+                            🚪 {booking.roomNumber} • 📞 {booking.guestPhone}
+                          </div>
+                        </div>
+                        <span style={{
+                          fontSize: "0.75rem",
+                          padding: "0.25rem 0.5rem",
+                          borderRadius: "4px",
+                          background: daysRemaining <= 0 ? "#fef3c7" : "#dcfce7",
+                          color: daysRemaining <= 0 ? "#92400e" : "#166534",
+                        }}>
+                          {daysRemaining <= 0 ? "⚠️ Checkout Due" : `${daysRemaining} days left`}
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </section>
+          )}
+
+          {/* Performance Charts */}
+          <PerformanceCharts
+            occupancyData={occupancyData as { date: string; value: number; cityAvg: number }[]}
+            occupancyThisMonth={stats.occupancyRate}
+            bookingSources={bookingSources}
+            totalBookings={bookingSources.reduce((sum: number, s: { count: number }) => sum + s.count, 0)}
+            avgARR={stats.averageRoomRate || 1700}
+          />
+
+          {/* Bottom Row: Rankings */}
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
+            <RankingCard
+              occupancyRank={1}
+              occupancyChange="up"
+              arrRank="⏳"
+              guestExpRank="⏳"
+            />
+            <GuestExpCard
+              happyPercent={reviewsSummary.happyPercent}
+              unhappyPercent={reviewsSummary.unhappyPercent}
+              level={Math.min(5, Math.ceil(reviewsSummary.averageRating))}
+            />
           </div>
+
+          {/* Improvement Areas */}
+          <ImprovementAreas items={improvementItems} />
+
+          {/* Guest Self Check-in QR */}
+          <section className="oyo-card">
+            <div className="oyo-card-header">
+              <h2 className="oyo-card-title">📱 Guest Self-Service</h2>
+            </div>
+            <div className="oyo-card-body">
+              <HotelCheckInQR hotelId={hotel.id} hotelName={hotel.name} />
+            </div>
+          </section>
         </div>
 
-        <div className="oyo-search">
-          <FiSearch size={16} color="#9ca3af" />
-          <input type="text" placeholder="Search Bookings" />
-        </div>
+        {/* Right Sidebar */}
+        <div className="oyo-right-sidebar">
+          {/* Rewards Card */}
+          <div className="oyo-card">
+            <div className="oyo-card-header">
+              <span style={{ color: "#e63946", fontWeight: 600 }}>Incentive</span>
+              <Link href="/incentives" className="oyo-card-link">Details</Link>
+            </div>
+            <div className="oyo-reward-card">
+              <div>
+                <div className="oyo-reward-label">Total Earned</div>
+                <div className="oyo-reward-value">৳{incentiveStats?.totalEarned?.toLocaleString() || 0}</div>
+                <div style={{ fontSize: "0.625rem", color: "#92400e" }}>
+                  {incentiveStats?.active || 0} active • {incentiveStats?.completed || 0} completed
+                </div>
+              </div>
+              <div className="oyo-reward-icon">🏆</div>
+            </div>
+          </div>
 
-        <div style={{ display: "flex", alignItems: "center", gap: "1rem", flexShrink: 0 }}>
-          <Link href="/walkin" className="oyo-new-booking-btn" style={{ whiteSpace: "nowrap" }}>
-            New Booking
-          </Link>
+          {/* Staff Training */}
+          <div className="oyo-card">
+            <div className="oyo-card-header">
+              <span className="oyo-card-title">Staff Training</span>
+              <Link href="/staff-performance" className="oyo-card-link">Apply</Link>
+            </div>
+            <div className="oyo-card-body">
+              <div style={{ padding: "1rem", background: "#f9fafb", borderRadius: "8px", fontSize: "0.8125rem", color: "#6b7280" }}>
+                <span style={{ fontSize: "1.5rem", marginRight: "0.5rem" }}>👨‍🏫</span>
+                Staff training sessions for all partners starts on 20th July
+              </div>
+            </div>
+          </div>
 
-          <div className="oyo-header-actions">
-            <Link href="/help" className="oyo-header-icon">
-              <FiHelpCircle size={18} />
-            </Link>
-            <button className="oyo-header-icon">
-              <FiBell size={18} />
-            </button>
-            <Link href="/settings" className="oyo-header-icon">
-              <FiSettings size={18} />
-            </Link>
-            <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", cursor: "pointer", maxWidth: "160px" }}>
+          {/* Training Modules */}
+          <div className="oyo-card">
+            <div className="oyo-card-header">
+              <span className="oyo-card-title">Your Training Modules</span>
+              <span style={{ fontSize: "0.75rem", color: "#9ca3af" }}>4/8 done</span>
+            </div>
+            <div className="oyo-card-body">
               <div style={{
-                width: "32px",
-                height: "32px",
-                borderRadius: "50%",
-                background: "#e63946",
-                color: "white",
+                height: "120px",
+                background: "linear-gradient(135deg, #1e3a5f 0%, #2563eb 100%)",
+                borderRadius: "8px",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
+                color: "white",
                 fontSize: "0.875rem",
                 fontWeight: 600,
-                flexShrink: 0
               }}>
-                {session.user.name?.charAt(0) || "U"}
+                🎓 Jump In
               </div>
-              <span style={{
-                fontSize: "0.875rem",
-                whiteSpace: "nowrap",
-                overflow: "hidden",
-                textOverflow: "ellipsis",
-                maxWidth: "100px"
-              }}>
-                Hi, {session.user.name?.split(" ")[0]}
-              </span>
-              <FiChevronDown size={14} style={{ flexShrink: 0 }} />
+              <div style={{ marginTop: "1rem" }}>
+                <div style={{ fontSize: "0.8125rem", fontWeight: 600, marginBottom: "0.5rem" }}>
+                  Managing in-house cafeteria
+                </div>
+                <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.75rem", color: "#3b82f6" }}>
+                  📄 40 slides
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Upcoming Bookings */}
+          <div className="oyo-card">
+            <div className="oyo-card-header">
+              <span className="oyo-card-title">📅 Upcoming</span>
+              <Link href="/bookings" className="oyo-card-link">View All</Link>
+            </div>
+            <div className="oyo-card-body" style={{ padding: "0" }}>
+              {upcomingBookings.length === 0 ? (
+                <div style={{ padding: "1.5rem", textAlign: "center", color: "#9ca3af" }}>
+                  No upcoming bookings
+                </div>
+              ) : (
+                upcomingBookings.slice(0, 3).map((booking) => {
+                  const checkInDate = new Date(booking.checkIn);
+                  const today = new Date();
+                  const daysUntil = Math.ceil((checkInDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+
+                  return (
+                    <div
+                      key={booking.id}
+                      style={{
+                        padding: "0.75rem 1.25rem",
+                        borderBottom: "1px solid #f3f4f6",
+                      }}
+                    >
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                        <div>
+                          <div style={{ fontWeight: 600, fontSize: "0.875rem" }}>{booking.guestName}</div>
+                          <div style={{ fontSize: "0.75rem", color: "#6b7280" }}>
+                            Room {booking.roomNumber} • {booking.checkIn}
+                          </div>
+                        </div>
+                        <span style={{ fontSize: "0.625rem", color: "#9ca3af" }}>
+                          {daysUntil === 0 ? "Today" : daysUntil === 1 ? "Tomorrow" : `${daysUntil}d`}
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })
+              )}
             </div>
           </div>
         </div>
-      </header>
-
-      {/* Body Container (Sidebar + Content) */}
-      <div className="oyo-body">
-        {/* Desktop Sidebar */}
-        <OyoSidebar hotelName={hotel.name} />
-
-        {/* Main Content */}
-        <main className="oyo-main">
-          <div className="oyo-dashboard-grid">
-            {/* Left Column - Main Content */}
-            <div className="oyo-dashboard-main">
-              {/* Top Row: Status + Price */}
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
-                <TodayStatus
-                  checkInsLeft={todaysCheckIns.length - checkInsCompleted}
-                  totalCheckIns={todaysCheckIns.length || stats.todayCheckIns}
-                  checkOutsLeft={todaysCheckOuts.length - checkOutsCompleted}
-                  totalCheckOuts={todaysCheckOuts.length || stats.todayCheckOuts}
-                  roomsInUse={roomsInUse}
-                  totalRooms={totalRooms}
-                  eodOccupancy={eodOccupancy}
-                  roomsLeft={totalRooms - roomsInUse}
-                />
-
-                <PriceCard
-                  hotelId={hotel.id}
-                  rooms={todaysPricing}
-                  promotionPercent={activePromotion?.isActive ? Number(activePromotion.value) : 0}
-                />
-              </div>
-
-              {/* Promotion Banner */}
-              <PromoBanner
-                hotelId={hotel.id}
-                enabled={activePromotion?.isActive ?? false}
-                discount={activePromotion ? Number(activePromotion.value) : 5}
-                additionalDiscount={platformPromotion ? Number(platformPromotion.value) : 0}
-              />
-
-              {/* High-Risk Bookings Alert */}
-              {highRiskBookings.length > 0 && (
-                <HighRiskBookings bookings={highRiskBookings} />
-              )}
-
-              {/* Today's Check-ins - Action List */}
-              <section className="oyo-card">
-                <div className="oyo-card-header">
-                  <h2 className="oyo-card-title">📋 Today&apos;s Check-ins ({todaysCheckIns.length})</h2>
-                  <Link href="/bookings" className="oyo-card-link">View All</Link>
-                </div>
-                <div className="oyo-card-body" style={{ padding: "0" }}>
-                  {todaysCheckIns.length === 0 ? (
-                    <div style={{ padding: "2rem", textAlign: "center", color: "#9ca3af" }}>
-                      ✓ No check-ins scheduled for today
-                    </div>
-                  ) : (
-                    todaysCheckIns.slice(0, 5).map((booking) => {
-                      const nights = Math.ceil((new Date(booking.checkOut).getTime() - new Date(booking.checkIn).getTime()) / (1000 * 60 * 60 * 24));
-                      return (
-                        <div
-                          key={booking.id}
-                          style={{
-                            padding: "1rem 1.25rem",
-                            borderBottom: "1px solid #f3f4f6",
-                            borderLeft: `4px solid ${booking.status === "CHECKED_IN" ? "#10b981" : booking.status === "CONFIRMED" ? "#3b82f6" : "#f59e0b"}`,
-                          }}
-                        >
-                          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "0.5rem" }}>
-                            <div>
-                              <div style={{ fontWeight: 600 }}>{booking.guestName}</div>
-                              <div style={{ fontSize: "0.8125rem", color: "#6b7280" }}>
-                                🚪 {booking.roomNumber} • 🌙 {nights} nights • 📞 {booking.guestPhone}
-                              </div>
-                            </div>
-                            <span
-                              style={{
-                                fontSize: "0.75rem",
-                                padding: "0.25rem 0.5rem",
-                                borderRadius: "4px",
-                                background: booking.status === "CHECKED_IN" ? "#dcfce7" : booking.status === "CONFIRMED" ? "#dbeafe" : "#fef3c7",
-                                color: booking.status === "CHECKED_IN" ? "#166534" : booking.status === "CONFIRMED" ? "#1e40af" : "#92400e",
-                              }}
-                            >
-                              {booking.status === "CHECKED_IN" ? "✓ Checked In" : booking.status === "CONFIRMED" ? "Ready" : "Pending"}
-                            </span>
-                          </div>
-
-                          {/* Payment & Actions */}
-                          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "0.5rem" }}>
-                            <div style={{ fontSize: "0.875rem" }}>
-                              <span style={{ fontWeight: 600 }}>৳{booking.totalAmount.toLocaleString()}</span>
-                              {booking.advancePaid > 0 && (
-                                <span style={{ color: "#10b981", marginLeft: "0.5rem" }}>
-                                  (৳{booking.advancePaid.toLocaleString()} paid)
-                                </span>
-                              )}
-                            </div>
-                            <div style={{ display: "flex", gap: "0.5rem" }}>
-                              {booking.status === "CONFIRMED" && booking.remainingAmount > 0 && booking.paymentStatus !== "PAID" && (
-                                <CollectPaymentButton
-                                  bookingId={booking.id}
-                                  hotelId={hotel.id}
-                                  remainingAmount={booking.remainingAmount}
-                                />
-                              )}
-                              {booking.status === "CONFIRMED" && (
-                                <>
-                                  <NoShowButton
-                                    bookingId={booking.id}
-                                    hotelId={hotel.id}
-                                    guestName={booking.guestName}
-                                    guestPhone={booking.guestPhone}
-                                    advancePaid={booking.advancePaid}
-                                  />
-                                  <a
-                                    href={`/scanner?bookingId=${booking.id}`}
-                                    style={{
-                                      fontSize: "0.75rem",
-                                      padding: "0.375rem 0.75rem",
-                                      background: "#e63946",
-                                      color: "white",
-                                      borderRadius: "6px",
-                                      textDecoration: "none",
-                                    }}
-                                  >
-                                    Check In →
-                                  </a>
-                                </>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                      );
-                    })
-                  )}
-                </div>
-              </section>
-
-              {/* Today's Checkouts */}
-              {todaysCheckOuts.length > 0 && (
-                <section className="oyo-card">
-                  <div className="oyo-card-header">
-                    <h2 className="oyo-card-title">🚪 Today&apos;s Check-outs ({todaysCheckOuts.length})</h2>
-                  </div>
-                  <div className="oyo-card-body" style={{ padding: "0" }}>
-                    {todaysCheckOuts.slice(0, 5).map((booking) => (
-                      <div
-                        key={booking.id}
-                        style={{
-                          padding: "1rem 1.25rem",
-                          borderBottom: "1px solid #f3f4f6",
-                          borderLeft: "4px solid #f59e0b",
-                        }}
-                      >
-                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "0.5rem" }}>
-                          <div>
-                            <div style={{ fontWeight: 600 }}>{booking.guestName}</div>
-                            <div style={{ fontSize: "0.8125rem", color: "#6b7280" }}>
-                              Room {booking.roomNumber} • 📞 {booking.guestPhone}
-                            </div>
-                          </div>
-                          <span style={{ fontSize: "0.75rem", padding: "0.25rem 0.5rem", borderRadius: "4px", background: "#fef3c7", color: "#92400e" }}>
-                            Due Today
-                          </span>
-                        </div>
-                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "0.5rem" }}>
-                          <div style={{ fontSize: "0.875rem" }}>
-                            {booking.paymentStatus === "PAID" ? (
-                              <span style={{ color: "#10b981" }}>✅ Fully Paid</span>
-                            ) : (
-                              <span style={{ color: "#f59e0b" }}>⚠️ ৳{booking.remainingAmount.toLocaleString()} due</span>
-                            )}
-                          </div>
-                          <div style={{ display: "flex", gap: "0.5rem" }}>
-                            {booking.paymentStatus !== "PAID" && booking.remainingAmount > 0 && (
-                              <CollectPaymentButton
-                                bookingId={booking.id}
-                                hotelId={hotel.id}
-                                remainingAmount={booking.remainingAmount}
-                              />
-                            )}
-                            <ExtendStayButton
-                              bookingId={booking.id}
-                              hotelId={hotel.id}
-                              guestName={booking.guestName}
-                              pricePerNight={Math.round(booking.totalAmount / ((new Date(booking.checkOut).getTime() - new Date(booking.checkIn).getTime()) / (1000 * 60 * 60 * 24)))}
-                            />
-                            <CheckOutButton
-                              bookingId={booking.id}
-                              hotelId={hotel.id}
-                              guestName={booking.guestName}
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </section>
-              )}
-
-              {/* Currently Staying */}
-              {currentlyStaying.length > 0 && (
-                <section className="oyo-card">
-                  <div className="oyo-card-header">
-                    <h2 className="oyo-card-title">🏨 Currently Staying ({currentlyStaying.length})</h2>
-                  </div>
-                  <div className="oyo-card-body" style={{ padding: "0" }}>
-                    {currentlyStaying.slice(0, 5).map((booking) => {
-                      const checkOutDate = new Date(booking.checkOut);
-                      const today = new Date();
-                      const daysRemaining = Math.ceil((checkOutDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-
-                      return (
-                        <div
-                          key={booking.id}
-                          style={{
-                            padding: "1rem 1.25rem",
-                            borderBottom: "1px solid #f3f4f6",
-                            borderLeft: `4px solid ${daysRemaining <= 0 ? "#f59e0b" : "#10b981"}`,
-                          }}
-                        >
-                          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-                            <div>
-                              <div style={{ fontWeight: 600 }}>{booking.guestName}</div>
-                              <div style={{ fontSize: "0.8125rem", color: "#6b7280" }}>
-                                🚪 {booking.roomNumber} • 📞 {booking.guestPhone}
-                              </div>
-                            </div>
-                            <span style={{
-                              fontSize: "0.75rem",
-                              padding: "0.25rem 0.5rem",
-                              borderRadius: "4px",
-                              background: daysRemaining <= 0 ? "#fef3c7" : "#dcfce7",
-                              color: daysRemaining <= 0 ? "#92400e" : "#166534",
-                            }}>
-                              {daysRemaining <= 0 ? "⚠️ Checkout Due" : `${daysRemaining} days left`}
-                            </span>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </section>
-              )}
-
-              {/* Performance Charts */}
-              <PerformanceCharts
-                occupancyData={occupancyData as { date: string; value: number; cityAvg: number }[]}
-                occupancyThisMonth={stats.occupancyRate}
-                bookingSources={bookingSources}
-                totalBookings={bookingSources.reduce((sum: number, s: { count: number }) => sum + s.count, 0)}
-                avgARR={stats.averageRoomRate || 1700}
-              />
-
-              {/* Bottom Row: Rankings */}
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
-                <RankingCard
-                  occupancyRank={1}
-                  occupancyChange="up"
-                  arrRank="⏳"
-                  guestExpRank="⏳"
-                />
-                <GuestExpCard
-                  happyPercent={reviewsSummary.happyPercent}
-                  unhappyPercent={reviewsSummary.unhappyPercent}
-                  level={Math.min(5, Math.ceil(reviewsSummary.averageRating))}
-                />
-              </div>
-
-              {/* Improvement Areas */}
-              <ImprovementAreas items={improvementItems} />
-
-              {/* Guest Self Check-in QR */}
-              <section className="oyo-card">
-                <div className="oyo-card-header">
-                  <h2 className="oyo-card-title">📱 Guest Self-Service</h2>
-                </div>
-                <div className="oyo-card-body">
-                  <HotelCheckInQR hotelId={hotel.id} hotelName={hotel.name} />
-                </div>
-              </section>
-            </div>
-
-            {/* Right Sidebar */}
-            <div className="oyo-right-sidebar">
-              {/* Rewards Card */}
-              <div className="oyo-card">
-                <div className="oyo-card-header">
-                  <span style={{ color: "#e63946", fontWeight: 600 }}>Incentive</span>
-                  <Link href="/incentives" className="oyo-card-link">Details</Link>
-                </div>
-                <div className="oyo-reward-card">
-                  <div>
-                    <div className="oyo-reward-label">Total Earned</div>
-                    <div className="oyo-reward-value">৳{incentiveStats?.totalEarned?.toLocaleString() || 0}</div>
-                    <div style={{ fontSize: "0.625rem", color: "#92400e" }}>
-                      {incentiveStats?.active || 0} active • {incentiveStats?.completed || 0} completed
-                    </div>
-                  </div>
-                  <div className="oyo-reward-icon">🏆</div>
-                </div>
-              </div>
-
-              {/* Staff Training */}
-              <div className="oyo-card">
-                <div className="oyo-card-header">
-                  <span className="oyo-card-title">Staff Training</span>
-                  <Link href="/staff-performance" className="oyo-card-link">Apply</Link>
-                </div>
-                <div className="oyo-card-body">
-                  <div style={{ padding: "1rem", background: "#f9fafb", borderRadius: "8px", fontSize: "0.8125rem", color: "#6b7280" }}>
-                    <span style={{ fontSize: "1.5rem", marginRight: "0.5rem" }}>👨‍🏫</span>
-                    Staff training sessions for all partners starts on 20th July
-                  </div>
-                </div>
-              </div>
-
-              {/* Training Modules */}
-              <div className="oyo-card">
-                <div className="oyo-card-header">
-                  <span className="oyo-card-title">Your Training Modules</span>
-                  <span style={{ fontSize: "0.75rem", color: "#9ca3af" }}>4/8 done</span>
-                </div>
-                <div className="oyo-card-body">
-                  <div style={{
-                    height: "120px",
-                    background: "linear-gradient(135deg, #1e3a5f 0%, #2563eb 100%)",
-                    borderRadius: "8px",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    color: "white",
-                    fontSize: "0.875rem",
-                    fontWeight: 600,
-                  }}>
-                    🎓 Jump In
-                  </div>
-                  <div style={{ marginTop: "1rem" }}>
-                    <div style={{ fontSize: "0.8125rem", fontWeight: 600, marginBottom: "0.5rem" }}>
-                      Managing in-house cafeteria
-                    </div>
-                    <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.75rem", color: "#3b82f6" }}>
-                      📄 40 slides
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Upcoming Bookings */}
-              <div className="oyo-card">
-                <div className="oyo-card-header">
-                  <span className="oyo-card-title">📅 Upcoming</span>
-                  <Link href="/bookings" className="oyo-card-link">View All</Link>
-                </div>
-                <div className="oyo-card-body" style={{ padding: "0" }}>
-                  {upcomingBookings.length === 0 ? (
-                    <div style={{ padding: "1.5rem", textAlign: "center", color: "#9ca3af" }}>
-                      No upcoming bookings
-                    </div>
-                  ) : (
-                    upcomingBookings.slice(0, 3).map((booking) => {
-                      const checkInDate = new Date(booking.checkIn);
-                      const today = new Date();
-                      const daysUntil = Math.ceil((checkInDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-
-                      return (
-                        <div
-                          key={booking.id}
-                          style={{
-                            padding: "0.75rem 1.25rem",
-                            borderBottom: "1px solid #f3f4f6",
-                          }}
-                        >
-                          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                            <div>
-                              <div style={{ fontWeight: 600, fontSize: "0.875rem" }}>{booking.guestName}</div>
-                              <div style={{ fontSize: "0.75rem", color: "#6b7280" }}>
-                                Room {booking.roomNumber} • {booking.checkIn}
-                              </div>
-                            </div>
-                            <span style={{ fontSize: "0.625rem", color: "#9ca3af" }}>
-                              {daysUntil === 0 ? "Today" : daysUntil === 1 ? "Tomorrow" : `${daysUntil}d`}
-                            </span>
-                          </div>
-                        </div>
-                      );
-                    })
-                  )}
-                </div>
-              </div>
-            </div>
-          </div>
-        </main>
       </div>
 
       {/* Scanner FAB */}
       <ScannerFAB />
-
-      {/* Mobile Bottom Nav */}
-      <BottomNav role={currentRole} className="hide-on-desktop" />
-    </div>
+    </>
   );
 }
