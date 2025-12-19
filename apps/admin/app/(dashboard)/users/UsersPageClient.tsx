@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useTransition } from "react";
+import { useState, useEffect, useTransition, Fragment } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { updateUserRole, getUsersWithDetails, type UserWithDetails, type PaginatedUsers } from "@/actions/users";
 
@@ -162,8 +162,8 @@ export function UsersPageClient({ initialData }: UsersPageClientProps) {
                                 </tr>
                             ) : (
                                 data.users.map((user) => (
-                                    <>
-                                        <tr key={user.id}>
+                                    <Fragment key={user.id}>
+                                        <tr>
                                             <td>
                                                 <div className="table-cell-flex">
                                                     {user.image ? (
@@ -214,7 +214,7 @@ export function UsersPageClient({ initialData }: UsersPageClientProps) {
                                             </td>
                                         </tr>
                                         {expandedUser === user.id && (
-                                            <tr key={`${user.id}-details`}>
+                                            <tr>
                                                 <td colSpan={5} style={{
                                                     background: "var(--color-bg-secondary)",
                                                     padding: "1rem 1.5rem"
@@ -263,7 +263,7 @@ export function UsersPageClient({ initialData }: UsersPageClientProps) {
                                                 </td>
                                             </tr>
                                         )}
-                                    </>
+                                    </Fragment>
                                 ))
                             )}
                         </tbody>

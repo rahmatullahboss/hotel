@@ -249,6 +249,8 @@ export async function getQualityAlerts(): Promise<{
 
         // Get pending count
         const pendingResult = await db
+            .select({ count: count() })
+            .from(hotels)
             .where(eq(hotels.status, "PENDING"));
 
         return {
