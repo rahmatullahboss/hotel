@@ -1,35 +1,67 @@
-import { auth } from "./auth";
-import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
+import NextAuth from "next-auth";
+import Google from "next-auth/providers/google";
+import type { NextAuthConfig } from "next-auth";
 
-export async function middleware(request: NextRequest) {
-    const session = await auth();
-    const { pathname } = request.nextUrl;
+// Edge-compatible auth config (no database adapter)
+// Middleware only needs to verify the JWT session, not query the database
+const authConfig: NextAuthConfig = {
+    providers: [
+        Google({
+            clientId: process.env.AUTH_GOOGLE_ID,
+            clientSecret: process.env.AUTH_GOOGLE_SECRET,
+        }),
+    ],
+    session: { strategy: "jwt" },
+    callbacks: {
+        jwt({ token, user }) {
+            if (user) {
+                token.id = user.id;
+                token.role = (user as { role?: string }).role;
+            }
+            return token;
+        },
+        session({ session, token }) {
+            if (token && session.user) {
+                session.user.id = token.id as string;
+                (session.user as { role?: string }).role = token.role as string;
+            }
+            return session;
+        },
+        authorized({ auth, request: { nextUrl } }) {
+            const isLoggedIn = !!auth?.user;
+            const isAdmin = (auth?.user as { role?: string })?.role === "ADMIN";
 
-    // Public paths that don't require authentication
-    const publicPaths = ["/auth/signin", "/auth/error", "/api/auth"];
-    const isPublicPath = publicPaths.some(path => pathname.startsWith(path));
+            // Public paths that don't require authentication
+            const publicPaths = ["/auth/signin", "/auth/error", "/api/auth"];
+            const isPublicPath = publicPaths.some(path => nextUrl.pathname.startsWith(path));
 
-    if (isPublicPath) {
-        return NextResponse.next();
-    }
+            if (isPublicPath) {
+                return true;
+            }
 
-    // Redirect unauthenticated users to signin
-    if (!session?.user) {
-        const signInUrl = new URL("/auth/signin", request.url);
-        signInUrl.searchParams.set("callbackUrl", pathname);
-        return NextResponse.redirect(signInUrl);
-    }
+            // Redirect unauthenticated users to signin
+            if (!isLoggedIn) {
+                const signInUrl = new URL("/auth/signin", nextUrl);
+                signInUrl.searchParams.set("callbackUrl", nextUrl.pathname);
+                return Response.redirect(signInUrl);
+            }
 
-    // Redirect non-admin users to error page
-    const isAdmin = (session.user as { role?: string })?.role === "ADMIN";
-    if (!isAdmin) {
-        const errorUrl = new URL("/auth/error?error=AccessDenied", request.url);
-        return NextResponse.redirect(errorUrl);
-    }
+            // Redirect non-admin users to error page
+            if (!isAdmin) {
+                const errorUrl = new URL("/auth/error?error=AccessDenied", nextUrl);
+                return Response.redirect(errorUrl);
+            }
 
-    return NextResponse.next();
-}
+            return true;
+        },
+    },
+    pages: {
+        signIn: "/auth/signin",
+        error: "/auth/error",
+    },
+};
+
+export const { auth: middleware } = NextAuth(authConfig);
 
 export const config = {
     matcher: [
