@@ -18,7 +18,7 @@ async function checkPromotions() {
 
     console.log(`Found ${allPromotions.length} promotions:\n`);
 
-    allPromotions.forEach(promo => {
+    allPromotions.forEach((promo: typeof allPromotions[number]) => {
         console.log(`Hotel: ${promo.hotel?.name || 'N/A'}`);
         console.log(`Code: ${promo.code}`);
         console.log(`Name: ${promo.name}`);
