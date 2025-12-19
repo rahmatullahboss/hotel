@@ -327,6 +327,7 @@ export default async function DashboardPage() {
                     doubleOccupancy: todaysPricing.double,
                     tripleOccupancy: todaysPricing.triple,
                   }}
+                  promotionPercent={activePromotion?.isActive ? Number(activePromotion.value) : 0}
                 />
               </div>
 
