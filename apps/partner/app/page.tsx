@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { getPartnerHotel, getDashboardStats, getUpcomingBookings, getTodaysCheckIns, getCurrentlyStaying, getTodaysCheckOuts, getAllPartnerHotels, getOccupancyHistory, getBookingSources, getMaintenanceIssues, getGuestReviewsSummary, getTodaysPricing, getActivePromotion } from "./actions/dashboard";
+import { getPartnerHotel, getDashboardStats, getUpcomingBookings, getTodaysCheckIns, getCurrentlyStaying, getTodaysCheckOuts, getAllPartnerHotels, getOccupancyHistory, getBookingSources, getMaintenanceIssues, getGuestReviewsSummary, getTodaysPricing, getActivePromotion, getPlatformPromotion } from "./actions/dashboard";
 import { getPartnerRole } from "./actions/getPartnerRole";
 import {
   BottomNav,
@@ -179,7 +179,7 @@ export default async function DashboardPage() {
   const currentRole = roleInfo?.role ?? "RECEPTIONIST";
 
   // State 4: Hotel is ACTIVE - Show full dashboard
-  const [stats, upcomingBookings, todaysCheckIns, currentlyStaying, todaysCheckOuts, allPartnerHotels, highRiskBookings, occupancyHistory, bookingSourcesData, maintenanceIssues, reviewsSummary, todaysPricing, activePromotion, incentiveStats] = await Promise.all([
+  const [stats, upcomingBookings, todaysCheckIns, currentlyStaying, todaysCheckOuts, allPartnerHotels, highRiskBookings, occupancyHistory, bookingSourcesData, maintenanceIssues, reviewsSummary, todaysPricing, activePromotion, platformPromotion, incentiveStats] = await Promise.all([
     getDashboardStats(hotel.id),
     getUpcomingBookings(hotel.id, 5),
     getTodaysCheckIns(hotel.id),
@@ -193,6 +193,7 @@ export default async function DashboardPage() {
     getGuestReviewsSummary(hotel.id),
     getTodaysPricing(hotel.id),
     getActivePromotion(hotel.id),
+    getPlatformPromotion(),
     getIncentiveStats(),
   ]);
 
@@ -331,6 +332,7 @@ export default async function DashboardPage() {
                 hotelId={hotel.id}
                 enabled={activePromotion?.isActive ?? false}
                 discount={activePromotion ? Number(activePromotion.value) : 5}
+                additionalDiscount={platformPromotion ? Number(platformPromotion.value) : 0}
               />
 
               {/* High-Risk Bookings Alert */}

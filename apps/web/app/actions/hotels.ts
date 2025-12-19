@@ -7,22 +7,36 @@ import { unstable_cache } from "next/cache";
 
 /**
  * Get active promotion for a hotel and apply discount to price
+ * Returns combined discount: hotel-specific + platform-wide (Zinu)
  */
 async function getPromotionDiscount(hotelId: string): Promise<number> {
     try {
-        const activePromotion = await db.query.promotions.findFirst({
+        // Fetch hotel-specific promotion
+        const hotelPromotion = await db.query.promotions.findFirst({
             where: and(
                 eq(promotions.hotelId, hotelId),
-                eq(promotions.isActive, true)
+                eq(promotions.isActive, true),
+                eq(promotions.type, "PERCENTAGE")
             ),
             orderBy: desc(promotions.createdAt)
         });
 
-        if (activePromotion && activePromotion.type === "PERCENTAGE") {
-            return parseFloat(activePromotion.value);
-        }
+        // Fetch platform-wide promotion (where hotelId is NULL)
+        const platformPromotion = await db.query.promotions.findFirst({
+            where: and(
+                eq(promotions.hotelId, null as unknown as string),
+                eq(promotions.isActive, true),
+                eq(promotions.type, "PERCENTAGE")
+            ),
+            orderBy: desc(promotions.createdAt)
+        });
 
-        return 0;
+        const hotelDiscount = hotelPromotion ? parseFloat(hotelPromotion.value) : 0;
+        const platformDiscount = platformPromotion ? parseFloat(platformPromotion.value) : 0;
+
+        // Stack discounts: partner discount + platform discount
+        // Example: 5% partner + 15% platform = 20% total
+        return hotelDiscount + platformDiscount;
     } catch (error) {
         console.error("[getPromotionDiscount] Error:", error);
         return 0;

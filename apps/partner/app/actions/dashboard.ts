@@ -1429,3 +1429,35 @@ export async function savePromotion(
         };
     }
 }
+
+/**
+ * Get platform-wide promotion (managed by Zinu admin)
+ * These are promotions where hotelId is NULL - apply to all hotels
+ */
+export async function getPlatformPromotion() {
+    try {
+        const platformPromo = await db.query.promotions.findFirst({
+            where: and(
+                eq(promotions.hotelId, null as unknown as string),
+                eq(promotions.isActive, true),
+                eq(promotions.type, "PERCENTAGE")
+            ),
+            orderBy: desc(promotions.createdAt),
+        });
+
+        if (!platformPromo) {
+            return null;
+        }
+
+        return {
+            id: platformPromo.id,
+            code: platformPromo.code,
+            name: platformPromo.name,
+            value: platformPromo.value,
+            isActive: platformPromo.isActive,
+        };
+    } catch (error) {
+        console.error("Error fetching platform promotion:", error);
+        return null;
+    }
+}
