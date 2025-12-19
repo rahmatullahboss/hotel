@@ -946,9 +946,140 @@ async function seedMultiHotelPartner() {
     console.log(`   Hotels: ${MULTI_HOTEL_CHAIN.length} across 6 cities\n`);
 }
 
+/**
+ * Seed incentive programs for hotel partners
+ */
+async function seedIncentivePrograms() {
+    console.log("\n🎯 Seeding incentive programs...\n");
+
+    // Import incentivePrograms table
+    const { incentivePrograms } = await import("./schema");
+
+    const now = new Date();
+    const thirtyDaysFromNow = new Date();
+    thirtyDaysFromNow.setDate(now.getDate() + 30);
+
+    const sixtyDaysFromNow = new Date();
+    sixtyDaysFromNow.setDate(now.getDate() + 60);
+
+    const ninetyDaysFromNow = new Date();
+    ninetyDaysFromNow.setDate(now.getDate() + 90);
+
+    const INCENTIVE_PROGRAMS = [
+        // Rating-based incentives
+        {
+            name: "High Rating Bonus",
+            description: "Maintain a 4.0+ rating to earn ৳2,000 bonus",
+            type: "RATING_IMPROVEMENT",
+            status: "ACTIVE",
+            targetValue: 40, // 4.0 rating (rating * 10)
+            targetUnit: "rating",
+            rewardAmount: "2000",
+            rewardType: "CASH",
+            startDate: now,
+            endDate: thirtyDaysFromNow,
+            badgeIcon: "⭐",
+            badgeColor: "#f59e0b",
+        },
+        {
+            name: "Excellence Award",
+            description: "Achieve 4.5+ rating for ৳5,000 excellence bonus",
+            type: "RATING_IMPROVEMENT",
+            status: "ACTIVE",
+            targetValue: 45, // 4.5 rating
+            targetUnit: "rating",
+            rewardAmount: "5000",
+            rewardType: "CASH",
+            startDate: now,
+            endDate: sixtyDaysFromNow,
+            badgeIcon: "🏆",
+            badgeColor: "#eab308",
+        },
+        {
+            name: "5-Star Champion",
+            description: "Reach perfect 5.0 rating for ৳10,000 champion bonus",
+            type: "RATING_IMPROVEMENT",
+            status: "ACTIVE",
+            targetValue: 50, // 5.0 rating
+            targetUnit: "rating",
+            rewardAmount: "10000",
+            rewardType: "CASH",
+            startDate: now,
+            endDate: ninetyDaysFromNow,
+            badgeIcon: "👑",
+            badgeColor: "#f97316",
+        },
+        // Booking-based incentives
+        {
+            name: "Starter Bonus",
+            description: "Complete 10 bookings this month for ৳1,500 bonus",
+            type: "BOOKING_COUNT",
+            status: "ACTIVE",
+            targetValue: 10,
+            targetUnit: "bookings",
+            rewardAmount: "1500",
+            rewardType: "CASH",
+            startDate: now,
+            endDate: thirtyDaysFromNow,
+            badgeIcon: "🚀",
+            badgeColor: "#3b82f6",
+        },
+        {
+            name: "Power Performer",
+            description: "Complete 50 bookings for ৳8,000 performance bonus",
+            type: "BOOKING_COUNT",
+            status: "ACTIVE",
+            targetValue: 50,
+            targetUnit: "bookings",
+            rewardAmount: "8000",
+            rewardType: "CASH",
+            startDate: now,
+            endDate: sixtyDaysFromNow,
+            badgeIcon: "💪",
+            badgeColor: "#8b5cf6",
+        },
+        // Revenue-based incentives
+        {
+            name: "Revenue Champion",
+            description: "Earn ৳500,000 in bookings for ৳15,000 bonus",
+            type: "REVENUE_TARGET",
+            status: "ACTIVE",
+            targetValue: 500000,
+            targetUnit: "BDT",
+            rewardAmount: "15000",
+            rewardType: "CASH",
+            startDate: now,
+            endDate: ninetyDaysFromNow,
+            badgeIcon: "💰",
+            badgeColor: "#10b981",
+        },
+    ];
+
+    for (const program of INCENTIVE_PROGRAMS) {
+        // Check if program exists
+        const existing = await db.query.incentivePrograms.findFirst({
+            where: eq(incentivePrograms.name, program.name),
+        });
+
+        if (existing) {
+            console.log(`  ⏭️  "${program.name}" exists, skipping...`);
+            continue;
+        }
+
+        await db.insert(incentivePrograms).values(program as any);
+        console.log(`  ✓ Created: ${program.badgeIcon} ${program.name} (${program.type})`);
+    }
+
+    console.log("\n✅ Incentive programs seeding complete!");
+    console.log("   Rating-based: 3 programs (4.0+, 4.5+, 5.0 rating)");
+    console.log("   Booking-based: 2 programs (10, 50 bookings)");
+    console.log("   Revenue-based: 1 program (৳500,000)\n");
+}
+
 // Run if executed directly
 seed()
     .then(() => seedMultiHotelPartner())
+    .then(() => seedIncentivePrograms())
     .then(() => process.exit(0))
     .catch((error) => {
         console.error("❌ Seed failed:", error);
