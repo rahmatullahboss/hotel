@@ -1,5 +1,7 @@
 "use client";
 
+import { signOut } from "next-auth/react";
+
 import Link from "next/link";
 import { useState } from "react";
 import { FiSearch, FiHelpCircle, FiBell, FiChevronDown, FiSettings, FiLogOut, FiUser } from "react-icons/fi";
@@ -112,7 +114,10 @@ export function PartnerHeader({ user, hotel, allHotels }: PartnerHeaderProps) {
                                 Settings
                             </Link>
                             <div className="border-t border-gray-100 my-1"></div>
-                            <button className="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 text-left">
+                            <button
+                                onClick={() => signOut({ callbackUrl: "/auth/signin" })}
+                                className="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 text-left"
+                            >
                                 <FiLogOut size={16} />
                                 Sign out
                             </button>
