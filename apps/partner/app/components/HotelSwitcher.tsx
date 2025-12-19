@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect, useMemo } from "react";
 import { type PartnerHotelWithStats, switchHotel } from "../actions/dashboard";
-import { FaChevronDown, FaHotel, FaBuilding, FaCheck, FaSearch } from "react-icons/fa";
+import { FiChevronDown, FiCheck, FiSearch, FiMapPin, FiHome } from "react-icons/fi";
 
 interface HotelSwitcherProps {
     currentHotel: PartnerHotelWithStats;
@@ -36,7 +36,7 @@ export function HotelSwitcher({ currentHotel, hotels }: HotelSwitcherProps) {
     }, [isOpen, hotels.length]);
 
     // Filter and group hotels by city
-    const { filteredHotels, hotelsByCity } = useMemo(() => {
+    const { hotelsByCity } = useMemo(() => {
         const query = searchQuery.toLowerCase();
         const filtered = hotels.filter(
             (h) =>
@@ -77,28 +77,42 @@ export function HotelSwitcher({ currentHotel, hotels }: HotelSwitcherProps) {
 
     // Helper to get occupancy color
     const getOccupancyColor = (rate: number) => {
-        if (rate >= 80) return "text-emerald-600";
-        if (rate >= 50) return "text-yellow-600";
-        return "text-gray-500";
+        if (rate >= 80) return "#22c55e";
+        if (rate >= 50) return "#f59e0b";
+        return "#9ca3af";
+    };
+
+    const getStatusColor = (status: string) => {
+        if (status === "ACTIVE") return "#22c55e";
+        if (status === "PENDING") return "#f59e0b";
+        return "#ef4444";
     };
 
     if (hotels.length <= 1) {
         // If only one hotel, just show the name with occupancy
         return (
-            <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white shadow-sm">
-                    <FaHotel />
+            <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+                <div
+                    style={{
+                        width: "40px",
+                        height: "40px",
+                        borderRadius: "50%",
+                        backgroundColor: "var(--color-primary)",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        color: "white",
+                    }}
+                >
+                    <FiHome />
                 </div>
                 <div>
-                    <h1 className="text-lg font-bold leading-none text-gray-900">{currentHotel.name}</h1>
-                    <p className="text-xs text-gray-500 flex items-center gap-2 mt-0.5">
-                        <span className="flex items-center gap-1">
-                            <FaBuilding className="text-[10px]" /> {currentHotel.city}
-                        </span>
-                        <span className="w-1 h-1 bg-gray-300 rounded-full"></span>
-                        <span className={getOccupancyColor(currentHotel.occupancyRate)}>
-                            {currentHotel.occupancyRate}% занято
-                        </span>
+                    <h1 style={{ fontSize: "1.125rem", fontWeight: 700, margin: 0 }}>
+                        {currentHotel.name}
+                    </h1>
+                    <p style={{ fontSize: "0.75rem", color: "var(--color-text-secondary)", margin: 0 }}>
+                        <FiMapPin style={{ marginRight: "0.25rem", verticalAlign: "middle" }} />
+                        {currentHotel.city} • {currentHotel.occupancyRate}% Occupied
                     </p>
                 </div>
             </div>
@@ -106,23 +120,70 @@ export function HotelSwitcher({ currentHotel, hotels }: HotelSwitcherProps) {
     }
 
     return (
-        <div className="relative" ref={dropdownRef}>
+        <div style={{ position: "relative" }} ref={dropdownRef}>
             <button
                 onClick={() => setIsOpen(!isOpen)}
                 disabled={isPending}
-                className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors border border-transparent hover:border-gray-200 text-left min-w-[240px] group"
+                style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "0.75rem",
+                    padding: "0.5rem 0.75rem",
+                    borderRadius: "0.5rem",
+                    border: "1px solid var(--color-border)",
+                    backgroundColor: isOpen ? "var(--color-bg-secondary)" : "transparent",
+                    cursor: "pointer",
+                    textAlign: "left",
+                    minWidth: "220px",
+                }}
             >
-                <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white shadow-sm ring-2 ring-white">
-                    <FaHotel />
+                <div
+                    style={{
+                        width: "36px",
+                        height: "36px",
+                        borderRadius: "50%",
+                        backgroundColor: "var(--color-primary)",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        color: "white",
+                        flexShrink: 0,
+                    }}
+                >
+                    <FiHome size={16} />
                 </div>
-                <div className="flex-1">
-                    <div className="text-sm font-bold text-gray-900 leading-tight flex items-center justify-between">
-                        <span className="truncate max-w-[160px]">{currentHotel.name}</span>
-                        <FaChevronDown className={`text-xs ml-2 text-gray-400 transition-transform group-hover:text-gray-600 ${isOpen ? "rotate-180" : ""}`} />
+                <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                        <span
+                            style={{
+                                fontWeight: 600,
+                                fontSize: "0.875rem",
+                                overflow: "hidden",
+                                textOverflow: "ellipsis",
+                                whiteSpace: "nowrap",
+                                maxWidth: "140px",
+                            }}
+                        >
+                            {currentHotel.name}
+                        </span>
+                        <FiChevronDown
+                            style={{
+                                marginLeft: "0.5rem",
+                                color: "var(--color-text-secondary)",
+                                transition: "transform 0.2s",
+                                transform: isOpen ? "rotate(180deg)" : "rotate(0)",
+                            }}
+                        />
                     </div>
-                    <p className="text-[11px] text-gray-500 font-medium mt-0.5 flex items-center gap-1.5">
-                        {currentHotel.city} •
-                        <span className={getOccupancyColor(currentHotel.occupancyRate)}>
+                    <p
+                        style={{
+                            fontSize: "0.7rem",
+                            color: "var(--color-text-secondary)",
+                            margin: 0,
+                        }}
+                    >
+                        {currentHotel.city} •{" "}
+                        <span style={{ color: getOccupancyColor(currentHotel.occupancyRate) }}>
                             {currentHotel.occupancyRate}% Occ
                         </span>
                     </p>
@@ -130,40 +191,108 @@ export function HotelSwitcher({ currentHotel, hotels }: HotelSwitcherProps) {
             </button>
 
             {isOpen && (
-                <div className="absolute top-full left-0 mt-2 w-80 bg-white border border-gray-200 rounded-xl shadow-xl z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+                <div
+                    style={{
+                        position: "absolute",
+                        top: "100%",
+                        left: 0,
+                        marginTop: "0.5rem",
+                        width: "320px",
+                        backgroundColor: "white",
+                        border: "1px solid var(--color-border)",
+                        borderRadius: "0.75rem",
+                        boxShadow: "0 10px 40px rgba(0,0,0,0.15)",
+                        zIndex: 50,
+                        overflow: "hidden",
+                    }}
+                >
                     {/* Header with search */}
-                    <div className="px-4 py-3 border-b border-gray-100 bg-gray-50">
-                        <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
+                    <div
+                        style={{
+                            padding: "0.75rem 1rem",
+                            borderBottom: "1px solid var(--color-border)",
+                            backgroundColor: "var(--color-bg-secondary)",
+                        }}
+                    >
+                        <p
+                            style={{
+                                fontSize: "0.7rem",
+                                fontWeight: 600,
+                                color: "var(--color-text-secondary)",
+                                textTransform: "uppercase",
+                                letterSpacing: "0.05em",
+                                marginBottom: hotels.length > 3 ? "0.5rem" : 0,
+                            }}
+                        >
                             Switch Property ({hotels.length})
                         </p>
                         {hotels.length > 3 && (
-                            <div className="relative">
-                                <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs" />
+                            <div style={{ position: "relative" }}>
+                                <FiSearch
+                                    style={{
+                                        position: "absolute",
+                                        left: "0.75rem",
+                                        top: "50%",
+                                        transform: "translateY(-50%)",
+                                        color: "var(--color-text-secondary)",
+                                        fontSize: "0.875rem",
+                                    }}
+                                />
                                 <input
                                     ref={searchInputRef}
                                     type="text"
                                     placeholder="Search hotels..."
                                     value={searchQuery}
                                     onChange={(e) => setSearchQuery(e.target.value)}
-                                    className="w-full pl-8 pr-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                                    style={{
+                                        width: "100%",
+                                        padding: "0.5rem 0.75rem 0.5rem 2rem",
+                                        fontSize: "0.875rem",
+                                        border: "1px solid var(--color-border)",
+                                        borderRadius: "0.5rem",
+                                        outline: "none",
+                                    }}
                                 />
                             </div>
                         )}
                     </div>
 
                     {/* Hotels list grouped by city */}
-                    <div className="max-h-[350px] overflow-y-auto">
+                    <div style={{ maxHeight: "350px", overflowY: "auto" }}>
                         {Object.keys(hotelsByCity).length === 0 ? (
-                            <div className="px-4 py-6 text-center text-sm text-gray-500">
+                            <div
+                                style={{
+                                    padding: "1.5rem 1rem",
+                                    textAlign: "center",
+                                    fontSize: "0.875rem",
+                                    color: "var(--color-text-secondary)",
+                                }}
+                            >
                                 No hotels found
                             </div>
                         ) : (
                             Object.entries(hotelsByCity).map(([city, cityHotels]) => (
                                 <div key={city}>
                                     {/* City header */}
-                                    <div className="px-4 py-2 bg-gray-50 border-y border-gray-100 sticky top-0">
-                                        <span className="text-xs font-semibold text-gray-600 uppercase tracking-wide">
-                                            📍 {city} ({cityHotels.length})
+                                    <div
+                                        style={{
+                                            padding: "0.5rem 1rem",
+                                            backgroundColor: "var(--color-bg-secondary)",
+                                            borderBottom: "1px solid var(--color-border)",
+                                            position: "sticky",
+                                            top: 0,
+                                        }}
+                                    >
+                                        <span
+                                            style={{
+                                                fontSize: "0.7rem",
+                                                fontWeight: 600,
+                                                color: "var(--color-text-secondary)",
+                                                textTransform: "uppercase",
+                                            }}
+                                        >
+                                            <FiMapPin style={{ marginRight: "0.25rem", verticalAlign: "middle" }} />
+                                            {city} ({cityHotels.length})
                                         </span>
                                     </div>
 
@@ -173,33 +302,105 @@ export function HotelSwitcher({ currentHotel, hotels }: HotelSwitcherProps) {
                                             key={hotel.id}
                                             onClick={() => handleSwitch(hotel.id)}
                                             disabled={isPending}
-                                            className={`w-full px-4 py-3 flex items-center gap-3 hover:bg-gray-50 transition-colors text-left ${hotel.id === currentHotel.id ? "bg-blue-50/60" : ""
-                                                }`}
+                                            style={{
+                                                width: "100%",
+                                                padding: "0.75rem 1rem",
+                                                display: "flex",
+                                                alignItems: "center",
+                                                gap: "0.75rem",
+                                                textAlign: "left",
+                                                border: "none",
+                                                borderBottom: "1px solid var(--color-border)",
+                                                backgroundColor:
+                                                    hotel.id === currentHotel.id
+                                                        ? "rgba(230, 57, 70, 0.05)"
+                                                        : "transparent",
+                                                cursor: "pointer",
+                                            }}
                                         >
-                                            <div className={`w-9 h-9 rounded-full flex items-center justify-center text-sm ${hotel.id === currentHotel.id
-                                                    ? "bg-primary text-white shadow-md"
-                                                    : "bg-gray-100 text-gray-500"
-                                                }`}>
-                                                {hotel.id === currentHotel.id ? <FaCheck /> : <FaBuilding />}
+                                            <div
+                                                style={{
+                                                    width: "32px",
+                                                    height: "32px",
+                                                    borderRadius: "50%",
+                                                    display: "flex",
+                                                    alignItems: "center",
+                                                    justifyContent: "center",
+                                                    fontSize: "0.875rem",
+                                                    backgroundColor:
+                                                        hotel.id === currentHotel.id
+                                                            ? "var(--color-primary)"
+                                                            : "var(--color-bg-secondary)",
+                                                    color:
+                                                        hotel.id === currentHotel.id
+                                                            ? "white"
+                                                            : "var(--color-text-secondary)",
+                                                }}
+                                            >
+                                                {hotel.id === currentHotel.id ? (
+                                                    <FiCheck />
+                                                ) : (
+                                                    <FiHome />
+                                                )}
                                             </div>
 
-                                            <div className="flex-1 min-w-0">
-                                                <div className={`font-semibold text-sm truncate ${hotel.id === currentHotel.id ? "text-primary" : "text-gray-900"
-                                                    }`}>
+                                            <div style={{ flex: 1, minWidth: 0 }}>
+                                                <div
+                                                    style={{
+                                                        fontWeight: 600,
+                                                        fontSize: "0.875rem",
+                                                        color:
+                                                            hotel.id === currentHotel.id
+                                                                ? "var(--color-primary)"
+                                                                : "inherit",
+                                                        overflow: "hidden",
+                                                        textOverflow: "ellipsis",
+                                                        whiteSpace: "nowrap",
+                                                    }}
+                                                >
                                                     {hotel.name}
                                                 </div>
-                                                <div className="flex items-center gap-2 text-xs mt-0.5">
-                                                    <span className={`font-medium ${hotel.status === 'ACTIVE' ? "text-emerald-600" :
-                                                            hotel.status === 'PENDING' ? "text-yellow-600" : "text-red-600"
-                                                        }`}>
+                                                <div
+                                                    style={{
+                                                        display: "flex",
+                                                        alignItems: "center",
+                                                        gap: "0.5rem",
+                                                        fontSize: "0.7rem",
+                                                        marginTop: "0.125rem",
+                                                    }}
+                                                >
+                                                    <span
+                                                        style={{
+                                                            fontWeight: 500,
+                                                            color: getStatusColor(hotel.status),
+                                                        }}
+                                                    >
                                                         {hotel.status}
                                                     </span>
-                                                    <span className="w-1 h-1 rounded-full bg-gray-300"></span>
-                                                    <span className="text-gray-500">
+                                                    <span
+                                                        style={{
+                                                            width: "3px",
+                                                            height: "3px",
+                                                            borderRadius: "50%",
+                                                            backgroundColor: "var(--color-border)",
+                                                        }}
+                                                    />
+                                                    <span style={{ color: "var(--color-text-secondary)" }}>
                                                         {hotel.totalRooms} rooms
                                                     </span>
-                                                    <span className="w-1 h-1 rounded-full bg-gray-300"></span>
-                                                    <span className={getOccupancyColor(hotel.occupancyRate)}>
+                                                    <span
+                                                        style={{
+                                                            width: "3px",
+                                                            height: "3px",
+                                                            borderRadius: "50%",
+                                                            backgroundColor: "var(--color-border)",
+                                                        }}
+                                                    />
+                                                    <span
+                                                        style={{
+                                                            color: getOccupancyColor(hotel.occupancyRate),
+                                                        }}
+                                                    >
                                                         {hotel.occupancyRate}% Occ
                                                     </span>
                                                 </div>
@@ -212,10 +413,28 @@ export function HotelSwitcher({ currentHotel, hotels }: HotelSwitcherProps) {
                     </div>
 
                     {/* Add new hotel link */}
-                    <div className="p-2 border-t border-gray-100 bg-gray-50">
+                    <div
+                        style={{
+                            padding: "0.5rem",
+                            borderTop: "1px solid var(--color-border)",
+                            backgroundColor: "var(--color-bg-secondary)",
+                        }}
+                    >
                         <a
                             href="/register-hotel"
-                            className="flex items-center justify-center px-4 py-2 text-xs font-semibold text-primary hover:text-white bg-white hover:bg-primary border border-gray-200 hover:border-primary rounded-lg transition-all duration-200 shadow-sm"
+                            style={{
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                padding: "0.5rem 1rem",
+                                fontSize: "0.75rem",
+                                fontWeight: 600,
+                                color: "var(--color-primary)",
+                                backgroundColor: "white",
+                                border: "1px solid var(--color-border)",
+                                borderRadius: "0.5rem",
+                                textDecoration: "none",
+                            }}
                         >
                             + Add New Property
                         </a>
