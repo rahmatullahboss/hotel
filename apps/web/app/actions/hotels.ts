@@ -1,9 +1,42 @@
 "use server";
 
 import { db } from "@repo/db";
-import { hotels, rooms } from "@repo/db/schema";
+import { hotels, rooms, promotions } from "@repo/db/schema";
 import { eq, and, desc, sql, ilike, or } from "drizzle-orm";
 import { unstable_cache } from "next/cache";
+
+/**
+ * Get active promotion for a hotel and apply discount to price
+ */
+async function getPromotionDiscount(hotelId: string): Promise<number> {
+    try {
+        const activePromotion = await db.query.promotions.findFirst({
+            where: and(
+                eq(promotions.hotelId, hotelId),
+                eq(promotions.isActive, true)
+            ),
+            orderBy: desc(promotions.createdAt)
+        });
+
+        if (activePromotion && activePromotion.type === "PERCENTAGE") {
+            return parseFloat(activePromotion.value);
+        }
+
+        return 0;
+    } catch (error) {
+        console.error("[getPromotionDiscount] Error:", error);
+        return 0;
+    }
+}
+
+/**
+ * Apply promotion discount to a price
+ */
+function applyPromotionDiscount(price: number, discountPercent: number): number {
+    if (discountPercent <= 0) return price;
+    const discountedPrice = price * (1 - discountPercent / 100);
+    return Math.round(discountedPrice);
+}
 
 export interface HotelWithPrice {
     id: string;
@@ -107,6 +140,23 @@ export async function searchHotels(params: SearchParams): Promise<HotelWithPrice
                 ? sql`COALESCE(${hotels.lowestDynamicPrice}, MIN(${rooms.basePrice}))`
                 : desc(hotels.rating));
 
+        // Fetch active promotions for all hotels
+        const hotelIds = result.map((h: typeof result[number]) => h.id);
+        const activePromotions = hotelIds.length > 0 ? await db.query.promotions.findMany({
+            where: and(
+                sql`${promotions.hotelId} IN (${sql.join(hotelIds.map((id: string) => sql`${id}`), sql`, `)})`,
+                eq(promotions.isActive, true)
+            ),
+        }) : [];
+
+        // Create a map of hotelId -> discount percentage
+        const promotionMap = new Map<string, number>();
+        activePromotions.forEach((promo: typeof activePromotions[number]) => {
+            if (promo.hotelId && promo.type === "PERCENTAGE") {
+                promotionMap.set(promo.hotelId, parseFloat(promo.value));
+            }
+        });
+
         // Transform results - use cached price as single source of truth
         let filtered = result.map((h: typeof result[number]) => {
             const hotelLat = h.latitude ? parseFloat(h.latitude) : null;
@@ -119,9 +169,15 @@ export async function searchHotels(params: SearchParams): Promise<HotelWithPrice
             }
 
             // Use pre-computed price (single source of truth), fallback to base price
-            const displayPrice = h.lowestDynamicPrice
+            let displayPrice = h.lowestDynamicPrice
                 ? parseFloat(h.lowestDynamicPrice)
                 : (h.lowestBasePrice ?? 0);
+
+            // Apply promotion discount if hotel has active promotion
+            const promotionDiscount = promotionMap.get(h.id) || 0;
+            if (promotionDiscount > 0) {
+                displayPrice = applyPromotionDiscount(displayPrice, promotionDiscount);
+            }
 
             return {
                 id: h.id,
@@ -451,7 +507,15 @@ export async function getAvailableRooms(
 
             // Average nightly price
             const avgPrice = totalDynamicPrice / nights;
-            const dynamicPrice = Math.round(avgPrice);
+            let dynamicPrice = Math.round(avgPrice);
+            let finalTotalPrice = totalDynamicPrice;
+
+            // Apply promotion discount if hotel has active promotion
+            const promotionDiscount = await getPromotionDiscount(hotelId);
+            if (promotionDiscount > 0) {
+                dynamicPrice = applyPromotionDiscount(dynamicPrice, promotionDiscount);
+                finalTotalPrice = applyPromotionDiscount(totalDynamicPrice, promotionDiscount);
+            }
 
             groupedRooms.push({
                 id: representativeRoom.id, // First available room's ID (or first room if none available)
@@ -459,7 +523,7 @@ export async function getAvailableRooms(
                 type: representativeRoom.type,
                 basePrice: representativeRoom.basePrice,
                 dynamicPrice,
-                totalDynamicPrice,
+                totalDynamicPrice: finalTotalPrice,
                 nights,
                 maxGuests: representativeRoom.maxGuests,
                 description: representativeRoom.description,
