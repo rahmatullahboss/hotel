@@ -829,8 +829,126 @@ async function seed() {
     console.log("✅ Seed complete!");
 }
 
+/**
+ * Seed a multi-hotel owner with 15+ hotels across multiple locations
+ * For testing the Hotel Switcher feature
+ */
+async function seedMultiHotelPartner() {
+    console.log("🏨 Seeding multi-hotel partner...\n");
+
+    // Create or find the multi-hotel partner
+    let multiPartner = await db.query.users.findFirst({
+        where: eq(users.email, "multi-hotel-owner@zinurooms.com"),
+    });
+
+    if (!multiPartner) {
+        console.log("Creating multi-hotel partner user...");
+        const [newPartner] = await db.insert(users).values({
+            name: "Multi Hotel Owner",
+            email: "multi-hotel-owner@zinurooms.com",
+            phone: "+8801700000001",
+            role: "PARTNER",
+        }).returning();
+        multiPartner = newPartner;
+    }
+
+    if (!multiPartner) {
+        throw new Error("Failed to create multi-hotel partner");
+    }
+
+    console.log(`✓ Multi-hotel partner: ${multiPartner.email}\n`);
+
+    // Define 18 hotels across 6 cities (3 per city)
+    const MULTI_HOTEL_CHAIN = [
+        // Dhaka (5 hotels)
+        { name: "ZinuChain Gulshan", city: "Dhaka", address: "Gulshan-1, Dhaka", lat: "23.7925", lng: "90.4139" },
+        { name: "ZinuChain Dhanmondi", city: "Dhaka", address: "Dhanmondi Road 27, Dhaka", lat: "23.7465", lng: "90.3760" },
+        { name: "ZinuChain Uttara", city: "Dhaka", address: "Sector 7, Uttara, Dhaka", lat: "23.8759", lng: "90.3795" },
+        { name: "ZinuChain Banani", city: "Dhaka", address: "Road 11, Banani, Dhaka", lat: "23.7937", lng: "90.4066" },
+        { name: "ZinuChain Motijheel", city: "Dhaka", address: "Motijheel C/A, Dhaka", lat: "23.7296", lng: "90.4193" },
+        // Cox's Bazar (3 hotels)
+        { name: "ZinuChain Sea View", city: "Cox's Bazar", address: "Marine Drive, Cox's Bazar", lat: "21.4272", lng: "92.0058" },
+        { name: "ZinuChain Kolatoli", city: "Cox's Bazar", address: "Kolatoli Road, Cox's Bazar", lat: "21.4350", lng: "92.0000" },
+        { name: "ZinuChain Beach Resort", city: "Cox's Bazar", address: "Laboni Beach, Cox's Bazar", lat: "21.4301", lng: "92.0052" },
+        // Chittagong (3 hotels)
+        { name: "ZinuChain CTG Central", city: "Chittagong", address: "GEC Circle, Chittagong", lat: "22.3598", lng: "91.8215" },
+        { name: "ZinuChain Port City", city: "Chittagong", address: "Agrabad C/A, Chittagong", lat: "22.3245", lng: "91.8123" },
+        { name: "ZinuChain Hill View", city: "Chittagong", address: "Khulshi, Chittagong", lat: "22.3456", lng: "91.7890" },
+        // Sylhet (3 hotels)
+        { name: "ZinuChain Tea Garden", city: "Sylhet", address: "Sreemangal Road, Sylhet", lat: "24.8767", lng: "91.8523" },
+        { name: "ZinuChain Shrine View", city: "Sylhet", address: "Dargah Road, Sylhet", lat: "24.8963", lng: "91.8714" },
+        { name: "ZinuChain Jaflong", city: "Sylhet", address: "Jaflong Road, Sylhet", lat: "25.1520", lng: "92.0156" },
+        // Rajshahi (2 hotels)
+        { name: "ZinuChain Padma View", city: "Rajshahi", address: "Shaheb Bazar, Rajshahi", lat: "24.3745", lng: "88.6042" },
+        { name: "ZinuChain University", city: "Rajshahi", address: "RU Gate, Rajshahi", lat: "24.3651", lng: "88.6285" },
+        // Khulna (2 hotels)
+        { name: "ZinuChain Sundarbans", city: "Khulna", address: "Khan Jahan Ali Road, Khulna", lat: "22.8456", lng: "89.5403" },
+        { name: "ZinuChain Rupsha", city: "Khulna", address: "Rupsha Bridge, Khulna", lat: "22.8234", lng: "89.5456" },
+    ];
+
+    for (const hotelDef of MULTI_HOTEL_CHAIN) {
+        // Check if hotel exists
+        const existing = await db.query.hotels.findFirst({
+            where: eq(hotels.name, hotelDef.name),
+        });
+
+        if (existing) {
+            console.log(`  ⏭️ "${hotelDef.name}" exists, skipping...`);
+            continue;
+        }
+
+        // Create hotel
+        const [newHotel] = await db.insert(hotels).values({
+            name: hotelDef.name,
+            description: `Part of ZinuChain hotel network in ${hotelDef.city}. Modern amenities with consistent quality.`,
+            address: hotelDef.address,
+            city: hotelDef.city,
+            latitude: hotelDef.lat,
+            longitude: hotelDef.lng,
+            ownerId: multiPartner.id,
+            amenities: ["WiFi", "AC", "TV", "Room Service", "Parking"],
+            coverImage: "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800",
+            rating: (Math.random() * 1 + 3.8).toFixed(1), // 3.8 - 4.8
+            reviewCount: Math.floor(Math.random() * 200) + 50,
+            status: "ACTIVE",
+        }).returning();
+
+        if (!newHotel) continue;
+
+        // Create 3-5 rooms per hotel
+        const roomCount = Math.floor(Math.random() * 3) + 3;
+        const roomTypes = [
+            { name: "Standard Single", type: "SINGLE" as const, price: 1500, guests: 1 },
+            { name: "Deluxe Double", type: "DOUBLE" as const, price: 2500, guests: 2 },
+            { name: "Family Room", type: "DOUBLE" as const, price: 3500, guests: 4 },
+            { name: "Executive Suite", type: "SUITE" as const, price: 5000, guests: 3 },
+            { name: "Presidential Suite", type: "SUITE" as const, price: 8000, guests: 4 },
+        ];
+
+        for (let i = 0; i < roomCount; i++) {
+            const roomType = roomTypes[i % roomTypes.length]!;
+            await db.insert(rooms).values({
+                roomNumber: `${i + 1}0${i + 1}`,
+                name: roomType.name,
+                type: roomType.type,
+                basePrice: String(roomType.price + Math.floor(Math.random() * 500)),
+                maxGuests: roomType.guests,
+                hotelId: newHotel.id,
+                amenities: ["WiFi", "AC", "TV"],
+            });
+        }
+
+        console.log(`  ✓ Created "${hotelDef.name}" with ${roomCount} rooms`);
+    }
+
+    console.log(`\n✅ Multi-hotel partner seed complete!`);
+    console.log(`   Email: multi-hotel-owner@zinurooms.com`);
+    console.log(`   Hotels: ${MULTI_HOTEL_CHAIN.length} across 6 cities\n`);
+}
+
 // Run if executed directly
 seed()
+    .then(() => seedMultiHotelPartner())
     .then(() => process.exit(0))
     .catch((error) => {
         console.error("❌ Seed failed:", error);
