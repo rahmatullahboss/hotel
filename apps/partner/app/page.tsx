@@ -1,7 +1,8 @@
 import { redirect } from "next/navigation";
-import { getPartnerHotel, getDashboardStats, getUpcomingBookings, getTodaysCheckIns, getCurrentlyStaying, getTodaysCheckOuts } from "./actions/dashboard";
+import { getPartnerHotel, getDashboardStats, getUpcomingBookings, getTodaysCheckIns, getCurrentlyStaying, getTodaysCheckOuts, getAllPartnerHotels } from "./actions/dashboard";
 import { getPartnerRole } from "./actions/getPartnerRole";
 import { BottomNav, ScannerFAB, StatCard, LogoutButton, HotelCheckInQR, CollectPaymentButton, CheckOutButton, ExtendStayButton, NoShowButton } from "./components";
+import { HotelSwitcher } from "./components/HotelSwitcher";
 import { auth } from "../auth";
 import Link from "next/link";
 
@@ -194,23 +195,21 @@ export default async function DashboardPage() {
   const currentRole = roleInfo?.role ?? "RECEPTIONIST";
 
   // State 4: Hotel is ACTIVE - Show full dashboard
-  const [stats, upcomingBookings, todaysCheckIns, currentlyStaying, todaysCheckOuts] = await Promise.all([
+  const [stats, upcomingBookings, todaysCheckIns, currentlyStaying, todaysCheckOuts, allPartnerHotels] = await Promise.all([
     getDashboardStats(hotel.id),
     getUpcomingBookings(hotel.id, 5),
     getTodaysCheckIns(hotel.id),
     getCurrentlyStaying(hotel.id),
     getTodaysCheckOuts(hotel.id),
+    getAllPartnerHotels(),
   ]);
 
   return (
     <>
       {/* Header */}
-      <header className="page-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+      <header className="page-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <div>
-          <h1 className="page-title">ZinuRooms Manager</h1>
-          <p style={{ color: "var(--color-text-secondary)", fontSize: "0.875rem" }}>
-            {hotel.name}, {hotel.city}
-          </p>
+          <HotelSwitcher currentHotel={hotel} hotels={allPartnerHotels} />
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
           <Link

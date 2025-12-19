@@ -2,7 +2,7 @@
 
 import { db } from "@repo/db";
 import { hotels, rooms } from "@repo/db/schema";
-import { eq, and, desc, sql, ilike } from "drizzle-orm";
+import { eq, and, desc, sql, ilike, or } from "drizzle-orm";
 import { unstable_cache } from "next/cache";
 
 export interface HotelWithPrice {
@@ -95,7 +95,11 @@ export async function searchHotels(params: SearchParams): Promise<HotelWithPrice
             .where(
                 and(
                     eq(hotels.status, "ACTIVE"),
-                    city ? ilike(hotels.city, `%${city}%`) : undefined
+                    city ? or(
+                        ilike(hotels.city, `%${city}%`),
+                        ilike(hotels.address, `%${city}%`),
+                        ilike(hotels.name, `%${city}%`)
+                    ) : undefined
                 )
             )
             .groupBy(hotels.id)

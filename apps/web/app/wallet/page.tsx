@@ -24,12 +24,12 @@ export default async function WalletPage() {
     ]);
 
     return (
-        <div style={{ minHeight: "100vh", backgroundColor: "var(--color-bg)" }}>
+        <>
             {/* Header */}
             <header
                 style={{
                     padding: "1.5rem",
-                    background: "linear-gradient(135deg, #1d3557 0%, #457b9d 100%)",
+                    background: "linear-gradient(135deg, #1d3557 0%, #457B9D 100%)",
                     color: "white",
                 }}
             >
@@ -41,7 +41,7 @@ export default async function WalletPage() {
                 </p>
             </header>
 
-            <main className="page-content content-page-layout">
+            <main className="page-content content-page-layout" style={{ minHeight: "80vh" }}>
                 {/* Wallet Balance Card */}
                 <WalletCard balance={Number(wallet?.balance || 0)} />
 
@@ -90,7 +90,7 @@ export default async function WalletPage() {
             </main>
 
             <BottomNav />
-        </div>
+        </>
     );
 }
 

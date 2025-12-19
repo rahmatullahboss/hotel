@@ -3,6 +3,7 @@
 import { db } from "@repo/db";
 import { hotelStaff, hotels, type PartnerRole } from "@repo/db/schema";
 import { eq, and } from "drizzle-orm";
+import { cookies } from "next/headers";
 import { auth } from "../../auth";
 import { ROLE_PERMISSIONS, type RolePermissions } from "../lib/permissions";
 
@@ -33,13 +34,31 @@ export async function getPartnerRole(): Promise<PartnerRoleInfo | null> {
         const userId = session.user.id;
 
         // First, check if user is a hotel owner
-        const ownedHotel = await db.query.hotels.findFirst({
-            where: eq(hotels.ownerId, userId),
-            columns: {
-                id: true,
-                name: true,
-            },
-        });
+        let ownedHotel;
+        const cookieStore = await cookies();
+        const storedHotelId = cookieStore.get("partner_hotel_id")?.value;
+
+        if (storedHotelId) {
+            // Check if user owns the selected hotel
+            ownedHotel = await db.query.hotels.findFirst({
+                where: and(eq(hotels.id, storedHotelId), eq(hotels.ownerId, userId)),
+                columns: {
+                    id: true,
+                    name: true,
+                },
+            });
+        }
+
+        // Fallback: If no cookie or invalid cookie, get first hotel
+        if (!ownedHotel) {
+            ownedHotel = await db.query.hotels.findFirst({
+                where: eq(hotels.ownerId, userId),
+                columns: {
+                    id: true,
+                    name: true,
+                },
+            });
+        }
 
         if (ownedHotel) {
             // Check if OWNER staff entry exists
@@ -76,20 +95,44 @@ export async function getPartnerRole(): Promise<PartnerRoleInfo | null> {
         }
 
         // Check if user is a staff member
-        const staffMembership = await db.query.hotelStaff.findFirst({
-            where: and(
-                eq(hotelStaff.userId, userId),
-                eq(hotelStaff.status, "ACTIVE")
-            ),
-            with: {
-                hotel: {
-                    columns: {
-                        id: true,
-                        name: true,
+        // First check if they have access to the cookie-selected hotel
+        let staffMembership;
+
+        if (storedHotelId) {
+            staffMembership = await db.query.hotelStaff.findFirst({
+                where: and(
+                    eq(hotelStaff.userId, userId),
+                    eq(hotelStaff.hotelId, storedHotelId),
+                    eq(hotelStaff.status, "ACTIVE")
+                ),
+                with: {
+                    hotel: {
+                        columns: {
+                            id: true,
+                            name: true,
+                        },
                     },
                 },
-            },
-        });
+            });
+        }
+
+        // Fallback: Get first active staff membership
+        if (!staffMembership) {
+            staffMembership = await db.query.hotelStaff.findFirst({
+                where: and(
+                    eq(hotelStaff.userId, userId),
+                    eq(hotelStaff.status, "ACTIVE")
+                ),
+                with: {
+                    hotel: {
+                        columns: {
+                            id: true,
+                            name: true,
+                        },
+                    },
+                },
+            });
+        }
 
         if (staffMembership && staffMembership.hotel) {
             const role = staffMembership.role as PartnerRole;

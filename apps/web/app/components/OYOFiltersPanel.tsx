@@ -2,11 +2,11 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { FiSearch, FiChevronDown, FiChevronUp, FiStar } from "react-icons/fi";
+import { FiSearch, FiChevronDown, FiChevronUp, FiStar, FiNavigation } from "react-icons/fi";
 
 interface OYOFiltersPanelProps {
     city: string;
-    popularLocations?: string[];
+    popularLocations?: { label: string; value: string }[];
     minPrice: number;
     maxPrice: number;
     priceRange: [number, number];
@@ -16,6 +16,7 @@ interface OYOFiltersPanelProps {
     onRatingChange?: (rating: number | undefined) => void;
     onAmenityToggle?: (amenity: string) => void;
     onLocationClick?: (location: string) => void;
+    onDetectLocation?: () => void;
 }
 
 // Common amenities that exist in the database
@@ -40,7 +41,12 @@ const RATING_OPTIONS = [
 
 export function OYOFiltersPanel({
     city,
-    popularLocations = ["Dhaka", "Chittagong", "Cox's Bazar", "Sylhet"],
+    popularLocations = [
+        { label: "Dhaka", value: "Dhaka" },
+        { label: "Chittagong", value: "Chittagong" },
+        { label: "Cox's Bazar", value: "Cox's Bazar" },
+        { label: "Sylhet", value: "Sylhet" }
+    ],
     minPrice,
     maxPrice,
     priceRange,
@@ -50,6 +56,7 @@ export function OYOFiltersPanel({
     onRatingChange,
     onAmenityToggle,
     onLocationClick,
+    onDetectLocation,
 }: OYOFiltersPanelProps) {
     const t = useTranslations("filters");
     const [showMoreLocations, setShowMoreLocations] = useState(false);
@@ -57,7 +64,7 @@ export function OYOFiltersPanel({
 
     const displayedLocations = showMoreLocations ? popularLocations : popularLocations.slice(0, 5);
     const filteredLocations = locationSearch
-        ? popularLocations.filter((loc) => loc.toLowerCase().includes(locationSearch.toLowerCase()))
+        ? popularLocations.filter((loc) => loc.label.toLowerCase().includes(locationSearch.toLowerCase()))
         : displayedLocations;
 
     return (
@@ -67,6 +74,26 @@ export function OYOFiltersPanel({
             {/* Popular Locations */}
             <div className="oyo-filter-section">
                 <h3 className="oyo-filter-label">{t("popularLocations", { city })}</h3>
+
+                {/* Near Me Button */}
+                <button
+                    className="oyo-location-tag nearby-btn property-type-btn"
+                    style={{
+                        width: "100%",
+                        marginBottom: "0.75rem",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        gap: "0.5rem",
+                        backgroundColor: "#E63946",
+                        color: "white",
+                        border: "none"
+                    }}
+                    onClick={onDetectLocation}
+                >
+                    <FiNavigation /> Use Current Location
+                </button>
+
                 <div className="oyo-location-search">
                     <FiSearch size={14} />
                     <input
@@ -79,11 +106,11 @@ export function OYOFiltersPanel({
                 <div className="oyo-location-tags">
                     {filteredLocations.map((location) => (
                         <button
-                            key={location}
+                            key={location.value}
                             className="oyo-location-tag"
-                            onClick={() => onLocationClick?.(location)}
+                            onClick={() => onLocationClick?.(location.value)}
                         >
-                            {location}
+                            {location.label}
                         </button>
                     ))}
                 </div>

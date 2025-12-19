@@ -40,8 +40,8 @@ export interface BookingResult {
  */
 function calculateBookingFee(totalAmount: number, paymentMethod: string): number {
     if (paymentMethod === "PAY_AT_HOTEL") {
-        // 20% advance for Pay at Hotel
-        return Math.round(totalAmount * 0.20);
+        // No advance for Pay at Hotel
+        return 0;
     }
     // Full payment for online methods
     return totalAmount;
@@ -139,7 +139,7 @@ export async function createBooking(input: CreateBookingInput): Promise<BookingR
             // Use actualRoomId for the rest of the booking
             const finalRoomId = actualRoomId;
 
-            // Calculate commission (20%) and advance payment
+            // Calculate commission (20%) - Internal revenue tracking
             const commissionAmount = Math.round(totalAmount * 0.20);
             const netAmount = totalAmount - commissionAmount;
             const bookingFee = calculateBookingFee(totalAmount, paymentMethod);
@@ -454,7 +454,7 @@ export async function cancelBooking(
         // Handle refund for partial payment bookings
         const walletAmountUsed = Number(booking.walletAmountUsed) || 0;
         const totalAmount = Number(booking.totalAmount) || 0;
-        const advanceAmount = Math.round(totalAmount * 0.20); // 20% advance that should be forfeited
+        const advanceAmount = 0; // No advance payment required
 
         if (booking.bookingFeeStatus === "PAID" && (bookingFee > 0 || walletAmountUsed > 0)) {
             if (isVeryLateCancellation) {
@@ -573,7 +573,7 @@ export async function getCancellationInfo(bookingId: string, userId: string) {
         const bookingFee = Number(booking.bookingFee) || 0;
         const walletAmountUsed = Number(booking.walletAmountUsed) || 0;
         const totalAmount = Number(booking.totalAmount) || 0;
-        const advanceAmount = Math.round(totalAmount * 0.20);
+        const advanceAmount = 0;
         const amountPaid = walletAmountUsed > 0 ? walletAmountUsed : bookingFee;
 
         // 3-tier cancellation policy

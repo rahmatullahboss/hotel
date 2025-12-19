@@ -4,6 +4,11 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Global Styles */
+html {
+  scrollbar-gutter: stable;
+}
+
 /* Navbar Styles */
 .top-nav {
   display: flex;

@@ -1,7 +1,7 @@
 "use client";
 
 import { Suspense, useState, useEffect, useCallback, useMemo, lazy } from "react";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { BottomNav, Footer, SearchForm, OYOFiltersPanel, OYOHotelCard } from "../components";
 
@@ -16,6 +16,7 @@ const HotelMapLazy = lazy(() =>
 
 function HotelsContent() {
     const searchParams = useSearchParams();
+    const router = useRouter();
     const city = searchParams.get("city") || "";
     const priceMinParam = searchParams.get("priceMin");
     const priceMaxParam = searchParams.get("priceMax");
@@ -85,6 +86,13 @@ function HotelsContent() {
         setSortBy("rating");
     }, []);
 
+    // Reset location when city changes to avoid conflict
+    useEffect(() => {
+        if (city) {
+            setUserLocation(null);
+        }
+    }, [city]);
+
     // Fetch hotels from database
     useEffect(() => {
         async function fetchHotels() {
@@ -126,22 +134,18 @@ function HotelsContent() {
         setSelectedHotelId(hotelId);
     }, []);
 
-    // Popular locations for the current city - now translated
-    const popularLocations = city
-        ? [
-            tListing("popularLocationsDefault.downtown"),
-            tListing("popularLocationsDefault.airportArea"),
-            tListing("popularLocationsDefault.beachSide"),
-            tListing("popularLocationsDefault.cityCenter"),
-            tListing("popularLocationsDefault.businessDistrict")
-        ]
-        : [
-            tListing("popularCities.dhaka"),
-            tListing("popularCities.chittagong"),
-            tListing("popularCities.coxsBazar"),
-            tListing("popularCities.sylhet"),
-            tListing("popularCities.kolkata")
-        ];
+    // Popular locations (Cities + Areas) as requested by user
+    const popularLocations = [
+        { label: tListing("popularCities.dhaka"), value: "Dhaka" },
+        { label: tListing("popularCities.chittagong"), value: "Chittagong" },
+        { label: tListing("popularCities.coxsBazar"), value: "Cox's Bazar" },
+        { label: tListing("popularCities.sylhet"), value: "Sylhet" },
+        { label: tListing("popularCities.kolkata"), value: "Kolkata" },
+        { label: tListing("popularLocationsDefault.downtown"), value: "Downtown" },
+        { label: tListing("popularLocationsDefault.airportArea"), value: "Airport" },
+        { label: tListing("popularLocationsDefault.beachSide"), value: "Beach" },
+        { label: tListing("popularLocationsDefault.cityCenter"), value: "City Center" }
+    ];
 
     return (
         <>
@@ -178,12 +182,13 @@ function HotelsContent() {
                         );
                     }}
                     onLocationClick={(location) => {
-                        window.location.href = `/hotels?city=${encodeURIComponent(location)}`;
+                        router.push(`/hotels?city=${encodeURIComponent(location)}`);
                     }}
+                    onDetectLocation={handleGetLocation}
                 />
 
                 {/* Main Content Area */}
-                <div className="oyo-listing-content">
+                <div className="oyo-listing-content" style={{ minHeight: "80vh" }}>
                     {/* Breadcrumb */}
                     <div className="oyo-breadcrumb">
                         <Link href="/">{tListing("breadcrumbHome")}</Link> › {city ? tListing("hotelsIn", { city }) : tListing("allHotels")}

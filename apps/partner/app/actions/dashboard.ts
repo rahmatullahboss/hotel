@@ -1,9 +1,10 @@
 "use server";
 
 import { db } from "@repo/db";
-import { bookings, rooms, hotels, loyaltyPoints, activityLog, roomInventory } from "@repo/db/schema";
+import { bookings, rooms, hotels, loyaltyPoints, activityLog, roomInventory, hotelStaff } from "@repo/db/schema";
 import { eq, and, desc, sql, gte, lte, ne } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
+import { cookies } from "next/headers";
 import { auth } from "../../auth";
 
 export interface PartnerHotel {
@@ -16,13 +17,48 @@ export interface PartnerHotel {
 /**
  * Get the current partner's hotel from session
  */
-export async function getPartnerHotel(): Promise<PartnerHotel | null> {
+/**
+ * Get the current partner's hotel from session or selection
+ */
+export async function getPartnerHotel(hotelId?: string): Promise<PartnerHotel | null> {
     try {
         const session = await auth();
         if (!session?.user?.id) {
             return null;
         }
 
+        // 1. If explicit ID provided, check ownership and return
+        if (hotelId) {
+            const hotel = await db.query.hotels.findFirst({
+                where: and(eq(hotels.id, hotelId), eq(hotels.ownerId, session.user.id)),
+                columns: {
+                    id: true,
+                    name: true,
+                    city: true,
+                    status: true,
+                },
+            });
+            if (hotel) return hotel;
+        }
+
+        // 2. Check cookie for selected hotel
+        const cookieStore = await cookies();
+        const storedHotelId = cookieStore.get("partner_hotel_id")?.value;
+
+        if (storedHotelId) {
+            const hotel = await db.query.hotels.findFirst({
+                where: and(eq(hotels.id, storedHotelId), eq(hotels.ownerId, session.user.id)),
+                columns: {
+                    id: true,
+                    name: true,
+                    city: true,
+                    status: true,
+                },
+            });
+            if (hotel) return hotel;
+        }
+
+        // 3. Fallback: Return the first hotel owned by user
         const hotel = await db.query.hotels.findFirst({
             where: eq(hotels.ownerId, session.user.id),
             columns: {
@@ -38,6 +74,137 @@ export async function getPartnerHotel(): Promise<PartnerHotel | null> {
         console.error("Error fetching partner hotel:", error);
         return null;
     }
+}
+
+/**
+ * Extended hotel info with stats for switcher
+ */
+export interface PartnerHotelWithStats extends PartnerHotel {
+    occupancyRate: number;
+    totalRooms: number;
+    occupiedRooms: number;
+}
+
+/**
+ * Get ALL hotels the partner has access to (owner OR staff)
+ * Includes occupancy stats for each hotel
+ */
+export async function getAllPartnerHotels(): Promise<PartnerHotelWithStats[]> {
+    try {
+        const session = await auth();
+        if (!session?.user?.id) return [];
+
+        // Get hotels where user is owner
+        const ownedHotels = await db.query.hotels.findMany({
+            where: eq(hotels.ownerId, session.user.id),
+            columns: {
+                id: true,
+                name: true,
+                city: true,
+                status: true,
+            },
+            orderBy: desc(hotels.createdAt),
+        });
+
+        // Get hotels where user is staff (ACTIVE status)
+        const staffHotels = await db
+            .select({
+                id: hotels.id,
+                name: hotels.name,
+                city: hotels.city,
+                status: hotels.status,
+            })
+            .from(hotelStaff)
+            .innerJoin(hotels, eq(hotels.id, hotelStaff.hotelId))
+            .where(
+                and(
+                    eq(hotelStaff.userId, session.user.id),
+                    eq(hotelStaff.status, "ACTIVE"),
+                    ne(hotelStaff.role, "OWNER") // Exclude owner entries (already in ownedHotels)
+                )
+            );
+
+        // Combine and deduplicate
+        const allHotels = [...ownedHotels];
+        for (const sh of staffHotels) {
+            if (!allHotels.find((h) => h.id === sh.id)) {
+                allHotels.push(sh);
+            }
+        }
+
+        // Calculate occupancy for each hotel
+        const today = new Date().toISOString().split("T")[0]!;
+        const hotelsWithStats: PartnerHotelWithStats[] = await Promise.all(
+            allHotels.map(async (hotel) => {
+                // Total rooms
+                const totalRoomsResult = await db
+                    .select({ count: sql<number>`count(*)` })
+                    .from(rooms)
+                    .where(eq(rooms.hotelId, hotel.id));
+
+                // Occupied rooms today
+                const occupiedResult = await db
+                    .select({ count: sql<number>`count(DISTINCT ${bookings.roomId})` })
+                    .from(bookings)
+                    .where(
+                        and(
+                            eq(bookings.hotelId, hotel.id),
+                            lte(bookings.checkIn, today),
+                            gte(bookings.checkOut, today),
+                            eq(bookings.status, "CHECKED_IN")
+                        )
+                    );
+
+                const totalRooms = Number(totalRoomsResult[0]?.count) || 0;
+                const occupiedRooms = Number(occupiedResult[0]?.count) || 0;
+                const occupancyRate = totalRooms > 0 ? Math.round((occupiedRooms / totalRooms) * 100) : 0;
+
+                return {
+                    ...hotel,
+                    totalRooms,
+                    occupiedRooms,
+                    occupancyRate,
+                };
+            })
+        );
+
+        // Sort by city for grouping, then by name
+        hotelsWithStats.sort((a, b) => {
+            if (a.city < b.city) return -1;
+            if (a.city > b.city) return 1;
+            return a.name.localeCompare(b.name);
+        });
+
+        return hotelsWithStats;
+    } catch (error) {
+        console.error("Error fetching all partner hotels:", error);
+        return [];
+    }
+}
+
+/**
+ * Switch the active hotel (sets a cookie)
+ */
+export async function switchHotel(hotelId: string) {
+    const session = await auth();
+    if (!session?.user?.id) throw new Error("Unauthorized");
+
+    // Verify ownership
+    const hotel = await db.query.hotels.findFirst({
+        where: and(eq(hotels.id, hotelId), eq(hotels.ownerId, session.user.id)),
+    });
+
+    if (!hotel) throw new Error("You do not own this hotel");
+
+    const cookieStore = await cookies();
+    cookieStore.set("partner_hotel_id", hotelId, {
+        path: "/",
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        maxAge: 60 * 60 * 24 * 30, // 30 days
+    });
+
+    revalidatePath("/");
 }
 
 /**

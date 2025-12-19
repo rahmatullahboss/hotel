@@ -55,7 +55,7 @@
         "bestPrices": "Best Prices",
         "bestPricesDesc": "Competitive rates across verified hotels",
         "payAtHotel": "Pay at Hotel",
-        "payAtHotelDesc": "Just 20% advance, pay rest at hotel",
+        "payAtHotelDesc": "Book now, pay full amount at check-in",
         "instantBooking": "Instant Booking",
         "instantBookingDesc": "Confirm your stay in just 3 clicks",
         "stats": {
@@ -242,7 +242,7 @@
         "selectPayment": "Select Payment",
         "payNow": "Pay Now",
         "payAtHotel": "Pay at Hotel",
-        "advanceRequired": "20% advance required",
+        "advanceRequired": "No advance payment required",
         "confirmBooking": "Confirm Booking",
         "continueToPayment": "Continue to Payment",
         "total": "Total",
@@ -263,14 +263,14 @@
         "bKash": "bKash",
         "nagad": "Nagad",
         "creditDebitCard": "Credit/Debit Card",
-        "payNow20": "Pay Now (20%)",
+        "payNow20": "Pay Now",
         "payRemainingAtHotel": "Pay remaining {amount} at hotel",
         "fillRequired": "Please fill in all required fields",
         "errorOccurred": "An error occurred. Please try again.",
         "failedToCreate": "Failed to create booking",
         "paymentServiceUnavailable": "Payment service unavailable",
         "paymentComingSoon": "This payment method is coming soon.",
-        "pay20Advance": "Pay 20% Advance",
+        "pay20Advance": "Pay Advance",
         "walletInsufficient": "Your wallet balance is insufficient. Please pay {amount} to confirm your booking.",
         "roomHeld": "Room held for 20 minutes",
         "completePaymentToConfirm": "Complete payment to confirm booking",
@@ -509,7 +509,7 @@
         "bestPrices": "Best Prices",
         "bestPricesDesc": "Competitive rates with price match guarantee",
         "payAtHotel": "Pay at Hotel",
-        "payAtHotelDesc": "Only 20% advance, pay the rest at check-in"
+        "payAtHotelDesc": "Book now, pay full amount at check-in"
     },
     "referral": {
         "title": "Refer & Earn",
@@ -626,7 +626,7 @@
         "priceTitle": "Best Prices",
         "priceDesc": "Competitive rates with price match guarantee",
         "payAtHotelTitle": "Pay at Hotel",
-        "payAtHotelDesc": "Only 20% advance, rest at check-in",
+        "payAtHotelDesc": "Book now, pay at check-in",
         "instantTitle": "Instant Booking",
         "instantDesc": "Book instantly, no waiting for confirmation"
     },

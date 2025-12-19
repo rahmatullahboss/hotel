@@ -123,24 +123,7 @@ export default function BookingsPage() {
         );
     }
 
-    if (loading) {
-        return (
-            <>
-                <header className="bookings-header">
-                    <h1>{t("title")}</h1>
-                </header>
-                <main className="page-content" style={{ textAlign: "center" }}>
-                    <div style={{ padding: "3rem" }}>
-                        <div className="loading-spinner" style={{ margin: "0 auto" }}></div>
-                        <p style={{ marginTop: "1rem", color: "var(--color-text-secondary)" }}>
-                            {tCommon("loading")}
-                        </p>
-                    </div>
-                </main>
-                <BottomNav />
-            </>
-        );
-    }
+
 
     return (
         <>
@@ -537,8 +520,15 @@ export default function BookingsPage() {
                 </button>
             </div>
 
-            <main className="page-content bookings-page-layout">
-                {displayedBookings.length === 0 ? (
+            <main className="page-content bookings-page-layout" style={{ minHeight: "80vh" }}>
+                {loading ? (
+                    <div style={{ padding: "3rem", textAlign: "center" }}>
+                        <div className="loading-spinner" style={{ margin: "0 auto" }}></div>
+                        <p style={{ marginTop: "1rem", color: "var(--color-text-secondary)" }}>
+                            {tCommon("loading")}
+                        </p>
+                    </div>
+                ) : displayedBookings.length === 0 ? (
                     <div className="empty-state">
                         <div className="empty-state-icon">
                             {activeTab === "upcoming" ? <FaHotel size={48} color="var(--color-primary)" /> : <FiCalendar size={48} color="var(--color-text-secondary)" />}
