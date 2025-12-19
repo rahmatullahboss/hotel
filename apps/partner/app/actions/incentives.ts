@@ -263,6 +263,18 @@ export async function refreshIncentiveProgress(): Promise<void> {
                 newProgress = Math.floor(result[0]?.total || 0);
                 break;
             }
+            case "RATING_IMPROVEMENT": {
+                // Rating is stored as decimal (e.g., 4.5)
+                // Target is rating * 10 (e.g., target 45 means 4.5 rating)
+                const hotelData = await db.query.hotels.findFirst({
+                    where: eq(hotels.id, hotel.id),
+                    columns: { rating: true }
+                });
+                const currentRating = Number(hotelData?.rating || 0);
+                // Progress is rating * 10 (so 4.5 rating = 45 progress towards target of e.g. 40)
+                newProgress = Math.round(currentRating * 10);
+                break;
+            }
             default:
                 // For other types, keep current progress
                 newProgress = participation.currentProgress;
