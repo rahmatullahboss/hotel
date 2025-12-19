@@ -1,6 +1,281 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+/* ================================================
+   HOTEL SWITCHER STYLES
+   ================================================ */
+
+.hotel-switcher {
+  position: relative;
+}
+
+.hotel-switcher-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.5rem;
+  border: 1px solid var(--color-border);
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+  min-width: 220px;
+  transition: background 0.2s;
+}
+
+.hotel-switcher-btn:hover {
+  background: var(--color-bg-secondary);
+}
+
+.hotel-switcher-btn.open {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-text-muted);
+}
+
+.hotel-switcher-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  flex-shrink: 0;
+}
+
+.hotel-switcher-icon svg {
+  width: 16px;
+  height: 16px;
+}
+
+.hotel-switcher-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.hotel-switcher-name {
+  font-weight: 600;
+  font-size: 0.875rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.hotel-switcher-name span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 140px;
+}
+
+.hotel-switcher-chevron {
+  margin-left: 0.5rem;
+  color: var(--color-text-secondary);
+  transition: transform 0.2s;
+}
+
+.hotel-switcher-chevron.open {
+  transform: rotate(180deg);
+}
+
+.hotel-switcher-meta {
+  font-size: 0.7rem;
+  color: var(--color-text-secondary);
+  margin-top: 2px;
+}
+
+.hotel-switcher-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin-top: 0.5rem;
+  width: 320px;
+  background: white;
+  border: 1px solid var(--color-border);
+  border-radius: 0.75rem;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+  z-index: 100;
+  overflow: hidden;
+}
+
+.hotel-switcher-header {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-bg-secondary);
+}
+
+.hotel-switcher-title {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.5rem;
+}
+
+.hotel-switcher-search {
+  position: relative;
+}
+
+.hotel-switcher-search svg {
+  position: absolute;
+  left: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--color-text-secondary);
+  width: 14px;
+  height: 14px;
+}
+
+.hotel-switcher-search input {
+  width: 100%;
+  padding: 0.5rem 0.75rem 0.5rem 2.25rem;
+  font-size: 0.875rem;
+  border: 1px solid var(--color-border);
+  border-radius: 0.5rem;
+  outline: none;
+}
+
+.hotel-switcher-search input:focus {
+  border-color: var(--color-primary);
+}
+
+.hotel-switcher-list {
+  max-height: 350px;
+  overflow-y: auto;
+}
+
+.hotel-switcher-city {
+  padding: 0.5rem 1rem;
+  background: var(--color-bg-secondary);
+  border-bottom: 1px solid var(--color-border);
+  position: sticky;
+  top: 0;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.hotel-switcher-item {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  text-align: left;
+  border: none;
+  border-bottom: 1px solid var(--color-border);
+  background: transparent;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.hotel-switcher-item:hover {
+  background: var(--color-bg-secondary);
+}
+
+.hotel-switcher-item.active {
+  background: rgba(29, 53, 87, 0.05);
+}
+
+.hotel-switcher-item-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-bg-secondary);
+  color: var(--color-text-secondary);
+}
+
+.hotel-switcher-item-icon svg {
+  width: 14px;
+  height: 14px;
+}
+
+.hotel-switcher-item.active .hotel-switcher-item-icon {
+  background: var(--color-primary);
+  color: white;
+}
+
+.hotel-switcher-item-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.hotel-switcher-item-name {
+  font-weight: 600;
+  font-size: 0.875rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.hotel-switcher-item.active .hotel-switcher-item-name {
+  color: var(--color-primary);
+}
+
+.hotel-switcher-item-details {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.7rem;
+  margin-top: 2px;
+  color: var(--color-text-secondary);
+}
+
+.hotel-switcher-item-details .dot {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: var(--color-border);
+}
+
+.hotel-switcher-footer {
+  padding: 0.5rem;
+  border-top: 1px solid var(--color-border);
+  background: var(--color-bg-secondary);
+}
+
+.hotel-switcher-add {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 1rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-primary);
+  background: white;
+  border: 1px solid var(--color-border);
+  border-radius: 0.5rem;
+  text-decoration: none;
+  transition: background 0.2s;
+}
+
+.hotel-switcher-add:hover {
+  background: var(--color-bg-secondary);
+}
+
+.text-success {
+  color: var(--color-success);
+}
+
+.text-warning {
+  color: #B7940A;
+}
+
+.text-error {
+  color: var(--color-error);
+}
+
+.text-muted {
+  color: var(--color-text-muted);
+}
 
 :root {
   /* Brand Colors - Partner App Theme (High contrast for outdoor use) */
