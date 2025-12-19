@@ -1,9 +1,10 @@
 import { redirect } from "next/navigation";
 import { getPartnerHotel, getDashboardStats, getUpcomingBookings, getTodaysCheckIns, getCurrentlyStaying, getTodaysCheckOuts, getAllPartnerHotels } from "./actions/dashboard";
 import { getPartnerRole } from "./actions/getPartnerRole";
-import { BottomNav, ScannerFAB, StatCard, LogoutButton, HotelCheckInQR, CollectPaymentButton, CheckOutButton, ExtendStayButton, NoShowButton } from "./components";
+import { BottomNav, ScannerFAB, StatCard, LogoutButton, HotelCheckInQR, CollectPaymentButton, CheckOutButton, ExtendStayButton, NoShowButton, HighRiskBookings } from "./components";
 import { HotelSwitcher } from "./components/HotelSwitcher";
 import { auth } from "../auth";
+import { getHighRiskBookings } from "./actions/prediction";
 import Link from "next/link";
 
 export const dynamic = 'force-dynamic';
@@ -195,13 +196,14 @@ export default async function DashboardPage() {
   const currentRole = roleInfo?.role ?? "RECEPTIONIST";
 
   // State 4: Hotel is ACTIVE - Show full dashboard
-  const [stats, upcomingBookings, todaysCheckIns, currentlyStaying, todaysCheckOuts, allPartnerHotels] = await Promise.all([
+  const [stats, upcomingBookings, todaysCheckIns, currentlyStaying, todaysCheckOuts, allPartnerHotels, highRiskBookings] = await Promise.all([
     getDashboardStats(hotel.id),
     getUpcomingBookings(hotel.id, 5),
     getTodaysCheckIns(hotel.id),
     getCurrentlyStaying(hotel.id),
     getTodaysCheckOuts(hotel.id),
     getAllPartnerHotels(),
+    getHighRiskBookings({ minRiskScore: 30, limit: 5 }),
   ]);
 
   return (
@@ -264,6 +266,11 @@ export default async function DashboardPage() {
             label="Pending Bookings"
           />
         </div>
+
+        {/* High-Risk Bookings Alert */}
+        {highRiskBookings.length > 0 && (
+          <HighRiskBookings bookings={highRiskBookings} />
+        )}
 
         {/* Today's Check-ins - Action List */}
         <section className="dashboard-section">
