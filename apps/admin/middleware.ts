@@ -1,6 +1,6 @@
 import { auth } from "./auth";
 
-export default auth((req) => {
+export const middleware = auth((req) => {
     const { nextUrl } = req;
     const isLoggedIn = !!req.auth?.user;
     const isAdmin = (req.auth?.user as { role?: string })?.role === "ADMIN";
