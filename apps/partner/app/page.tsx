@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { getPartnerHotel, getDashboardStats, getUpcomingBookings, getTodaysCheckIns, getCurrentlyStaying, getTodaysCheckOuts, getAllPartnerHotels } from "./actions/dashboard";
 import { getPartnerRole } from "./actions/getPartnerRole";
-import { BottomNav, ScannerFAB, StatCard, LogoutButton, HotelCheckInQR, CollectPaymentButton, CheckOutButton, ExtendStayButton, NoShowButton, HighRiskBookings } from "./components";
+import { BottomNav, ScannerFAB, StatCard, LogoutButton, HotelCheckInQR, CollectPaymentButton, CheckOutButton, ExtendStayButton, NoShowButton, HighRiskBookings, QuickActions } from "./components";
 import { HotelSwitcher } from "./components/HotelSwitcher";
 import { auth } from "../auth";
 import { getHighRiskBookings } from "./actions/prediction";
@@ -242,30 +242,45 @@ export default async function DashboardPage() {
           <StatCard
             value={`৳${stats.monthlyRevenue.toLocaleString()}`}
             label="Monthly Revenue"
+            icon={<span>💰</span>}
+            variant="revenue"
             trend={stats.monthlyRevenue > 0 ? { value: 12, isPositive: true } : undefined}
           />
           <StatCard
             value={`৳${stats.averageRoomRate.toLocaleString()}`}
-            label="Avg Room Rate (ARR)"
+            label="Avg Room Rate"
+            icon={<span>🏷️</span>}
+            variant="default"
           />
           <StatCard
             value={stats.todayCheckIns}
             label="Today's Check-ins"
+            icon={<span>📥</span>}
+            variant="bookings"
           />
           <StatCard
             value={stats.todayCheckOuts}
             label="Today's Check-outs"
+            icon={<span>📤</span>}
+            variant="default"
           />
           <StatCard
             value={`${stats.occupancyRate}%`}
             label="Occupancy Rate"
+            icon={<span>📊</span>}
+            variant="occupancy"
             trend={stats.occupancyRate > 50 ? { value: stats.occupancyRate, isPositive: true } : { value: stats.occupancyRate, isPositive: false }}
           />
           <StatCard
             value={stats.pendingBookings}
             label="Pending Bookings"
+            icon={<span>⏳</span>}
+            variant={stats.pendingBookings > 0 ? "warning" : "default"}
           />
         </div>
+
+        {/* Quick Actions */}
+        <QuickActions hotelId={hotel.id} />
 
         {/* High-Risk Bookings Alert */}
         {highRiskBookings.length > 0 && (

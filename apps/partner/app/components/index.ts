@@ -14,3 +14,4 @@ export { LanguageSwitcher } from "./LanguageSwitcher";
 export { NoShowButton } from "./NoShowButton";
 export { ExportButton } from "./ExportButton";
 export { HighRiskBookings } from "./HighRiskBookings";
+export { QuickActions } from "./QuickActions";
