@@ -20,21 +20,35 @@ export function PromoBanner({
     const [discountValue, setDiscountValue] = useState(discount);
     const [isPending, startTransition] = useTransition();
     const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
+    const [errorMessage, setErrorMessage] = useState<string>("");
 
     const handleSave = () => {
         setSaveStatus("saving");
+        setErrorMessage("");
         startTransition(async () => {
+            console.log("[PromoBanner] Saving promotion:", {
+                hotelId,
+                enabled: isEnabled,
+                discountPercent: discountValue,
+            });
+
             const result = await savePromotion(hotelId, {
                 enabled: isEnabled,
                 discountPercent: discountValue,
             });
 
             if (result.success) {
+                console.log("[PromoBanner] Save successful");
                 setSaveStatus("saved");
                 setTimeout(() => setSaveStatus("idle"), 2000);
             } else {
+                console.error("[PromoBanner] Save failed:", result.error);
                 setSaveStatus("error");
-                setTimeout(() => setSaveStatus("idle"), 3000);
+                setErrorMessage(result.error || "Failed to save promotion");
+                setTimeout(() => {
+                    setSaveStatus("idle");
+                    setErrorMessage("");
+                }, 3000);
             }
         });
     };
@@ -129,27 +143,44 @@ export function PromoBanner({
             </div>
 
             {/* Save Button */}
-            <div style={{ marginTop: "0.75rem", display: "flex", justifyContent: "flex-end" }}>
-                <button
-                    onClick={handleSave}
-                    disabled={isPending || saveStatus === "saving"}
-                    style={{
-                        padding: "0.5rem 1.25rem",
-                        borderRadius: "6px",
-                        border: "none",
-                        background: saveStatus === "saved" ? "#10b981" : saveStatus === "error" ? "#ef4444" : "rgba(255,255,255,0.25)",
-                        color: "white",
-                        fontWeight: 600,
-                        fontSize: "0.875rem",
-                        cursor: isPending ? "not-allowed" : "pointer",
-                        transition: "all 0.2s",
-                    }}
-                >
-                    {saveStatus === "saving" ? "Saving..." :
-                        saveStatus === "saved" ? "✓ Saved" :
-                            saveStatus === "error" ? "Error" :
-                                "Save Changes"}
-                </button>
+            <div style={{ marginTop: "0.75rem" }}>
+                <div style={{ display: "flex", justifyContent: "flex-end" }}>
+                    <button
+                        onClick={handleSave}
+                        disabled={isPending || saveStatus === "saving"}
+                        style={{
+                            padding: "0.5rem 1.25rem",
+                            borderRadius: "6px",
+                            border: "none",
+                            background: saveStatus === "saved" ? "#10b981" : saveStatus === "error" ? "#ef4444" : "rgba(255,255,255,0.25)",
+                            color: "white",
+                            fontWeight: 600,
+                            fontSize: "0.875rem",
+                            cursor: isPending ? "not-allowed" : "pointer",
+                            transition: "all 0.2s",
+                        }}
+                    >
+                        {saveStatus === "saving" ? "Saving..." :
+                            saveStatus === "saved" ? "✓ Saved" :
+                                saveStatus === "error" ? "Error" :
+                                    "Save Changes"}
+                    </button>
+                </div>
+                {/* Error Message */}
+                {errorMessage && (
+                    <div style={{
+                        marginTop: "0.5rem",
+                        padding: "0.5rem",
+                        borderRadius: "4px",
+                        background: "rgba(239, 68, 68, 0.1)",
+                        border: "1px solid rgba(239, 68, 68, 0.3)",
+                        fontSize: "0.75rem",
+                        color: "#fef2f2",
+                        textAlign: "center",
+                    }}>
+                        {errorMessage}
+                    </div>
+                )}
             </div>
         </div>
     );

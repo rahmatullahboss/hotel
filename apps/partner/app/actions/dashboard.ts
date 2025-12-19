@@ -1353,7 +1353,14 @@ export async function savePromotion(
     try {
         const session = await auth();
         if (!session?.user?.id) {
+            console.error("[savePromotion] No session found");
             return { success: false, error: "Unauthorized" };
+        }
+
+        // Validate input
+        if (data.discountPercent < 0 || data.discountPercent > 100) {
+            console.error("[savePromotion] Invalid discount:", data.discountPercent);
+            return { success: false, error: "Discount must be between 0% and 100%" };
         }
 
         // Check if user owns this hotel
@@ -1362,8 +1369,18 @@ export async function savePromotion(
         });
 
         if (!hotel) {
+            console.error("[savePromotion] Hotel not found or unauthorized:", { hotelId, userId: session.user.id });
             return { success: false, error: "Hotel not found or not authorized" };
         }
+
+        // Format value as decimal with 2 decimal places
+        const formattedValue = data.discountPercent.toFixed(2);
+        console.log("[savePromotion] Saving promotion:", {
+            hotelId,
+            enabled: data.enabled,
+            discountPercent: data.discountPercent,
+            formattedValue
+        });
 
         // Find existing "BASIC_PROMO" promotion for this hotel
         const existingPromo = await db.query.promotions.findFirst({
@@ -1377,31 +1394,37 @@ export async function savePromotion(
 
         if (existingPromo) {
             // Update existing promotion
+            console.log("[savePromotion] Updating existing promotion:", existingPromo.id);
             await db
                 .update(promotions)
                 .set({
                     isActive: data.enabled,
-                    value: data.discountPercent.toString(),
+                    value: formattedValue,
                     updatedAt: new Date(),
                 })
                 .where(eq(promotions.id, existingPromo.id));
         } else {
             // Create new promotion
+            console.log("[savePromotion] Creating new promotion");
             await db.insert(promotions).values({
                 hotelId,
                 code: promoCode,
                 name: "Basic Promotion",
                 description: "Partner discount to attract more customers",
                 type: "PERCENTAGE",
-                value: data.discountPercent.toString(),
+                value: formattedValue,
                 isActive: data.enabled,
             });
         }
 
         revalidatePath("/");
+        console.log("[savePromotion] Success!");
         return { success: true };
     } catch (error) {
-        console.error("Error saving promotion:", error);
-        return { success: false, error: "Failed to save promotion" };
+        console.error("[savePromotion] Error saving promotion:", error);
+        return {
+            success: false,
+            error: error instanceof Error ? error.message : "Failed to save promotion"
+        };
     }
 }
