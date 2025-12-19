@@ -53,10 +53,11 @@ export default function WalletScreen() {
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
 
-    // Add Money State
-    const [showAddMoneyModal, setShowAddMoneyModal] = useState(false);
-    const [amount, setAmount] = useState('');
-    const [processing, setProcessing] = useState(false);
+    // Add Money State - Commented out: Payment gateway not yet implemented
+    // TODO: Uncomment when bKash/Nagad payment gateway is ready
+    // const [showAddMoneyModal, setShowAddMoneyModal] = useState(false);
+    // const [amount, setAmount] = useState('');
+    // const [processing, setProcessing] = useState(false);
 
     const fetchWallet = useCallback(async () => {
         // Check if user is authenticated
@@ -90,33 +91,35 @@ export default function WalletScreen() {
         fetchWallet();
     };
 
-    const handleAddMoney = async () => {
-        if (!amount || isNaN(Number(amount)) || Number(amount) < 10) {
-            Alert.alert('Invalid Amount', 'Please enter a valid amount (minimum ৳10)');
-            return;
-        }
-
-        setProcessing(true);
-        try {
-            const response = await api.initiateWalletTopUp(Number(amount));
-
-            if (response.data?.success && response.data.redirectUrl) {
-                // Open bKash payment gateway
-                const browserResult = await WebBrowser.openBrowserAsync(response.data.redirectUrl);
-
-                // After browser closes (user completes or cancels), refresh wallet
-                setShowAddMoneyModal(false);
-                setAmount('');
-                fetchWallet();
-            } else {
-                Alert.alert('Error', response.error || response.data?.error || 'Failed to initiate payment');
-            }
-        } catch (error) {
-            Alert.alert('Error', 'An unexpected error occurred');
-        } finally {
-            setProcessing(false);
-        }
-    };
+    // handleAddMoney - Commented out: Payment gateway not yet implemented
+    // TODO: Uncomment when bKash/Nagad payment gateway is ready
+    // const handleAddMoney = async () => {
+    //     if (!amount || isNaN(Number(amount)) || Number(amount) < 10) {
+    //         Alert.alert('Invalid Amount', 'Please enter a valid amount (minimum ৳10)');
+    //         return;
+    //     }
+    //
+    //     setProcessing(true);
+    //     try {
+    //         const response = await api.initiateWalletTopUp(Number(amount));
+    //
+    //         if (response.data?.success && response.data.redirectUrl) {
+    //             // Open bKash payment gateway
+    //             const browserResult = await WebBrowser.openBrowserAsync(response.data.redirectUrl);
+    //
+    //             // After browser closes (user completes or cancels), refresh wallet
+    //             setShowAddMoneyModal(false);
+    //             setAmount('');
+    //             fetchWallet();
+    //         } else {
+    //             Alert.alert('Error', response.error || response.data?.error || 'Failed to initiate payment');
+    //         }
+    //     } catch (error) {
+    //         Alert.alert('Error', 'An unexpected error occurred');
+    //     } finally {
+    //         setProcessing(false);
+    //     }
+    // };
 
     if (loading) {
         return (
@@ -177,7 +180,9 @@ export default function WalletScreen() {
                         ৳{(data?.balance || 0).toLocaleString()}
                     </Text>
 
-                    <TouchableOpacity
+                    {/* Add Money Button - Commented out: Payment gateway not yet implemented
+                       TODO: Uncomment when bKash/Nagad payment gateway is ready */}
+                    {/* <TouchableOpacity
                         onPress={() => setShowAddMoneyModal(true)}
                         className="bg-primary px-8 py-3 rounded-full"
                         style={{
@@ -191,7 +196,14 @@ export default function WalletScreen() {
                         <Text className="text-white font-bold text-base">
                             + Add Money
                         </Text>
-                    </TouchableOpacity>
+                    </TouchableOpacity> */}
+
+                    {/* Coming Soon Badge */}
+                    <View className="bg-white/20 px-4 py-2 rounded-full">
+                        <Text className="text-white/90 text-sm font-medium">
+                            💡 Earn through offers & bonuses
+                        </Text>
+                    </View>
                 </View>
 
                 {/* Loyalty Points Card */}
@@ -273,8 +285,9 @@ export default function WalletScreen() {
                 <View className="h-8" />
             </ScrollView>
 
-            {/* Add Money Modal */}
-            <Modal
+            {/* Add Money Modal - Commented out: Payment gateway not yet implemented
+               TODO: Uncomment when bKash/Nagad payment gateway is ready */}
+            {/* <Modal
                 visible={showAddMoneyModal}
                 transparent
                 animationType="slide"
@@ -331,7 +344,7 @@ export default function WalletScreen() {
                         <View className="h-8" />
                     </View>
                 </View>
-            </Modal>
+            </Modal> */}
         </View>
     );
 }

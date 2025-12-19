@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { addMoneyToWallet } from "../actions/wallet";
+// import { addMoneyToWallet } from "../actions/wallet"; // Commented out: Payment gateway not yet implemented
 
 interface WalletCardProps {
     balance: number;
@@ -10,32 +10,34 @@ interface WalletCardProps {
 
 export function WalletCard({ balance }: WalletCardProps) {
     const router = useRouter();
-    const [isPending, startTransition] = useTransition();
-    const [showTopUp, setShowTopUp] = useState(false);
-    const [amount, setAmount] = useState("");
-    const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
+    // Add Money State - Commented out: Payment gateway not yet implemented
+    // TODO: Uncomment when bKash/Nagad payment gateway is ready
+    // const [isPending, startTransition] = useTransition();
+    // const [showTopUp, setShowTopUp] = useState(false);
+    // const [amount, setAmount] = useState("");
+    // const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
-    const quickAmounts = [100, 500, 1000, 2000];
+    // const quickAmounts = [100, 500, 1000, 2000];
 
-    const handleTopUp = () => {
-        const numAmount = Number(amount);
-        if (!numAmount || numAmount < 50) {
-            setMessage({ type: "error", text: "Minimum amount is ৳50" });
-            return;
-        }
+    // const handleTopUp = () => {
+    //     const numAmount = Number(amount);
+    //     if (!numAmount || numAmount < 50) {
+    //         setMessage({ type: "error", text: "Minimum amount is ৳50" });
+    //         return;
+    //     }
 
-        startTransition(async () => {
-            const result = await addMoneyToWallet(numAmount);
-            if (result.success) {
-                setMessage({ type: "success", text: `৳${numAmount} added successfully!` });
-                setAmount("");
-                setShowTopUp(false);
-                router.refresh();
-            } else {
-                setMessage({ type: "error", text: result.error || "Failed to add money" });
-            }
-        });
-    };
+    //     startTransition(async () => {
+    //         const result = await addMoneyToWallet(numAmount);
+    //         if (result.success) {
+    //             setMessage({ type: "success", text: `৳${numAmount} added successfully!` });
+    //             setAmount("");
+    //             setShowTopUp(false);
+    //             router.refresh();
+    //         } else {
+    //             setMessage({ type: "error", text: result.error || "Failed to add money" });
+    //         }
+    //     });
+    // };
 
     return (
         <div
@@ -52,7 +54,9 @@ export function WalletCard({ balance }: WalletCardProps) {
                 ৳{balance.toLocaleString()}
             </div>
 
-            {!showTopUp ? (
+            {/* Add Money Button - Commented out: Payment gateway not yet implemented
+               TODO: Uncomment when bKash/Nagad payment gateway is ready */}
+            {/* {!showTopUp ? (
                 <button
                     onClick={() => setShowTopUp(true)}
                     style={{
@@ -71,7 +75,6 @@ export function WalletCard({ balance }: WalletCardProps) {
                 </button>
             ) : (
                 <div>
-                    {/* Quick amounts */}
                     <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "0.5rem", marginBottom: "1rem" }}>
                         {quickAmounts.map((amt) => (
                             <button
@@ -92,7 +95,6 @@ export function WalletCard({ balance }: WalletCardProps) {
                         ))}
                     </div>
 
-                    {/* Custom amount */}
                     <input
                         type="number"
                         value={amount}
@@ -154,7 +156,22 @@ export function WalletCard({ balance }: WalletCardProps) {
                         </button>
                     </div>
                 </div>
-            )}
+            )} */}
+
+            {/* Info message about earning through offers */}
+            <div
+                style={{
+                    padding: "0.75rem 1rem",
+                    background: "rgba(255,255,255,0.15)",
+                    borderRadius: "0.75rem",
+                    textAlign: "center",
+                }}
+            >
+                <span style={{ fontSize: "0.9rem", opacity: 0.95 }}>
+                    💡 Earn wallet balance through offers & bonuses
+                </span>
+            </div>
         </div>
     );
 }
+
