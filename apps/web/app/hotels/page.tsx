@@ -4,7 +4,7 @@ import { Suspense, useState, useEffect, useCallback, useMemo, lazy } from "react
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { BottomNav, Footer, SearchForm, OYOFiltersPanel, OYOHotelCard } from "../components";
-import { WhyChooseUs } from "../components/WhyChooseUs";
+
 import { searchHotels, type HotelWithPrice } from "../actions/hotels";
 import { FiMapPin, FiX, FiMap } from "react-icons/fi";
 import Link from "next/link";
@@ -23,8 +23,14 @@ function HotelsContent() {
     const tListing = useTranslations("listing");
     const tCommon = useTranslations("common");
 
+    const latParam = searchParams.get("lat");
+    const lngParam = searchParams.get("lng");
+    const sortParam = searchParams.get("sort");
+
     const [view, setView] = useState<"list" | "map">("list");
-    const [sortBy, setSortBy] = useState<"price" | "rating" | "distance">("rating");
+    const [sortBy, setSortBy] = useState<"price" | "rating" | "distance">(
+        (sortParam === "distance" || sortParam === "price" || sortParam === "rating") ? sortParam : "rating"
+    );
     const [filterPayAtHotel, setFilterPayAtHotel] = useState(false);
     const [selectedHotelId, setSelectedHotelId] = useState<string | undefined>();
     const [hotels, setHotels] = useState<HotelWithPrice[]>([]);
@@ -40,7 +46,9 @@ function HotelsContent() {
     const HOTELS_PER_PAGE = 10;
 
     // Geolocation state
-    const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
+    const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(
+        latParam && lngParam ? { lat: parseFloat(latParam), lng: parseFloat(lngParam) } : null
+    );
     const [locationLoading, setLocationLoading] = useState(false);
     const [locationError, setLocationError] = useState<string | null>(null);
 
@@ -91,7 +99,7 @@ function HotelsContent() {
                 amenities: selectedAmenities.length > 0 ? selectedAmenities : undefined,
                 latitude: userLocation?.lat,
                 longitude: userLocation?.lng,
-                radiusKm: 15,
+                radiusKm: 5000,
             });
             setHotels(results);
             setCurrentPage(1); // Reset to first page on filter change
@@ -266,6 +274,7 @@ function HotelsContent() {
                                         dynamicPrice={hotel.lowestPrice}
                                         badge={hotel.category === "PREMIUM" ? "Premium" : hotel.category === "BUSINESS" ? "Business" : undefined}
                                         zinuCode={hotel.zinuCode ?? undefined}
+                                        distance={hotel.distance}
                                     />
                                 ))}
 
@@ -320,8 +329,7 @@ function HotelsContent() {
                 </div>
             </div>
 
-            {/* Why Choose Us Section */}
-            <WhyChooseUs />
+
 
             {/* Footer */}
             <Footer />

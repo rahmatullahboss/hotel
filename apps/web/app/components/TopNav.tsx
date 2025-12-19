@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useState, useEffect } from "react";
 import { useSession, signOut } from "next-auth/react";
 import { useTranslations } from "next-intl";
 import { LanguageSwitcher } from "./LanguageSwitcher";
@@ -11,8 +12,22 @@ export function TopNav() {
     const { data: session, status } = useSession();
     const t = useTranslations("nav");
 
+    const [isScrolled, setIsScrolled] = useState(false);
+    const isHome = pathname === "/";
+
+    useEffect(() => {
+        const handleScroll = () => {
+            setIsScrolled(window.scrollY > 50);
+        };
+        window.addEventListener("scroll", handleScroll);
+        return () => window.removeEventListener("scroll", handleScroll);
+    }, []);
+
+    // Navbar classes based on state
+    const navClass = `top-nav ${isHome && !isScrolled ? "transparent" : "solid"} ${isHome ? "fixed" : "sticky"}`;
+
     return (
-        <nav className="top-nav">
+        <nav className={navClass}>
             <Link href="/" className="top-nav-logo">
                 Zinu Rooms
             </Link>

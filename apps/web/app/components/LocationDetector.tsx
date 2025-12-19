@@ -94,7 +94,8 @@ export function LocationDetector({ autoRedirect = false, onLocationDetected }: L
                 if (autoRedirect && nearestCity) {
                     // Mark as redirected so we don't loop
                     sessionStorage.setItem("locationRedirected", "true");
-                    router.push(`/city/${nearestCity}`);
+                    const cityName = CITY_COORDINATES.find(c => c.slug === nearestCity)?.name || nearestCity;
+                    router.push(`/hotels?city=${encodeURIComponent(cityName)}`);
                 }
 
                 setDetecting(false);

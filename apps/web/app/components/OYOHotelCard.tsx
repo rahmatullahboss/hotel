@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useTranslations } from "next-intl";
-import { FiStar, FiImage } from "react-icons/fi";
+import { FiStar, FiImage, FiMapPin } from "react-icons/fi";
 import { FaWifi, FaSnowflake, FaTv, FaParking, FaSwimmingPool, FaUtensils, FaConciergeBell } from "react-icons/fa";
 
 interface OYOHotelCardProps {
@@ -19,6 +19,7 @@ interface OYOHotelCardProps {
     dynamicPrice: number;
     badge?: string;
     zinuCode?: string;
+    distance?: number;
 }
 
 const amenityIcons: Record<string, React.ReactNode> = {
@@ -49,6 +50,7 @@ export function OYOHotelCard({
     dynamicPrice,
     badge,
     zinuCode,
+    distance,
 }: OYOHotelCardProps) {
     const t = useTranslations("hotelCard");
 
@@ -102,6 +104,11 @@ export function OYOHotelCard({
                     <div className="oyo-card-info">
                         <h3 className="oyo-card-name">{displayName}</h3>
                         <p className="oyo-card-address">{address}</p>
+                        {distance !== undefined && (
+                            <p style={{ color: "var(--color-primary)", fontSize: "0.85rem", fontWeight: 500, marginTop: "0.25rem", display: "flex", alignItems: "center", gap: "0.25rem" }}>
+                                <FiMapPin /> {distance.toFixed(1)} km from you
+                            </p>
+                        )}
                     </div>
                 </div>
 

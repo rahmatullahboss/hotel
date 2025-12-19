@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { FaShieldAlt, FaTag, FaHotel, FaBolt, FaCheck, FaStar } from "react-icons/fa";
+import { FaShieldAlt, FaTag, FaHotel, FaBolt } from "react-icons/fa";
 import { HiSparkles } from "react-icons/hi2";
 
 type IconType = "verified" | "prices" | "hotel" | "instant";
@@ -16,362 +16,253 @@ interface WhyBookGridProps {
     items: WhyBookItem[];
 }
 
+const artImages: Record<IconType, string> = {
+    verified: "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?q=80&w=800&auto=format&fit=crop", // Abstract Luxury Dark
+    prices: "https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=800&auto=format&fit=crop", // Gold/Financial
+    hotel: "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?q=80&w=800&auto=format&fit=crop", // Hotel Interior
+    instant: "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=800&auto=format&fit=crop", // Cyber/Fast
+};
+
 export function WhyBookGrid({ items }: WhyBookGridProps) {
     const t = useTranslations("home");
 
-    const getIcon = (type: IconType) => {
-        switch (type) {
-            case "verified": return <FaShieldAlt className="benefit-icon" />;
-            case "prices": return <FaTag className="benefit-icon" />;
-            case "hotel": return <FaHotel className="benefit-icon" />;
-            case "instant": return <FaBolt className="benefit-icon" />;
-        }
-    };
-
-    const promises = [
-        { icon: <FaShieldAlt />, text: t("whyUs.promise1") || "100% Verified Hotels" },
-        { icon: <FaTag />, text: t("whyUs.promise2") || "Best Price Guarantee" },
-        { icon: <FaStar />, text: t("whyUs.promise3") || "24/7 Customer Support" },
-    ];
-
     return (
         <section className="why-book-section">
-            <div className="why-book-wrapper">
-                {/* Left Side - Brand Promise */}
-                <div className="promise-column">
-                    <div className="promise-header">
-                        <span className="promise-badge">
-                            <HiSparkles /> {t("whyUs.badge") || "Our Promise"}
-                        </span>
-                        <h2 className="promise-title">{t("whyUs.title") || "Book with Confidence"}</h2>
-                        <p className="promise-subtitle">{t("whyUs.subtitle") || "Your trusted partner for hotel bookings in Bangladesh"}</p>
-                    </div>
+            <div className="section-header-center">
+                <span className="subtitle-badge"><HiSparkles /> {t("whyUs.badge") || "The Zinu Standard"}</span>
+                <h2 className="section-title-premium">{t("whyUs.title") || "Experiential Luxury"}</h2>
+                <p className="section-desc-premium">{t("whyUs.subtitle") || "We don't just offer rooms; we curate moments. Discover why tailored perfection starts here."}</p>
+            </div>
 
-                    <div className="promise-list">
-                        {promises.map((promise, index) => (
-                            <div
-                                key={index}
-                                className="promise-item"
-                                style={{ animationDelay: `${index * 0.1}s` }}
-                            >
-                                <div className="promise-icon">{promise.icon}</div>
-                                <span className="promise-text">{promise.text}</span>
-                            </div>
-                        ))}
-                    </div>
-
-                    <div className="cta-wrapper">
-                        <a href="/hotels" className="explore-btn">
-                            {t("whyUs.exploreBtn") || "Explore Hotels"} →
-                        </a>
-                    </div>
-                </div>
-
-                {/* Right Side - Benefit Cards */}
-                <div className="benefits-column">
-                    {items.map((item, index) => (
+            <div className="art-grid">
+                {items.map((item, index) => (
+                    <div
+                        key={index}
+                        className={`art-card art-card-${item.iconType}`}
+                    >
                         <div
-                            key={index}
-                            className="benefit-card"
-                            style={{ animationDelay: `${index * 0.1}s` }}
-                        >
-                            <div className={`benefit-icon-wrapper icon-${item.iconType}`}>
-                                {getIcon(item.iconType)}
+                            className="art-card-bg"
+                            style={{ backgroundImage: `url(${artImages[item.iconType] || artImages.hotel})` }}
+                        />
+                        <div className="art-card-overlay" />
+
+                        <div className="art-card-content">
+                            <div className="art-icon-glass">
+                                {{
+                                    verified: <FaShieldAlt />,
+                                    prices: <FaTag />,
+                                    hotel: <FaHotel />,
+                                    instant: <FaBolt />
+                                }[item.iconType]}
                             </div>
-                            <div className="benefit-content">
-                                <h3 className="benefit-title">{t(item.titleKey)}</h3>
-                                <p className="benefit-desc">{t(item.descKey)}</p>
-                            </div>
-                            <div className="benefit-check">
-                                <FaCheck />
-                            </div>
+                            <h3 className="art-title">{t(item.titleKey)}</h3>
+                            <p className="art-desc">{t(item.descKey)}</p>
                         </div>
-                    ))}
-                </div>
+
+                        <div className="art-card-hover-reveal">
+                            <span className="explore-text">Learn More</span>
+                        </div>
+                    </div>
+                ))}
             </div>
 
             <style jsx>{`
                 .why-book-section {
-                    padding: 4rem 1.5rem;
-                    background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
+                    /* Padding handled by parent section now */
                 }
 
-                .why-book-wrapper {
-                    display: grid;
-                    grid-template-columns: 1fr 1.2fr;
-                    gap: 3rem;
-                    max-width: 1200px;
-                    margin: 0 auto;
-                    align-items: start;
+                .section-header-center {
+                    text-align: center;
+                    margin-bottom: 4rem;
+                    max-width: 800px;
+                    margin-left: auto;
+                    margin-right: auto;
                 }
 
-                /* Promise Column - Left */
-                .promise-column {
-                    padding: 2.5rem;
-                    background: linear-gradient(145deg, #1D3557 0%, #2a4a6e 100%);
-                    border-radius: 24px;
-                    color: white;
-                    position: relative;
-                    overflow: hidden;
-                }
-
-                .promise-column::before {
-                    content: '';
-                    position: absolute;
-                    top: -50%;
-                    right: -30%;
-                    width: 300px;
-                    height: 300px;
-                    background: radial-gradient(circle, rgba(230, 57, 70, 0.15) 0%, transparent 70%);
-                    pointer-events: none;
-                }
-
-                .promise-header {
-                    margin-bottom: 2rem;
-                    position: relative;
-                    z-index: 1;
-                }
-
-                .promise-badge {
+                .subtitle-badge {
                     display: inline-flex;
                     align-items: center;
                     gap: 0.5rem;
-                    padding: 0.4rem 1rem;
-                    background: rgba(230, 57, 70, 0.2);
-                    border: 1px solid rgba(230, 57, 70, 0.3);
-                    border-radius: 50px;
-                    font-size: 0.75rem;
+                    color: var(--color-gold);
+                    font-size: 0.875rem;
                     font-weight: 600;
-                    color: #ff6b7a;
-                    letter-spacing: 0.02em;
+                    letter-spacing: 0.2em;
+                    text-transform: uppercase;
                     margin-bottom: 1rem;
                 }
 
-                .promise-title {
-                    font-size: 1.75rem;
-                    font-weight: 800;
-                    margin: 0 0 0.5rem 0;
-                    letter-spacing: -0.02em;
-                }
-
-                .promise-subtitle {
-                    font-size: 0.95rem;
-                    color: rgba(255, 255, 255, 0.7);
-                    margin: 0;
-                    line-height: 1.5;
-                }
-
-                .promise-list {
-                    display: flex;
-                    flex-direction: column;
-                    gap: 1rem;
-                    margin-bottom: 2rem;
-                    position: relative;
-                    z-index: 1;
-                }
-
-                .promise-item {
-                    display: flex;
-                    align-items: center;
-                    gap: 1rem;
-                    padding: 0.75rem 1rem;
-                    background: rgba(255, 255, 255, 0.08);
-                    border-radius: 12px;
-                    border: 1px solid rgba(255, 255, 255, 0.1);
-                    animation: fadeInUp 0.6s ease-out both;
-                    transition: all 0.3s ease;
-                }
-
-                .promise-item:hover {
-                    background: rgba(255, 255, 255, 0.12);
-                    transform: translateX(4px);
-                }
-
-                .promise-icon {
-                    font-size: 1.25rem;
-                    color: #E63946;
-                }
-
-                .promise-text {
-                    font-size: 0.95rem;
-                    font-weight: 500;
-                    color: rgba(255, 255, 255, 0.95);
-                }
-
-                .cta-wrapper {
-                    position: relative;
-                    z-index: 1;
-                }
-
-                .explore-btn {
-                    display: inline-flex;
-                    align-items: center;
-                    gap: 0.5rem;
-                    padding: 0.875rem 1.75rem;
-                    background: #E63946;
+                .section-title-premium {
+                    font-family: 'Playfair Display', serif;
+                    font-size: 3.5rem;
                     color: white;
-                    border-radius: 12px;
-                    font-weight: 600;
-                    font-size: 0.95rem;
-                    text-decoration: none;
-                    transition: all 0.3s ease;
+                    margin-bottom: 1.5rem;
+                    line-height: 1.1;
                 }
 
-                .explore-btn:hover {
-                    background: #cf2f3c;
-                    transform: translateY(-2px);
-                    box-shadow: 0 8px 20px rgba(230, 57, 70, 0.3);
+                .section-desc-premium {
+                    color: rgba(255, 255, 255, 0.7);
+                    font-size: 1.1rem;
+                    line-height: 1.8;
                 }
 
-                /* Benefits Column - Right */
-                .benefits-column {
-                    display: flex;
-                    flex-direction: column;
-                    gap: 1rem;
+                .art-grid {
+                    display: grid;
+                    grid-template-columns: repeat(1, 1fr);
+                    gap: 1.5rem;
                 }
 
-                .benefit-card {
-                    display: flex;
-                    align-items: center;
-                    gap: 1.25rem;
-                    padding: 1.25rem 1.5rem;
-                    background: white;
-                    border-radius: 16px;
-                    border: 1px solid rgba(0, 0, 0, 0.06);
-                    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-                    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-                    animation: fadeInUp 0.6s ease-out both;
-                    cursor: default;
+                @media (min-width: 768px) {
+                    .art-grid {
+                        grid-template-columns: repeat(2, 1fr);
+                    }
+                }
+
+                @media (min-width: 1200px) {
+                    .art-grid {
+                        grid-template-columns: repeat(4, 1fr);
+                        height: 500px; /* Fixed height for the strip */
+                    }
+                }
+
+                .art-card {
                     position: relative;
+                    border-radius: 1.5rem;
+                    overflow: hidden;
+                    height: 400px;
+                    isolation: isolate;
+                    cursor: pointer;
+                    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
                 }
 
-                .benefit-card:hover {
-                    transform: translateX(8px);
-                    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
-                    border-color: rgba(230, 57, 70, 0.2);
+                /* Desktop transformation to vertical stripes that expand */
+                @media (min-width: 1200px) {
+                    .art-card {
+                        height: 100%;
+                        flex: 1;
+                        transition: flex 0.5s ease;
+                    }
+                     /* This grid layout doesn't use flex, so we use grid-template-columns or width */
+                     /* Just keep simple grid for now to ensure stability, but make inner content react */
                 }
 
-                .benefit-icon-wrapper {
-                    width: 48px;
-                    height: 48px;
-                    border-radius: 12px;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    flex-shrink: 0;
-                    transition: all 0.3s ease;
+                .art-card:hover {
+                    transform: translateY(-10px);
+                    box-shadow: 0 20px 40px rgba(0,0,0,0.3);
                 }
 
-                .benefit-card:hover .benefit-icon-wrapper {
+                .art-card-bg {
+                    position: absolute;
+                    inset: 0;
+                    background-size: cover;
+                    background-position: center;
+                    transition: transform 0.8s ease;
+                    z-index: -2;
+                }
+
+                .art-card:hover .art-card-bg {
                     transform: scale(1.1);
                 }
 
-                .benefit-icon-wrapper :global(.benefit-icon) {
-                    font-size: 1.25rem;
+                .art-card-overlay {
+                    position: absolute;
+                    inset: 0;
+                    background: linear-gradient(to top, 
+                        #0A192F 0%, 
+                        rgba(10, 25, 47, 0.8) 40%, 
+                        rgba(10, 25, 47, 0.4) 100%);
+                    z-index: -1;
+                    transition: opacity 0.5s ease;
                 }
 
-                .icon-verified { 
-                    background: linear-gradient(135deg, #2EC4B6 0%, #23a69a 100%);
-                    color: white;
+                .art-card:hover .art-card-overlay {
+                    opacity: 0.9; 
+                    background: linear-gradient(to top, 
+                        #E63946 0%, 
+                        rgba(230, 57, 70, 0.8) 50%, 
+                        rgba(10, 25, 47, 0.2) 100%);
                 }
                 
-                .icon-prices { 
-                    background: linear-gradient(135deg, #FF9F1C 0%, #e88c14 100%);
-                    color: white;
-                }
-                
-                .icon-hotel { 
-                    background: linear-gradient(135deg, #E63946 0%, #cf2f3c 100%);
-                    color: white;
-                }
-                
-                .icon-instant { 
-                    background: linear-gradient(135deg, #70D6FF 0%, #5bc4eb 100%);
-                    color: white;
+                .art-card-content {
+                    position: absolute;
+                    bottom: 0;
+                    left: 0;
+                    right: 0;
+                    padding: 2.5rem;
+                    transform: translateY(0);
+                    transition: transform 0.5s ease;
                 }
 
-                .benefit-content {
-                    flex: 1;
+                .art-card:hover .art-card-content {
+                    transform: translateY(-20px);
                 }
 
-                .benefit-title {
-                    font-size: 1rem;
-                    font-weight: 700;
-                    color: #1D3557;
-                    margin: 0 0 0.25rem 0;
-                    letter-spacing: -0.01em;
-                }
-
-                .benefit-desc {
-                    font-size: 0.85rem;
-                    color: #6b7280;
-                    margin: 0;
-                    line-height: 1.5;
-                }
-
-                .benefit-check {
-                    width: 28px;
-                    height: 28px;
+                .art-icon-glass {
+                    width: 64px;
+                    height: 64px;
+                    background: rgba(255, 255, 255, 0.1);
+                    backdrop-filter: blur(12px);
+                    border: 1px solid rgba(255, 255, 255, 0.2);
                     border-radius: 50%;
-                    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
-                    color: white;
                     display: flex;
                     align-items: center;
                     justify-content: center;
-                    font-size: 0.75rem;
-                    flex-shrink: 0;
-                    opacity: 0;
-                    transform: scale(0.8);
-                    transition: all 0.3s ease;
+                    color: white;
+                    font-size: 1.5rem;
+                    margin-bottom: 1.5rem;
+                    box-shadow: 0 8px 32px rgba(0,0,0,0.1);
                 }
 
-                .benefit-card:hover .benefit-check {
+                .art-title {
+                    font-family: 'Playfair Display', serif;
+                    font-size: 1.75rem;
+                    color: white;
+                    margin-bottom: 0.75rem;
+                }
+
+                .art-desc {
+                    color: rgba(255, 255, 255, 0.8);
+                    font-size: 1rem;
+                    line-height: 1.6;
+                    opacity: 0.8;
+                    transition: opacity 0.3s ease;
+                }
+                
+                .art-card:hover .art-desc {
                     opacity: 1;
-                    transform: scale(1);
+                    color: white;
                 }
 
-                @keyframes fadeInUp {
-                    from {
-                        opacity: 0;
-                        transform: translateY(20px);
-                    }
-                    to {
-                        opacity: 1;
-                        transform: translateY(0);
-                    }
+                .art-card-hover-reveal {
+                    position: absolute;
+                    bottom: 1.5rem;
+                    left: 2.5rem;
+                    opacity: 0;
+                    transform: translateY(10px);
+                    transition: all 0.5s ease;
                 }
 
-                @media (max-width: 968px) {
-                    .why-book-wrapper {
-                        grid-template-columns: 1fr;
-                        gap: 2rem;
-                    }
+                .art-card:hover .art-card-hover-reveal {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
 
-                    .promise-column {
-                        padding: 2rem;
-                    }
+                .explore-text {
+                    color: white;
+                    font-size: 0.875rem;
+                    font-weight: 700;
+                    text-transform: uppercase;
+                    letter-spacing: 0.1em;
+                    border-bottom: 1px solid white;
+                    padding-bottom: 2px;
                 }
 
                 @media (max-width: 640px) {
-                    .why-book-section {
-                        padding: 3rem 1rem;
+                    .section-title-premium {
+                        font-size: 2.5rem;
                     }
-
-                    .promise-column {
-                        padding: 1.5rem;
-                    }
-
-                    .promise-title {
-                        font-size: 1.5rem;
-                    }
-
-                    .benefit-card {
-                        padding: 1rem 1.25rem;
-                    }
-
-                    .benefit-icon-wrapper {
-                        width: 42px;
-                        height: 42px;
+                    
+                    .art-card {
+                        height: 350px;
                     }
                 }
             `}</style>

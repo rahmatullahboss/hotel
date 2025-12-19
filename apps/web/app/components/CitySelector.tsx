@@ -2,10 +2,10 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { FiMapPin, FiNavigation, FiChevronRight } from "react-icons/fi";
 import { useTranslations } from "next-intl";
 import { useLocationDetection } from "./LocationDetector";
-
 import "./CitySelector.css";
 
 interface City {
@@ -30,13 +30,34 @@ const cityImages: Record<string, string> = {
 
 export function CitySelector({ cities, showDetect = true }: CitySelectorProps) {
     const t = useTranslations("citySelector");
-    const { city: detectedCity, loading, detectLocation } = useLocationDetection();
+    const router = useRouter();
+    const { city: detectedCity, loading: passiveLoading, detectLocation: detectPassive } = useLocationDetection();
+    const [isRedirecting, setIsRedirecting] = useState(false);
     const [showAll, setShowAll] = useState(false);
+
+    const handleRedirectToNearby = () => {
+        if (!navigator.geolocation) return;
+
+        setIsRedirecting(true);
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                const { latitude, longitude } = position.coords;
+                router.push(`/hotels?lat=${latitude}&lng=${longitude}&sort=distance`);
+            },
+            (error) => {
+                console.error("Location detection failed:", error);
+                setIsRedirecting(false);
+            }
+        );
+    };
 
     // Popular cities first, then others
     const popularCities = cities.filter((c) => c.isPopular);
     const otherCities = cities.filter((c) => !c.isPopular);
     const displayCities = showAll ? cities : popularCities;
+
+    // Combined loading state
+    const isLoading = isRedirecting || passiveLoading;
 
     return (
         <div className="city-selector">
@@ -46,20 +67,18 @@ export function CitySelector({ cities, showDetect = true }: CitySelectorProps) {
             {showDetect && (
                 <button
                     className="detect-location-btn"
-                    onClick={detectLocation}
-                    disabled={loading}
+                    onClick={handleRedirectToNearby}
+                    disabled={isLoading}
                 >
-                    <FiNavigation className={loading ? "spin" : ""} />
-                    {loading
+                    <FiNavigation className={isLoading ? "spin" : ""} />
+                    {isLoading
                         ? t("detecting")
-                        : detectedCity
-                            ? `📍 ${t("near")} ${cities.find((c) => c.slug === detectedCity)?.name || t("yourLocation")}`
-                            : t("useMyLocation")}
+                        : t("useMyLocation")}
                 </button>
             )}
 
             {detectedCity && (
-                <Link href={`/city/${detectedCity}`} className="detected-city-card">
+                <Link href={`/hotels?city=${encodeURIComponent(cities.find((c) => c.slug === detectedCity)?.name || "")}`} className="detected-city-card">
                     <FiMapPin />
                     <span>{t("hotelsNearYou", { city: cities.find((c) => c.slug === detectedCity)?.name || "" })}</span>
                     <FiChevronRight />
@@ -71,10 +90,10 @@ export function CitySelector({ cities, showDetect = true }: CitySelectorProps) {
                 {displayCities.map((city) => (
                     <Link
                         key={city.slug}
-                        href={`/city/${city.slug}`}
-                        className={`city-tile ${detectedCity === city.slug ? "detected" : ""}`}
+                        href={`/hotels?city=${encodeURIComponent(city.name)}`}
+                        className={`city-tile ${detectedCity === city.slug ? "detected" : ""} ${city.slug === "coxs-bazar" || city.slug === "sylhet" ? "bento-large" : ""}`}
                         style={{
-                            backgroundImage: `linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.6)), url(${cityImages[city.slug] || "https://images.unsplash.com/photo-1596422846543-75c6fc197f07?q=80&w=600&auto=format&fit=crop"})`
+                            backgroundImage: `linear-gradient(rgba(0,0,0,0.1), rgba(0,0,0,0.4)), url(${cityImages[city.slug] || "https://images.unsplash.com/photo-1596422846543-75c6fc197f07?q=80&w=600&auto=format&fit=crop"})`
                         }}
                     >
                         <div className="city-info-overlay">
