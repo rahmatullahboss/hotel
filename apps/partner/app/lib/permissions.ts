@@ -14,6 +14,8 @@ export interface RolePermissions {
 
     // Staff Management
     canManageStaff: boolean;
+    canViewStaffPerformance: boolean;  // View activity logs & metrics
+    canManageAttendance: boolean;      // Clock in/out, handover
 
     // Hotel Settings
     canEditHotelProfile: boolean;
@@ -41,6 +43,8 @@ export const ROLE_PERMISSIONS: Record<PartnerRole, RolePermissions> = {
         canRequestPayout: true,
         canManageBankDetails: true,
         canManageStaff: true,
+        canViewStaffPerformance: true,
+        canManageAttendance: true,
         canEditHotelProfile: true,
         canManagePhotos: true,
         canManageInventory: true,
@@ -58,6 +62,8 @@ export const ROLE_PERMISSIONS: Record<PartnerRole, RolePermissions> = {
         canRequestPayout: false,
         canManageBankDetails: false,
         canManageStaff: false,
+        canViewStaffPerformance: true,
+        canManageAttendance: true,
         canEditHotelProfile: true, // Can edit basic hotel info
         canManagePhotos: true,
         canManageInventory: true,
@@ -75,6 +81,8 @@ export const ROLE_PERMISSIONS: Record<PartnerRole, RolePermissions> = {
         canRequestPayout: false,
         canManageBankDetails: false,
         canManageStaff: false,
+        canViewStaffPerformance: false, // Can't see others' performance
+        canManageAttendance: true,      // Can clock in/out themselves
         canEditHotelProfile: false,
         canManagePhotos: false,
         canManageInventory: false,
@@ -101,7 +109,8 @@ export const PROTECTED_ROUTES: Record<string, PartnerRole[]> = {
     "/settings/profile": ["OWNER", "MANAGER"],
     "/settings/photos": ["OWNER", "MANAGER"],
     "/analytics": ["OWNER", "MANAGER"],
-    // All roles can access: /, /scanner, /walkin, /bookings
+    // Staff performance is accessible by all (with different views)
+    // All roles can access: /, /scanner, /walkin, /bookings, /staff-performance
 };
 
 /**

@@ -36,3 +36,6 @@ export * from "./gamification";
 
 // Corporate exports
 export * from "./corporate";
+
+// Staff Management (Shifts, Attendance, Handover) exports
+export * from "./staffManagement";
