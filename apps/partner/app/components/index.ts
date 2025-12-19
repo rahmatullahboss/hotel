@@ -15,3 +15,11 @@ export { NoShowButton } from "./NoShowButton";
 export { ExportButton } from "./ExportButton";
 export { HighRiskBookings } from "./HighRiskBookings";
 export { QuickActions } from "./QuickActions";
+
+// OYO OS Professional Dashboard Components
+export { OyoSidebar } from "./OyoSidebar";
+export { TodayStatus } from "./TodayStatus";
+export { PriceCard } from "./PriceCard";
+export { PromoBanner } from "./PromoBanner";
+export { PerformanceCharts, RankingCard, GuestExpCard } from "./PerformanceCharts";
+export { ImprovementAreas } from "./ImprovementAreas";

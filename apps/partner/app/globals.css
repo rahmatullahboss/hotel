@@ -1063,3 +1063,513 @@ main {
     grid-template-columns: repeat(4, 1fr);
   }
 }
+
+/* ================================================
+   OYO OS PROFESSIONAL DASHBOARD STYLES
+   ================================================ */
+
+/* Desktop Sidebar */
+.oyo-layout {
+  display: flex;
+  min-height: 100vh;
+  background: #f8f9fa;
+}
+
+.oyo-sidebar {
+  width: 200px;
+  background: white;
+  border-right: 1px solid #e5e7eb;
+  padding: 1rem 0;
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  overflow-y: auto;
+  z-index: 50;
+}
+
+.oyo-sidebar-logo {
+  padding: 0.5rem 1.25rem 1.5rem;
+  font-weight: 700;
+  font-size: 1.25rem;
+  color: #e63946;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.oyo-sidebar-nav {
+  display: flex;
+  flex-direction: column;
+}
+
+.oyo-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1.25rem;
+  font-size: 0.875rem;
+  color: #4b5563;
+  text-decoration: none;
+  transition: all 0.15s;
+  border-left: 3px solid transparent;
+}
+
+.oyo-nav-item:hover {
+  background: #f3f4f6;
+}
+
+.oyo-nav-item.active {
+  color: #e63946;
+  background: #fef2f2;
+  border-left-color: #e63946;
+  font-weight: 600;
+}
+
+.oyo-nav-item svg {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+/* Main Content */
+.oyo-main {
+  flex: 1;
+  margin-left: 200px;
+  padding: 1.5rem;
+}
+
+.oyo-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+  gap: 1rem;
+}
+
+.oyo-search {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 24px;
+  padding: 0.5rem 1rem;
+  flex: 1;
+  max-width: 300px;
+}
+
+.oyo-search input {
+  border: none;
+  outline: none;
+  flex: 1;
+  font-size: 0.875rem;
+}
+
+.oyo-new-booking-btn {
+  background: #e63946;
+  color: white;
+  border: none;
+  padding: 0.625rem 1.25rem;
+  border-radius: 24px;
+  font-weight: 600;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.oyo-new-booking-btn:hover {
+  background: #c53030;
+}
+
+.oyo-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.oyo-header-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: white;
+  border: 1px solid #e5e7eb;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #4b5563;
+}
+
+/* Dashboard Grid */
+.oyo-dashboard-grid {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 1.5rem;
+}
+
+.oyo-dashboard-main {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* Cards */
+.oyo-card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+}
+
+.oyo-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.oyo-card-title {
+  font-weight: 600;
+  font-size: 1rem;
+  color: #111827;
+}
+
+.oyo-card-link {
+  color: #e63946;
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.oyo-card-body {
+  padding: 1.25rem;
+}
+
+/* Today's Status */
+.oyo-status-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.oyo-status-row:last-child {
+  border-bottom: none;
+}
+
+.oyo-status-label {
+  color: #6b7280;
+  font-size: 0.875rem;
+}
+
+.oyo-status-value {
+  font-weight: 700;
+  font-size: 0.9375rem;
+  color: #111827;
+}
+
+.oyo-status-value span {
+  color: #9ca3af;
+  font-weight: 400;
+}
+
+/* Price Card */
+.oyo-price-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.625rem 0;
+}
+
+.oyo-price-label {
+  color: #6b7280;
+  font-size: 0.875rem;
+}
+
+.oyo-price-value {
+  font-weight: 700;
+  color: #111827;
+}
+
+/* Promotion Banner */
+.oyo-promo-banner {
+  background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+  border-radius: 12px;
+  padding: 1.25rem;
+  color: white;
+}
+
+.oyo-promo-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+
+.oyo-promo-title {
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.oyo-promo-text {
+  font-size: 0.8125rem;
+  margin-bottom: 1rem;
+  opacity: 0.9;
+}
+
+.oyo-promo-controls {
+  display: flex;
+  gap: 1rem;
+}
+
+.oyo-promo-box {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+/* Performance Section */
+.oyo-section-title {
+  font-weight: 700;
+  font-size: 1.125rem;
+  color: #111827;
+  margin-bottom: 1rem;
+}
+
+.oyo-perf-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+/* Chart Card */
+.oyo-chart-header {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.oyo-chart-title {
+  font-weight: 600;
+  font-size: 0.9375rem;
+}
+
+.oyo-chart-subtitle {
+  font-size: 0.75rem;
+  color: #9ca3af;
+}
+
+/* Rank Card */
+.oyo-rank-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.625rem 0;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.oyo-rank-item:last-child {
+  border-bottom: none;
+}
+
+.oyo-rank-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: #374151;
+}
+
+.oyo-rank-value {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-weight: 600;
+}
+
+.oyo-rank-up {
+  color: #10b981;
+}
+
+.oyo-rank-badge {
+  background: #fef3c7;
+  color: #d97706;
+  font-size: 0.75rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+}
+
+/* Improvement Areas */
+.oyo-improve-table {
+  width: 100%;
+}
+
+.oyo-improve-row {
+  display: grid;
+  grid-template-columns: auto 80px 120px 1fr;
+  gap: 1rem;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid #f3f4f6;
+  align-items: center;
+  font-size: 0.875rem;
+}
+
+.oyo-improve-icon {
+  width: 32px;
+  height: 32px;
+  background: #f3f4f6;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6b7280;
+}
+
+.oyo-improve-rooms {
+  color: #6b7280;
+}
+
+.oyo-improve-room-nums {
+  font-weight: 600;
+  color: #111827;
+}
+
+.oyo-improve-tags {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.oyo-improve-tag {
+  background: #f3f4f6;
+  color: #6b7280;
+  font-size: 0.75rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+}
+
+/* Right Sidebar */
+.oyo-right-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.oyo-reward-card {
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  border-radius: 12px;
+  padding: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.oyo-reward-label {
+  font-size: 0.75rem;
+  color: #92400e;
+}
+
+.oyo-reward-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #92400e;
+}
+
+.oyo-reward-icon {
+  font-size: 2.5rem;
+}
+
+/* Guest Experience */
+.oyo-guest-exp-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 0;
+}
+
+.oyo-guest-exp-label {
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+.oyo-guest-exp-value {
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+.oyo-guest-exp-happy {
+  color: #10b981;
+}
+
+.oyo-guest-exp-unhappy {
+  color: #ef4444;
+}
+
+/* Toggle Switch */
+.oyo-toggle {
+  position: relative;
+  width: 44px;
+  height: 24px;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 12px;
+  cursor: pointer;
+}
+
+.oyo-toggle.active {
+  background: white;
+}
+
+.oyo-toggle::after {
+  content: '';
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  background: white;
+  border-radius: 50%;
+  top: 2px;
+  left: 2px;
+  transition: transform 0.2s;
+}
+
+.oyo-toggle.active::after {
+  transform: translateX(20px);
+  background: #10b981;
+}
+
+/* Mobile Responsive */
+@media (max-width: 1024px) {
+  .oyo-sidebar {
+    display: none;
+  }
+
+  .oyo-main {
+    margin-left: 0;
+  }
+
+  .oyo-dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .oyo-perf-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .oyo-header {
+    flex-wrap: wrap;
+  }
+
+  .oyo-search {
+    order: 3;
+    max-width: 100%;
+    flex-basis: 100%;
+  }
+}
