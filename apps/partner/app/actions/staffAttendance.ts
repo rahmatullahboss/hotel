@@ -391,7 +391,9 @@ export async function getHandoverReports(options?: {
             },
         });
 
-        return reports.map((report) => ({
+        type ReportRow = typeof reports[number];
+
+        return reports.map((report: ReportRow) => ({
             id: report.id,
             fromStaffId: report.fromStaffId,
             fromStaffName: report.fromStaff?.user?.name || null,

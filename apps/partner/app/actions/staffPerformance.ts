@@ -191,7 +191,11 @@ export async function getStaffPerformanceMetrics(options?: {
                 )
                 .groupBy(activityLog.type);
 
-            const activityMap = new Map(activities.map((a) => [a.type, Number(a.count)]));
+            type ActivityRow = typeof activities[number];
+            const activityMap = new Map<string, number>();
+            activities.forEach((a: ActivityRow) => {
+                activityMap.set(a.type, Number(a.count));
+            });
 
             metrics.push({
                 staffId: staff.id,
@@ -202,7 +206,7 @@ export async function getStaffPerformanceMetrics(options?: {
                 checkOutsHandled: activityMap.get("CHECK_OUT") || 0,
                 paymentsReceived: activityMap.get("PAYMENT_RECEIVED") || 0,
                 bookingsCreated: activityMap.get("BOOKING_CREATED") || 0,
-                totalActions: activities.reduce((sum, a) => sum + Number(a.count), 0),
+                totalActions: activities.reduce((sum: number, a: ActivityRow) => sum + Number(a.count), 0),
             });
         }
 
@@ -302,13 +306,21 @@ export async function getDailyPerformanceSummary(
             columns: { id: true, name: true, email: true },
         });
 
-        const staffDetailsMap = new Map(staffDetails.map((s) => [s.id, s]));
+        type StaffDetailRow = typeof staffDetails[number];
+        const staffDetailsMap = new Map<string, StaffDetailRow>();
+        staffDetails.forEach((s: StaffDetailRow) => {
+            staffDetailsMap.set(s.id, s);
+        });
 
         // Get hotelStaff records for role info
         const hotelStaffRecords = await db.query.hotelStaff.findMany({
             where: eq(hotelStaff.hotelId, roleInfo.hotelId),
         });
-        const userToStaffMap = new Map(hotelStaffRecords.map((hs) => [hs.userId, hs]));
+        type HotelStaffRow = typeof hotelStaffRecords[number];
+        const userToStaffMap = new Map<string, HotelStaffRow>();
+        hotelStaffRecords.forEach((hs: HotelStaffRow) => {
+            userToStaffMap.set(hs.userId, hs);
+        });
 
         const staffBreakdown: StaffPerformanceMetrics[] = [];
         for (const [actorId, stats] of staffActivityMap) {

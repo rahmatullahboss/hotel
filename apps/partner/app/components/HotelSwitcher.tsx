@@ -4,8 +4,17 @@ import { useState, useRef, useEffect, useMemo } from "react";
 import { type PartnerHotelWithStats, switchHotel } from "../actions/dashboard";
 import { FiChevronDown, FiCheck, FiSearch, FiMapPin, FiHome } from "react-icons/fi";
 
+// Base type for what HotelSwitcher actually uses from currentHotel
+type BaseHotel = {
+    id: string;
+    name: string;
+    city: string | null;
+    status: string;
+    occupancyRate?: number;
+};
+
 interface HotelSwitcherProps {
-    currentHotel: PartnerHotelWithStats;
+    currentHotel: BaseHotel;
     hotels: PartnerHotelWithStats[];
 }
 
@@ -94,7 +103,7 @@ export function HotelSwitcher({ currentHotel, hotels }: HotelSwitcherProps) {
                         <span>{currentHotel.name}</span>
                     </div>
                     <div className="hotel-switcher-meta">
-                        <FiMapPin /> {currentHotel.city} • <span className={getOccupancyClass(currentHotel.occupancyRate)}>{currentHotel.occupancyRate}% Occ</span>
+                        <FiMapPin /> {currentHotel.city} {currentHotel.occupancyRate !== undefined && (<>• <span className={getOccupancyClass(currentHotel.occupancyRate)}>{currentHotel.occupancyRate}% Occ</span></>)}
                     </div>
                 </div>
             </div>
@@ -117,7 +126,7 @@ export function HotelSwitcher({ currentHotel, hotels }: HotelSwitcherProps) {
                         <FiChevronDown className={`hotel-switcher-chevron ${isOpen ? "open" : ""}`} />
                     </div>
                     <div className="hotel-switcher-meta">
-                        {currentHotel.city} • <span className={getOccupancyClass(currentHotel.occupancyRate)}>{currentHotel.occupancyRate}% Occ</span>
+                        {currentHotel.city} {currentHotel.occupancyRate !== undefined && (<>• <span className={getOccupancyClass(currentHotel.occupancyRate)}>{currentHotel.occupancyRate}% Occ</span></>)}
                     </div>
                 </div>
             </button>
