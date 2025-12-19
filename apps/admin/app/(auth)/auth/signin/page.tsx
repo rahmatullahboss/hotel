@@ -88,7 +88,7 @@ function SignInContent() {
                     <input
                         type="email"
                         className="form-input"
-                        placeholder="admin@zinurooms.com"
+                        placeholder="rahmatullahzisan@gmail.com"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                     />

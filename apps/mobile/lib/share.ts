@@ -15,7 +15,7 @@ interface ShareBookingParams {
     checkOut: string;
 }
 
-const APP_URL_BASE = 'https://zinurooms.com';
+const APP_URL_BASE = 'https://zinurooms.vercel.app';
 
 /**
  * Share hotel with others via native share dialog

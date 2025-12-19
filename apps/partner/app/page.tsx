@@ -143,7 +143,7 @@ export default async function DashboardPage() {
           fontSize: "0.75rem",
           color: "var(--color-text-muted)"
         }}>
-          Questions? Contact support@zinurooms.com
+          Questions? Contact rahmatullahzisan@gmail.com
         </div>
       </main>
     );
