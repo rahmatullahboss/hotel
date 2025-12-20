@@ -24,7 +24,7 @@ const cityImages: Record<string, string> = {
     dhaka: "/images/destinations/dhaka.jpg",
     chittagong: "/images/destinations/chittagong.jpg",
     "coxs-bazar": "/images/destinations/cox-bazar.jpg",
-    sylhet: "https://images.unsplash.com/photo-RSIBHeDjKeQ?q=80&w=600&auto=format&fit=crop",
+    sylhet: "/images/destinations/sylhet.jpg",
     kolkata: "https://images.unsplash.com/photo-1558431382-27e30314225d?q=80&w=600&auto=format&fit=crop",
 };
 
