@@ -179,28 +179,30 @@ export function BottomNav() {
                     </Link>
                 );
             })}
-            {/* Language Toggle Button - Always visible */}
-            <button
-                onClick={toggleLanguage}
-                disabled={isPending}
-                className="nav-item"
-                style={{
-                    background: "none",
-                    border: "none",
-                    cursor: "pointer",
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    gap: "0.25rem",
-                    padding: "0.5rem 0.75rem",
-                    color: "var(--color-text-secondary)",
-                }}
-            >
-                <LanguageIcon />
-                <span style={{ fontSize: "0.75rem", fontWeight: 500 }}>
-                    {currentLocale === "bn" ? "EN" : "বাং"}
-                </span>
-            </button>
+            {/* Language Toggle Button - Only for logged out users */}
+            {!session && (
+                <button
+                    onClick={toggleLanguage}
+                    disabled={isPending}
+                    className="nav-item"
+                    style={{
+                        background: "none",
+                        border: "none",
+                        cursor: "pointer",
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                        gap: "0.25rem",
+                        padding: "0.5rem 0.75rem",
+                        color: "var(--color-text-secondary)",
+                    }}
+                >
+                    <LanguageIcon />
+                    <span style={{ fontSize: "0.75rem", fontWeight: 500 }}>
+                        {currentLocale === "bn" ? "EN" : "বাং"}
+                    </span>
+                </button>
+            )}
         </nav>
     );
 }
