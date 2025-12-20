@@ -311,7 +311,8 @@ export async function refreshIncentiveProgress(): Promise<void> {
         }
     }
 
-    revalidatePath("/incentives");
+    // Note: Do NOT call revalidatePath here as this function is called during page render
+    // revalidatePath should only be called from mutations (form actions, button clicks)
 }
 
 // ==================
