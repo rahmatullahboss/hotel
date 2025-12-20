@@ -46,12 +46,14 @@ export function TopNav() {
                 >
                     {t("hotels")}
                 </Link>
-                <Link
-                    href="/bookings"
-                    className={`top-nav-link ${pathname === "/bookings" ? "active" : ""}`}
-                >
-                    {t("bookings")}
-                </Link>
+                {session && (
+                    <Link
+                        href="/bookings"
+                        className={`top-nav-link ${pathname === "/bookings" ? "active" : ""}`}
+                    >
+                        {t("bookings")}
+                    </Link>
+                )}
             </div>
 
             <div className="top-nav-actions">
