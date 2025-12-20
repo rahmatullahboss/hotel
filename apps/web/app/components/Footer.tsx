@@ -31,7 +31,7 @@ export function Footer() {
                 {/* Brand Section */}
                 <div className="footer-brand-section">
                     <Link href="/" className="footer-logo">
-                        <span className="logo-icon"><FaHotel /></span>
+                        <img src="/logo.png" alt="Zinu Rooms" className="w-12 h-12 object-contain rounded-xl" />
                         <span className="logo-text">Zinu Rooms</span>
                     </Link>
                     <p className="footer-tagline">

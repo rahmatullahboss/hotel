@@ -28,8 +28,9 @@ export function TopNav() {
 
     return (
         <nav className={navClass}>
-            <Link href="/" className="top-nav-logo">
-                Zinu Rooms
+            <Link href="/" className="top-nav-logo flex items-center gap-2">
+                <img src="/logo.png" alt="Zinu Rooms" className="w-8 h-8 object-contain rounded-lg" />
+                <span>Zinu Rooms</span>
             </Link>
 
             <div className="top-nav-links">

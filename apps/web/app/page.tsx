@@ -118,14 +118,14 @@ export default async function HomePage() {
           display: flex;
           align-items: center;
           justify-content: center;
-          background: url('https://images.unsplash.com/photo-1573843981267-be1999ff37cd?q=80&w=2400&auto=format&fit=crop') center/cover no-repeat fixed;
+          background: url('https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=2400&auto=format&fit=crop') center/cover no-repeat fixed;
           margin-bottom: 0;
         }
 
         .hero-overlay {
           position: absolute;
           inset: 0;
-          background: linear-gradient(to bottom, rgba(10, 25, 47, 0.3) 0%, rgba(10, 25, 47, 0.6) 100%);
+          background: linear-gradient(to bottom, rgba(10, 25, 47, 0.4) 0%, rgba(10, 25, 47, 0.7) 100%);
           z-index: 1;
         }
 

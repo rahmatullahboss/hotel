@@ -27,8 +27,9 @@ export function DesktopHeader() {
         <header className="desktop-header">
             <div className="desktop-header-container">
                 {/* Logo */}
+                {/* Logo */}
                 <Link href="/" className="desktop-header-logo">
-                    <span className="logo-icon"><FaHotel size={24} /></span>
+                    <img src="/logo.png" alt="Zinu Rooms" className="w-10 h-10 object-contain rounded-lg" />
                     <span className="logo-text">Zinu Rooms</span>
                 </Link>
 

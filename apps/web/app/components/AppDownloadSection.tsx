@@ -54,13 +54,19 @@ export function AppDownloadSection() {
                     </div>
 
                     <div className="store-buttons">
-                        <Link href="#" className="store-btn">
-                            <GooglePlayLogo className="store-icon text-3xl" />
-                            {/* Text removed as requested */}
+                        <Link href="#" className="store-badge-link">
+                            <img
+                                src="/images/badges/google-play-badge.svg"
+                                alt="Get it on Google Play"
+                                className="store-badge"
+                            />
                         </Link>
-                        <Link href="#" className="store-btn">
-                            <FaApple className="store-icon text-4xl" />
-                            {/* Text removed as requested */}
+                        <Link href="#" className="store-badge-link">
+                            <img
+                                src="/images/badges/app-store-badge.svg"
+                                alt="Download on the App Store"
+                                className="store-badge"
+                            />
                         </Link>
                     </div>
                 </div>
@@ -237,55 +243,21 @@ export function AppDownloadSection() {
                 .store-buttons {
                     display: flex;
                     flex-wrap: wrap;
-                    gap: 1rem;
-                }
-
-                .store-btn {
-                    display: flex;
+                    gap: 1.5rem;
                     align-items: center;
-                    justify-content: center;
-                    gap: 1rem;
-                    padding: 1rem 2rem;
-                    background: rgba(255, 255, 255, 0.05);
-                    border: 1px solid rgba(255, 255, 255, 0.1);
-                    border-radius: 1rem;
-                    color: white;
-                    text-decoration: none;
-                    transition: all 0.3s ease;
-                    min-width: 120px;
                 }
 
-                .store-btn:hover {
-                    background: white;
-                    color: #0A192F;
-                    transform: translateY(-4px);
-                    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+                .store-badge-link {
+                    transition: transform 0.3s ease;
                 }
                 
-                .store-btn:hover :global(.store-icon) {
-                    color: #0A192F; /* Invert icon color on hover if needed, or keep refined */
+                .store-badge-link:hover {
+                    transform: translateY(-4px);
                 }
 
-                .store-icon {
-                    font-size: 2rem;
-                    transition: color 0.3s ease;
-                }
-
-                .store-text {
-                    display: flex;
-                    flex-direction: column;
-                    line-height: 1.2;
-                }
-
-                .small-text {
-                    font-size: 0.7rem;
-                    text-transform: uppercase;
-                    opacity: 0.7;
-                }
-
-                .large-text {
-                    font-size: 1.125rem;
-                    font-weight: 700;
+                .store-badge {
+                    height: 60px;
+                    width: auto;
                 }
 
                 /* Mobile Mockup */
