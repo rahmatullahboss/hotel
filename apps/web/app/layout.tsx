@@ -22,11 +22,42 @@ export const metadata: Metadata = {
   title: "Zinu Rooms - Book Verified Hotels",
   description:
     "Book quality-assured hotels across Bangladesh. Verified properties, secure payments, 24/7 support.",
+  metadataBase: new URL("https://zinurooms.com"),
   openGraph: {
     title: "Zinu Rooms - Book Verified Hotels",
-    description: "Find and book clean, verified hotels at the best prices.",
+    description:
+      "Find and book clean, verified hotels across Bangladesh at the best prices. Quality-assured stays with 24/7 support.",
     type: "website",
+    siteName: "ZinuRooms",
+    locale: "en_US",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "ZinuRooms - Book Verified Hotels",
+      },
+    ],
   },
+  twitter: {
+    card: "summary_large_image",
+    title: "Zinu Rooms - Book Verified Hotels",
+    description:
+      "Find and book clean, verified hotels across Bangladesh at the best prices.",
+    images: ["/og-image.png"],
+  },
+  icons: {
+    icon: "/logo.png",
+    apple: "/logo.png",
+  },
+  keywords: [
+    "hotel booking",
+    "Bangladesh hotels",
+    "verified hotels",
+    "ZinuRooms",
+    "budget hotels",
+    "premium stays",
+  ],
 };
 
 export const viewport: Viewport = {
