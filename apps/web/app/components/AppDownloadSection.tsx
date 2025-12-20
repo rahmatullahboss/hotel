@@ -70,9 +70,9 @@ export function AppDownloadSection() {
                     <div className="phone-mockup">
                         <div className="phone-notch" />
                         <div className="phone-screen bg-black">
-                            {/* User requested screenshot - Using a placeholder for now */}
+                            {/* User provided screenshot */}
                             <img
-                                src="https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?q=80&w=600&auto=format&fit=crop"
+                                src="/images/app-mockup.png"
                                 alt="App Screenshot"
                                 className="w-full h-full object-cover"
                             />
