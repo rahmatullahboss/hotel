@@ -21,7 +21,7 @@ export function AppDownloadSection() {
                     </div>
 
                     <h2 className="app-title">
-                        {t("appDownload.title") || <>Luxury in <br /><span className="text-gold">Your Pocket.</span></>}
+                        {t.rich("appDownload.title", { br: () => <br /> })}
                     </h2>
 
                     <p className="app-subtitle">

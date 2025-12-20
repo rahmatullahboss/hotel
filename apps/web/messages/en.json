@@ -79,7 +79,7 @@
             "button": "Download App"
         },
         "appDownload": {
-            "title": "Your Next Stay is<br />One Tap Away",
+            "title": "Your Next Stay is{br}One Tap Away",
             "subtitle": "Download the Zinu Rooms app and unlock instant <strong>20% OFF</strong> on your first booking — plus earn wallet rewards with every stay.",
             "badge": "App Exclusive Offer",
             "stats": {
