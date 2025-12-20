@@ -105,25 +105,19 @@ export default function HotelListWithFilters({
             <ScrollView
                 horizontal
                 showsHorizontalScrollIndicator={false}
-                contentContainerStyle={{ gap: 8 }}
+                contentContainerStyle={{ gap: 6 }}
             >
                 {FILTER_KEYS.map((filter) => (
                     <TouchableOpacity
                         key={filter.id}
-                        className={`flex-row items-center rounded-full gap-1.5 ${activeFilter === filter.id
+                        className={`flex-row items-center rounded-full gap-1 ${activeFilter === filter.id
                             ? 'bg-primary'
                             : 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700'
                             }`}
                         onPress={() => setActiveFilter(filter.id)}
                         style={{
-                            paddingHorizontal: 12,
-                            paddingVertical: 6,
-                            ...(activeFilter !== filter.id && {
-                                shadowColor: '#000',
-                                shadowOffset: { width: 0, height: 2 },
-                                shadowOpacity: 0.05,
-                                shadowRadius: 4,
-                            })
+                            paddingHorizontal: 14,
+                            paddingVertical: 8,
                         }}
                     >
                         <FontAwesome
@@ -155,7 +149,7 @@ export default function HotelListWithFilters({
                 <ScrollView
                     horizontal
                     showsHorizontalScrollIndicator={false}
-                    contentContainerStyle={{ gap: 8 }}
+                    contentContainerStyle={{ gap: 6 }}
                 >
                     {SORT_KEYS.map((option) => (
                         <TouchableOpacity
@@ -166,18 +160,18 @@ export default function HotelListWithFilters({
                                 : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700'
                                 }`}
                             style={{
-                                paddingHorizontal: 16,
-                                paddingVertical: 6,
-                                minWidth: 60,
+                                paddingHorizontal: 14,
+                                paddingVertical: 8,
                             }}
                         >
                             <Text
                                 style={{
-                                    fontSize: 12,
+                                    fontSize: 11,
                                     fontWeight: '500',
                                     color: sortBy === option.id ? '#fff' : '#4B5563',
                                     textAlign: 'center',
                                 }}
+                                numberOfLines={1}
                             >
                                 {t(option.labelKey)}
                             </Text>
@@ -198,9 +192,9 @@ export default function HotelListWithFilters({
 
     if (loading) {
         return (
-            <View className="flex-1 items-center justify-center">
+            <View className="flex-1 items-center justify-center px-8">
                 <ActivityIndicator size="large" color="#E63946" />
-                <Text className="mt-3 text-base text-gray-500 dark:text-gray-400">
+                <Text className="mt-3 text-base text-gray-500 dark:text-gray-400 text-center" style={{ lineHeight: 24 }}>
                     {t('home.loading')}
                 </Text>
             </View>

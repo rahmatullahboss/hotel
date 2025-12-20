@@ -9,6 +9,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { Platform } from 'react-native';
 import * as Device from 'expo-device';
 import * as Notifications from 'expo-notifications';
+import * as NavigationBar from 'expo-navigation-bar';
 import Constants from 'expo-constants';
 import 'react-native-reanimated';
 import '../global.css';
@@ -108,6 +109,25 @@ export default function RootLayout() {
 
 function RootLayoutNav() {
   const { theme } = useTheme();
+
+  // Configure Android navigation bar for edge-to-edge display
+  useEffect(() => {
+    if (Platform.OS === 'android') {
+      const setupNavigationBar = async () => {
+        try {
+          // Keep navigation bar visible but set to transparent for edge-to-edge
+          await NavigationBar.setPositionAsync('absolute');
+          // Set navigation bar color to transparent
+          await NavigationBar.setBackgroundColorAsync('transparent');
+          // Set button style based on theme
+          await NavigationBar.setButtonStyleAsync(theme === 'dark' ? 'light' : 'dark');
+        } catch (error) {
+          devWarn('Failed to configure navigation bar:', error);
+        }
+      };
+      setupNavigationBar();
+    }
+  }, [theme]);
 
   // Initialize push notifications
   useEffect(() => {

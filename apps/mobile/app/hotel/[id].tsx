@@ -316,7 +316,7 @@ export default function HotelDetailScreen() {
                     </TouchableOpacity>
 
                     {/* Amenities Section */}
-                    <Text className="text-lg font-bold text-gray-900 mb-4">
+                    <Text className="text-lg font-bold text-gray-900 mb-4" style={{ lineHeight: 28 }}>
                         {t('hotel.amenities')}
                     </Text>
                     <ScrollView
@@ -328,7 +328,8 @@ export default function HotelDetailScreen() {
                         {amenities.map((amenity) => (
                             <View
                                 key={amenity.amenityKey}
-                                className="items-center px-2"
+                                className="items-center"
+                                style={{ width: 70 }}
                             >
                                 <View
                                     className="w-14 h-14 rounded-2xl items-center justify-center mb-2"
@@ -341,8 +342,9 @@ export default function HotelDetailScreen() {
                                     />
                                 </View>
                                 <Text
-                                    className="text-gray-600 text-center text-xs"
-                                    style={{ paddingBottom: 4 }}
+                                    className="text-gray-600 text-center"
+                                    numberOfLines={2}
+                                    style={{ fontSize: 10, lineHeight: 14, width: '100%' }}
                                 >
                                     {t(`amenities.${amenity.key}`)}
                                 </Text>
@@ -356,11 +358,11 @@ export default function HotelDetailScreen() {
                     {rooms.length > 0 && (
                         <View className="mt-6">
                             <View className="flex-row items-center justify-between mb-4">
-                                <Text className="text-lg font-bold text-gray-900">
+                                <Text className="text-lg font-bold text-gray-900 flex-1" style={{ lineHeight: 28 }}>
                                     {t('hotel.availableRooms')}
                                 </Text>
                                 {rooms.length > 3 && (
-                                    <Text className="text-sm font-medium" style={{ color: ACCENT_COLOR }}>
+                                    <Text className="text-sm font-medium" style={{ color: ACCENT_COLOR, marginLeft: 12 }}>
                                         {t('hotel.viewAll')} ({rooms.length})
                                     </Text>
                                 )}

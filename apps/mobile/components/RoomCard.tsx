@@ -170,7 +170,7 @@ export default function RoomCard({
                                         size={12}
                                         color="#6B7280"
                                     />
-                                    <Text className="text-gray-600 text-xs ml-1.5 font-medium">
+                                    <Text style={{ color: '#4B5563', fontSize: 11, marginLeft: 3, fontWeight: '500', lineHeight: 14 }}>
                                         {t(`amenities.${config.key}`, { defaultValue: amenity })}
                                     </Text>
                                 </View>

@@ -140,19 +140,19 @@ export default function AllHotelsScreen() {
             <ScrollView
                 horizontal
                 showsHorizontalScrollIndicator={false}
-                contentContainerStyle={{ gap: 8 }}
+                contentContainerStyle={{ gap: 6 }}
             >
                 {FILTER_KEYS.map((filter) => (
                     <TouchableOpacity
                         key={filter.id}
-                        className={`flex-row items-center rounded-full gap-1.5 ${activeFilter === filter.id
+                        className={`flex-row items-center rounded-full gap-1 ${activeFilter === filter.id
                             ? 'bg-primary'
                             : 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700'
                             }`}
                         onPress={() => setActiveFilter(filter.id)}
                         style={{
-                            paddingHorizontal: 12,
-                            paddingVertical: 6,
+                            paddingHorizontal: 14,
+                            paddingVertical: 8,
                         }}
                     >
                         <FontAwesome
@@ -175,13 +175,13 @@ export default function AllHotelsScreen() {
 
             {/* Sort Options */}
             <View className="flex-row items-center mt-3">
-                <Text className="text-sm text-gray-500 dark:text-gray-400 mr-2 font-medium">
+                <Text className="text-sm text-gray-500 dark:text-gray-400 mr-2 font-medium" style={{ lineHeight: 20 }}>
                     {t('allHotels.sort.label')}
                 </Text>
                 <ScrollView
                     horizontal
                     showsHorizontalScrollIndicator={false}
-                    contentContainerStyle={{ gap: 8, paddingRight: 16 }}
+                    contentContainerStyle={{ gap: 6, paddingRight: 16 }}
                     className="flex-1"
                 >
                     {SORT_KEYS.map((option) => (
@@ -193,18 +193,18 @@ export default function AllHotelsScreen() {
                                 : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700'
                                 }`}
                             style={{
-                                paddingHorizontal: 16,
+                                paddingHorizontal: 14,
                                 paddingVertical: 8,
-                                minWidth: 60,
                             }}
                         >
                             <Text
                                 style={{
-                                    fontSize: 12,
+                                    fontSize: 11,
                                     fontWeight: '500',
                                     color: sortBy === option.id ? '#fff' : '#4B5563',
                                     textAlign: 'center',
                                 }}
+                                numberOfLines={1}
                             >
                                 {t(option.labelKey)}
                             </Text>
@@ -243,9 +243,9 @@ export default function AllHotelsScreen() {
                         headerTitleStyle: { fontWeight: 'bold' },
                     }}
                 />
-                <View className="flex-1 items-center justify-center">
+                <View className="flex-1 items-center justify-center px-8">
                     <ActivityIndicator size="large" color="#E63946" />
-                    <Text className="mt-3 text-base text-gray-500 dark:text-gray-400">
+                    <Text className="mt-3 text-base text-gray-500 dark:text-gray-400 text-center" style={{ lineHeight: 24 }}>
                         {t('home.loading')}
                     </Text>
                 </View>
