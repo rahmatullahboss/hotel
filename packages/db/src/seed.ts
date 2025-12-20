@@ -1110,11 +1110,40 @@ async function seedIncentivePrograms() {
     console.log("   Revenue-based: 1 program (৳500,000)\n");
 }
 
+/**
+ * Seed test user for Google Play Store internal testing
+ */
+async function seedTestUser() {
+    console.log("\n🧪 Seeding Google Play Store tester account...\n");
+
+    // Create test user for Play Store
+    let testUser = await db.query.users.findFirst({
+        where: eq(users.email, "playstoretest@zinurooms.com"),
+    });
+
+    if (!testUser) {
+        const [newUser] = await db.insert(users).values({
+            name: "Play Store Tester",
+            email: "playstoretest@zinurooms.com",
+            role: "USER",
+        }).returning();
+        testUser = newUser;
+        console.log(`  ✓ Created tester: playstoretest@zinurooms.com`);
+    } else {
+        console.log(`  ⏭️  Tester account already exists`);
+    }
+
+    console.log("\n✅ Test user seeding complete!");
+    console.log("   Email: playstoretest@zinurooms.com");
+    console.log("   Role: USER\n");
+}
+
 // Run if executed directly
 seed()
     .then(() => seedMultiHotelPartner())
     .then(() => seedSystemSettings())
     .then(() => seedIncentivePrograms())
+    .then(() => seedTestUser())
     .then(() => process.exit(0))
     .catch((error) => {
         console.error("❌ Seed failed:", error);
