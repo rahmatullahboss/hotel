@@ -151,7 +151,7 @@ function HotelsContent() {
         <>
             {/* OYO-Style Sticky Header */}
             <header className="oyo-header" style={{
-                padding: "0.75rem 1rem",
+                padding: "0.5rem 1rem",
                 background: "white",
                 borderBottom: "1px solid var(--color-border)",
                 position: "sticky",
@@ -159,7 +159,14 @@ function HotelsContent() {
                 zIndex: 50,
             }}>
                 <div style={{ maxWidth: 1200, margin: "0 auto" }}>
-                    <SearchForm />
+                    {/* Mobile: Show compact search button */}
+                    <div className="mobile-only">
+                        <SearchForm compact />
+                    </div>
+                    {/* Desktop: Show full search form */}
+                    <div className="desktop-only">
+                        <SearchForm />
+                    </div>
                 </div>
             </header>
 

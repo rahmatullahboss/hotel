@@ -5518,3 +5518,22 @@ main.page-with-book-bar {
     font-size: 4rem;
   }
 }
+
+/* Responsive visibility utilities */
+.mobile-only {
+  display: block;
+}
+
+.desktop-only {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .mobile-only {
+    display: none;
+  }
+
+  .desktop-only {
+    display: block;
+  }
+}
