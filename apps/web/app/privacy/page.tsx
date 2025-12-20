@@ -26,99 +26,97 @@ export default async function PrivacyPage() {
                     <div style={{ background: 'white', borderRadius: '1rem', padding: '2rem', boxShadow: '0 4px 20px rgba(0,0,0,0.08)' }}>
                         <section style={{ marginBottom: '2rem' }}>
                             <h2 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#1D3557', marginBottom: '1rem' }}>
-                                ১. তথ্য সংগ্রহ
+                                {t("section1Title")}
                             </h2>
                             <p style={{ color: '#64748B', lineHeight: 1.8, marginBottom: '1rem' }}>
-                                আমরা আপনার কাছ থেকে নিম্নলিখিত তথ্য সংগ্রহ করি:
+                                {t("section1Text")}
                             </p>
                             <ul style={{ color: '#64748B', lineHeight: 1.8, paddingLeft: '1.5rem', listStyleType: 'disc' }}>
-                                <li>ব্যক্তিগত তথ্য (নাম, ইমেল, ফোন নম্বর)</li>
-                                <li>বুকিং তথ্য এবং পেমেন্ট বিবরণ</li>
-                                <li>ডিভাইস এবং ব্রাউজার তথ্য</li>
-                                <li>লোকেশন তথ্য (আপনার অনুমতিতে)</li>
+                                <li>{t("section1Item1")}</li>
+                                <li>{t("section1Item2")}</li>
+                                <li>{t("section1Item3")}</li>
+                                <li>{t("section1Item4")}</li>
                             </ul>
                         </section>
 
                         <section style={{ marginBottom: '2rem' }}>
                             <h2 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#1D3557', marginBottom: '1rem' }}>
-                                ২. তথ্য ব্যবহার
+                                {t("section2Title")}
                             </h2>
                             <p style={{ color: '#64748B', lineHeight: 1.8, marginBottom: '1rem' }}>
-                                আমরা আপনার তথ্য ব্যবহার করি:
+                                {t("section2Text")}
                             </p>
                             <ul style={{ color: '#64748B', lineHeight: 1.8, paddingLeft: '1.5rem', listStyleType: 'disc' }}>
-                                <li>আপনার বুকিং প্রক্রিয়া এবং নিশ্চিত করতে</li>
-                                <li>কাস্টমার সাপোর্ট প্রদান করতে</li>
-                                <li>আমাদের সেবা উন্নত করতে</li>
-                                <li>প্রচারমূলক অফার পাঠাতে (আপনার সম্মতিতে)</li>
+                                <li>{t("section2Item1")}</li>
+                                <li>{t("section2Item2")}</li>
+                                <li>{t("section2Item3")}</li>
+                                <li>{t("section2Item4")}</li>
                             </ul>
                         </section>
 
                         <section style={{ marginBottom: '2rem' }}>
                             <h2 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#1D3557', marginBottom: '1rem' }}>
-                                ৩. তথ্য সুরক্ষা
+                                {t("section3Title")}
                             </h2>
                             <p style={{ color: '#64748B', lineHeight: 1.8 }}>
-                                আমরা আপনার ব্যক্তিগত তথ্য সুরক্ষিত রাখতে শিল্প-মান নিরাপত্তা ব্যবস্থা ব্যবহার করি।
-                                এতে SSL এনক্রিপশন, সুরক্ষিত সার্ভার এবং নিয়মিত নিরাপত্তা অডিট অন্তর্ভুক্ত।
+                                {t("section3Text")}
                             </p>
                         </section>
 
                         <section style={{ marginBottom: '2rem' }}>
                             <h2 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#1D3557', marginBottom: '1rem' }}>
-                                ৪. তথ্য শেয়ারিং
+                                {t("section4Title")}
                             </h2>
                             <p style={{ color: '#64748B', lineHeight: 1.8, marginBottom: '1rem' }}>
-                                আমরা আপনার তথ্য শেয়ার করতে পারি:
+                                {t("section4Text")}
                             </p>
                             <ul style={{ color: '#64748B', lineHeight: 1.8, paddingLeft: '1.5rem', listStyleType: 'disc' }}>
-                                <li>হোটেল পার্টনারদের সাথে (বুকিং সম্পন্ন করতে)</li>
-                                <li>পেমেন্ট প্রসেসরদের সাথে</li>
-                                <li>আইনি প্রয়োজনে কর্তৃপক্ষের কাছে</li>
+                                <li>{t("section4Item1")}</li>
+                                <li>{t("section4Item2")}</li>
+                                <li>{t("section4Item3")}</li>
                             </ul>
                         </section>
 
                         <section style={{ marginBottom: '2rem' }}>
                             <h2 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#1D3557', marginBottom: '1rem' }}>
-                                ৫. আপনার অধিকার
+                                {t("section5Title")}
                             </h2>
                             <p style={{ color: '#64748B', lineHeight: 1.8, marginBottom: '1rem' }}>
-                                আপনার নিম্নলিখিত অধিকার রয়েছে:
+                                {t("section5Text")}
                             </p>
                             <ul style={{ color: '#64748B', lineHeight: 1.8, paddingLeft: '1.5rem', listStyleType: 'disc' }}>
-                                <li>আপনার তথ্য অ্যাক্সেস এবং সংশোধন করা</li>
-                                <li>আপনার অ্যাকাউন্ট মুছে ফেলার অনুরোধ</li>
-                                <li>মার্কেটিং যোগাযোগ থেকে বের হওয়া</li>
-                                <li>আপনার ডেটা পোর্টেবিলিটি</li>
+                                <li>{t("section5Item1")}</li>
+                                <li>{t("section5Item2")}</li>
+                                <li>{t("section5Item3")}</li>
+                                <li>{t("section5Item4")}</li>
                             </ul>
                         </section>
 
                         <section style={{ marginBottom: '2rem' }}>
                             <h2 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#1D3557', marginBottom: '1rem' }}>
-                                ৬. কুকিজ
+                                {t("section6Title")}
                             </h2>
                             <p style={{ color: '#64748B', lineHeight: 1.8 }}>
-                                আমরা কুকিজ এবং অনুরূপ প্রযুক্তি ব্যবহার করি আপনার অভিজ্ঞতা উন্নত করতে।
-                                আপনি আপনার ব্রাউজার সেটিংস থেকে কুকিজ নিয়ন্ত্রণ করতে পারেন।
+                                {t("section6Text")}
                             </p>
                         </section>
 
                         <section style={{ marginBottom: '2rem' }}>
                             <h2 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#1D3557', marginBottom: '1rem' }}>
-                                ৭. যোগাযোগ
+                                {t("section7Title")}
                             </h2>
                             <p style={{ color: '#64748B', lineHeight: 1.8 }}>
-                                গোপনীয়তা সংক্রান্ত কোনো প্রশ্ন থাকলে, আমাদের সাথে যোগাযোগ করুন:
+                                {t("section7Text")}
                                 <br /><br />
-                                ইমেল: rahmatullahzisan@gmail.com<br />
-                                ফোন: +880 1739 416661
+                                {t("contactEmail")}<br />
+                                {t("contactPhone")}
                             </p>
                         </section>
                     </div>
 
                     <div style={{ textAlign: 'center', marginTop: '2rem' }}>
                         <Link href="/" style={{ color: '#E63946', fontWeight: 600, textDecoration: 'none' }}>
-                            ← হোমে ফিরে যান
+                            {t("backHome")}
                         </Link>
                     </div>
                 </div>

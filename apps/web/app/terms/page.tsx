@@ -26,84 +26,82 @@ export default async function TermsPage() {
                     <div style={{ background: 'white', borderRadius: '1rem', padding: '2rem', boxShadow: '0 4px 20px rgba(0,0,0,0.08)' }}>
                         <section style={{ marginBottom: '2rem' }}>
                             <h2 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#1D3557', marginBottom: '1rem' }}>
-                                ১. শর্তাবলী গ্রহণ
+                                {t("section1Title")}
                             </h2>
                             <p style={{ color: '#64748B', lineHeight: 1.8 }}>
-                                Zinu Rooms ("সেবা") অ্যাক্সেস বা ব্যবহার করার মাধ্যমে, আপনি এই সেবার শর্তাবলী মেনে চলতে সম্মত হচ্ছেন।
-                                আপনি যদি এই শর্তাবলীতে সম্মত না হন, অনুগ্রহ করে আমাদের সেবা ব্যবহার করবেন না।
+                                {t("section1Text")}
                             </p>
                         </section>
 
                         <section style={{ marginBottom: '2rem' }}>
                             <h2 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#1D3557', marginBottom: '1rem' }}>
-                                ২. সেবার বিবরণ
+                                {t("section2Title")}
                             </h2>
                             <p style={{ color: '#64748B', lineHeight: 1.8 }}>
-                                Zinu Rooms একটি অনলাইন প্ল্যাটফর্ম প্রদান করে যা বাংলাদেশে ভ্রমণকারীদের হোটেল আবাসনের সাথে সংযুক্ত করে।
-                                আমরা অতিথি এবং হোটেল পার্টনারদের মধ্যে বুকিং সুবিধা প্রদান করি কিন্তু সরাসরি আবাসন সেবা প্রদানকারী নই।
+                                {t("section2Text")}
                             </p>
                         </section>
 
                         <section style={{ marginBottom: '2rem' }}>
                             <h2 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#1D3557', marginBottom: '1rem' }}>
-                                ৩. ব্যবহারকারী অ্যাকাউন্ট
+                                {t("section3Title")}
                             </h2>
                             <p style={{ color: '#64748B', lineHeight: 1.8, marginBottom: '1rem' }}>
-                                সেবার নির্দিষ্ট বৈশিষ্ট্য ব্যবহার করতে, আপনাকে একটি অ্যাকাউন্ট তৈরি করতে হবে। আপনি দায়ী:
+                                {t("section3Text")}
                             </p>
                             <ul style={{ color: '#64748B', lineHeight: 1.8, paddingLeft: '1.5rem', listStyleType: 'disc' }}>
-                                <li>আপনার অ্যাকাউন্টের পাসওয়ার্ড গোপন রাখা</li>
-                                <li>আপনার অ্যাকাউন্টে ঘটা সমস্ত কার্যকলাপ</li>
-                                <li>সঠিক এবং আপডেট তথ্য প্রদান</li>
-                                <li>অননুমোদিত অ্যাক্সেসের ক্ষেত্রে অবিলম্বে আমাদের জানানো</li>
+                                <li>{t("section3Item1")}</li>
+                                <li>{t("section3Item2")}</li>
+                                <li>{t("section3Item3")}</li>
+                                <li>{t("section3Item4")}</li>
                             </ul>
                         </section>
 
                         <section style={{ marginBottom: '2rem' }}>
                             <h2 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#1D3557', marginBottom: '1rem' }}>
-                                ৪. বুকিং এবং পেমেন্ট
+                                {t("section4Title")}
                             </h2>
                             <p style={{ color: '#64748B', lineHeight: 1.8, marginBottom: '1rem' }}>
-                                আপনি যখন আমাদের প্ল্যাটফর্মের মাধ্যমে বুকিং করেন:
+                                {t("section4Text")}
                             </p>
                             <ul style={{ color: '#64748B', lineHeight: 1.8, paddingLeft: '1.5rem', listStyleType: 'disc' }}>
-                                <li>আপনার রিজার্ভেশন নিশ্চিত করতে বুকিং ফি প্রয়োজন</li>
-                                <li>বাকি টাকা হোটেলে বা আমাদের প্ল্যাটফর্মের মাধ্যমে পরিশোধ করা যাবে</li>
-                                <li>প্রদর্শিত মূল্যে প্রযোজ্য ট্যাক্স এবং ফি অন্তর্ভুক্ত</li>
-                                <li>বাতিলকরণ নীতি হোটেল অনুযায়ী ভিন্ন হয় এবং বুকিংয়ের সময় প্রদর্শিত হয়</li>
+                                <li>{t("section4Item1")}</li>
+                                <li>{t("section4Item2")}</li>
+                                <li>{t("section4Item3")}</li>
+                                <li>{t("section4Item4")}</li>
                             </ul>
                         </section>
 
                         <section style={{ marginBottom: '2rem' }}>
                             <h2 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#1D3557', marginBottom: '1rem' }}>
-                                ৫. ওয়ালেট এবং লয়্যালটি প্রোগ্রাম
+                                {t("section5Title")}
                             </h2>
-                            <p style={{ color: '#64748B', lineHeight: 1.8 }}>
-                                আমাদের ওয়ালেট এবং লয়্যালটি পয়েন্ট সিস্টেম নিম্নলিখিত শর্তে পরিচালিত হয়:
+                            <p style={{ color: '#64748B', lineHeight: 1.8, marginBottom: '1rem' }}>
+                                {t("section5Text")}
                             </p>
                             <ul style={{ color: '#64748B', lineHeight: 1.8, paddingLeft: '1.5rem', listStyleType: 'disc' }}>
-                                <li>ওয়ালেট ব্যালেন্স শুধুমাত্র আমাদের প্ল্যাটফর্মে ব্যবহারযোগ্য</li>
-                                <li>পয়েন্ট বুকিং সম্পন্ন হলে অর্জিত হয়</li>
-                                <li>আমরা যেকোনো সময় প্রোগ্রাম পরিবর্তন করার অধিকার রাখি</li>
+                                <li>{t("section5Item1")}</li>
+                                <li>{t("section5Item2")}</li>
+                                <li>{t("section5Item3")}</li>
                             </ul>
                         </section>
 
                         <section style={{ marginBottom: '2rem' }}>
                             <h2 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#1D3557', marginBottom: '1rem' }}>
-                                ৬. যোগাযোগ
+                                {t("section6Title")}
                             </h2>
                             <p style={{ color: '#64748B', lineHeight: 1.8 }}>
-                                এই শর্তাবলী সম্পর্কে কোনো প্রশ্ন থাকলে, আমাদের সাথে যোগাযোগ করুন:
+                                {t("section6Text")}
                                 <br /><br />
-                                ইমেল: rahmatullahzisan@gmail.com<br />
-                                ফোন: +880 1739 416661
+                                {t("contactEmail")}<br />
+                                {t("contactPhone")}
                             </p>
                         </section>
                     </div>
 
                     <div style={{ textAlign: 'center', marginTop: '2rem' }}>
                         <Link href="/" style={{ color: '#E63946', fontWeight: 600, textDecoration: 'none' }}>
-                            ← হোমে ফিরে যান
+                            {t("backHome")}
                         </Link>
                     </div>
                 </div>
