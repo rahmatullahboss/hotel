@@ -25,7 +25,6 @@ const cityImages: Record<string, string> = {
     chittagong: "/images/destinations/chittagong.webp",
     "coxs-bazar": "/images/destinations/cox-bazar.webp",
     sylhet: "/images/destinations/sylhet.webp",
-    kolkata: "https://images.unsplash.com/photo-1558431382-27e30314225d?q=80&w=600&auto=format&fit=crop",
 };
 
 export function CitySelector({ cities, showDetect = true }: CitySelectorProps) {
@@ -93,7 +92,7 @@ export function CitySelector({ cities, showDetect = true }: CitySelectorProps) {
                         href={`/hotels?city=${encodeURIComponent(city.name)}`}
                         className={`city-tile ${detectedCity === city.slug ? "detected" : ""} ${city.slug === "coxs-bazar" || city.slug === "sylhet" ? "bento-large" : ""}`}
                         style={{
-                            backgroundImage: `linear-gradient(rgba(0,0,0,0.1), rgba(0,0,0,0.4)), url(${cityImages[city.slug] || "https://images.unsplash.com/photo-1596422846543-75c6fc197f07?q=80&w=600&auto=format&fit=crop"})`
+                            backgroundImage: `linear-gradient(rgba(0,0,0,0.1), rgba(0,0,0,0.4)), url(${cityImages[city.slug] || "/images/destinations/dhaka.webp"})`
                         }}
                     >
                         <div className="city-info-overlay">
