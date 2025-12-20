@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useSession } from "next-auth/react";
 
-const SearchIcon = ({ active }: { active: boolean }) => (
+const HomeIcon = ({ active }: { active: boolean }) => (
     <svg
         xmlns="http://www.w3.org/2000/svg"
         fill="none"
@@ -16,7 +16,23 @@ const SearchIcon = ({ active }: { active: boolean }) => (
         <path
             strokeLinecap="round"
             strokeLinejoin="round"
-            d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"
+            d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25"
+        />
+    </svg>
+);
+
+const HotelsIcon = ({ active }: { active: boolean }) => (
+    <svg
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+        strokeWidth={active ? 2.5 : 1.5}
+        stroke="currentColor"
+    >
+        <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M2.25 21h19.5m-18-18v18m10.5-18v18m6-13.5V21M6.75 6.75h.75m-.75 3h.75m-.75 3h.75m3-6h.75m-.75 3h.75m-.75 3h.75M6.75 21v-3.375c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21M3 3h12m-.75 4.5H21m-3.75 3.75h.008v.008h-.008v-.008zm0 3h.008v.008h-.008v-.008zm0 3h.008v.008h-.008v-.008z"
         />
     </svg>
 );
@@ -95,30 +111,30 @@ export function BottomNav() {
     const t = useTranslations("nav");
     const { data: session } = useSession();
 
-    // Base nav items - always shown
-    const baseNavItems = [
-        { href: "/", labelKey: "home", Icon: SearchIcon },
+    // Nav items for logged in users
+    const loggedInNavItems = [
+        { href: "/", labelKey: "home", Icon: HomeIcon },
         { href: "/checkin", labelKey: "checkIn", Icon: CheckInIcon },
         { href: "/checkout", labelKey: "checkOut", Icon: CheckOutIcon },
+        { href: "/bookings", labelKey: "bookings", Icon: BookingsIcon },
+        { href: "/profile", labelKey: "profile", Icon: ProfileIcon },
     ];
 
-    // Conditional items based on auth status
-    const navItems = session
-        ? [
-            ...baseNavItems,
-            { href: "/bookings", labelKey: "bookings", Icon: BookingsIcon },
-            { href: "/profile", labelKey: "profile", Icon: ProfileIcon },
-        ]
-        : [
-            ...baseNavItems,
-            { href: "/profile", labelKey: "profile", Icon: ProfileIcon },
-        ];
+    // Nav items for logged out users - no check in/out, add hotels explore
+    const loggedOutNavItems = [
+        { href: "/", labelKey: "home", Icon: HomeIcon },
+        { href: "/hotels", labelKey: "hotels", Icon: HotelsIcon },
+        { href: "/profile", labelKey: "profile", Icon: ProfileIcon },
+    ];
+
+    const navItems = session ? loggedInNavItems : loggedOutNavItems;
 
     return (
         <nav className="bottom-nav">
             {navItems.map(({ href, labelKey, Icon }) => {
                 const isActive = pathname === href ||
-                    (href === "/" && pathname.startsWith("/hotels"));
+                    (href === "/" && pathname === "/") ||
+                    (href === "/hotels" && pathname.startsWith("/hotels"));
                 return (
                     <Link
                         key={href}
