@@ -21,10 +21,10 @@ interface CitySelectorProps {
 }
 
 const cityImages: Record<string, string> = {
-    dhaka: "/images/destinations/dhaka.jpg",
-    chittagong: "/images/destinations/chittagong.jpg",
-    "coxs-bazar": "/images/destinations/cox-bazar.jpg",
-    sylhet: "/images/destinations/sylhet.jpg",
+    dhaka: "/images/destinations/dhaka.webp",
+    chittagong: "/images/destinations/chittagong.webp",
+    "coxs-bazar": "/images/destinations/cox-bazar.webp",
+    sylhet: "/images/destinations/sylhet.webp",
     kolkata: "https://images.unsplash.com/photo-1558431382-27e30314225d?q=80&w=600&auto=format&fit=crop",
 };
 
