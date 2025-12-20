@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { BottomNav } from "../components";
 import { customerSelfCheckOut } from "../actions/checkin";
 import { FiLock, FiRefreshCw, FiCamera, FiAlertTriangle } from "react-icons/fi";
@@ -12,6 +13,7 @@ import { FaHandPeace } from "react-icons/fa";
 export default function CheckOutPage() {
     const { data: session, status } = useSession();
     const router = useRouter();
+    const t = useTranslations("checkoutPage");
     const [scanning, setScanning] = useState(false);
     const [processing, setProcessing] = useState(false);
     const [result, setResult] = useState<{
@@ -47,7 +49,7 @@ export default function CheckOutPage() {
             if (qrData.type !== "HOTEL_CHECKIN" && qrData.type !== "HOTEL_CHECKOUT") {
                 setResult({
                     success: false,
-                    message: "Invalid QR code. Please scan the hotel's check-out QR code.",
+                    message: t("invalidQR"),
                 });
                 setProcessing(false);
                 return;
@@ -56,7 +58,7 @@ export default function CheckOutPage() {
             if (!qrData.hotelId) {
                 setResult({
                     success: false,
-                    message: "Invalid QR code format. Missing hotel information.",
+                    message: t("invalidQRFormat"),
                 });
                 setProcessing(false);
                 return;
@@ -67,7 +69,7 @@ export default function CheckOutPage() {
             if (!userId) {
                 setResult({
                     success: false,
-                    message: "Please sign in to check out.",
+                    message: t("pleaseSignIn"),
                 });
                 setProcessing(false);
                 return;
@@ -77,19 +79,19 @@ export default function CheckOutPage() {
             if (response.success && response.booking) {
                 setResult({
                     success: true,
-                    message: "Check-out successful!",
+                    message: t("checkoutSuccess"),
                     booking: response.booking,
                 });
             } else {
                 setResult({
                     success: false,
-                    message: response.error || "Check-out failed. Please try again.",
+                    message: response.error || t("checkoutFailedMessage"),
                 });
             }
         } catch (error) {
             setResult({
                 success: false,
-                message: "Invalid QR code format. Please scan a valid hotel QR code.",
+                message: t("invalidQRCodeFormat"),
             });
         }
 
@@ -121,12 +123,12 @@ export default function CheckOutPage() {
                 <main className="container page-content" style={{ paddingTop: "2rem" }}>
                     <div className="card" style={{ padding: "2rem", textAlign: "center" }}>
                         <div style={{ fontSize: "3rem", marginBottom: "1rem" }}><FiLock size={48} color="var(--color-text-secondary)" /></div>
-                        <h2 style={{ marginBottom: "0.5rem" }}>Sign In Required</h2>
+                        <h2 style={{ marginBottom: "0.5rem" }}>{t("signInRequired")}</h2>
                         <p style={{ color: "var(--color-text-secondary)", marginBottom: "1.5rem" }}>
-                            Please sign in to check out of your hotel
+                            {t("signInToCheckout")}
                         </p>
                         <Link href="/auth/signin?callbackUrl=/checkout" className="btn btn-primary btn-block">
-                            Sign In to Continue
+                            {t("signInToContinue")}
                         </Link>
                     </div>
                 </main>
@@ -139,7 +141,7 @@ export default function CheckOutPage() {
         <>
             <main className="container page-content" style={{ paddingTop: "2rem" }}>
                 <h1 style={{ fontSize: "1.5rem", fontWeight: 700, marginBottom: "1.5rem", textAlign: "center" }}>
-                    Self Check-out
+                    {t("title")}
                 </h1>
 
                 {/* Result View */}
@@ -163,9 +165,9 @@ export default function CheckOutPage() {
                                 >
                                     ✓
                                 </div>
-                                <h2 style={{ marginBottom: "0.5rem" }}>Check-out Complete!</h2>
+                                <h2 style={{ marginBottom: "0.5rem" }}>{t("checkoutComplete")}</h2>
                                 <p style={{ color: "var(--color-text-secondary)", marginBottom: "1.5rem" }}>
-                                    Thank you for staying with us. Have a safe journey!
+                                    {t("thankYou")}
                                 </p>
 
                                 {result.booking && (
@@ -191,7 +193,7 @@ export default function CheckOutPage() {
                                 )}
 
                                 <Link href="/bookings" className="btn btn-primary btn-block">
-                                    View Booking History
+                                    {t("viewBookingHistory")}
                                 </Link>
                             </>
                         ) : (
@@ -212,7 +214,7 @@ export default function CheckOutPage() {
                                 >
                                     ✕
                                 </div>
-                                <h2 style={{ marginBottom: "0.5rem" }}>Check-out Failed</h2>
+                                <h2 style={{ marginBottom: "0.5rem" }}>{t("checkoutFailed")}</h2>
                                 <p style={{ color: "var(--color-text-secondary)", marginBottom: "1.5rem" }}>
                                     {result.message}
                                 </p>
@@ -223,7 +225,7 @@ export default function CheckOutPage() {
                                         setScanning(true);
                                     }}
                                 >
-                                    Try Again
+                                    {t("tryAgain")}
                                 </button>
                             </>
                         )}
@@ -235,13 +237,13 @@ export default function CheckOutPage() {
                     <>
                         {scanning ? (
                             <div className="card" style={{ padding: "1rem", marginBottom: "1rem" }}>
-                                <QRScannerComponent onScan={handleScan} />
+                                <QRScannerComponent onScan={handleScan} t={t} />
                                 <button
                                     className="btn btn-outline btn-block"
                                     style={{ marginTop: "1rem" }}
                                     onClick={() => setScanning(false)}
                                 >
-                                    Cancel
+                                    {t("cancel")}
                                 </button>
                             </div>
                         ) : (
@@ -264,9 +266,9 @@ export default function CheckOutPage() {
                                         >
                                             <FiRefreshCw size={32} style={{ animation: "spin 1s linear infinite" }} />
                                         </div>
-                                        <h2 style={{ marginBottom: "0.5rem" }}>Processing...</h2>
+                                        <h2 style={{ marginBottom: "0.5rem" }}>{t("processing")}</h2>
                                         <p style={{ color: "var(--color-text-secondary)" }}>
-                                            Verifying your check-out
+                                            {t("verifyingCheckout")}
                                         </p>
                                     </>
                                 ) : (
@@ -287,15 +289,15 @@ export default function CheckOutPage() {
                                         >
                                             <FaHandPeace size={40} />
                                         </div>
-                                        <h2 style={{ marginBottom: "0.5rem" }}>Ready to Leave?</h2>
+                                        <h2 style={{ marginBottom: "0.5rem" }}>{t("readyToLeave")}</h2>
                                         <p style={{ color: "var(--color-text-secondary)", marginBottom: "1.5rem" }}>
-                                            Scan the hotel's QR code to complete your check-out
+                                            {t("scanToCheckout")}
                                         </p>
                                         <button
                                             className="btn btn-primary btn-block btn-lg"
                                             onClick={() => setScanning(true)}
                                         >
-                                            <FiCamera size={20} style={{ marginRight: "0.5rem" }} /> Scan QR Code to Check Out
+                                            <FiCamera size={20} style={{ marginRight: "0.5rem" }} /> {t("scanQRCode")}
                                         </button>
                                     </>
                                 )}
@@ -304,7 +306,7 @@ export default function CheckOutPage() {
 
                         {/* Instructions */}
                         <div className="card" style={{ padding: "1.5rem", marginTop: "1rem" }}>
-                            <h3 style={{ fontWeight: 600, marginBottom: "1rem" }}>How to Check Out</h3>
+                            <h3 style={{ fontWeight: 600, marginBottom: "1rem" }}>{t("howToCheckout")}</h3>
                             <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
                                 <div style={{ display: "flex", gap: "0.75rem", alignItems: "flex-start" }}>
                                     <span style={{
@@ -321,7 +323,7 @@ export default function CheckOutPage() {
                                         flexShrink: 0,
                                     }}>1</span>
                                     <span style={{ color: "var(--color-text-secondary)", fontSize: "0.9375rem" }}>
-                                        Find the check-out QR code at the hotel lobby or front desk
+                                        {t("step1")}
                                     </span>
                                 </div>
                                 <div style={{ display: "flex", gap: "0.75rem", alignItems: "flex-start" }}>
@@ -339,7 +341,7 @@ export default function CheckOutPage() {
                                         flexShrink: 0,
                                     }}>2</span>
                                     <span style={{ color: "var(--color-text-secondary)", fontSize: "0.9375rem" }}>
-                                        Tap "Scan QR Code" and point your camera at the code
+                                        {t("step2")}
                                     </span>
                                 </div>
                                 <div style={{ display: "flex", gap: "0.75rem", alignItems: "flex-start" }}>
@@ -357,7 +359,7 @@ export default function CheckOutPage() {
                                         flexShrink: 0,
                                     }}>3</span>
                                     <span style={{ color: "var(--color-text-secondary)", fontSize: "0.9375rem" }}>
-                                        Your check-out will be confirmed instantly
+                                        {t("step3")}
                                     </span>
                                 </div>
                             </div>
@@ -371,7 +373,7 @@ export default function CheckOutPage() {
 }
 
 // Inline QR Scanner Component using html5-qrcode
-function QRScannerComponent({ onScan }: { onScan: (data: string) => void }) {
+function QRScannerComponent({ onScan, t }: { onScan: (data: string) => void; t: (key: string) => string }) {
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
@@ -396,7 +398,7 @@ function QRScannerComponent({ onScan }: { onScan: (data: string) => void }) {
                 );
             } catch (err) {
                 console.error("Error starting QR scanner:", err);
-                setError("Unable to access camera. Please check permissions.");
+                setError(t("cameraError"));
             }
         };
 
@@ -407,14 +409,14 @@ function QRScannerComponent({ onScan }: { onScan: (data: string) => void }) {
                 html5QrCode.stop().catch(console.error);
             }
         };
-    }, [onScan]);
+    }, [onScan, t]);
 
     if (error) {
         return (
             <div style={{ textAlign: "center", padding: "2rem" }}>
                 <div style={{ color: "var(--color-error)", marginBottom: "1rem", display: "flex", alignItems: "center", justifyContent: "center", gap: "0.5rem" }}><FiAlertTriangle size={20} /> {error}</div>
                 <p style={{ color: "var(--color-text-secondary)", fontSize: "0.875rem" }}>
-                    Please allow camera access to scan QR codes
+                    {t("allowCamera")}
                 </p>
             </div>
         );
@@ -424,7 +426,7 @@ function QRScannerComponent({ onScan }: { onScan: (data: string) => void }) {
         <div>
             <div id="qr-reader" style={{ width: "100%", borderRadius: "0.75rem", overflow: "hidden" }} />
             <p style={{ textAlign: "center", marginTop: "0.75rem", color: "var(--color-text-secondary)", fontSize: "0.875rem" }}>
-                Point your camera at the hotel's QR code
+                {t("pointCamera")}
             </p>
         </div>
     );
