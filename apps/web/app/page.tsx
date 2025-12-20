@@ -47,7 +47,14 @@ export default async function HomePage() {
 
             {/* Prominent Search Form - Centered and Elevated */}
             <div className="hero-search-wrapper animated fadeInUp delay-100">
-              <SearchForm />
+              {/* Mobile: Simple compact search */}
+              <div className="mobile-only">
+                <SearchForm compact />
+              </div>
+              {/* Desktop: Full search form */}
+              <div className="desktop-only">
+                <SearchForm />
+              </div>
             </div>
           </div>
         </section>
