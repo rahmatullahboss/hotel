@@ -28,3 +28,4 @@ export { OYOSectionTabs } from "./OYOSectionTabs";
 export { OYOFiltersPanel } from "./OYOFiltersPanel";
 export { OYOHotelCard } from "./OYOHotelCard";
 export { SignOutButton } from "./SignOutButton";
+export { DeleteAccountButton } from "./DeleteAccountButton";

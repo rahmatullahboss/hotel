@@ -31,6 +31,11 @@ export const users = pgTable("users", {
     lateCancellationCount: integer("lateCancellationCount").default(0).notNull(),
     // Whether user can use "Pay at Hotel" option (disabled after 3 late cancellations)
     payAtHotelAllowed: boolean("payAtHotelAllowed").default(true).notNull(),
+    // Soft delete fields - account is marked for deletion but not immediately removed
+    // User can recover account by logging in before deleteScheduledFor date
+    deletedAt: timestamp("deletedAt", { mode: "date" }),
+    // Date when account will be permanently deleted (30 days after deletedAt)
+    deleteScheduledFor: timestamp("deleteScheduledFor", { mode: "date" }),
     createdAt: timestamp("createdAt", { mode: "date" }).defaultNow().notNull(),
     updatedAt: timestamp("updatedAt", { mode: "date" }).defaultNow().notNull(),
 });

@@ -4,7 +4,7 @@ import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { getUserBookings } from "../actions/bookings";
 import { getWallet, getLoyaltyPoints } from "../actions/wallet";
-import { BottomNav, LanguageSwitcher, SignOutButton } from "../components";
+import { BottomNav, LanguageSwitcher, SignOutButton, DeleteAccountButton } from "../components";
 
 export default async function ProfilePage() {
     const session = await auth();
@@ -311,11 +311,13 @@ export default async function ProfilePage() {
                             padding: "1rem",
                             color: "var(--color-text-primary)",
                             textDecoration: "none",
+                            borderBottom: "1px solid var(--color-border)",
                         }}
                     >
                         <span>{t("privacy")}</span>
                         <span>→</span>
                     </Link>
+                    <DeleteAccountButton userId={session.user.id} />
                 </div>
             </main>
 
