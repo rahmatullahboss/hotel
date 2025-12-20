@@ -5489,23 +5489,62 @@ main.page-with-book-bar {
 @media (max-width: 768px) {
   .hero-section {
     height: auto;
-    min-height: 480px;
-    padding-bottom: 4rem;
+    min-height: 400px;
+    padding-bottom: 3rem;
   }
 
   .hero-title {
-    font-size: 2.25rem;
+    font-size: 1.75rem;
     padding: 0 1rem;
   }
 
   .hero-subtitle {
-    font-size: 1rem;
+    font-size: 0.9rem;
     padding: 0 1.5rem;
+    margin-bottom: 1rem;
   }
 
   .hero-search-wrapper {
-    padding: 0 1rem;
-    transform: translateY(1rem);
+    padding: 0 0.75rem;
+    transform: translateY(0.5rem);
+  }
+
+  /* Compact search form on mobile homepage */
+  .hero-search-wrapper .search-form,
+  .hero-search-wrapper .search-form-wrapper .search-form {
+    padding: 0.5rem;
+    border-radius: 12px;
+  }
+
+  .hero-search-wrapper .search-row {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .hero-search-wrapper .search-field {
+    padding: 0.5rem 0.75rem;
+    min-height: auto;
+  }
+
+  .hero-search-wrapper .search-field-label {
+    font-size: 0.7rem;
+  }
+
+  .hero-search-wrapper .search-field-input {
+    font-size: 0.85rem;
+    padding: 0.25rem 0;
+  }
+
+  .hero-search-wrapper .search-divider {
+    display: none;
+  }
+
+  .hero-search-wrapper .search-btn {
+    width: 100%;
+    padding: 0.75rem;
+    font-size: 0.9rem;
+    margin-top: 0.5rem;
+    border-radius: 8px;
   }
 }
 
