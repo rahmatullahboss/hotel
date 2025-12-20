@@ -29,7 +29,7 @@ export function DesktopHeader() {
                 {/* Logo */}
                 {/* Logo */}
                 <Link href="/" className="desktop-header-logo">
-                    <img src="/logo.png" alt="Zinu Rooms" className="w-10 h-10 object-contain rounded-lg" />
+                    <img src="/logo.png" alt="Zinu Rooms" style={{ width: '48px', height: '48px', objectFit: 'contain' }} />
                     <span className="logo-text">Zinu Rooms</span>
                 </Link>
 
