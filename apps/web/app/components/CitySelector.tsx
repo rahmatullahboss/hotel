@@ -22,7 +22,7 @@ interface CitySelectorProps {
 
 const cityImages: Record<string, string> = {
     dhaka: "/images/destinations/dhaka.jpg",
-    chittagong: "https://images.unsplash.com/photo-oqNkN8w3IV0?q=80&w=600&auto=format&fit=crop",
+    chittagong: "/images/destinations/chittagong.jpg",
     "coxs-bazar": "/images/destinations/cox-bazar.jpg",
     sylhet: "https://images.unsplash.com/photo-RSIBHeDjKeQ?q=80&w=600&auto=format&fit=crop",
     kolkata: "https://images.unsplash.com/photo-1558431382-27e30314225d?q=80&w=600&auto=format&fit=crop",
