@@ -12,9 +12,14 @@ interface SearchFormProps {
 export function SearchForm({ compact = false }: SearchFormProps) {
     const router = useRouter();
     const t = useTranslations("search");
+
+    // Set default dates
+    const today = new Date().toISOString().split("T")[0]!;
+    const tomorrow = new Date(Date.now() + 86400000).toISOString().split("T")[0]!;
+
     const [city, setCity] = useState("");
-    const [checkIn, setCheckIn] = useState("");
-    const [checkOut, setCheckOut] = useState("");
+    const [checkIn, setCheckIn] = useState(today);
+    const [checkOut, setCheckOut] = useState(tomorrow);
     const [guests, setGuests] = useState(2);
     const [showAdvanced, setShowAdvanced] = useState(false);
     const [priceMin, setPriceMin] = useState("");
@@ -32,8 +37,6 @@ export function SearchForm({ compact = false }: SearchFormProps) {
         if (priceMax) params.set("priceMax", priceMax);
         router.push(`/hotels?${params.toString()}`);
     };
-
-    const today = new Date().toISOString().split("T")[0];
 
     if (compact) {
         return (
