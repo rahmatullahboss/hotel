@@ -705,6 +705,19 @@
         "instantTitle": "Instant Booking",
         "instantDesc": "Book instantly, no waiting for confirmation"
     },
+    "memberBenefits": {
+        "badge": "Member Exclusive",
+        "title": "Unlock Member Benefits",
+        "subtitle": "Download the app and enjoy exclusive perks available only to Zinu Rooms members",
+        "benefit1Title": "20% First Booking",
+        "benefit1Desc": "Get 20% off on your first booking through the app",
+        "benefit2Title": "Wallet Rewards",
+        "benefit2Desc": "Earn cashback on every stay, redeemable on future bookings",
+        "benefit3Title": "Loyalty Points",
+        "benefit3Desc": "Collect points with each booking and unlock free nights",
+        "benefit4Title": "Early Check-in",
+        "benefit4Desc": "Priority early check-in subject to availability"
+    },
     "filters": {
         "title": "Filters",
         "popularLocations": "Popular locations in {city}",

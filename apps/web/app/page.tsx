@@ -3,6 +3,7 @@ import { WhyBookGrid } from "./components/WhyBook";
 import { CitySelectorWrapper } from "./components/CitySelectorWrapper";
 import { FirstBookingBannerWrapper } from "./components/FirstBookingBannerWrapper";
 import { AppDownloadSection } from "./components/AppDownloadSection";
+import { MemberBenefits } from "./components/MemberBenefits";
 import { Testimonials } from "./components/Testimonials";
 import { Newsletter } from "./components/Newsletter";
 import { getPopularCities } from "./actions/cities";
@@ -90,6 +91,9 @@ export default async function HomePage() {
               <Newsletter />
             </div>
           </section>
+
+          {/* Member Benefits Section */}
+          <MemberBenefits />
 
           {/* App Download - Full Width */}
           <div style={{ marginTop: "0", background: "#0A192F" }}>
