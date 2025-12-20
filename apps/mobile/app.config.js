@@ -64,6 +64,7 @@ export default ({ config }) => {
                 'android.permission.ACCESS_COARSE_LOCATION',
                 'android.permission.ACCESS_FINE_LOCATION',
                 'android.permission.RECORD_AUDIO',
+                'com.google.android.gms.permission.AD_ID',
             ],
         },
         web: {
@@ -126,6 +127,15 @@ export default ({ config }) => {
                 {
                     calendarPermission:
                         'Allow ZinuRooms to add your bookings to your calendar.',
+                },
+            ],
+            [
+                'expo-build-properties',
+                {
+                    android: {
+                        enableProguardInReleaseBuilds: true,
+                        enableShrinkResourcesInReleaseBuilds: true,
+                    },
                 },
             ],
         ],
