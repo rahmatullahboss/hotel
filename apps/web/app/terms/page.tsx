@@ -1,144 +1,111 @@
 import Link from "next/link";
 import { BottomNav, Footer } from "../components";
-import { useTranslations } from "next-intl";
+import { getTranslations } from "next-intl/server";
 
-export default function TermsPage() {
-    const t = useTranslations("terms");
+export const metadata = {
+    title: "Terms of Service - Zinu Rooms",
+    description: "Terms of Service for Zinu Rooms hotel booking platform.",
+};
+
+export default async function TermsPage() {
+    const t = await getTranslations("terms");
 
     return (
         <>
-            <header className="page-header">
-                <Link href="/profile" className="back-button">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <path d="M19 12H5M12 19l-7-7 7-7" />
-                    </svg>
-                </Link>
-                <h1>{t("title")}</h1>
-            </header>
+            <main style={{ padding: '2rem 0 4rem', background: '#F8FAFC', minHeight: '100vh' }}>
+                <div style={{ maxWidth: '900px', margin: '0 auto', padding: '0 1.5rem' }}>
+                    {/* Header */}
+                    <div style={{ textAlign: 'center', marginBottom: '3rem', paddingTop: '2rem' }}>
+                        <h1 style={{ fontSize: '2.5rem', fontWeight: 700, color: '#1D3557', marginBottom: '1rem', fontFamily: "'Playfair Display', serif" }}>
+                            {t("title")}
+                        </h1>
+                        <p style={{ color: '#64748B' }}>{t("lastUpdated")}</p>
+                    </div>
 
-            <main className="container page-content content-page-layout">
-                <div className="content-page-card">
-                    <p style={{ color: "var(--color-text-secondary)", marginBottom: "1.5rem" }}>
-                        {t("lastUpdated")}
-                    </p>
+                    {/* Content */}
+                    <div style={{ background: 'white', borderRadius: '1rem', padding: '2rem', boxShadow: '0 4px 20px rgba(0,0,0,0.08)' }}>
+                        <section style={{ marginBottom: '2rem' }}>
+                            <h2 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#1D3557', marginBottom: '1rem' }}>
+                                ১. শর্তাবলী গ্রহণ
+                            </h2>
+                            <p style={{ color: '#64748B', lineHeight: 1.8 }}>
+                                Zinu Rooms ("সেবা") অ্যাক্সেস বা ব্যবহার করার মাধ্যমে, আপনি এই সেবার শর্তাবলী মেনে চলতে সম্মত হচ্ছেন।
+                                আপনি যদি এই শর্তাবলীতে সম্মত না হন, অনুগ্রহ করে আমাদের সেবা ব্যবহার করবেন না।
+                            </p>
+                        </section>
 
-                    <section>
-                        <h2 style={{ fontSize: "1.25rem", fontWeight: 600, marginBottom: "1rem" }}>
-                            1. Acceptance of Terms
-                        </h2>
-                        <p style={{ color: "var(--color-text-secondary)", lineHeight: 1.7 }}>
-                            By accessing or using Vibe Hotels ("Service"), you agree to be bound by these Terms of Service.
-                            If you do not agree to these terms, please do not use our Service.
-                        </p>
-                    </section>
+                        <section style={{ marginBottom: '2rem' }}>
+                            <h2 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#1D3557', marginBottom: '1rem' }}>
+                                ২. সেবার বিবরণ
+                            </h2>
+                            <p style={{ color: '#64748B', lineHeight: 1.8 }}>
+                                Zinu Rooms একটি অনলাইন প্ল্যাটফর্ম প্রদান করে যা বাংলাদেশে ভ্রমণকারীদের হোটেল আবাসনের সাথে সংযুক্ত করে।
+                                আমরা অতিথি এবং হোটেল পার্টনারদের মধ্যে বুকিং সুবিধা প্রদান করি কিন্তু সরাসরি আবাসন সেবা প্রদানকারী নই।
+                            </p>
+                        </section>
 
-                    <section style={{ marginBottom: "2rem" }}>
-                        <h2 style={{ fontSize: "1.25rem", fontWeight: 600, marginBottom: "1rem" }}>
-                            2. Description of Service
-                        </h2>
-                        <p style={{ color: "var(--color-text-secondary)", lineHeight: 1.7 }}>
-                            Vibe Hotels provides an online platform that connects travelers with hotel accommodations
-                            in Bangladesh. We facilitate bookings between guests and hotel partners but are not
-                            the direct provider of accommodation services.
-                        </p>
-                    </section>
+                        <section style={{ marginBottom: '2rem' }}>
+                            <h2 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#1D3557', marginBottom: '1rem' }}>
+                                ৩. ব্যবহারকারী অ্যাকাউন্ট
+                            </h2>
+                            <p style={{ color: '#64748B', lineHeight: 1.8, marginBottom: '1rem' }}>
+                                সেবার নির্দিষ্ট বৈশিষ্ট্য ব্যবহার করতে, আপনাকে একটি অ্যাকাউন্ট তৈরি করতে হবে। আপনি দায়ী:
+                            </p>
+                            <ul style={{ color: '#64748B', lineHeight: 1.8, paddingLeft: '1.5rem', listStyleType: 'disc' }}>
+                                <li>আপনার অ্যাকাউন্টের পাসওয়ার্ড গোপন রাখা</li>
+                                <li>আপনার অ্যাকাউন্টে ঘটা সমস্ত কার্যকলাপ</li>
+                                <li>সঠিক এবং আপডেট তথ্য প্রদান</li>
+                                <li>অননুমোদিত অ্যাক্সেসের ক্ষেত্রে অবিলম্বে আমাদের জানানো</li>
+                            </ul>
+                        </section>
 
-                    <section style={{ marginBottom: "2rem" }}>
-                        <h2 style={{ fontSize: "1.25rem", fontWeight: 600, marginBottom: "1rem" }}>
-                            3. User Accounts
-                        </h2>
-                        <p style={{ color: "var(--color-text-secondary)", lineHeight: 1.7, marginBottom: "1rem" }}>
-                            To use certain features of the Service, you must create an account. You are responsible for:
-                        </p>
-                        <ul style={{ color: "var(--color-text-secondary)", lineHeight: 1.7, paddingLeft: "1.5rem" }}>
-                            <li>Maintaining the confidentiality of your account credentials</li>
-                            <li>All activities that occur under your account</li>
-                            <li>Providing accurate and up-to-date information</li>
-                            <li>Notifying us immediately of any unauthorized access</li>
-                        </ul>
-                    </section>
+                        <section style={{ marginBottom: '2rem' }}>
+                            <h2 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#1D3557', marginBottom: '1rem' }}>
+                                ৪. বুকিং এবং পেমেন্ট
+                            </h2>
+                            <p style={{ color: '#64748B', lineHeight: 1.8, marginBottom: '1rem' }}>
+                                আপনি যখন আমাদের প্ল্যাটফর্মের মাধ্যমে বুকিং করেন:
+                            </p>
+                            <ul style={{ color: '#64748B', lineHeight: 1.8, paddingLeft: '1.5rem', listStyleType: 'disc' }}>
+                                <li>আপনার রিজার্ভেশন নিশ্চিত করতে বুকিং ফি প্রয়োজন</li>
+                                <li>বাকি টাকা হোটেলে বা আমাদের প্ল্যাটফর্মের মাধ্যমে পরিশোধ করা যাবে</li>
+                                <li>প্রদর্শিত মূল্যে প্রযোজ্য ট্যাক্স এবং ফি অন্তর্ভুক্ত</li>
+                                <li>বাতিলকরণ নীতি হোটেল অনুযায়ী ভিন্ন হয় এবং বুকিংয়ের সময় প্রদর্শিত হয়</li>
+                            </ul>
+                        </section>
 
-                    <section style={{ marginBottom: "2rem" }}>
-                        <h2 style={{ fontSize: "1.25rem", fontWeight: 600, marginBottom: "1rem" }}>
-                            4. Booking and Payments
-                        </h2>
-                        <p style={{ color: "var(--color-text-secondary)", lineHeight: 1.7, marginBottom: "1rem" }}>
-                            When you make a booking through our platform:
-                        </p>
-                        <ul style={{ color: "var(--color-text-secondary)", lineHeight: 1.7, paddingLeft: "1.5rem" }}>
-                            <li>A booking fee is required to confirm your reservation</li>
-                            <li>The remaining balance may be paid at the hotel or through our platform</li>
-                            <li>Prices displayed include applicable taxes and fees</li>
-                            <li>Cancellation policies vary by hotel and are displayed during booking</li>
-                        </ul>
-                    </section>
+                        <section style={{ marginBottom: '2rem' }}>
+                            <h2 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#1D3557', marginBottom: '1rem' }}>
+                                ৫. ওয়ালেট এবং লয়্যালটি প্রোগ্রাম
+                            </h2>
+                            <p style={{ color: '#64748B', lineHeight: 1.8 }}>
+                                আমাদের ওয়ালেট এবং লয়্যালটি পয়েন্ট সিস্টেম নিম্নলিখিত শর্তে পরিচালিত হয়:
+                            </p>
+                            <ul style={{ color: '#64748B', lineHeight: 1.8, paddingLeft: '1.5rem', listStyleType: 'disc' }}>
+                                <li>ওয়ালেট ব্যালেন্স শুধুমাত্র আমাদের প্ল্যাটফর্মে ব্যবহারযোগ্য</li>
+                                <li>পয়েন্ট বুকিং সম্পন্ন হলে অর্জিত হয়</li>
+                                <li>আমরা যেকোনো সময় প্রোগ্রাম পরিবর্তন করার অধিকার রাখি</li>
+                            </ul>
+                        </section>
 
-                    <section style={{ marginBottom: "2rem" }}>
-                        <h2 style={{ fontSize: "1.25rem", fontWeight: 600, marginBottom: "1rem" }}>
-                            5. Wallet and Loyalty Program
-                        </h2>
-                        <p style={{ color: "var(--color-text-secondary)", lineHeight: 1.7, marginBottom: "1rem" }}>
-                            Our wallet and loyalty program terms:
-                        </p>
-                        <ul style={{ color: "var(--color-text-secondary)", lineHeight: 1.7, paddingLeft: "1.5rem" }}>
-                            <li>Wallet funds are non-refundable but can be used for future bookings</li>
-                            <li>Loyalty points expire after 12 months of account inactivity</li>
-                            <li>Points cannot be transferred or exchanged for cash</li>
-                            <li>We reserve the right to modify the loyalty program terms</li>
-                        </ul>
-                    </section>
+                        <section style={{ marginBottom: '2rem' }}>
+                            <h2 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#1D3557', marginBottom: '1rem' }}>
+                                ৬. যোগাযোগ
+                            </h2>
+                            <p style={{ color: '#64748B', lineHeight: 1.8 }}>
+                                এই শর্তাবলী সম্পর্কে কোনো প্রশ্ন থাকলে, আমাদের সাথে যোগাযোগ করুন:
+                                <br /><br />
+                                ইমেল: rahmatullahzisan@gmail.com<br />
+                                ফোন: +880 1739 416661
+                            </p>
+                        </section>
+                    </div>
 
-                    <section style={{ marginBottom: "2rem" }}>
-                        <h2 style={{ fontSize: "1.25rem", fontWeight: 600, marginBottom: "1rem" }}>
-                            6. User Conduct
-                        </h2>
-                        <p style={{ color: "var(--color-text-secondary)", lineHeight: 1.7, marginBottom: "1rem" }}>
-                            You agree not to:
-                        </p>
-                        <ul style={{ color: "var(--color-text-secondary)", lineHeight: 1.7, paddingLeft: "1.5rem" }}>
-                            <li>Use the Service for any unlawful purpose</li>
-                            <li>Attempt to gain unauthorized access to any part of the Service</li>
-                            <li>Interfere with the proper functioning of the Service</li>
-                            <li>Submit false or misleading information</li>
-                            <li>Resell or commercially exploit the Service without permission</li>
-                        </ul>
-                    </section>
-
-                    <section style={{ marginBottom: "2rem" }}>
-                        <h2 style={{ fontSize: "1.25rem", fontWeight: 600, marginBottom: "1rem" }}>
-                            7. Limitation of Liability
-                        </h2>
-                        <p style={{ color: "var(--color-text-secondary)", lineHeight: 1.7 }}>
-                            To the maximum extent permitted by law, Vibe Hotels shall not be liable for any indirect,
-                            incidental, special, consequential, or punitive damages resulting from your use of the Service.
-                            We are not responsible for the actions of hotel partners or the quality of their accommodations.
-                        </p>
-                    </section>
-
-                    <section style={{ marginBottom: "2rem" }}>
-                        <h2 style={{ fontSize: "1.25rem", fontWeight: 600, marginBottom: "1rem" }}>
-                            8. Changes to Terms
-                        </h2>
-                        <p style={{ color: "var(--color-text-secondary)", lineHeight: 1.7 }}>
-                            We reserve the right to modify these Terms at any time. Changes will be effective immediately
-                            upon posting. Your continued use of the Service after changes constitutes acceptance of the
-                            modified Terms.
-                        </p>
-                    </section>
-
-                    <section>
-                        <h2 style={{ fontSize: "1.25rem", fontWeight: 600, marginBottom: "1rem" }}>
-                            9. Contact Us
-                        </h2>
-                        <p style={{ color: "var(--color-text-secondary)", lineHeight: 1.7 }}>
-                            If you have any questions about these Terms, please contact us at:
-                        </p>
-                        <p style={{ marginTop: "0.5rem" }}>
-                            <a href="mailto:rahmatullahzisan@gmail.com" style={{ color: "var(--color-primary)" }}>
-                                rahmatullahzisan@gmail.com
-                            </a>
-                        </p>
-                    </section>
+                    <div style={{ textAlign: 'center', marginTop: '2rem' }}>
+                        <Link href="/" style={{ color: '#E63946', fontWeight: 600, textDecoration: 'none' }}>
+                            ← হোমে ফিরে যান
+                        </Link>
+                    </div>
                 </div>
             </main>
 

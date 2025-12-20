@@ -162,4 +162,4 @@ The Global CSS (`apps/web/app/globals.css`) defines:
 - **Monorepo Imports**: Internal packages are imported via `@repo/*` (e.g., `import { db } from "@repo/db"`).
 - **Auth**: Usage of `auth()` from `auth.ts` (NextAuth v5 pattern).
 
-## **commit and push after every edit**
+## **commit after every edit**
