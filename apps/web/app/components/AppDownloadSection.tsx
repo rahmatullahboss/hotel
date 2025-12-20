@@ -97,7 +97,7 @@ export function AppDownloadSection() {
             <style jsx>{`
                 .app-download-section {
                     position: relative;
-                    background-color: #0A192F;
+                    background-color: #F8FAFC;
                     padding: 8rem 0;
                     margin-top: 0;
                     overflow: hidden;
@@ -109,7 +109,7 @@ export function AppDownloadSection() {
                     right: 0;
                     width: 60%;
                     height: 100%;
-                    background: radial-gradient(circle at top right, rgba(21, 40, 70, 0.8), transparent 70%);
+                    background: radial-gradient(circle at top right, rgba(230, 57, 70, 0.05), transparent 70%);
                     pointer-events: none;
                 }
 
@@ -133,34 +133,34 @@ export function AppDownloadSection() {
                     display: inline-flex;
                     align-items: center;
                     gap: 0.5rem;
-                    color: #D4AF37;
+                    color: #E63946;
                     font-size: 0.875rem;
                     font-weight: 700;
                     text-transform: uppercase;
                     letter-spacing: 0.15em;
                     margin-bottom: 2rem;
                     padding: 0.5rem 1rem;
-                    border: 1px solid rgba(212, 175, 55, 0.2);
+                    border: 1px solid rgba(230, 57, 70, 0.2);
                     border-radius: 99px;
-                    background: rgba(212, 175, 55, 0.05);
+                    background: rgba(230, 57, 70, 0.05);
                 }
 
                 .app-title {
                     font-family: 'Playfair Display', serif;
                     font-size: 3.5rem;
                     font-weight: 700;
-                    color: white;
+                    color: #1D3557;
                     line-height: 1.1;
                     margin-bottom: 1.5rem;
                 }
                 
                 .app-title :global(.text-gold) {
-                    color: #D4AF37;
+                    color: #E63946;
                     font-style: italic;
                 }
 
                 .app-subtitle {
-                    color: rgba(255, 255, 255, 0.7);
+                    color: #64748B;
                     font-size: 1.125rem;
                     line-height: 1.8;
                     margin-bottom: 3rem;
@@ -173,10 +173,10 @@ export function AppDownloadSection() {
                     gap: 2rem;
                     margin-bottom: 3rem;
                     padding: 1.5rem;
-                    background: rgba(255, 255, 255, 0.03);
-                    border: 1px solid rgba(255, 255, 255, 0.05);
+                    background: white;
+                    border: 1px solid #E2E8F0;
                     border-radius: 1rem;
-                    backdrop-filter: blur(10px);
+                    box-shadow: 0 4px 16px rgba(0,0,0,0.04);
                     width: fit-content;
                 }
 
@@ -186,7 +186,7 @@ export function AppDownloadSection() {
                 }
 
                 .stat-number {
-                    color: white;
+                    color: #1D3557;
                     font-size: 1.5rem;
                     font-weight: 700;
                     display: flex;
@@ -195,12 +195,12 @@ export function AppDownloadSection() {
                 }
 
                 .stat-star {
-                    color: #D4AF37;
+                    color: #F59E0B;
                     font-size: 1rem;
                 }
 
                 .stat-label {
-                    color: rgba(255, 255, 255, 0.5);
+                    color: #64748B;
                     font-size: 0.75rem;
                     text-transform: uppercase;
                     letter-spacing: 0.05em;
@@ -209,7 +209,7 @@ export function AppDownloadSection() {
                 .stat-separator {
                     width: 1px;
                     height: 40px;
-                    background: rgba(255, 255, 255, 0.1);
+                    background: #E2E8F0;
                 }
 
                 .feature-list {
@@ -222,7 +222,7 @@ export function AppDownloadSection() {
                     display: flex;
                     align-items: center;
                     gap: 0.75rem;
-                    color: rgba(255, 255, 255, 0.9);
+                    color: #1D3557;
                     font-weight: 500;
                 }
 

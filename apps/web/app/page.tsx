@@ -90,7 +90,7 @@ export default async function HomePage() {
           <MemberBenefits />
 
           {/* App Download - Full Width */}
-          <div style={{ marginTop: "0", background: "#0A192F" }}>
+          <div style={{ marginTop: "0", background: "#F8FAFC" }}>
             <AppDownloadSection />
           </div>
 
