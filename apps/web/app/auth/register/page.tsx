@@ -2,19 +2,22 @@
 
 import { signIn } from "next-auth/react";
 import { useState, Suspense } from "react";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { FiEye, FiEyeOff } from "react-icons/fi";
 
 import { BottomNav } from "../../components";
 
-function SignInContent() {
+function RegisterContent() {
     const searchParams = useSearchParams();
+    const router = useRouter();
     const callbackUrl = searchParams.get("callbackUrl") || "/";
 
+    const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [confirmPassword, setConfirmPassword] = useState("");
     const [showPassword, setShowPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState("");
@@ -26,27 +29,44 @@ function SignInContent() {
         await signIn("google", { callbackUrl });
     };
 
-    const handleCredentialsSignIn = async (e: React.FormEvent) => {
+    const handleRegister = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!email || !password) {
+
+        if (!name || !email || !password || !confirmPassword) {
             setError(t("fillAllFields"));
             return;
         }
+
+        if (password !== confirmPassword) {
+            setError(t("passwordMismatch"));
+            return;
+        }
+
         setIsLoading(true);
         setError("");
 
-        const result = await signIn("credentials", {
-            email,
-            password,
-            redirect: false,
-            callbackUrl
-        });
+        try {
+            const res = await fetch("/api/auth/register", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ name, email, password }),
+            });
 
-        if (result?.error) {
-            setError(t("invalidCredentials"));
+            if (res.ok) {
+                // Auto sign in after registration
+                await signIn("credentials", {
+                    email,
+                    password,
+                    callbackUrl
+                });
+            } else {
+                const data = await res.json();
+                setError(data.message || t("registrationFailed"));
+                setIsLoading(false);
+            }
+        } catch {
+            setError(t("registrationFailed"));
             setIsLoading(false);
-        } else if (result?.ok) {
-            window.location.href = callbackUrl;
         }
     };
 
@@ -62,13 +82,13 @@ function SignInContent() {
                             </h1>
                         </Link>
                         <p style={{ color: "var(--color-text-secondary)" }}>
-                            {t("subtitle")}
+                            {t("registerSubtitle")}
                         </p>
                     </div>
 
-                    {/* Sign In Card */}
+                    {/* Register Card */}
                     <div className="card" style={{ padding: "2rem" }}>
-                        {/* Google Sign In */}
+                        {/* Google Sign Up */}
                         <button
                             onClick={handleGoogleSignIn}
                             disabled={isLoading}
@@ -99,7 +119,7 @@ function SignInContent() {
                                     d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
                                 />
                             </svg>
-                            {isLoading ? t("signingIn") : t("continueGoogle")}
+                            {isLoading ? t("registering") : t("continueGoogle")}
                         </button>
 
                         <div
@@ -130,8 +150,19 @@ function SignInContent() {
                             </div>
                         )}
 
-                        {/* Email/Password Sign In */}
-                        <form onSubmit={handleCredentialsSignIn}>
+                        {/* Register Form */}
+                        <form onSubmit={handleRegister}>
+                            <div className="form-group">
+                                <label className="form-label">{t("nameLabel")}</label>
+                                <input
+                                    type="text"
+                                    className="form-input"
+                                    placeholder={t("namePlaceholder")}
+                                    value={name}
+                                    onChange={(e) => setName(e.target.value)}
+                                    required
+                                />
+                            </div>
                             <div className="form-group">
                                 <label className="form-label">{t("emailLabel")}</label>
                                 <input
@@ -170,20 +201,31 @@ function SignInContent() {
                                     {showPassword ? <FiEyeOff size={20} /> : <FiEye size={20} />}
                                 </button>
                             </div>
+                            <div className="form-group">
+                                <label className="form-label">{t("confirmPasswordLabel")}</label>
+                                <input
+                                    type={showPassword ? "text" : "password"}
+                                    className="form-input"
+                                    placeholder={t("confirmPasswordPlaceholder")}
+                                    value={confirmPassword}
+                                    onChange={(e) => setConfirmPassword(e.target.value)}
+                                    required
+                                />
+                            </div>
                             <button
                                 type="submit"
-                                disabled={isLoading || !email || !password}
+                                disabled={isLoading || !name || !email || !password || !confirmPassword}
                                 className="btn btn-primary btn-block"
                             >
-                                {isLoading ? t("signingIn") : t("signInEmail")}
+                                {isLoading ? t("registering") : t("register")}
                             </button>
                         </form>
 
-                        {/* Register Link */}
+                        {/* Login Link */}
                         <p style={{ textAlign: "center", marginTop: "1.5rem", color: "var(--color-text-secondary)" }}>
-                            {t("noAccount")}{" "}
-                            <Link href="/auth/register" style={{ color: "var(--color-primary)", fontWeight: 600 }}>
-                                {t("createAccount")}
+                            {t("hasAccount")}{" "}
+                            <Link href="/auth/signin" style={{ color: "var(--color-primary)", fontWeight: 600 }}>
+                                {t("signIn")}
                             </Link>
                         </p>
                     </div>
@@ -216,10 +258,10 @@ function SignInContent() {
     );
 }
 
-export default function SignInPage() {
+export default function RegisterPage() {
     return (
         <Suspense fallback={<div style={{ padding: "2rem", textAlign: "center" }}>Loading...</div>}>
-            <SignInContent />
+            <RegisterContent />
         </Suspense>
     );
 }
