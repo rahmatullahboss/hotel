@@ -85,12 +85,6 @@ export default async function HomePage() {
 
 
 
-          {/* Lead Capture - Newsletter - Light Section */}
-          <section style={{ background: '#F8FAFC', padding: '6rem 0' }}>
-            <div className="container">
-              <Newsletter />
-            </div>
-          </section>
 
           {/* Member Benefits Section */}
           <MemberBenefits />
