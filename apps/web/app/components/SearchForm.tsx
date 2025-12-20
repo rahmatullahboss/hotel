@@ -40,17 +40,15 @@ export function SearchForm({ compact = false }: SearchFormProps) {
 
     if (compact) {
         return (
-            <button
-                onClick={() => router.push("/hotels")}
+            <form
+                onSubmit={handleSubmit}
                 className="search-form"
                 style={{
                     display: "flex",
                     alignItems: "center",
-                    gap: "0.75rem",
+                    gap: "0.5rem",
                     width: "100%",
-                    textAlign: "left",
-                    cursor: "pointer",
-                    border: "none",
+                    padding: "0.5rem 0.75rem",
                 }}
             >
                 <svg
@@ -59,7 +57,7 @@ export function SearchForm({ compact = false }: SearchFormProps) {
                     viewBox="0 0 24 24"
                     strokeWidth={1.5}
                     stroke="currentColor"
-                    style={{ width: "24px", height: "24px", color: "var(--color-primary)" }}
+                    style={{ width: "20px", height: "20px", color: "var(--color-primary)", flexShrink: 0 }}
                 >
                     <path
                         strokeLinecap="round"
@@ -67,15 +65,37 @@ export function SearchForm({ compact = false }: SearchFormProps) {
                         d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"
                     />
                 </svg>
-                <div>
-                    <div style={{ fontWeight: 600, color: "var(--color-text-primary)" }}>
-                        {t("whereTo")}
-                    </div>
-                    <div style={{ fontSize: "0.875rem", color: "var(--color-text-secondary)" }}>
-                        {t("searchHotels")}
-                    </div>
-                </div>
-            </button>
+                <input
+                    type="text"
+                    placeholder={t("locationPlaceholder")}
+                    value={city}
+                    onChange={(e) => setCity(e.target.value)}
+                    style={{
+                        flex: 1,
+                        border: "none",
+                        outline: "none",
+                        fontSize: "0.9rem",
+                        background: "transparent",
+                        minWidth: 0,
+                    }}
+                />
+                <button
+                    type="submit"
+                    style={{
+                        background: "var(--color-primary)",
+                        color: "white",
+                        border: "none",
+                        borderRadius: "0.5rem",
+                        padding: "0.5rem 1rem",
+                        fontSize: "0.875rem",
+                        fontWeight: 600,
+                        cursor: "pointer",
+                        flexShrink: 0,
+                    }}
+                >
+                    {t("searchButton")}
+                </button>
+            </form>
         );
     }
 
