@@ -50,7 +50,7 @@ const paymentStatusConfig: Record<PaymentStatus, { labelKey: string; color: stri
 type TabType = "upcoming" | "past";
 
 export default function BookingsPage() {
-    const { data: session } = useSession();
+    const { data: session, status } = useSession();
     const t = useTranslations("bookings");
     const tCommon = useTranslations("common");
     const [bookings, setBookings] = useState<Booking[]>([]);
@@ -102,18 +102,37 @@ export default function BookingsPage() {
         return diffDays;
     };
 
-    if (!session) {
+    // Show loading while session is being checked
+    if (status === "loading") {
         return (
             <>
-                <header className="bookings-header">
-                    <h1>{t("title")}</h1>
+                <header className="bookings-header" style={{ padding: '1rem', background: 'linear-gradient(135deg, #E63946, #c1121f)', color: 'white' }}>
+                    <h1 style={{ fontSize: '1.5rem', fontWeight: 700, margin: 0 }}>{t("title")}</h1>
                 </header>
-                <main className="page-content">
-                    <div className="empty-state">
-                        <div className="empty-state-icon"><FiLock size={48} color="var(--color-text-secondary)" /></div>
-                        <h2>{tCommon("signInRequired")}</h2>
-                        <p>{tCommon("signInToBook")}</p>
-                        <Link href="/auth/signin" className="btn btn-primary">
+                <main className="page-content" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
+                    <div style={{ textAlign: 'center' }}>
+                        <div className="loading-spinner" style={{ margin: '0 auto' }}></div>
+                        <p style={{ marginTop: '1rem', color: '#64748B' }}>{tCommon("loading")}</p>
+                    </div>
+                </main>
+                <BottomNav />
+            </>
+        );
+    }
+
+    // Redirect to login if not authenticated
+    if (status === "unauthenticated" || !session) {
+        return (
+            <>
+                <header className="bookings-header" style={{ padding: '1rem', background: 'linear-gradient(135deg, #E63946, #c1121f)', color: 'white' }}>
+                    <h1 style={{ fontSize: '1.5rem', fontWeight: 700, margin: 0 }}>{t("title")}</h1>
+                </header>
+                <main className="page-content" style={{ minHeight: '60vh' }}>
+                    <div className="empty-state" style={{ textAlign: 'center', padding: '3rem 1.5rem', background: 'white', borderRadius: '1rem', margin: '1rem', border: '1px solid #e2e8f0' }}>
+                        <div style={{ marginBottom: '1rem' }}><FiLock size={48} color="#64748B" /></div>
+                        <h2 style={{ fontSize: '1.25rem', fontWeight: 600, marginBottom: '0.5rem', color: '#1D3557' }}>{tCommon("signInRequired")}</h2>
+                        <p style={{ color: '#64748B', marginBottom: '1.5rem' }}>{tCommon("signInToBook")}</p>
+                        <Link href="/auth/signin" className="btn btn-primary" style={{ display: 'inline-block', background: '#E63946', color: 'white', padding: '0.75rem 1.5rem', borderRadius: '0.5rem', fontWeight: 600, textDecoration: 'none' }}>
                             {tCommon("signInToContinue")}
                         </Link>
                     </div>
