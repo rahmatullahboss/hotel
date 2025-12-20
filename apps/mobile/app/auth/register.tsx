@@ -14,22 +14,12 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, Stack } from 'expo-router';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { LinearGradient } from 'expo-linear-gradient';
-import Animated, {
-    FadeIn,
-    FadeInDown,
-    FadeInUp,
-    useSharedValue,
-    useAnimatedStyle,
-    withSpring,
-} from 'react-native-reanimated';
 import { setToken } from '@/lib/api';
 import { useGoogleAuth } from '@/hooks/useGoogleAuth';
 import { AnimatedGradientBackground } from '@/components/AnimatedGradientBackground';
 import { GlassmorphicCard } from '@/components/GlassmorphicCard';
 import { FloatingLabelInput } from '@/components/FloatingLabelInput';
 import { GoogleLogo } from '@/components/GoogleLogo';
-
-const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
 export default function RegisterScreen() {
     const router = useRouter();
@@ -43,18 +33,6 @@ export default function RegisterScreen() {
     const [error, setError] = useState<string | null>(null);
 
     const { signInWithGoogle, loading: googleLoading, error: googleError, isReady } = useGoogleAuth();
-
-    // Button press animation
-    const buttonScale = useSharedValue(1);
-    const googleButtonScale = useSharedValue(1);
-
-    const buttonAnimatedStyle = useAnimatedStyle(() => ({
-        transform: [{ scale: buttonScale.value }],
-    }));
-
-    const googleButtonAnimatedStyle = useAnimatedStyle(() => ({
-        transform: [{ scale: googleButtonScale.value }],
-    }));
 
     const handleRegister = async () => {
         if (!name || !email || !password || !confirmPassword) {
@@ -113,14 +91,6 @@ export default function RegisterScreen() {
         await signInWithGoogle();
     };
 
-    const handleButtonPressIn = (scale: { value: number }) => {
-        scale.value = withSpring(0.96, { damping: 15, stiffness: 300 });
-    };
-
-    const handleButtonPressOut = (scale: { value: number }) => {
-        scale.value = withSpring(1, { damping: 15, stiffness: 300 });
-    };
-
     return (
         <AnimatedGradientBackground>
             <SafeAreaView style={styles.container}>
@@ -128,16 +98,15 @@ export default function RegisterScreen() {
                 <KeyboardAvoidingView
                     style={styles.keyboardView}
                     behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+                    keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
                 >
                     <ScrollView
                         showsVerticalScrollIndicator={false}
                         contentContainerStyle={styles.scrollContent}
+                        keyboardShouldPersistTaps="handled"
                     >
                         {/* Premium Header */}
-                        <Animated.View
-                            entering={FadeInDown.duration(600).delay(100)}
-                            style={styles.header}
-                        >
+                        <View style={styles.header}>
                             <View style={styles.logoContainer}>
                                 <LinearGradient
                                     colors={['#E63946', '#C1121F', '#780000']}
@@ -152,30 +121,23 @@ export default function RegisterScreen() {
                             <Text style={styles.subtitleText}>
                                 Join Zinu Rooms for amazing stays
                             </Text>
-                        </Animated.View>
+                        </View>
 
-                        {/* Glassmorphic Form Card */}
-                        <Animated.View
-                            entering={FadeInUp.duration(600).delay(300)}
-                        >
+                        {/* Form Card */}
+                        <View style={styles.formContainer}>
                             <GlassmorphicCard intensity="medium">
                                 {/* Error Message */}
                                 {(error || googleError) && (
-                                    <Animated.View
-                                        entering={FadeIn.duration(300)}
-                                        style={styles.errorContainer}
-                                    >
+                                    <View style={styles.errorContainer}>
                                         <FontAwesome name="exclamation-circle" size={16} color="#F87171" />
                                         <Text style={styles.errorText}>{error || googleError}</Text>
-                                    </Animated.View>
+                                    </View>
                                 )}
 
                                 {/* Google Sign Up - Top priority */}
-                                <AnimatedPressable
-                                    style={[styles.googleButton, googleButtonAnimatedStyle]}
+                                <Pressable
+                                    style={styles.googleButton}
                                     onPress={handleGoogleSignUp}
-                                    onPressIn={() => handleButtonPressIn(googleButtonScale)}
-                                    onPressOut={() => handleButtonPressOut(googleButtonScale)}
                                     disabled={googleLoading || loading}
                                 >
                                     {googleLoading ? (
@@ -186,7 +148,7 @@ export default function RegisterScreen() {
                                     <Text style={styles.googleButtonText}>
                                         {googleLoading ? 'Signing up...' : 'Continue with Google'}
                                     </Text>
-                                </AnimatedPressable>
+                                </Pressable>
 
                                 {/* Divider */}
                                 <View style={styles.divider}>
@@ -243,11 +205,9 @@ export default function RegisterScreen() {
                                 />
 
                                 {/* Create Account Button */}
-                                <AnimatedPressable
-                                    style={[styles.signUpButton, buttonAnimatedStyle]}
+                                <Pressable
+                                    style={styles.signUpButton}
                                     onPress={handleRegister}
-                                    onPressIn={() => handleButtonPressIn(buttonScale)}
-                                    onPressOut={() => handleButtonPressOut(buttonScale)}
                                     disabled={loading}
                                 >
                                     <LinearGradient
@@ -262,7 +222,7 @@ export default function RegisterScreen() {
                                             <Text style={styles.signUpText}>Create Account</Text>
                                         )}
                                     </LinearGradient>
-                                </AnimatedPressable>
+                                </Pressable>
 
                                 {/* Terms */}
                                 <Text style={styles.termsText}>
@@ -271,20 +231,17 @@ export default function RegisterScreen() {
                                     <Text style={styles.termsLink}>Privacy Policy</Text>
                                 </Text>
                             </GlassmorphicCard>
-                        </Animated.View>
+                        </View>
 
                         {/* Footer */}
-                        <Animated.View
-                            entering={FadeInUp.duration(600).delay(500)}
-                            style={styles.footer}
-                        >
+                        <View style={styles.footer}>
                             <View style={styles.signInRow}>
                                 <Text style={styles.signInText}>Already have an account? </Text>
                                 <TouchableOpacity onPress={() => router.push('/auth/login')}>
                                     <Text style={styles.signInLink}>Sign In</Text>
                                 </TouchableOpacity>
                             </View>
-                        </Animated.View>
+                        </View>
                     </ScrollView>
                 </KeyboardAvoidingView>
             </SafeAreaView>
@@ -300,12 +257,12 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     scrollContent: {
+        flexGrow: 1,
         paddingHorizontal: 24,
-        paddingBottom: 24,
+        paddingVertical: 24,
     },
     header: {
         alignItems: 'center',
-        marginTop: 24,
         marginBottom: 24,
     },
     logoContainer: {
@@ -334,6 +291,9 @@ const styles = StyleSheet.create({
         fontSize: 15,
         color: '#6B7280',
         textAlign: 'center',
+    },
+    formContainer: {
+        marginBottom: 16,
     },
     errorContainer: {
         flexDirection: 'row',
@@ -366,17 +326,6 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.05,
         shadowRadius: 4,
         elevation: 2,
-    },
-    googleIconContainer: {
-        width: 24,
-        height: 24,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    googleG: {
-        fontSize: 20,
-        fontWeight: '700',
-        color: '#4285F4',
     },
     googleButtonText: {
         color: '#374151',
@@ -427,7 +376,8 @@ const styles = StyleSheet.create({
         fontWeight: '500',
     },
     footer: {
-        paddingVertical: 24,
+        paddingVertical: 16,
+        alignItems: 'center',
     },
     signInRow: {
         flexDirection: 'row',

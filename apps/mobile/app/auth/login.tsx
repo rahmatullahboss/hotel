@@ -8,27 +8,18 @@ import {
     ActivityIndicator,
     StyleSheet,
     Pressable,
+    ScrollView,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, Stack } from 'expo-router';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { LinearGradient } from 'expo-linear-gradient';
-import Animated, {
-    FadeIn,
-    FadeInDown,
-    FadeInUp,
-    useSharedValue,
-    useAnimatedStyle,
-    withSpring,
-} from 'react-native-reanimated';
 import { setToken } from '@/lib/api';
 import { useGoogleAuth } from '@/hooks/useGoogleAuth';
 import { AnimatedGradientBackground } from '@/components/AnimatedGradientBackground';
 import { GlassmorphicCard } from '@/components/GlassmorphicCard';
 import { FloatingLabelInput } from '@/components/FloatingLabelInput';
 import { GoogleLogo } from '@/components/GoogleLogo';
-
-const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
 export default function LoginScreen() {
     const router = useRouter();
@@ -39,18 +30,6 @@ export default function LoginScreen() {
     const [error, setError] = useState<string | null>(null);
 
     const { signInWithGoogle, loading: googleLoading, error: googleError, isReady } = useGoogleAuth();
-
-    // Button press animation
-    const buttonScale = useSharedValue(1);
-    const googleButtonScale = useSharedValue(1);
-
-    const buttonAnimatedStyle = useAnimatedStyle(() => ({
-        transform: [{ scale: buttonScale.value }],
-    }));
-
-    const googleButtonAnimatedStyle = useAnimatedStyle(() => ({
-        transform: [{ scale: googleButtonScale.value }],
-    }));
 
     const handleLogin = async () => {
         if (!email || !password) {
@@ -94,14 +73,6 @@ export default function LoginScreen() {
         await signInWithGoogle();
     };
 
-    const handleButtonPressIn = (scale: { value: number }) => {
-        scale.value = withSpring(0.96, { damping: 15, stiffness: 300 });
-    };
-
-    const handleButtonPressOut = (scale: { value: number }) => {
-        scale.value = withSpring(1, { damping: 15, stiffness: 300 });
-    };
-
     return (
         <AnimatedGradientBackground>
             <SafeAreaView style={styles.container}>
@@ -109,133 +80,117 @@ export default function LoginScreen() {
                 <KeyboardAvoidingView
                     style={styles.keyboardView}
                     behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+                    keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
                 >
-                    {/* Premium Header */}
-                    <Animated.View
-                        entering={FadeInDown.duration(600).delay(100)}
-                        style={styles.header}
+                    <ScrollView
+                        contentContainerStyle={styles.scrollContent}
+                        keyboardShouldPersistTaps="handled"
+                        showsVerticalScrollIndicator={false}
                     >
-                        <View style={styles.logoContainer}>
-                            <LinearGradient
-                                colors={['#E63946', '#C1121F', '#780000']}
-                                style={styles.logoGradient}
-                                start={{ x: 0, y: 0 }}
-                                end={{ x: 1, y: 1 }}
-                            >
-                                <FontAwesome name="building" size={36} color="#fff" />
-                            </LinearGradient>
-                        </View>
-                        <Text style={styles.welcomeText}>Welcome Back</Text>
-                        <Text style={styles.subtitleText}>
-                            Sign in to continue to Zinu Rooms
-                        </Text>
-                    </Animated.View>
-
-                    {/* Glassmorphic Form Card */}
-                    <Animated.View
-                        entering={FadeInUp.duration(600).delay(300)}
-                        style={styles.formContainer}
-                    >
-                        <GlassmorphicCard intensity="medium">
-                            {/* Error Message */}
-                            {(error || googleError) && (
-                                <Animated.View
-                                    entering={FadeIn.duration(300)}
-                                    style={styles.errorContainer}
-                                >
-                                    <FontAwesome name="exclamation-circle" size={16} color="#F87171" />
-                                    <Text style={styles.errorText}>{error || googleError}</Text>
-                                </Animated.View>
-                            )}
-
-                            {/* Email Input */}
-                            <FloatingLabelInput
-                                label="Email address"
-                                icon="envelope"
-                                value={email}
-                                onChangeText={setEmail}
-                                keyboardType="email-address"
-                                autoCapitalize="none"
-                                autoCorrect={false}
-                            />
-
-                            {/* Password Input */}
-                            <FloatingLabelInput
-                                label="Password"
-                                icon="lock"
-                                value={password}
-                                onChangeText={setPassword}
-                                isPassword
-                            />
-
-                            {/* Sign In Button */}
-                            <AnimatedPressable
-                                style={[styles.signInButton, buttonAnimatedStyle]}
-                                onPress={handleLogin}
-                                onPressIn={() => handleButtonPressIn(buttonScale)}
-                                onPressOut={() => handleButtonPressOut(buttonScale)}
-                                disabled={loading}
-                            >
+                        {/* Premium Header */}
+                        <View style={styles.header}>
+                            <View style={styles.logoContainer}>
                                 <LinearGradient
-                                    colors={loading ? ['#9CA3AF', '#6B7280'] : ['#E63946', '#C1121F', '#780000']}
-                                    style={styles.signInGradient}
+                                    colors={['#E63946', '#C1121F', '#780000']}
+                                    style={styles.logoGradient}
                                     start={{ x: 0, y: 0 }}
-                                    end={{ x: 1, y: 0 }}
+                                    end={{ x: 1, y: 1 }}
                                 >
-                                    {loading ? (
-                                        <ActivityIndicator size="small" color="#fff" />
-                                    ) : (
-                                        <Text style={styles.signInText}>Sign In</Text>
-                                    )}
+                                    <FontAwesome name="building" size={36} color="#fff" />
                                 </LinearGradient>
-                            </AnimatedPressable>
-
-                            {/* Divider */}
-                            <View style={styles.divider}>
-                                <View style={styles.dividerLine} />
-                                <Text style={styles.dividerText}>or continue with</Text>
-                                <View style={styles.dividerLine} />
                             </View>
-
-                            {/* Google Sign In */}
-                            <AnimatedPressable
-                                style={[styles.googleButton, googleButtonAnimatedStyle]}
-                                onPress={handleGoogleLogin}
-                                onPressIn={() => handleButtonPressIn(googleButtonScale)}
-                                onPressOut={() => handleButtonPressOut(googleButtonScale)}
-                                disabled={googleLoading || loading}
-                            >
-                                {googleLoading ? (
-                                    <ActivityIndicator size="small" color="#4285F4" />
-                                ) : (
-                                    <GoogleLogo size={20} />
-                                )}
-                                <Text style={styles.googleButtonText}>
-                                    {googleLoading ? 'Signing in...' : 'Continue with Google'}
-                                </Text>
-                            </AnimatedPressable>
-                        </GlassmorphicCard>
-                    </Animated.View>
-
-                    {/* Footer */}
-                    <Animated.View
-                        entering={FadeInUp.duration(600).delay(500)}
-                        style={styles.footer}
-                    >
-                        <View style={styles.signUpRow}>
-                            <Text style={styles.signUpText}>Don't have an account? </Text>
-                            <TouchableOpacity onPress={() => router.push('/auth/register')}>
-                                <Text style={styles.signUpLink}>Sign Up</Text>
-                            </TouchableOpacity>
+                            <Text style={styles.welcomeText}>Welcome Back</Text>
+                            <Text style={styles.subtitleText}>
+                                Sign in to continue to Zinu Rooms
+                            </Text>
                         </View>
 
-                        <TouchableOpacity
-                            style={styles.guestButton}
-                            onPress={() => router.replace('/(tabs)')}
-                        >
-                            <Text style={styles.guestText}>Continue as Guest</Text>
-                        </TouchableOpacity>
-                    </Animated.View>
+                        {/* Form Card */}
+                        <View style={styles.formContainer}>
+                            <GlassmorphicCard intensity="medium">
+                                {/* Error Message */}
+                                {(error || googleError) && (
+                                    <View style={styles.errorContainer}>
+                                        <FontAwesome name="exclamation-circle" size={16} color="#F87171" />
+                                        <Text style={styles.errorText}>{error || googleError}</Text>
+                                    </View>
+                                )}
+
+                                {/* Email Input */}
+                                <FloatingLabelInput
+                                    label="Email address"
+                                    icon="envelope"
+                                    value={email}
+                                    onChangeText={setEmail}
+                                    keyboardType="email-address"
+                                    autoCapitalize="none"
+                                    autoCorrect={false}
+                                />
+
+                                {/* Password Input */}
+                                <FloatingLabelInput
+                                    label="Password"
+                                    icon="lock"
+                                    value={password}
+                                    onChangeText={setPassword}
+                                    isPassword
+                                />
+
+                                {/* Sign In Button */}
+                                <Pressable
+                                    style={styles.signInButton}
+                                    onPress={handleLogin}
+                                    disabled={loading}
+                                >
+                                    <LinearGradient
+                                        colors={loading ? ['#9CA3AF', '#6B7280'] : ['#E63946', '#C1121F', '#780000']}
+                                        style={styles.signInGradient}
+                                        start={{ x: 0, y: 0 }}
+                                        end={{ x: 1, y: 0 }}
+                                    >
+                                        {loading ? (
+                                            <ActivityIndicator size="small" color="#fff" />
+                                        ) : (
+                                            <Text style={styles.signInText}>Sign In</Text>
+                                        )}
+                                    </LinearGradient>
+                                </Pressable>
+
+                                {/* Divider */}
+                                <View style={styles.divider}>
+                                    <View style={styles.dividerLine} />
+                                    <Text style={styles.dividerText}>or continue with</Text>
+                                    <View style={styles.dividerLine} />
+                                </View>
+
+                                {/* Google Sign In */}
+                                <Pressable
+                                    style={styles.googleButton}
+                                    onPress={handleGoogleLogin}
+                                    disabled={googleLoading || loading}
+                                >
+                                    {googleLoading ? (
+                                        <ActivityIndicator size="small" color="#4285F4" />
+                                    ) : (
+                                        <GoogleLogo size={20} />
+                                    )}
+                                    <Text style={styles.googleButtonText}>
+                                        {googleLoading ? 'Signing in...' : 'Continue with Google'}
+                                    </Text>
+                                </Pressable>
+                            </GlassmorphicCard>
+                        </View>
+
+                        {/* Footer - Fixed at bottom */}
+                        <View style={styles.footer}>
+                            <View style={styles.signUpRow}>
+                                <Text style={styles.signUpText}>Don't have an account? </Text>
+                                <TouchableOpacity onPress={() => router.push('/auth/register')}>
+                                    <Text style={styles.signUpLink}>Sign Up</Text>
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                    </ScrollView>
                 </KeyboardAvoidingView>
             </SafeAreaView>
         </AnimatedGradientBackground>
@@ -248,11 +203,14 @@ const styles = StyleSheet.create({
     },
     keyboardView: {
         flex: 1,
+    },
+    scrollContent: {
+        flexGrow: 1,
         paddingHorizontal: 24,
+        justifyContent: 'center',
     },
     header: {
         alignItems: 'center',
-        marginTop: 40,
         marginBottom: 32,
     },
     logoContainer: {
@@ -283,7 +241,7 @@ const styles = StyleSheet.create({
         textAlign: 'center',
     },
     formContainer: {
-        flex: 1,
+        marginBottom: 24,
     },
     errorContainer: {
         flexDirection: 'row',
@@ -348,29 +306,18 @@ const styles = StyleSheet.create({
         shadowRadius: 4,
         elevation: 2,
     },
-    googleIconContainer: {
-        width: 24,
-        height: 24,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    googleG: {
-        fontSize: 20,
-        fontWeight: '700',
-        color: '#4285F4',
-    },
     googleButtonText: {
         color: '#374151',
         fontSize: 16,
         fontWeight: '500',
     },
     footer: {
-        paddingBottom: 24,
+        paddingVertical: 24,
+        alignItems: 'center',
     },
     signUpRow: {
         flexDirection: 'row',
         justifyContent: 'center',
-        marginBottom: 16,
     },
     signUpText: {
         color: '#6B7280',
@@ -380,13 +327,5 @@ const styles = StyleSheet.create({
         color: '#E63946',
         fontSize: 15,
         fontWeight: '600',
-    },
-    guestButton: {
-        alignItems: 'center',
-        paddingVertical: 12,
-    },
-    guestText: {
-        color: '#9CA3AF',
-        fontSize: 14,
     },
 });
