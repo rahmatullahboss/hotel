@@ -138,10 +138,10 @@ export function OYOHotelCard({
                 <div className="oyo-card-footer">
                     <div className="oyo-card-price-section">
                         <div className="oyo-card-price">
-                            <span className="price-main">৳{dynamicPrice.toLocaleString()}</span>
+                            <span className="price-main">৳{Math.round(dynamicPrice).toLocaleString('en-IN')}</span>
                             {discount > 0 && (
                                 <>
-                                    <span className="price-original">৳{basePrice.toLocaleString()}</span>
+                                    <span className="price-original">৳{Math.round(basePrice).toLocaleString('en-IN')}</span>
                                     <span className="price-discount">{discount}% {t("off")}</span>
                                 </>
                             )}
