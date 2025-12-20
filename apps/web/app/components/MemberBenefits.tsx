@@ -1,8 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { FiPercent, FiGift, FiStar, FiClock, FiArrowRight } from "react-icons/fi";
-import Link from "next/link";
+import { FiPercent, FiGift, FiStar, FiClock } from "react-icons/fi";
 
 export function MemberBenefits() {
     const t = useTranslations("memberBenefits");
@@ -39,13 +38,8 @@ export function MemberBenefits() {
             <div className="container">
                 {/* Left Content */}
                 <div className="benefits-content">
-                    <span className="overline">{t("badge")}</span>
                     <h2 className="title">{t("title")}</h2>
                     <p className="subtitle">{t("subtitle")}</p>
-
-                    <Link href="#" className="cta-link">
-                        Download the App <FiArrowRight />
-                    </Link>
                 </div>
 
                 {/* Right Grid */}
