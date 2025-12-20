@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { BottomNav } from "../components";
+import { BottomNav, Footer } from "../components";
 import { useTranslations } from "next-intl";
 import { FiMail, FiPhone, FiMessageCircle, FiArrowRight } from "react-icons/fi";
 import { FaWhatsapp } from "react-icons/fa";
@@ -77,7 +77,7 @@ export default function HelpPage() {
 
                         {/* WhatsApp Support */}
                         <a
-                            href={`https://wa.me/8801570260118?text=Hello%2C%20I%20need%20help%20with%20Zinu%20Rooms`}
+                            href={`https://wa.me/8801739416661?text=Hello%2C%20I%20need%20help%20with%20Zinu%20Rooms`}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="card help-contact-card"
@@ -177,6 +177,7 @@ export default function HelpPage() {
                 </section>
             </main>
 
+            <Footer />
             <BottomNav />
         </>
     );

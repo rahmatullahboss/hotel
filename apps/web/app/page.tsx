@@ -84,15 +84,15 @@ export default async function HomePage() {
 
 
 
-          {/* Lead Capture - Newsletter - Dark Section */}
-          <section style={{ background: '#0A192F', padding: '6rem 0' }}>
+          {/* Lead Capture - Newsletter - Light Section */}
+          <section style={{ background: '#F8FAFC', padding: '6rem 0' }}>
             <div className="container">
               <Newsletter />
             </div>
           </section>
 
           {/* App Download - Full Width */}
-          <div style={{ marginTop: "0" }}>
+          <div style={{ marginTop: "0", background: "#0A192F" }}>
             <AppDownloadSection />
           </div>
 
@@ -168,7 +168,7 @@ export default async function HomePage() {
         }
 
         .page-content-wrapper {
-          padding-bottom: 80px; /* For mobile nav */
+          padding-bottom: 0; /* Remove padding on homepage - mobile nav has its own space */
         }
 
         /* Animations */

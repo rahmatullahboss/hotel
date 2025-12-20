@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { BottomNav } from "../components";
+import { BottomNav, Footer } from "../components";
 import { useTranslations } from "next-intl";
 
 export default function TermsPage() {
@@ -142,6 +142,7 @@ export default function TermsPage() {
                 </div>
             </main>
 
+            <Footer />
             <BottomNav />
         </>
     );

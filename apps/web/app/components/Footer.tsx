@@ -96,10 +96,9 @@ export function Footer() {
                     <p className="footer-copyright">
                         &copy; {currentYear} Zinu Rooms. {t("copyright", { year: "" }).replace(/\d{4}/, '').trim()}
                     </p>
-                    <div className="footer-legal-links">
-                        <Link href="/privacy">Privacy Policy</Link>
-                        <Link href="/terms">Terms of Service</Link>
-                    </div>
+                    <p className="footer-credit">
+                        Site Created by <a href="https://digitalcare.site" target="_blank" rel="noopener noreferrer" className="footer-credit-link">Digitalcare</a>
+                    </p>
                 </div>
             </div>
 
@@ -301,6 +300,22 @@ export function Footer() {
                 
                 .footer-legal-links a:hover {
                     color: white;
+                }
+
+                .footer-credit {
+                    color: rgba(255, 255, 255, 0.4);
+                    font-size: 0.875rem;
+                }
+
+                .footer-credit-link {
+                    color: #14B8A6;
+                    text-decoration: none;
+                    font-weight: 500;
+                    transition: color 0.2s;
+                }
+
+                .footer-credit-link:hover {
+                    color: #5eead4;
                 }
             `}</style>
         </footer>
