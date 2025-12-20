@@ -21,13 +21,11 @@ export function AppDownloadSection() {
                     </div>
 
                     <h2 className="app-title">
-                        {t.rich("appDownload.title", { br: () => <br /> })}
+                        {t("appDownload.title")}
                     </h2>
 
                     <p className="app-subtitle">
-                        {t.rich("appDownload.subtitle", {
-                            strong: (chunks) => <strong style={{ color: "white" }}>{chunks}</strong>
-                        })}
+                        {t("appDownload.subtitle")}
                     </p>
 
                     <div className="stats-row">
