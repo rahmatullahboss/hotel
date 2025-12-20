@@ -75,8 +75,8 @@ export default async function ContactPage() {
                         <div>
                             <h3 style={{ marginBottom: '0.5rem', fontWeight: 700, fontSize: '1.125rem', color: '#1D3557' }}>{t("addressTitle")}</h3>
                             <p style={{ color: '#64748B', lineHeight: 1.6 }}>
-                                Gulshan Avenue, Gulshan-2<br />
-                                Dhaka 1212, Bangladesh
+                                D,K,P Road, Barguna<br />
+                                Bangladesh
                             </p>
                         </div>
                     </div>
