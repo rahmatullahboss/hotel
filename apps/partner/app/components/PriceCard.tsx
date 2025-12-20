@@ -14,6 +14,12 @@ interface PriceCardProps {
     promotionPercent?: number;
 }
 
+// Format price with proper comma separators (e.g., 1,500)
+const formatPrice = (price: number | string | undefined | null): string => {
+    const numPrice = Number(price) || 0;
+    return numPrice.toLocaleString('en-IN');
+};
+
 export function PriceCard({ rooms, hotelId, promotionPercent = 0 }: PriceCardProps) {
     // Calculate discounted price if promotion is active
     const hasPromotion = promotionPercent > 0;
@@ -63,14 +69,14 @@ export function PriceCard({ rooms, hotelId, promotionPercent = 0 }: PriceCardPro
                                         color: "#9ca3af",
                                         textDecoration: "line-through"
                                     }}>
-                                        ৳{room.basePrice.toLocaleString()}
+                                        ৳{formatPrice(room.basePrice)}
                                     </span>
                                 )}
                                 <span
                                     className="oyo-price-value"
                                     style={hasPromotion ? { color: "#10b981", fontWeight: 700 } : {}}
                                 >
-                                    ৳{applyDiscount(room.basePrice).toLocaleString()}
+                                    ৳{formatPrice(applyDiscount(room.basePrice))}
                                 </span>
                             </div>
                         </div>

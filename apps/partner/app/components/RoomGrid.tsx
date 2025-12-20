@@ -240,7 +240,7 @@ export function RoomGrid({ initialRooms, hotelId }: RoomGridProps) {
                                 marginBottom: "1rem",
                             }}
                         >
-                            {selectedRoom.type} • {statusLabels[selectedRoom.status]} • ৳{selectedRoom.price.toLocaleString()}/night
+                            {selectedRoom.type} • {statusLabels[selectedRoom.status]} • ৳{selectedRoom.price.toLocaleString('en-IN')}/night
                         </p>
 
                         {/* Error Message Display */}
