@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
+import { useSession } from "next-auth/react";
 
 const SearchIcon = ({ active }: { active: boolean }) => (
     <svg
@@ -92,14 +93,26 @@ const CheckOutIcon = ({ active }: { active: boolean }) => (
 export function BottomNav() {
     const pathname = usePathname();
     const t = useTranslations("nav");
+    const { data: session } = useSession();
 
-    const navItems = [
+    // Base nav items - always shown
+    const baseNavItems = [
         { href: "/", labelKey: "home", Icon: SearchIcon },
         { href: "/checkin", labelKey: "checkIn", Icon: CheckInIcon },
         { href: "/checkout", labelKey: "checkOut", Icon: CheckOutIcon },
-        { href: "/bookings", labelKey: "bookings", Icon: BookingsIcon },
-        { href: "/profile", labelKey: "profile", Icon: ProfileIcon },
     ];
+
+    // Conditional items based on auth status
+    const navItems = session
+        ? [
+            ...baseNavItems,
+            { href: "/bookings", labelKey: "bookings", Icon: BookingsIcon },
+            { href: "/profile", labelKey: "profile", Icon: ProfileIcon },
+        ]
+        : [
+            ...baseNavItems,
+            { href: "/profile", labelKey: "profile", Icon: ProfileIcon },
+        ];
 
     return (
         <nav className="bottom-nav">
