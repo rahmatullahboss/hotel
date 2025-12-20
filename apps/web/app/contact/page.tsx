@@ -1,6 +1,6 @@
 import { Footer, BottomNav } from "../components";
 import { getTranslations } from "next-intl/server";
-import { FiMail, FiPhone, FiMapPin, FiClock } from "react-icons/fi";
+import { FiMail, FiPhone, FiMapPin } from "react-icons/fi";
 import { FaWhatsapp } from "react-icons/fa";
 
 export const metadata = {
@@ -65,16 +65,6 @@ export default async function ContactPage() {
                             <p style={{ color: '#64748B', marginBottom: '0.5rem' }}>এখনই মেসেজ করুন</p>
                             <span style={{ color: '#25D366', fontWeight: 600 }}>01739 416661</span>
                         </a>
-
-                        {/* Office Hours */}
-                        <div style={{ background: 'white', borderRadius: '1rem', padding: '2rem', textAlign: 'center', boxShadow: '0 4px 20px rgba(0,0,0,0.08)' }}>
-                            <div style={{ width: '64px', height: '64px', background: '#E63946', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1rem' }}>
-                                <FiClock size={28} color="white" />
-                            </div>
-                            <h3 style={{ marginBottom: '0.5rem', fontWeight: 700, fontSize: '1.125rem', color: '#1D3557' }}>{t("hoursTitle")}</h3>
-                            <p style={{ color: '#64748B', marginBottom: '0.5rem' }}>{t("hoursLabel")}</p>
-                            <p style={{ color: '#E63946', fontWeight: 600 }}>24/7 Support</p>
-                        </div>
                     </div>
 
                     {/* Address Section */}

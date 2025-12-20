@@ -21,7 +21,7 @@ export function Footer() {
         ],
         partners: [
             { label: t("listProperty"), href: "/partner" },
-            { label: t("partnerLogin"), href: "/partner/auth/signin" },
+            { label: t("partnerLogin"), href: "https://hotel-partner.vercel.app/" },
         ],
     };
 
