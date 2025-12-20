@@ -72,11 +72,11 @@ export default function QuickFilterButton({
             </View>
             {/* Label */}
             <Text
-                className="text-xs font-semibold text-gray-700 dark:text-gray-300 text-center"
-                numberOfLines={1}
+                className="text-xs font-semibold text-gray-700 dark:text-gray-300 text-center w-full"
+                numberOfLines={2}
                 style={{
-                    fontSize: 11,
-                    letterSpacing: 0.2,
+                    fontSize: 10,
+                    lineHeight: 14,
                 }}
             >
                 {label}

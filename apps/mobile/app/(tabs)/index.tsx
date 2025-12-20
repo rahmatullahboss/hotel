@@ -124,11 +124,11 @@ export default function HomeScreen() {
   if (loading) {
     return (
       <View
-        className="flex-1 items-center justify-center bg-gray-50 dark:bg-gray-900"
+        className="flex-1 items-center justify-center bg-gray-50 dark:bg-gray-900 px-8"
         style={{ paddingTop: insets.top }}
       >
         <ActivityIndicator size="large" color="#E63946" />
-        <Text className="text-sm text-gray-500 dark:text-gray-400 mt-4">
+        <Text className="text-sm text-gray-500 dark:text-gray-400 mt-4 text-center" style={{ lineHeight: 22 }}>
           {t('home.loading')}
         </Text>
       </View>
@@ -208,7 +208,7 @@ export default function HomeScreen() {
 
         {/* Popular Destinations */}
         <View className="mb-6">
-          <Text className="text-lg font-bold text-gray-900 dark:text-white px-5 mb-3">
+          <Text className="text-lg font-bold text-gray-900 dark:text-white px-5 mb-3" style={{ lineHeight: 28 }}>
             {t('home.recommendedForYou', 'Popular Destinations')}
           </Text>
           <ScrollView
@@ -280,8 +280,8 @@ export default function HomeScreen() {
               <View className="absolute top-8 right-28 w-3 h-3 rounded-full bg-white/15" />
               <View className="flex-row items-center justify-between">
                 <View className="flex-1">
-                  <View className="bg-white/20 self-start px-2.5 py-1 rounded-full mb-2">
-                    <Text className="text-white text-xs font-bold">{t('home.limitedOffer', 'LIMITED OFFER')}</Text>
+                  <View className="bg-white/20 self-start px-3 py-1.5 rounded-full mb-2">
+                    <Text className="text-white text-xs font-bold" style={{ fontSize: 10 }}>{t('home.limitedOffer', 'LIMITED OFFER')}</Text>
                   </View>
                   <Text className="text-xl font-bold text-white mb-1">
                     {t('home.promo.title', 'First Booking Offer!')}
@@ -306,11 +306,11 @@ export default function HomeScreen() {
         {/* Featured Hotels */}
         <View className="px-5">
           <View className="flex-row justify-between items-center mb-4">
-            <Text className="text-lg font-bold text-gray-900 dark:text-white">
+            <Text className="text-lg font-bold text-gray-900 dark:text-white flex-1" style={{ lineHeight: 28 }}>
               {t('home.topRated')}
             </Text>
-            <TouchableOpacity onPress={() => router.push('/hotels')}>
-              <Text className="text-sm font-semibold text-primary">
+            <TouchableOpacity onPress={() => router.push('/hotels')} style={{ marginLeft: 12 }}>
+              <Text className="text-sm font-semibold text-primary" style={{ lineHeight: 22 }}>
                 {t('home.seeAll')}
               </Text>
             </TouchableOpacity>
