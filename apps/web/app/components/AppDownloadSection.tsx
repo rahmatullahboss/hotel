@@ -55,18 +55,12 @@ export function AppDownloadSection() {
 
                     <div className="store-buttons">
                         <Link href="#" className="store-btn">
-                            <GooglePlayLogo className="store-icon" />
-                            <div className="store-text">
-                                <span className="small-text">GET IT ON</span>
-                                <span className="large-text">Google Play</span>
-                            </div>
+                            <GooglePlayLogo className="store-icon text-3xl" />
+                            {/* Text removed as requested */}
                         </Link>
                         <Link href="#" className="store-btn">
-                            <FaApple className="store-icon" />
-                            <div className="store-text">
-                                <span className="small-text">Download on the</span>
-                                <span className="large-text">App Store</span>
-                            </div>
+                            <FaApple className="store-icon text-4xl" />
+                            {/* Text removed as requested */}
                         </Link>
                     </div>
                 </div>
@@ -75,20 +69,13 @@ export function AppDownloadSection() {
                     <div className="phone-glow" />
                     <div className="phone-mockup">
                         <div className="phone-notch" />
-                        <div className="phone-screen">
-                            {/* Simulated App UI */}
-                            <div className="app-ui-header">
-                                <div className="ui-menu" />
-                                <div className="ui-avatar" />
-                            </div>
-                            <div className="app-ui-hero">
-                                <div className="ui-hero-text" />
-                                <div className="ui-hero-btn" />
-                            </div>
-                            <div className="app-ui-cards">
-                                <div className="ui-card" />
-                                <div className="ui-card" />
-                            </div>
+                        <div className="phone-screen bg-black">
+                            {/* User requested screenshot - Using a placeholder for now */}
+                            <img
+                                src="https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?q=80&w=600&auto=format&fit=crop"
+                                alt="App Screenshot"
+                                className="w-full h-full object-cover"
+                            />
                         </div>
                     </div>
 
@@ -256,14 +243,16 @@ export function AppDownloadSection() {
                 .store-btn {
                     display: flex;
                     align-items: center;
+                    justify-content: center;
                     gap: 1rem;
-                    padding: 0.875rem 1.75rem;
+                    padding: 1rem 2rem;
                     background: rgba(255, 255, 255, 0.05);
                     border: 1px solid rgba(255, 255, 255, 0.1);
                     border-radius: 1rem;
                     color: white;
                     text-decoration: none;
                     transition: all 0.3s ease;
+                    min-width: 120px;
                 }
 
                 .store-btn:hover {
