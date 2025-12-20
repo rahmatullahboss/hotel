@@ -1116,6 +1116,13 @@ async function seedIncentivePrograms() {
 async function seedTestUser() {
     console.log("\n🧪 Seeding Google Play Store tester account...\n");
 
+    // Import bcrypt for password hashing
+    const bcrypt = await import("bcryptjs");
+
+    // Password: Test@1234
+    const testPassword = "Test@1234";
+    const passwordHash = await bcrypt.hash(testPassword, 12);
+
     // Create test user for Play Store
     let testUser = await db.query.users.findFirst({
         where: eq(users.email, "playstoretest@zinurooms.com"),
@@ -1125,17 +1132,27 @@ async function seedTestUser() {
         const [newUser] = await db.insert(users).values({
             name: "Play Store Tester",
             email: "playstoretest@zinurooms.com",
-            role: "USER",
+            passwordHash,
+            role: "TRAVELER",
         }).returning();
         testUser = newUser;
         console.log(`  ✓ Created tester: playstoretest@zinurooms.com`);
     } else {
-        console.log(`  ⏭️  Tester account already exists`);
+        // Update existing user with password if they don't have one
+        if (!testUser.passwordHash) {
+            await db.update(users)
+                .set({ passwordHash })
+                .where(eq(users.email, "playstoretest@zinurooms.com"));
+            console.log(`  ✓ Updated tester with password`);
+        } else {
+            console.log(`  ⏭️  Tester account already exists with password`);
+        }
     }
 
     console.log("\n✅ Test user seeding complete!");
     console.log("   Email: playstoretest@zinurooms.com");
-    console.log("   Role: USER\n");
+    console.log("   Password: Test@1234");
+    console.log("   Role: TRAVELER\n");
 }
 
 // Run if executed directly

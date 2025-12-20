@@ -20,6 +20,8 @@ export const users = pgTable("users", {
     emailVerified: timestamp("emailVerified", { mode: "date" }),
     image: text("image"),
     phone: text("phone"),
+    // Password hash for email/password login (null for OAuth-only users)
+    passwordHash: text("passwordHash"),
     role: text("role", { enum: ["TRAVELER", "HOTEL_OWNER", "PARTNER", "ADMIN"] })
         .default("TRAVELER")
         .notNull(),
