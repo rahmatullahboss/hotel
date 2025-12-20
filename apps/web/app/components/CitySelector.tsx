@@ -23,7 +23,7 @@ interface CitySelectorProps {
 const cityImages: Record<string, string> = {
     dhaka: "/images/destinations/dhaka.webp",
     chittagong: "/images/destinations/chittagong.webp",
-    "coxs-bazar": "/images/destinations/cox-bazar.webp",
+    "cox-bazar": "/images/destinations/cox-bazar.webp",
     sylhet: "/images/destinations/sylhet.webp",
 };
 
@@ -90,7 +90,7 @@ export function CitySelector({ cities, showDetect = true }: CitySelectorProps) {
                     <Link
                         key={city.slug}
                         href={`/hotels?city=${encodeURIComponent(city.name)}`}
-                        className={`city-tile ${detectedCity === city.slug ? "detected" : ""} ${city.slug === "coxs-bazar" || city.slug === "sylhet" ? "bento-large" : ""}`}
+                        className={`city-tile ${detectedCity === city.slug ? "detected" : ""} ${city.slug === "cox-bazar" || city.slug === "sylhet" ? "bento-large" : ""}`}
                         style={{
                             backgroundImage: `linear-gradient(rgba(0,0,0,0.1), rgba(0,0,0,0.4)), url(${cityImages[city.slug] || "/images/destinations/dhaka.webp"})`
                         }}
