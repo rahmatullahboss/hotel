@@ -947,6 +947,40 @@ async function seedMultiHotelPartner() {
 }
 
 /**
+ * Seed system settings (feature toggles)
+ */
+async function seedSystemSettings() {
+    console.log("\n⚙️  Seeding system settings...\n");
+
+    const { systemSettings } = await import("./schema");
+    const { SETTING_KEYS } = await import("./schema/systemSettings");
+
+    const settings = [
+        {
+            key: SETTING_KEYS.HOTEL_INCENTIVES_ENABLED,
+            value: "true",
+            description: "Controls whether hotel owners can see incentive programs",
+        },
+    ];
+
+    for (const setting of settings) {
+        const existing = await db.query.systemSettings.findFirst({
+            where: eq(systemSettings.key, setting.key),
+        });
+
+        if (existing) {
+            console.log(`  ⏭️  Setting "${setting.key}" exists, skipping...`);
+            continue;
+        }
+
+        await db.insert(systemSettings).values(setting);
+        console.log(`  ✓ Created setting: ${setting.key} = ${setting.value}`);
+    }
+
+    console.log("\n✅ System settings seeding complete!\n");
+}
+
+/**
  * Seed incentive programs for hotel partners
  */
 async function seedIncentivePrograms() {
@@ -1079,9 +1113,11 @@ async function seedIncentivePrograms() {
 // Run if executed directly
 seed()
     .then(() => seedMultiHotelPartner())
+    .then(() => seedSystemSettings())
     .then(() => seedIncentivePrograms())
     .then(() => process.exit(0))
     .catch((error) => {
         console.error("❌ Seed failed:", error);
         process.exit(1);
     });
+
