@@ -215,79 +215,63 @@ export function OnboardingWizard() {
 
 
     return (
-        <div className="max-w-7xl mx-auto p-4 md:p-8 grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-8 min-h-[calc(100vh-120px)] font-sans">
-            {/* Sidebar Stepper */}
-            <div className="flex flex-col gap-0 bg-gradient-to-br from-[#1d3557] to-[#2a4a7f] rounded-2xl p-6 md:p-8 text-white sticky top-[100px] h-fit shadow-2xl">
-                <div className="text-xs font-bold tracking-widest text-white/50 mb-6 uppercase">Getting Started</div>
-                {STEPS.map((step, i) => {
-                    const isActive = currentStep === step.id;
-                    const isCompleted = currentStep > step.id;
-                    return (
-                        <div key={step.id} className={`relative flex items-center gap-4 py-4 ${isActive ? 'opacity-100' : 'opacity-60'} hover:opacity-100 transition-opacity cursor-pointer group`}>
-                            {/* Icon Circle */}
-                            <div className={`w-10 h-10 rounded-full flex items-center justify-center text-lg border-2 z-10 relative transition-all duration-300 ${isActive ? 'bg-white text-[#1d3557] border-white scale-110 shadow-lg' :
-                                isCompleted ? 'bg-emerald-500 text-white border-emerald-500' :
-                                    'bg-white/10 text-white/60 border-white/20'
-                                }`}>
-                                {isCompleted ? <FiCheck size={18} /> : <step.icon />}
-                            </div>
-
-                            {/* Text */}
-                            <div className={`text-sm font-medium ${isActive ? 'text-white font-bold' : 'text-white/80'}`}>
-                                {step.title}
-                            </div>
-
-                            {/* Connector Line */}
-                            {i < STEPS.length - 1 && (
-                                <div className={`absolute left-[19px] top-10 w-[2px] h-8 ${isCompleted ? 'bg-emerald-500' : 'bg-white/10'}`} />
-                            )}
+        <div className="onboarding-wizard">
+            {/* Progress Sidebar */}
+            <div className="wizard-progress">
+                <div className="wizard-progress-title">Getting Started</div>
+                {STEPS.map((step, index) => (
+                    <div
+                        key={step.id}
+                        className={`progress-step ${currentStep === step.id ? "active" : ""} ${currentStep > step.id ? "completed" : ""}`}
+                    >
+                        <div className="step-indicator">
+                            {currentStep > step.id ? <FiCheck /> : <step.icon />}
                         </div>
-                    )
-                })}
+                        <span className="step-title">{step.title}</span>
+                    </div>
+                ))}
             </div>
 
             {/* Content Area */}
-            <div className="bg-white rounded-3xl p-6 md:p-12 shadow-sm border border-black/5 [&_input]:w-full [&_input]:p-4 [&_input]:border [&_input]:border-gray-200 [&_input]:rounded-xl [&_input]:bg-gray-50 [&_input:focus]:bg-white [&_input:focus]:ring-4 [&_input:focus]:ring-[#1d3557]/10 [&_input]:transition-all [&_label]:font-bold [&_label]:text-gray-700 [&_label]:mb-2 [&_label]:block [&_textarea]:w-full [&_textarea]:p-4 [&_textarea]:border [&_textarea]:border-gray-200 [&_textarea]:rounded-xl [&_textarea]:bg-gray-50 [&_select]:w-full [&_select]:p-4 [&_select]:border [&_select]:border-gray-200 [&_select]:rounded-xl [&_select]:bg-gray-50">
-                {/* Error Message */}
+            <div className="wizard-content">
+                {/* Error Messages */}
                 {(error || (stepErrors[currentStep]?.length ?? 0) > 0) && (
-                    <div className="mb-8 p-4 bg-red-50 text-red-600 rounded-xl border-l-4 border-red-500 text-sm">
-                        <p className="font-bold mb-1">Please fix the following errors:</p>
-                        {error && <div>• {error}</div>}
+                    <div className="wizard-error">
+                        {error && <div>{error}</div>}
                         {stepErrors[currentStep]?.map((err, i) => (
-                            <div key={i}>• {err}</div>
+                            <div key={i}>{err}</div>
                         ))}
                     </div>
                 )}
 
-                <div className="min-h-[400px]">
-                    {currentStep === 1 && <BasicInfoStep data={data} updateData={updateData} />}
-                    {currentStep === 2 && <LocationStep data={data} updateData={updateData} />}
-                    {currentStep === 3 && <AmenitiesStep data={data} updateData={updateData} />}
-                    {currentStep === 4 && <PhotosStep data={data} updateData={updateData} />}
-                    {currentStep === 5 && <RoomsStep data={data} updateData={updateData} />}
-                    {currentStep === 6 && <DocumentsStep data={data} updateData={updateData} />}
-                    {currentStep === 7 && <PreviewStep data={data} />}
-                </div>
+                {/* Step Content */}
+                {currentStep === 1 && <BasicInfoStep data={data} updateData={updateData} />}
+                {currentStep === 2 && <LocationStep data={data} updateData={updateData} />}
+                {currentStep === 3 && <AmenitiesStep data={data} updateData={updateData} />}
+                {currentStep === 4 && <PhotosStep data={data} updateData={updateData} />}
+                {currentStep === 5 && <RoomsStep data={data} updateData={updateData} />}
+                {currentStep === 6 && <DocumentsStep data={data} updateData={updateData} />}
+                {currentStep === 7 && <PreviewStep data={data} />}
 
                 {/* Navigation Buttons */}
-                <div className="flex justify-between mt-12 pt-8 border-t border-gray-100">
+                <div className="wizard-navigation">
                     <button
                         onClick={handleBack}
                         disabled={currentStep === 1}
-                        className="flex items-center gap-2 px-8 py-3 rounded-xl border-2 border-gray-100 text-gray-500 font-semibold hover:border-gray-300 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                        className="btn btn-outline"
                     >
                         <FiChevronLeft /> Back
                     </button>
 
                     {currentStep < STEPS.length ? (
-                        <button onClick={handleNext} className="flex items-center gap-2 px-8 py-3 rounded-xl bg-[#1d3557] text-white font-semibold hover:bg-[#152945] shadow-lg shadow-[#1d3557]/20 transition-all">
+                        <button onClick={handleNext} className="btn btn-primary">
                             Next <FiChevronRight />
                         </button>
                     ) : (
                         <button
                             onClick={handleSubmit}
                             disabled={isSubmitting}
-                            className="flex items-center gap-2 px-8 py-3 rounded-xl bg-gradient-to-r from-[#e63946] to-[#ff6b6b] text-white font-semibold hover:opacity-90 shadow-lg shadow-[#e63946]/20 transition-all"
+                            className="btn btn-accent"
                         >
                             {isSubmitting ? "Submitting..." : "Submit for Approval"}
                         </button>
