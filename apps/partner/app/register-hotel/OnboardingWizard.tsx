@@ -108,7 +108,11 @@ export function OnboardingWizard() {
 
     // Save draft to localStorage on every change
     useEffect(() => {
-        if (data !== INITIAL_DATA) {
+        // Always save if there's any meaningful data (not just initial empty state)
+        const hasData = data.name || data.description || data.phone || data.city ||
+            data.amenities.length > 0 || data.coverImage || data.photos.length > 0 ||
+            data.rooms.length > 0 || data.ownerNid || data.tradeLicense;
+        if (hasData || currentStep > 1) {
             localStorage.setItem(STORAGE_KEY, JSON.stringify({ data, step: currentStep }));
         }
     }, [data, currentStep]);
