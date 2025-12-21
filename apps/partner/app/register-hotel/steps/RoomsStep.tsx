@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { FiPlus, FiTrash2, FiEdit2, FiCheck, FiX, FiHome, FiWifi, FiDroplet, FiTv, FiSun, FiThermometer } from "react-icons/fi";
-import { MdBalcony, MdKitchen, MdWaves, MdLocationCity, MdBathtub } from "react-icons/md";
+import { FiPlus, FiTrash2, FiEdit2, FiCheck, FiX, FiHome, FiWifi, FiDroplet, FiTv, FiSun, FiThermometer, FiSunrise, FiFeather } from "react-icons/fi";
+import { MdBalcony, MdKitchen, MdWaves, MdLocationCity, MdBathtub, MdPool, MdWater, MdOutdoorGrill } from "react-icons/md";
 import type { OnboardingData, RoomInput } from "../OnboardingWizard";
 
 interface Props {
@@ -27,6 +27,11 @@ const ROOM_AMENITIES = [
     { name: "Balcony", icon: MdBalcony },
     { name: "Sea View", icon: MdWaves },
     { name: "City View", icon: MdLocationCity },
+    { name: "Hill View", icon: FiSunrise },
+    { name: "Garden View", icon: FiFeather },
+    { name: "Pool View", icon: MdPool },
+    { name: "River View", icon: MdWater },
+    { name: "Courtyard View", icon: MdOutdoorGrill },
 ];
 
 const EMPTY_ROOM: RoomInput = {
