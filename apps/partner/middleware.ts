@@ -29,7 +29,7 @@ const authConfig: NextAuthConfig = {
         authorized({ auth, request: { nextUrl } }) {
             const isLoggedIn = !!auth?.user;
 
-            const publicPaths = ["/auth/signin", "/auth/error", "/api/auth", "/api/cron"];
+            const publicPaths = ["/auth/signin", "/auth/signup", "/auth/error", "/api/auth", "/api/cron"];
             const isPublicPath = publicPaths.some(path => nextUrl.pathname.startsWith(path));
 
             if (isPublicPath) return true;

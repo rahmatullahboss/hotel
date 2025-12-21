@@ -68,42 +68,46 @@ export const getAuthConfig = (): NextAuthConfig => ({
         }),
 
         // Phone/OTP authentication can be added here
-        // Credentials provider for development
+        // Credentials provider for email/password login
         Credentials({
-            name: "Development",
+            name: "Credentials",
             credentials: {
                 email: { label: "Email", type: "email" },
+                password: { label: "Password", type: "password" },
             },
             async authorize(credentials) {
-                // Only for development - remove in production
-                if (process.env.NODE_ENV !== "development") {
-                    return null;
-                }
+                const email = credentials?.email as string;
+                const password = credentials?.password as string;
 
-                const email = credentials.email as string;
-                if (!email) return null;
+                if (!email || !password) return null;
 
-                // Find or create user for development
+                // Find user by email
                 const db = createQueryDb();
                 const existingUser = await db.query.users.findFirst({
                     where: (users: any, { eq }: any) => eq(users.email, email),
                 });
 
-                if (existingUser) {
-                    return existingUser;
+                if (!existingUser) {
+                    // User not found
+                    return null;
                 }
 
-                // Create new user for development
-                const [newUser] = await db
-                    .insert(users)
-                    .values({
-                        email,
-                        name: email.split("@")[0],
-                        role: "TRAVELER",
-                    })
-                    .returning();
+                // Check if user has a password set
+                if (!existingUser.passwordHash) {
+                    // User exists but registered via OAuth (no password)
+                    return null;
+                }
 
-                return newUser ?? null;
+                // Verify password using bcrypt
+                // We use dynamic import to avoid issues with edge runtime
+                const bcrypt = await import("bcryptjs");
+                const isValid = await bcrypt.compare(password, existingUser.passwordHash);
+
+                if (!isValid) {
+                    return null;
+                }
+
+                return existingUser;
             },
         }),
     ],

@@ -1,48 +1,89 @@
 "use client";
 
-import { signIn } from "next-auth/react";
 import { useState, Suspense } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
+import { signIn } from "next-auth/react";
 import Link from "next/link";
 
-function SignInContent() {
-    const searchParams = useSearchParams();
+function SignUpContent() {
     const router = useRouter();
-    const callbackUrl = searchParams.get("callbackUrl") || "/";
 
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
+    const [formData, setFormData] = useState({
+        name: "",
+        email: "",
+        password: "",
+        confirmPassword: "",
+    });
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState("");
 
-    const handleGoogleSignIn = async () => {
-        setIsLoading(true);
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setFormData({ ...formData, [e.target.name]: e.target.value });
         setError("");
-        await signIn("google", { callbackUrl });
     };
 
-    const handleCredentialsSignIn = async (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!email || !password) return;
-
+    const handleGoogleSignUp = async () => {
         setIsLoading(true);
+        await signIn("google", { callbackUrl: "/register-hotel" });
+    };
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
         setError("");
 
+        // Validation
+        if (!formData.name || !formData.email || !formData.password) {
+            setError("All fields are required");
+            return;
+        }
+
+        if (formData.password.length < 6) {
+            setError("Password must be at least 6 characters");
+            return;
+        }
+
+        if (formData.password !== formData.confirmPassword) {
+            setError("Passwords do not match");
+            return;
+        }
+
+        setIsLoading(true);
+
         try {
-            const result = await signIn("credentials", {
-                email,
-                password,
+            const res = await fetch("/api/auth/signup", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    name: formData.name,
+                    email: formData.email,
+                    password: formData.password,
+                }),
+            });
+
+            const data = await res.json();
+
+            if (!res.ok) {
+                setError(data.error || "Sign up failed");
+                setIsLoading(false);
+                return;
+            }
+
+            // Auto sign in after successful registration
+            const signInResult = await signIn("credentials", {
+                email: formData.email,
+                password: formData.password,
                 redirect: false,
             });
 
-            if (result?.error) {
-                setError("Invalid email or password");
-                setIsLoading(false);
+            if (signInResult?.error) {
+                // Registration succeeded but auto-signin failed, redirect to signin
+                router.push("/auth/signin");
             } else {
-                router.push(callbackUrl);
+                // Redirect to hotel registration
+                router.push("/register-hotel");
             }
         } catch {
-            setError("Sign in failed. Please try again.");
+            setError("Something went wrong. Please try again.");
             setIsLoading(false);
         }
     };
@@ -53,18 +94,18 @@ function SignInContent() {
                 {/* Logo */}
                 <div style={{ textAlign: "center", marginBottom: "2rem" }}>
                     <h1 style={{ fontSize: "2rem", fontWeight: 800, color: "var(--color-primary)" }}>
-                        ZinuRooms Partner
+                        Become a Partner
                     </h1>
                     <p style={{ color: "var(--color-text-secondary)" }}>
-                        Sign in to manage your hotel
+                        Create your account to list your hotel
                     </p>
                 </div>
 
-                {/* Sign In Card */}
+                {/* Sign Up Card */}
                 <div className="card" style={{ padding: "2rem" }}>
-                    {/* Google Sign In */}
+                    {/* Google Sign Up */}
                     <button
-                        onClick={handleGoogleSignIn}
+                        onClick={handleGoogleSignUp}
                         disabled={isLoading}
                         className="btn btn-outline"
                         style={{
@@ -94,7 +135,7 @@ function SignInContent() {
                                 d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
                             />
                         </svg>
-                        {isLoading ? "Signing in..." : "Continue with Google"}
+                        {isLoading ? "Please wait..." : "Continue with Google"}
                     </button>
 
                     <div
@@ -111,8 +152,28 @@ function SignInContent() {
                         <div style={{ flex: 1, height: "1px", background: "var(--color-border)" }} />
                     </div>
 
-                    {/* Email/Password Sign In */}
-                    <form onSubmit={handleCredentialsSignIn}>
+                    {/* Email/Password Sign Up Form */}
+                    <form onSubmit={handleSubmit}>
+                        <div style={{ marginBottom: "1rem" }}>
+                            <label
+                                style={{
+                                    display: "block",
+                                    fontWeight: 600,
+                                    fontSize: "0.875rem",
+                                    marginBottom: "0.5rem",
+                                }}
+                            >
+                                Full Name
+                            </label>
+                            <input
+                                type="text"
+                                name="name"
+                                placeholder="Your Name"
+                                value={formData.name}
+                                onChange={handleChange}
+                                className="form-input"
+                            />
+                        </div>
                         <div style={{ marginBottom: "1rem" }}>
                             <label
                                 style={{
@@ -126,9 +187,10 @@ function SignInContent() {
                             </label>
                             <input
                                 type="email"
+                                name="email"
                                 placeholder="partner@email.com"
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
+                                value={formData.email}
+                                onChange={handleChange}
                                 className="form-input"
                             />
                         </div>
@@ -145,9 +207,30 @@ function SignInContent() {
                             </label>
                             <input
                                 type="password"
-                                placeholder="••••••••"
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
+                                name="password"
+                                placeholder="Min. 6 characters"
+                                value={formData.password}
+                                onChange={handleChange}
+                                className="form-input"
+                            />
+                        </div>
+                        <div style={{ marginBottom: "1rem" }}>
+                            <label
+                                style={{
+                                    display: "block",
+                                    fontWeight: 600,
+                                    fontSize: "0.875rem",
+                                    marginBottom: "0.5rem",
+                                }}
+                            >
+                                Confirm Password
+                            </label>
+                            <input
+                                type="password"
+                                name="confirmPassword"
+                                placeholder="Re-enter password"
+                                value={formData.confirmPassword}
+                                onChange={handleChange}
                                 className="form-input"
                             />
                         </div>
@@ -163,16 +246,16 @@ function SignInContent() {
                         )}
                         <button
                             type="submit"
-                            disabled={isLoading || !email || !password}
+                            disabled={isLoading}
                             className="btn btn-primary"
                             style={{ width: "100%" }}
                         >
-                            {isLoading ? "Signing in..." : "Sign In"}
+                            {isLoading ? "Creating Account..." : "Create Account"}
                         </button>
                     </form>
                 </div>
 
-                {/* Sign Up Link */}
+                {/* Sign In Link */}
                 <p
                     style={{
                         textAlign: "center",
@@ -181,16 +264,16 @@ function SignInContent() {
                         marginTop: "1.5rem",
                     }}
                 >
-                    Don&apos;t have an account?{" "}
+                    Already have an account?{" "}
                     <Link
-                        href="/auth/signup"
+                        href="/auth/signin"
                         style={{
                             color: "var(--color-primary)",
                             fontWeight: 600,
                             textDecoration: "none",
                         }}
                     >
-                        Sign Up
+                        Sign In
                     </Link>
                 </p>
             </div>
@@ -198,10 +281,10 @@ function SignInContent() {
     );
 }
 
-export default function SignInPage() {
+export default function SignUpPage() {
     return (
         <Suspense fallback={<div style={{ padding: "2rem", textAlign: "center" }}>Loading...</div>}>
-            <SignInContent />
+            <SignUpContent />
         </Suspense>
     );
 }
