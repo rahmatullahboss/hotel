@@ -13,3 +13,5 @@ const nextConfig = {
 
 export default withNextIntl(nextConfig);
 
+
+// Force restart: 2025-12-21
