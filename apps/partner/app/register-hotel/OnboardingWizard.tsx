@@ -215,28 +215,90 @@ export function OnboardingWizard() {
 
 
     return (
-        <div className="onboarding-wizard">
+        <div style={{
+            display: 'grid',
+            gridTemplateColumns: '280px 1fr',
+            gap: '2rem',
+            maxWidth: '1100px',
+            margin: '0 auto',
+            padding: '1.5rem',
+            minHeight: 'calc(100vh - 80px)',
+        }}>
             {/* Progress Sidebar */}
-            <div className="wizard-progress">
-                <div className="wizard-progress-title">Getting Started</div>
-                {STEPS.map((step, index) => (
+            <div style={{
+                display: 'flex',
+                flexDirection: 'column',
+                background: 'linear-gradient(135deg, #1d3557 0%, #2a4a7f 100%)',
+                borderRadius: '1.25rem',
+                padding: '2.5rem 2rem',
+                color: 'white',
+                position: 'sticky',
+                top: '80px',
+                height: 'fit-content',
+                boxShadow: '0 10px 40px rgba(29, 53, 87, 0.3)',
+            }}>
+                <div style={{
+                    fontSize: '0.7rem',
+                    textTransform: 'uppercase',
+                    letterSpacing: '1.5px',
+                    opacity: 0.6,
+                    marginBottom: '1.5rem',
+                    fontWeight: 500,
+                }}>Getting Started</div>
+                {STEPS.map((step) => (
                     <div
                         key={step.id}
-                        className={`progress-step ${currentStep === step.id ? "active" : ""} ${currentStep > step.id ? "completed" : ""}`}
+                        style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '1rem',
+                            padding: '1rem 0',
+                            position: 'relative',
+                        }}
                     >
-                        <div className="step-indicator">
+                        <div style={{
+                            width: '38px',
+                            height: '38px',
+                            borderRadius: '50%',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontSize: '1rem',
+                            background: currentStep === step.id ? 'white' : currentStep > step.id ? '#10b981' : 'rgba(255, 255, 255, 0.1)',
+                            border: currentStep === step.id ? '2px solid white' : currentStep > step.id ? '2px solid #10b981' : '2px solid rgba(255, 255, 255, 0.2)',
+                            color: currentStep === step.id ? '#1d3557' : currentStep > step.id ? 'white' : 'rgba(255, 255, 255, 0.5)',
+                            boxShadow: currentStep === step.id ? '0 4px 20px rgba(255, 255, 255, 0.3)' : 'none',
+                        }}>
                             {currentStep > step.id ? <FiCheck /> : <step.icon />}
                         </div>
-                        <span className="step-title">{step.title}</span>
+                        <span style={{
+                            fontSize: '0.875rem',
+                            fontWeight: currentStep === step.id ? 600 : 500,
+                            color: currentStep === step.id ? 'white' : currentStep > step.id ? 'rgba(255, 255, 255, 0.8)' : 'rgba(255, 255, 255, 0.5)',
+                        }}>{step.title}</span>
                     </div>
                 ))}
             </div>
 
             {/* Content Area */}
-            <div className="wizard-content">
+            <div style={{
+                background: 'white',
+                borderRadius: '1.5rem',
+                padding: '2.5rem',
+                boxShadow: '0 4px 24px rgba(0, 0, 0, 0.06)',
+                border: '1px solid rgba(0, 0, 0, 0.05)',
+            }}>
                 {/* Error Messages */}
                 {(error || (stepErrors[currentStep]?.length ?? 0) > 0) && (
-                    <div className="wizard-error">
+                    <div style={{
+                        padding: '1rem 1.25rem',
+                        background: '#fef2f2',
+                        color: '#dc2626',
+                        borderRadius: '0.75rem',
+                        marginBottom: '2rem',
+                        fontSize: '0.875rem',
+                        borderLeft: '4px solid #dc2626',
+                    }}>
                         {error && <div>{error}</div>}
                         {stepErrors[currentStep]?.map((err, i) => (
                             <div key={i}>{err}</div>
@@ -254,24 +316,74 @@ export function OnboardingWizard() {
                 {currentStep === 7 && <PreviewStep data={data} />}
 
                 {/* Navigation Buttons */}
-                <div className="wizard-navigation">
+                <div style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    marginTop: '3rem',
+                    paddingTop: '2rem',
+                    borderTop: '1px solid #f3f4f6',
+                    gap: '1rem',
+                }}>
                     <button
                         onClick={handleBack}
                         disabled={currentStep === 1}
-                        className="btn btn-outline"
+                        style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '0.5rem',
+                            padding: '0.875rem 2rem',
+                            fontSize: '0.9375rem',
+                            fontWeight: 600,
+                            background: 'transparent',
+                            border: '2px solid #e5e7eb',
+                            color: currentStep === 1 ? '#9ca3af' : '#6b7280',
+                            borderRadius: '0.5rem',
+                            cursor: currentStep === 1 ? 'not-allowed' : 'pointer',
+                            opacity: currentStep === 1 ? 0.4 : 1,
+                        }}
                     >
                         <FiChevronLeft /> Back
                     </button>
 
                     {currentStep < STEPS.length ? (
-                        <button onClick={handleNext} className="btn btn-primary">
+                        <button
+                            onClick={handleNext}
+                            style={{
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '0.5rem',
+                                padding: '0.875rem 2rem',
+                                fontSize: '0.9375rem',
+                                fontWeight: 600,
+                                background: '#1d3557',
+                                color: 'white',
+                                border: 'none',
+                                borderRadius: '0.5rem',
+                                cursor: 'pointer',
+                                boxShadow: '0 4px 12px rgba(29, 53, 87, 0.3)',
+                            }}
+                        >
                             Next <FiChevronRight />
                         </button>
                     ) : (
                         <button
                             onClick={handleSubmit}
                             disabled={isSubmitting}
-                            className="btn btn-accent"
+                            style={{
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '0.5rem',
+                                padding: '0.875rem 2rem',
+                                fontSize: '0.9375rem',
+                                fontWeight: 600,
+                                background: 'linear-gradient(135deg, #e63946 0%, #ff6b6b 100%)',
+                                color: 'white',
+                                border: 'none',
+                                borderRadius: '0.5rem',
+                                cursor: isSubmitting ? 'not-allowed' : 'pointer',
+                                boxShadow: '0 4px 16px rgba(230, 57, 70, 0.4)',
+                                opacity: isSubmitting ? 0.7 : 1,
+                            }}
                         >
                             {isSubmitting ? "Submitting..." : "Submit for Approval"}
                         </button>
