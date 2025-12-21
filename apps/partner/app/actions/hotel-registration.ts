@@ -1,11 +1,21 @@
 "use server";
 
 import { db } from "@repo/db";
-import { hotels, users } from "@repo/db/schema";
+import { hotels, rooms, users } from "@repo/db/schema";
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { auth } from "../../auth";
 import { generateZinuCode } from "@repo/db/utils/zinuBranding";
+
+export interface RoomInput {
+    name: string;
+    type: "SINGLE" | "DOUBLE" | "SUITE" | "DORMITORY";
+    roomNumber: string;
+    basePrice: string;
+    maxGuests: number;
+    description?: string;
+    amenities: string[];
+}
 
 export interface HotelRegistrationInput {
     name: string;
@@ -16,6 +26,12 @@ export interface HotelRegistrationInput {
     phone?: string;
     latitude?: number;
     longitude?: number;
+    // New fields for enhanced onboarding
+    photos?: string[];
+    coverImage?: string;
+    rooms?: RoomInput[];
+    ownerNid?: string;
+    tradeLicense?: string;
 }
 
 /**
@@ -66,12 +82,30 @@ export async function submitHotelRegistration(
                 amenities: input.amenities,
                 latitude: input.latitude?.toString(),
                 longitude: input.longitude?.toString(),
+                photos: input.photos || [],
+                coverImage: input.coverImage || null,
                 status: "PENDING",
             })
             .returning({ id: hotels.id, zinuCode: hotels.zinuCode });
 
         if (!newHotel) {
             return { success: false, error: "Failed to create hotel" };
+        }
+
+        // Create rooms if provided
+        if (input.rooms && input.rooms.length > 0) {
+            await db.insert(rooms).values(
+                input.rooms.map((room) => ({
+                    hotelId: newHotel.id,
+                    name: room.name,
+                    type: room.type,
+                    roomNumber: room.roomNumber,
+                    basePrice: room.basePrice,
+                    maxGuests: room.maxGuests,
+                    description: room.description || null,
+                    amenities: room.amenities,
+                }))
+            );
         }
 
         // Update user role to HOTEL_OWNER if not already
