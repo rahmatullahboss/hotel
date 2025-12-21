@@ -1741,3 +1741,275 @@ main {
   padding: 2rem;
   text-align: center;
 }
+
+/* ================================================
+   OYO DASHBOARD COMPONENTS
+   ================================================ */
+
+/* Dashboard Grid Layout */
+.oyo-dashboard-grid {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 1.5rem;
+  padding: 1rem 0;
+}
+
+.oyo-dashboard-main {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.oyo-right-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* OYO Card */
+.oyo-card {
+  background: var(--color-bg-primary);
+  border-radius: 0.75rem;
+  border: 1px solid var(--color-border);
+  overflow: hidden;
+}
+
+.oyo-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.oyo-card-title {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.oyo-card-link {
+  font-size: 0.8125rem;
+  color: var(--color-primary);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.oyo-card-link:hover {
+  text-decoration: underline;
+}
+
+.oyo-card-body {
+  padding: 1.25rem;
+}
+
+/* Reward Card */
+.oyo-reward-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.25rem;
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  border-radius: 0.5rem;
+  margin: 1rem;
+  margin-top: 0;
+}
+
+.oyo-reward-label {
+  font-size: 0.75rem;
+  color: #92400e;
+  margin-bottom: 0.25rem;
+}
+
+.oyo-reward-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #92400e;
+}
+
+.oyo-reward-icon {
+  font-size: 2rem;
+}
+
+/* Status Cards */
+.status-card {
+  background: var(--color-bg-primary);
+  border-radius: 0.75rem;
+  padding: 1.25rem;
+  border: 1px solid var(--color-border);
+}
+
+.status-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.status-card-title {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+/* Price Card */
+.price-card {
+  background: var(--color-bg-primary);
+  border-radius: 0.75rem;
+  padding: 1.25rem;
+  border: 1px solid var(--color-border);
+}
+
+/* Promo Banner */
+.promo-banner {
+  background: linear-gradient(135deg, #1e3a5f 0%, #2563eb 100%);
+  border-radius: 0.75rem;
+  padding: 1rem 1.25rem;
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.promo-banner-content {
+  flex: 1;
+}
+
+.promo-banner-title {
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+.promo-banner-discount {
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+/* Performance Charts Container */
+.performance-charts {
+  background: var(--color-bg-primary);
+  border-radius: 0.75rem;
+  padding: 1.25rem;
+  border: 1px solid var(--color-border);
+}
+
+.performance-chart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+/* Filter Chips */
+.filter-tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  overflow-x: auto;
+  padding-bottom: 0.5rem;
+}
+
+.filter-tab {
+  padding: 0.5rem 1rem;
+  border-radius: 2rem;
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  color: var(--color-text-secondary);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.filter-tab:hover {
+  background: var(--color-bg-tertiary, #e5e7eb);
+}
+
+.filter-tab.active {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: white;
+}
+
+/* Page Header */
+.page-header {
+  margin-bottom: 1.5rem;
+}
+
+.page-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin-bottom: 0.25rem;
+}
+
+.page-subtitle {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+}
+
+/* Booking Cards */
+.booking-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.booking-card {
+  background: var(--color-bg-primary);
+  border-radius: 0.75rem;
+  padding: 1.25rem;
+  border: 1px solid var(--color-border);
+  border-left: 4px solid var(--color-primary);
+}
+
+.booking-card.confirmed {
+  border-left-color: var(--color-success);
+}
+
+.booking-card.pending {
+  border-left-color: var(--color-warning);
+}
+
+.booking-card.cancelled {
+  border-left-color: var(--color-error);
+}
+
+/* Mobile Responsive Dashboard */
+@media (max-width: 1023px) {
+  .oyo-dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .oyo-right-sidebar {
+    order: -1;
+  }
+}
+
+@media (max-width: 640px) {
+  .oyo-dashboard-grid {
+    gap: 1rem;
+    padding: 0.5rem 0;
+  }
+
+  .oyo-card-header {
+    padding: 0.75rem 1rem;
+  }
+
+  .oyo-card-body {
+    padding: 1rem;
+  }
+
+  .filter-tabs {
+    gap: 0.375rem;
+  }
+
+  .filter-tab {
+    padding: 0.375rem 0.75rem;
+    font-size: 0.75rem;
+  }
+}
