@@ -249,31 +249,31 @@ export function OnboardingWizard() {
                 {currentStep === 5 && <RoomsStep data={data} updateData={updateData} />}
                 {currentStep === 6 && <DocumentsStep data={data} updateData={updateData} />}
                 {currentStep === 7 && <PreviewStep data={data} />}
-            </div>
 
-            {/* Navigation Buttons */}
-            <div className="wizard-navigation">
-                <button
-                    onClick={handleBack}
-                    disabled={currentStep === 1}
-                    className="btn btn-outline"
-                >
-                    <FiChevronLeft /> Back
-                </button>
-
-                {currentStep < STEPS.length ? (
-                    <button onClick={handleNext} className="btn btn-primary">
-                        Next <FiChevronRight />
-                    </button>
-                ) : (
+                {/* Navigation Buttons */}
+                <div className="wizard-navigation">
                     <button
-                        onClick={handleSubmit}
-                        disabled={isSubmitting}
-                        className="btn btn-accent"
+                        onClick={handleBack}
+                        disabled={currentStep === 1}
+                        className="btn btn-outline"
                     >
-                        {isSubmitting ? "Submitting..." : "Submit for Approval"}
+                        <FiChevronLeft /> Back
                     </button>
-                )}
+
+                    {currentStep < STEPS.length ? (
+                        <button onClick={handleNext} className="btn btn-primary">
+                            Next <FiChevronRight />
+                        </button>
+                    ) : (
+                        <button
+                            onClick={handleSubmit}
+                            disabled={isSubmitting}
+                            className="btn btn-accent"
+                        >
+                            {isSubmitting ? "Submitting..." : "Submit for Approval"}
+                        </button>
+                    )}
+                </div>
             </div>
         </div>
     );
