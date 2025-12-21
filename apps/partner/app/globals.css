@@ -1565,3 +1565,179 @@ main {
   color: var(--color-text-secondary);
   text-align: center;
 }
+
+/* ================================================
+   OYO OS DASHBOARD LAYOUT STYLES
+   ================================================ */
+
+/* Main Layout Container */
+.oyo-layout {
+  display: flex;
+  min-height: 100vh;
+  background: var(--color-bg-secondary);
+}
+
+/* Sidebar */
+.oyo-sidebar {
+  width: 220px;
+  background: var(--color-bg-primary);
+  border-right: 1px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  left: 0;
+  top: 64px;
+  bottom: 0;
+  z-index: 40;
+  padding: 1rem 0;
+  overflow-y: auto;
+}
+
+.oyo-sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0 0.75rem;
+  flex: 1;
+}
+
+.oyo-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  color: var(--color-text-secondary);
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.oyo-nav-item:hover {
+  background: var(--color-bg-secondary);
+  color: var(--color-text-primary);
+}
+
+.oyo-nav-item.active {
+  background: rgba(29, 53, 87, 0.1);
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+.oyo-nav-item svg {
+  font-size: 1.125rem;
+  flex-shrink: 0;
+}
+
+/* Main Content Area */
+.oyo-main {
+  flex: 1;
+  margin-left: 220px;
+  padding: 1.5rem;
+  min-height: calc(100vh - 64px);
+}
+
+/* Mobile: Hide sidebar and remove margin */
+@media (max-width: 1023px) {
+  .oyo-sidebar {
+    display: none;
+  }
+
+  .oyo-main {
+    margin-left: 0;
+    padding-bottom: 5rem;
+    /* Space for bottom nav */
+  }
+}
+
+/* Partner Header */
+.partner-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 64px;
+  background: var(--color-bg-primary);
+  border-bottom: 1px solid var(--color-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 1.5rem;
+  z-index: 50;
+}
+
+.partner-header-left {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.partner-header-logo {
+  font-weight: 700;
+  font-size: 1.125rem;
+  color: var(--color-accent);
+}
+
+.partner-header-right {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+/* Bottom Nav */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--color-bg-primary);
+  border-top: 1px solid var(--color-border);
+  display: flex;
+  justify-content: space-around;
+  padding: 0.5rem 0;
+  padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
+  z-index: 50;
+}
+
+.nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.5rem;
+  color: var(--color-text-secondary);
+  text-decoration: none;
+  font-size: 0.7rem;
+  font-weight: 500;
+}
+
+.nav-item.active {
+  color: var(--color-accent);
+}
+
+/* Hide desktop elements on mobile */
+.hide-on-mobile {
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  .hide-on-mobile {
+    display: flex;
+  }
+
+  .hide-on-desktop {
+    display: none !important;
+  }
+}
+
+/* Main centered layout for unauthenticated states */
+.main-centered {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 2rem;
+  text-align: center;
+}
