@@ -2,8 +2,8 @@ name: Sync Channels
 
 on:
   schedule:
-    # Run every 30 minutes
-    - cron: '*/30 * * * *'
+    # Run every hour at minute 30 (GitHub free tier friendly)
+    - cron: '30 * * * *'
   workflow_dispatch: # Allow manual trigger
     inputs:
       partner_url:
