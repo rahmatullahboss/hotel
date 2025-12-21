@@ -1,13 +1,132 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { FiUpload, FiX, FiImage, FiStar } from "react-icons/fi";
+import { FiUpload, FiX, FiStar, FiCamera } from "react-icons/fi";
 import type { OnboardingData } from "../OnboardingWizard";
 
 interface Props {
     data: OnboardingData;
     updateData: (updates: Partial<OnboardingData>) => void;
 }
+
+const styles = {
+    container: {
+        display: 'flex',
+        flexDirection: 'column' as const,
+        gap: '1.5rem',
+    },
+    heading: {
+        fontSize: '1.75rem',
+        fontWeight: 700,
+        color: '#1d3557',
+        marginBottom: '0.5rem',
+    },
+    description: {
+        color: '#64748b',
+        fontSize: '1rem',
+        marginBottom: '0.5rem',
+    },
+    dropzone: (isUploading: boolean) => ({
+        border: '2px dashed',
+        borderColor: isUploading ? '#1d3557' : '#e2e8f0',
+        borderRadius: '1rem',
+        padding: '2.5rem 2rem',
+        textAlign: 'center' as const,
+        cursor: 'pointer',
+        transition: 'all 0.2s ease',
+        background: isUploading ? 'rgba(29, 53, 87, 0.05)' : 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)',
+    }),
+    dropzoneIcon: {
+        fontSize: '2.5rem',
+        color: '#64748b',
+        marginBottom: '0.75rem',
+    },
+    dropzoneText: {
+        fontSize: '1rem',
+        color: '#334155',
+        marginBottom: '0.25rem',
+        fontWeight: 500,
+    },
+    dropzoneHint: {
+        fontSize: '0.8125rem',
+        color: '#94a3b8',
+    },
+    gallery: {
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))',
+        gap: '1rem',
+    },
+    photoItem: (isCover: boolean) => ({
+        position: 'relative' as const,
+        aspectRatio: '4/3',
+        borderRadius: '0.75rem',
+        overflow: 'hidden',
+        border: isCover ? '3px solid #1d3557' : '2px solid #e2e8f0',
+        boxShadow: isCover ? '0 4px 16px rgba(29, 53, 87, 0.2)' : '0 2px 8px rgba(0, 0, 0, 0.04)',
+    }),
+    photoImage: {
+        width: '100%',
+        height: '100%',
+        objectFit: 'cover' as const,
+    },
+    photoOverlay: {
+        position: 'absolute' as const,
+        inset: 0,
+        background: 'rgba(0, 0, 0, 0.5)',
+        display: 'flex',
+        flexDirection: 'column' as const,
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: '0.5rem',
+        opacity: 0,
+        transition: 'opacity 0.2s ease',
+    },
+    coverBadge: {
+        display: 'flex',
+        alignItems: 'center',
+        gap: '0.25rem',
+        background: '#1d3557',
+        color: 'white',
+        padding: '0.25rem 0.625rem',
+        borderRadius: '0.375rem',
+        fontSize: '0.75rem',
+        fontWeight: 600,
+    },
+    btnSetCover: {
+        background: 'white',
+        color: '#334155',
+        border: 'none',
+        padding: '0.375rem 0.75rem',
+        borderRadius: '0.375rem',
+        fontSize: '0.75rem',
+        cursor: 'pointer',
+        fontWeight: 600,
+    },
+    btnRemove: {
+        background: '#dc2626',
+        color: 'white',
+        border: 'none',
+        width: '28px',
+        height: '28px',
+        borderRadius: '50%',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        cursor: 'pointer',
+    },
+    photoCount: {
+        textAlign: 'center' as const,
+        color: '#64748b',
+        fontSize: '0.875rem',
+        padding: '0.75rem',
+        background: '#f8fafc',
+        borderRadius: '0.5rem',
+    },
+    suggestion: {
+        color: '#f59e0b',
+        fontWeight: 500,
+    },
+};
 
 export function PhotosStep({ data, updateData }: Props) {
     const [isUploading, setIsUploading] = useState(false);
@@ -45,7 +164,6 @@ export function PhotosStep({ data, updateData }: Props) {
         }
 
         if (uploaded.length > 0) {
-            // First uploaded image becomes cover if none set
             if (!data.coverImage && uploaded.length > 0) {
                 updateData({
                     coverImage: uploaded[0],
@@ -67,7 +185,6 @@ export function PhotosStep({ data, updateData }: Props) {
 
     function removePhoto(url: string) {
         if (data.coverImage === url) {
-            // Move first gallery photo to cover, or clear
             const newPhotos = data.photos.filter((p) => p !== url);
             updateData({
                 coverImage: newPhotos[0] || "",
@@ -79,7 +196,6 @@ export function PhotosStep({ data, updateData }: Props) {
     }
 
     function setCoverImage(url: string) {
-        // Swap with current cover
         const newPhotos = data.photos.filter((p) => p !== url);
         if (data.coverImage) {
             newPhotos.unshift(data.coverImage);
@@ -90,15 +206,17 @@ export function PhotosStep({ data, updateData }: Props) {
     const allPhotos = [data.coverImage, ...data.photos].filter(Boolean);
 
     return (
-        <div className="step-content">
-            <h2 className="step-heading">Show off your hotel</h2>
-            <p className="step-description">
-                Upload high-quality photos to attract more guests. The first photo will be your cover image.
-            </p>
+        <div style={styles.container}>
+            <div>
+                <h2 style={styles.heading}>Show off your hotel</h2>
+                <p style={styles.description}>
+                    Upload high-quality photos to attract more guests. The first photo will be your cover image.
+                </p>
+            </div>
 
             {/* Drop Zone */}
             <div
-                className={`photo-dropzone ${isUploading ? "uploading" : ""}`}
+                style={styles.dropzone(isUploading)}
                 onDrop={handleDrop}
                 onDragOver={(e) => e.preventDefault()}
                 onClick={() => fileInputRef.current?.click()}
@@ -111,32 +229,40 @@ export function PhotosStep({ data, updateData }: Props) {
                     onChange={(e) => handleFileUpload(e.target.files)}
                     style={{ display: "none" }}
                 />
-                <FiUpload className="dropzone-icon" />
-                <p className="dropzone-text">
+                <FiUpload style={styles.dropzoneIcon} size={40} />
+                <p style={styles.dropzoneText}>
                     {isUploading ? uploadProgress : "Drag photos here or click to upload"}
                 </p>
-                <span className="dropzone-hint">PNG, JPG, WebP up to 10MB each</span>
+                <span style={styles.dropzoneHint}>PNG, JPG, WebP up to 10MB each</span>
             </div>
 
             {/* Photo Gallery */}
             {allPhotos.length > 0 && (
-                <div className="photo-gallery">
+                <div style={styles.gallery}>
                     {allPhotos.map((url, index) => (
                         <div
                             key={url}
-                            className={`photo-item ${url === data.coverImage ? "cover" : ""}`}
+                            style={styles.photoItem(url === data.coverImage)}
+                            onMouseEnter={(e) => {
+                                const overlay = e.currentTarget.querySelector('.photo-overlay') as HTMLElement;
+                                if (overlay) overlay.style.opacity = '1';
+                            }}
+                            onMouseLeave={(e) => {
+                                const overlay = e.currentTarget.querySelector('.photo-overlay') as HTMLElement;
+                                if (overlay) overlay.style.opacity = '0';
+                            }}
                         >
-                            <img src={url} alt={`Hotel photo ${index + 1}`} />
-                            <div className="photo-overlay">
+                            <img src={url} alt={`Hotel photo ${index + 1}`} style={styles.photoImage} />
+                            <div className="photo-overlay" style={styles.photoOverlay}>
                                 {url === data.coverImage ? (
-                                    <span className="cover-badge">
-                                        <FiStar /> Cover
+                                    <span style={styles.coverBadge}>
+                                        <FiStar size={12} /> Cover
                                     </span>
                                 ) : (
                                     <button
                                         type="button"
                                         onClick={() => setCoverImage(url)}
-                                        className="btn-set-cover"
+                                        style={styles.btnSetCover}
                                     >
                                         Set as Cover
                                     </button>
@@ -144,9 +270,9 @@ export function PhotosStep({ data, updateData }: Props) {
                                 <button
                                     type="button"
                                     onClick={() => removePhoto(url)}
-                                    className="btn-remove"
+                                    style={styles.btnRemove}
                                 >
-                                    <FiX />
+                                    <FiX size={14} />
                                 </button>
                             </div>
                         </div>
@@ -154,10 +280,10 @@ export function PhotosStep({ data, updateData }: Props) {
                 </div>
             )}
 
-            <div className="photo-count">
-                {allPhotos.length} photo{allPhotos.length !== 1 ? "s" : ""} uploaded
+            <div style={styles.photoCount}>
+                <strong>{allPhotos.length}</strong> photo{allPhotos.length !== 1 ? "s" : ""} uploaded
                 {allPhotos.length < 3 && (
-                    <span className="photo-suggestion"> (We recommend at least 5 photos)</span>
+                    <span style={styles.suggestion}> (We recommend at least 5 photos)</span>
                 )}
             </div>
         </div>
