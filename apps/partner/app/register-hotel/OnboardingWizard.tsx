@@ -2,7 +2,18 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { FiCheck, FiChevronLeft, FiChevronRight } from "react-icons/fi";
+import {
+    FiCheck,
+    FiChevronLeft,
+    FiChevronRight,
+    FiEdit3,
+    FiMapPin,
+    FiStar,
+    FiCamera,
+    FiHome,
+    FiFileText,
+    FiEye
+} from "react-icons/fi";
 import { BasicInfoStep } from "./steps/BasicInfoStep";
 import { LocationStep } from "./steps/LocationStep";
 import { AmenitiesStep } from "./steps/AmenitiesStep";
@@ -61,13 +72,13 @@ const INITIAL_DATA: OnboardingData = {
 };
 
 const STEPS = [
-    { id: 1, title: "Basic Info", icon: "📝" },
-    { id: 2, title: "Location", icon: "📍" },
-    { id: 3, title: "Amenities", icon: "✨" },
-    { id: 4, title: "Photos", icon: "📸" },
-    { id: 5, title: "Rooms", icon: "🛏️" },
-    { id: 6, title: "Documents", icon: "📄" },
-    { id: 7, title: "Preview", icon: "👁️" },
+    { id: 1, title: "Basic Info", icon: FiEdit3 },
+    { id: 2, title: "Location", icon: FiMapPin },
+    { id: 3, title: "Amenities", icon: FiStar },
+    { id: 4, title: "Photos", icon: FiCamera },
+    { id: 5, title: "Rooms", icon: FiHome },
+    { id: 6, title: "Documents", icon: FiFileText },
+    { id: 7, title: "Preview", icon: FiEye },
 ];
 
 const STORAGE_KEY = "hotel_onboarding_draft";
@@ -189,7 +200,7 @@ export function OnboardingWizard() {
     if (success) {
         return (
             <div className="onboarding-success">
-                <div className="success-icon">✓</div>
+                <div className="success-icon"><FiCheck size={48} /></div>
                 <h1>Registration Submitted!</h1>
                 <p>
                     Your hotel registration is now pending approval. Our team will review
@@ -212,7 +223,7 @@ export function OnboardingWizard() {
                         className={`progress-step ${currentStep === step.id ? "active" : ""} ${currentStep > step.id ? "completed" : ""}`}
                     >
                         <div className="step-indicator">
-                            {currentStep > step.id ? <FiCheck /> : step.icon}
+                            {currentStep > step.id ? <FiCheck /> : <step.icon />}
                         </div>
                         <span className="step-title">{step.title}</span>
                         {index < STEPS.length - 1 && <div className="step-connector" />}

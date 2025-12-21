@@ -153,7 +153,7 @@ export function DocumentsStep({ data, updateData }: Props) {
 
             <div className="documents-note">
                 <p>
-                    📌 Your documents are securely stored and only used for verification purposes.
+                    <strong>Note:</strong> Your documents are securely stored and only used for verification purposes.
                     They will not be shown to guests.
                 </p>
             </div>
