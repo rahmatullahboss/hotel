@@ -367,9 +367,47 @@ export function AppDownloadSection() {
                 }
 
                 @media (max-width: 768px) {
-                    .app-title { font-size: 2.5rem; }
-                    .app-visual { display: none; } /* Hide heavy 3D mockup on mobile for performance/space */
-                    .stats-row { width: 100%; justify-content: space-around; }
+                    .app-download-section { padding: 4rem 0; }
+                    .app-title { font-size: 2rem; }
+                    .app-subtitle { font-size: 1rem; margin-bottom: 2rem; }
+                    .stats-row { width: 100%; justify-content: space-around; margin-bottom: 2rem; padding: 1rem; }
+                    .feature-list { flex-direction: column; gap: 1rem; margin-bottom: 2rem; }
+                    .store-buttons { justify-content: center; }
+                    .store-badge { height: 48px; }
+                    
+                    /* Show phone mockup on mobile with adjusted size */
+                    .app-visual { 
+                        margin-top: 2rem;
+                        order: -1; /* Move phone above content on mobile */
+                    }
+                    .phone-mockup {
+                        width: 220px;
+                        height: 440px;
+                        transform: rotateY(0deg) rotateX(0deg);
+                        border-radius: 2rem;
+                        border-width: 6px;
+                    }
+                    .phone-notch {
+                        width: 80px;
+                        height: 22px;
+                    }
+                    .phone-screen {
+                        border-radius: 1.75rem;
+                    }
+                    .floating-card {
+                        display: none; /* Hide floating card on mobile for cleaner look */
+                    }
+                    .app-container {
+                        text-align: center;
+                    }
+                    .app-content {
+                        display: flex;
+                        flex-direction: column;
+                        align-items: center;
+                    }
+                    .app-subtitle {
+                        max-width: 100%;
+                    }
                 }
             `}</style>
         </section>
