@@ -131,7 +131,7 @@ export function BottomNav() {
     useEffect(() => {
         if (typeof document !== "undefined") {
             const match = document.cookie.match(/locale=([^;]+)/);
-            setCurrentLocale(match ? match[1] : "bn");
+            setCurrentLocale(match?.[1] ?? "bn");
         }
     }, []);
 

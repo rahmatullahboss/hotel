@@ -8,6 +8,7 @@ import {
     Animated,
     PanResponder,
     StyleSheet,
+    Image,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -166,11 +167,11 @@ export default function OnboardingScreen() {
                     >
                         {/* Brand / Logo Area */}
                         <View className="items-start mb-6">
-                            <View className="bg-primary/20 px-3 py-1 rounded-full border border-primary/30 mb-4">
-                                <Text className="text-primary font-bold text-xs tracking-widest uppercase">
-                                    Zinu Rooms
-                                </Text>
-                            </View>
+                            <Image 
+                                source={require('../assets/images/logo.png')} 
+                                style={{ width: 180, height: 100, marginBottom: 16 }}
+                                resizeMode="contain"
+                            />
                             <Text className="text-white text-5xl font-bold leading-tight tracking-tight">
                                 Find your {'\n'}
                                 <Text className="text-primary italic">perfect</Text> stay

@@ -1,9 +1,9 @@
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { DarkTheme, DefaultTheme, ThemeProvider as NavigationThemeProvider } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
-import { Stack } from 'expo-router';
+import { Stack, useRouter, useSegments, useRootNavigationState } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { Platform } from 'react-native';
@@ -11,6 +11,7 @@ import * as Device from 'expo-device';
 import * as Notifications from 'expo-notifications';
 import * as NavigationBar from 'expo-navigation-bar';
 import Constants from 'expo-constants';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import 'react-native-reanimated';
 import '../global.css';
 
@@ -20,6 +21,8 @@ import Colors from '@/constants/Colors';
 import { initI18n } from '@/i18n';
 import api, { getToken } from '@/lib/api';
 import { devLog, devWarn, devError } from '@/lib/logger';
+
+const ONBOARDING_KEY = '@zinurooms_onboarding_completed';
 
 // Configure notification handler for foreground notifications
 Notifications.setNotificationHandler({
@@ -109,6 +112,40 @@ export default function RootLayout() {
 
 function RootLayoutNav() {
   const { theme } = useTheme();
+  const router = useRouter();
+  const segments = useSegments();
+  const navigationState = useRootNavigationState();
+  const [isOnboardingChecked, setIsOnboardingChecked] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(false);
+
+  // Check onboarding status
+  useEffect(() => {
+    const checkOnboarding = async () => {
+      try {
+        const onboardingCompleted = await AsyncStorage.getItem(ONBOARDING_KEY);
+        if (onboardingCompleted !== 'true') {
+          setShowOnboarding(true);
+        }
+        setIsOnboardingChecked(true);
+      } catch (error) {
+        devError('Error checking onboarding status:', error);
+        setIsOnboardingChecked(true);
+      }
+    };
+    checkOnboarding();
+  }, []);
+
+  // Redirect to onboarding if needed
+  useEffect(() => {
+    if (!navigationState?.key || !isOnboardingChecked) return;
+
+    const inOnboarding = segments[0] === 'onboarding';
+    
+    if (showOnboarding && !inOnboarding) {
+      devLog('🎯 First-time user, redirecting to onboarding...');
+      router.replace('/onboarding');
+    }
+  }, [showOnboarding, isOnboardingChecked, navigationState?.key, segments]);
 
   // Configure Android navigation bar for edge-to-edge display
   useEffect(() => {
