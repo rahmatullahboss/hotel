@@ -163,8 +163,6 @@ class _FaqItem extends StatefulWidget {
 }
 
 class _FaqItemState extends State<_FaqItem> {
-  bool _isExpanded = false;
-
   @override
   Widget build(BuildContext context) {
     return Card(

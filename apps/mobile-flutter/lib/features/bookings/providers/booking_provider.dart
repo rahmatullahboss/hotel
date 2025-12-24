@@ -1,0 +1,184 @@
+// Booking Provider - Riverpod state management for bookings
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:dio/dio.dart';
+import '../../../core/api/api_client.dart';
+
+// Booking model
+class Booking {
+  final String id;
+  final String hotelId;
+  final String hotelName;
+  final String roomId;
+  final String roomName;
+  final String? hotelImageUrl;
+  final DateTime checkIn;
+  final DateTime checkOut;
+  final int guests;
+  final int totalAmount;
+  final String status; // 'upcoming', 'completed', 'cancelled'
+  final String paymentMethod;
+  final String? qrCode;
+  final DateTime createdAt;
+
+  Booking({
+    required this.id,
+    required this.hotelId,
+    required this.hotelName,
+    required this.roomId,
+    required this.roomName,
+    this.hotelImageUrl,
+    required this.checkIn,
+    required this.checkOut,
+    required this.guests,
+    required this.totalAmount,
+    required this.status,
+    required this.paymentMethod,
+    this.qrCode,
+    required this.createdAt,
+  });
+
+  factory Booking.fromJson(Map<String, dynamic> json) {
+    return Booking(
+      id: json['id'] as String,
+      hotelId: json['hotelId'] as String,
+      hotelName: json['hotelName'] as String,
+      roomId: json['roomId'] as String,
+      roomName: json['roomName'] as String,
+      hotelImageUrl: json['hotelImageUrl'] as String?,
+      checkIn: DateTime.parse(json['checkIn'] as String),
+      checkOut: DateTime.parse(json['checkOut'] as String),
+      guests: json['guests'] as int,
+      totalAmount: json['totalAmount'] as int,
+      status: json['status'] as String,
+      paymentMethod: json['paymentMethod'] as String,
+      qrCode: json['qrCode'] as String?,
+      createdAt: DateTime.parse(json['createdAt'] as String),
+    );
+  }
+
+  int get nights => checkOut.difference(checkIn).inDays;
+
+  bool get isUpcoming => status == 'upcoming';
+  bool get isCompleted => status == 'completed';
+  bool get isCancelled => status == 'cancelled';
+}
+
+// Bookings state
+class BookingsState {
+  final List<Booking> upcomingBookings;
+  final List<Booking> completedBookings;
+  final List<Booking> cancelledBookings;
+  final bool isLoading;
+  final String? error;
+
+  BookingsState({
+    this.upcomingBookings = const [],
+    this.completedBookings = const [],
+    this.cancelledBookings = const [],
+    this.isLoading = false,
+    this.error,
+  });
+
+  BookingsState copyWith({
+    List<Booking>? upcomingBookings,
+    List<Booking>? completedBookings,
+    List<Booking>? cancelledBookings,
+    bool? isLoading,
+    String? error,
+  }) {
+    return BookingsState(
+      upcomingBookings: upcomingBookings ?? this.upcomingBookings,
+      completedBookings: completedBookings ?? this.completedBookings,
+      cancelledBookings: cancelledBookings ?? this.cancelledBookings,
+      isLoading: isLoading ?? this.isLoading,
+      error: error,
+    );
+  }
+}
+
+// Bookings notifier
+class BookingsNotifier extends StateNotifier<BookingsState> {
+  final Dio _dio;
+
+  BookingsNotifier(this._dio) : super(BookingsState());
+
+  Future<void> fetchBookings() async {
+    state = state.copyWith(isLoading: true, error: null);
+
+    try {
+      final response = await _dio.get('/bookings');
+      final List<dynamic> data = response.data['bookings'] ?? [];
+      final bookings = data.map((json) => Booking.fromJson(json)).toList();
+
+      state = state.copyWith(
+        upcomingBookings: bookings.where((b) => b.isUpcoming).toList(),
+        completedBookings: bookings.where((b) => b.isCompleted).toList(),
+        cancelledBookings: bookings.where((b) => b.isCancelled).toList(),
+        isLoading: false,
+      );
+    } on DioException catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        error: e.message ?? 'বুকিং লোড করতে সমস্যা হয়েছে',
+      );
+    }
+  }
+
+  Future<bool> createBooking({
+    required String roomId,
+    required DateTime checkIn,
+    required DateTime checkOut,
+    required int guests,
+    required String paymentMethod,
+  }) async {
+    try {
+      await _dio.post(
+        '/bookings',
+        data: {
+          'roomId': roomId,
+          'checkIn': checkIn.toIso8601String(),
+          'checkOut': checkOut.toIso8601String(),
+          'guests': guests,
+          'paymentMethod': paymentMethod,
+        },
+      );
+
+      await fetchBookings();
+      return true;
+    } on DioException catch (_) {
+      return false;
+    }
+  }
+
+  Future<bool> cancelBooking(String bookingId) async {
+    try {
+      await _dio.put('/bookings/$bookingId/cancel');
+      await fetchBookings();
+      return true;
+    } on DioException catch (_) {
+      return false;
+    }
+  }
+}
+
+// Providers
+final bookingsProvider = StateNotifierProvider<BookingsNotifier, BookingsState>(
+  (ref) {
+    final dio = ref.watch(dioProvider);
+    return BookingsNotifier(dio);
+  },
+);
+
+// Single booking provider
+final bookingProvider = FutureProvider.family<Booking?, String>((
+  ref,
+  bookingId,
+) async {
+  final dio = ref.watch(dioProvider);
+  try {
+    final response = await dio.get('/bookings/$bookingId');
+    return Booking.fromJson(response.data);
+  } catch (_) {
+    return null;
+  }
+});

@@ -7,10 +7,12 @@ import '../../features/auth/presentation/login_screen.dart';
 import '../../features/home/presentation/home_screen.dart';
 import '../../features/search/presentation/search_screen.dart';
 import '../../features/bookings/presentation/bookings_screen.dart';
+import '../../features/bookings/presentation/booking_details_screen.dart';
 import '../../features/profile/presentation/profile_screen.dart';
 import '../../features/profile/presentation/wallet_screen.dart';
 import '../../features/profile/presentation/referral_screen.dart';
 import '../../features/profile/presentation/help_screen.dart';
+import '../../features/profile/presentation/achievements_screen.dart';
 import '../../features/hotel/presentation/hotel_details_screen.dart';
 import '../../features/hotel/presentation/room_details_screen.dart';
 import '../../features/booking_flow/presentation/booking_flow_screen.dart';
@@ -25,12 +27,14 @@ class AppRoutes {
   static const String home = '/home';
   static const String search = '/search';
   static const String bookings = '/bookings';
+  static const String bookingDetails = '/bookings/:id';
   static const String profile = '/profile';
   static const String hotelDetails = '/hotel/:id';
   static const String roomDetails = '/room/:id';
   static const String booking = '/book/:roomId';
   static const String wallet = '/wallet';
   static const String referral = '/referral';
+  static const String achievements = '/achievements';
   static const String qrScanner = '/qr-scanner';
   static const String help = '/help';
 }
@@ -49,6 +53,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         AppRoutes.bookings,
         AppRoutes.wallet,
         AppRoutes.referral,
+        AppRoutes.achievements,
       ];
 
       final isProtectedRoute = protectedRoutes.any(
@@ -130,6 +135,16 @@ final routerProvider = Provider<GoRouter>((ref) {
         },
       ),
 
+      // Booking details
+      GoRoute(
+        path: AppRoutes.bookingDetails,
+        name: 'bookingDetails',
+        builder: (context, state) {
+          final bookingId = state.pathParameters['id']!;
+          return BookingDetailsScreen(bookingId: bookingId);
+        },
+      ),
+
       // Wallet
       GoRoute(
         path: AppRoutes.wallet,
@@ -142,6 +157,13 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: AppRoutes.referral,
         name: 'referral',
         builder: (context, state) => const ReferralScreen(),
+      ),
+
+      // Achievements
+      GoRoute(
+        path: AppRoutes.achievements,
+        name: 'achievements',
+        builder: (context, state) => const AchievementsScreen(),
       ),
 
       // QR Scanner

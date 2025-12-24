@@ -12,9 +12,6 @@ class QrScannerScreen extends ConsumerStatefulWidget {
 }
 
 class _QrScannerScreenState extends ConsumerState<QrScannerScreen> {
-  bool _isScanning = false;
-  String? _scannedResult;
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
