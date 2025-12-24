@@ -8,6 +8,7 @@ import 'package:shimmer/shimmer.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../home/providers/hotel_provider.dart';
+import '../providers/room_provider.dart';
 
 // Dummy hotel data
 const dummyHotelData = {
@@ -71,6 +72,17 @@ class _HotelDetailsScreenState extends ConsumerState<HotelDetailsScreen> {
   bool _isSaved = false;
   final PageController _pageController = PageController();
 
+  // Date state for room availability
+  late DateTime _checkIn;
+  late DateTime _checkOut;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkIn = DateTime.now().add(const Duration(days: 1));
+    _checkOut = DateTime.now().add(const Duration(days: 2));
+  }
+
   @override
   void dispose() {
     _pageController.dispose();
@@ -121,6 +133,14 @@ class _HotelDetailsScreenState extends ConsumerState<HotelDetailsScreen> {
   Widget build(BuildContext context) {
     final hotelAsync = ref.watch(hotelProvider(widget.hotelId));
 
+    // Fetch rooms with dynamic pricing
+    final roomsParams = RoomsParams(
+      hotelId: widget.hotelId,
+      checkIn: _checkIn.toIso8601String().split('T')[0],
+      checkOut: _checkOut.toIso8601String().split('T')[0],
+    );
+    final roomsAsync = ref.watch(roomsProvider(roomsParams));
+
     return hotelAsync.when(
       loading: () => _buildLoadingState(),
       error: (_, __) => _buildErrorState(),
@@ -137,7 +157,9 @@ class _HotelDetailsScreenState extends ConsumerState<HotelDetailsScreen> {
             : dummyHotelData['images'] as List<String>;
         final amenities =
             dummyHotelData['amenities'] as List<Map<String, String>>;
-        final rooms = dummyHotelData['rooms'] as List<Map<String, dynamic>>;
+
+        // Get rooms from API (with dynamic prices)
+        final apiRooms = roomsAsync.valueOrNull ?? [];
 
         return _buildContent(
           context,
@@ -148,7 +170,8 @@ class _HotelDetailsScreenState extends ConsumerState<HotelDetailsScreen> {
           price: price,
           images: images,
           amenities: amenities,
-          rooms: rooms,
+          apiRooms: apiRooms,
+          isLoadingRooms: roomsAsync.isLoading,
         );
       },
     );
@@ -232,7 +255,8 @@ class _HotelDetailsScreenState extends ConsumerState<HotelDetailsScreen> {
     required int price,
     required List<String> images,
     required List<Map<String, String>> amenities,
-    required List<Map<String, dynamic>> rooms,
+    required List<Room> apiRooms,
+    required bool isLoadingRooms,
   }) {
     final topPadding = MediaQuery.of(context).padding.top;
     final screenWidth = MediaQuery.of(context).size.width;
@@ -295,62 +319,6 @@ class _HotelDetailsScreenState extends ConsumerState<HotelDetailsScreen> {
                               end: Alignment.bottomCenter,
                             ),
                           ),
-                        ),
-                      ),
-
-                      // Top Bar
-                      Positioned(
-                        top: topPadding + 8,
-                        left: 16,
-                        right: 16,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            // Back Button
-                            GestureDetector(
-                              onTap: () => context.pop(),
-                              child: Container(
-                                width: 44,
-                                height: 44,
-                                decoration: BoxDecoration(
-                                  color: Colors.black.withValues(alpha: 0.4),
-                                  shape: BoxShape.circle,
-                                ),
-                                child: const Icon(
-                                  Icons.arrow_back,
-                                  color: Colors.white,
-                                  size: 20,
-                                ),
-                              ),
-                            ),
-
-                            // Title
-                            Text(
-                              'হোটেল বিস্তারিত',
-                              style: AppTypography.labelLarge.copyWith(
-                                color: Colors.white,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-
-                            // Share Button
-                            GestureDetector(
-                              onTap: _handleShare,
-                              child: Container(
-                                width: 44,
-                                height: 44,
-                                decoration: BoxDecoration(
-                                  color: Colors.black.withValues(alpha: 0.4),
-                                  shape: BoxShape.circle,
-                                ),
-                                child: const Icon(
-                                  Icons.share,
-                                  color: Colors.white,
-                                  size: 20,
-                                ),
-                              ),
-                            ),
-                          ],
                         ),
                       ),
 
@@ -540,7 +508,7 @@ class _HotelDetailsScreenState extends ConsumerState<HotelDetailsScreen> {
                         children: [
                           Text('উপলব্ধ রুম', style: AppTypography.h4),
                           Text(
-                            '${rooms.length} রুম',
+                            '${apiRooms.length} রুম',
                             style: AppTypography.labelMedium.copyWith(
                               color: AppColors.textSecondary,
                             ),
@@ -549,25 +517,47 @@ class _HotelDetailsScreenState extends ConsumerState<HotelDetailsScreen> {
                       ),
                       const SizedBox(height: 16),
 
-                      // Room Cards
-                      ...rooms.map(
-                        (room) => Padding(
-                          padding: const EdgeInsets.only(bottom: 16),
-                          child: _RoomCard(
-                            name: room['name'] as String,
-                            capacity: room['capacity'] as String,
-                            beds: room['beds'] as String,
-                            features: room['features'] as String,
-                            price: room['price'] as int,
-                            imageUrl: room['image'] as String,
-                            onSelect: () {
-                              context.push(
-                                '/booking/${widget.hotelId}?room=${room['id']}',
-                              );
-                            },
+                      // Room Cards - Show loading or actual rooms with dynamic prices
+                      if (isLoadingRooms)
+                        const Center(
+                          child: Padding(
+                            padding: EdgeInsets.all(20),
+                            child: CircularProgressIndicator(),
+                          ),
+                        )
+                      else if (apiRooms.isEmpty)
+                        Padding(
+                          padding: const EdgeInsets.all(20),
+                          child: Text(
+                            'কোনো রুম পাওয়া যায়নি',
+                            style: AppTypography.bodyMedium.copyWith(
+                              color: AppColors.textSecondary,
+                            ),
+                          ),
+                        )
+                      else
+                        ...apiRooms.map(
+                          (room) => Padding(
+                            padding: const EdgeInsets.only(bottom: 16),
+                            child: _RoomCard(
+                              name: room.name,
+                              capacity: room.capacityText,
+                              beds: room.bedsText,
+                              features: room.amenities.take(2).join(' • '),
+                              price: room.dynamicPrice, // Use dynamic price!
+                              imageUrl: room.photos.isNotEmpty
+                                  ? room.photos.first
+                                  : 'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=400',
+                              isAvailable: room.isAvailable,
+                              availableCount: room.availableCount,
+                              onSelect: () {
+                                context.push(
+                                  '/booking/${widget.hotelId}?room=${room.id}',
+                                );
+                              },
+                            ),
                           ),
                         ),
-                      ),
 
                       const SizedBox(height: 100),
                     ],
@@ -653,6 +643,61 @@ class _HotelDetailsScreenState extends ConsumerState<HotelDetailsScreen> {
               ),
             ),
           ),
+          // Top Bar (Fixed)
+          Positioned(
+            top: topPadding + 8,
+            left: 16,
+            right: 16,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                // Back Button
+                GestureDetector(
+                  onTap: () => context.pop(),
+                  child: Container(
+                    width: 44,
+                    height: 44,
+                    decoration: BoxDecoration(
+                      color: Colors.black.withValues(alpha: 0.4),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.arrow_back,
+                      color: Colors.white,
+                      size: 20,
+                    ),
+                  ),
+                ),
+
+                // Title
+                Text(
+                  'হোটেল বিস্তারিত',
+                  style: AppTypography.labelLarge.copyWith(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+
+                // Share Button
+                GestureDetector(
+                  onTap: _handleShare,
+                  child: Container(
+                    width: 44,
+                    height: 44,
+                    decoration: BoxDecoration(
+                      color: Colors.black.withValues(alpha: 0.4),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.share,
+                      color: Colors.white,
+                      size: 20,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
         ],
       ),
     );
@@ -704,6 +749,8 @@ class _RoomCard extends StatelessWidget {
   final int price;
   final String imageUrl;
   final VoidCallback onSelect;
+  final bool isAvailable;
+  final int availableCount;
 
   const _RoomCard({
     required this.name,
@@ -713,6 +760,8 @@ class _RoomCard extends StatelessWidget {
     required this.price,
     required this.imageUrl,
     required this.onSelect,
+    this.isAvailable = true,
+    this.availableCount = 1,
   });
 
   String _formatPrice(int price) {
