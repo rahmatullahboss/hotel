@@ -108,8 +108,11 @@ class ReferralScreen extends ConsumerWidget {
               width: double.infinity,
               child: ElevatedButton.icon(
                 onPressed: () {
-                  Share.share(
-                    'Zinu Rooms এ সাইন আপ করুন এবং আমার রেফারেল কোড $referralCode ব্যবহার করে ৳১০০ বোনাস পান! https://zinurooms.com/app',
+                  SharePlus.instance.share(
+                    ShareParams(
+                      text:
+                          'Zinu Rooms এ সাইন আপ করুন এবং আমার রেফারেল কোড $referralCode ব্যবহার করে ৳১০০ বোনাস পান! https://zinurooms.com/app',
+                    ),
                   );
                 },
                 icon: const Icon(Icons.share),

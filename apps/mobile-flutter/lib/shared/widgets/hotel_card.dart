@@ -1,11 +1,11 @@
-// Hotel Card Widget - Reusable
+// Premium Hotel Card Widget - World-Class Design
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_typography.dart';
 
-class HotelCard extends StatelessWidget {
+class HotelCard extends StatefulWidget {
   final String id;
   final String name;
   final String city;
@@ -13,6 +13,9 @@ class HotelCard extends StatelessWidget {
   final int reviewCount;
   final double price;
   final String? imageUrl;
+  final double? distance;
+  final bool isSaved;
+  final VoidCallback? onSaveToggle;
 
   const HotelCard({
     super.key,
@@ -23,126 +26,295 @@ class HotelCard extends StatelessWidget {
     required this.reviewCount,
     required this.price,
     this.imageUrl,
+    this.distance,
+    this.isSaved = false,
+    this.onSaveToggle,
   });
+
+  @override
+  State<HotelCard> createState() => _HotelCardState();
+}
+
+class _HotelCardState extends State<HotelCard>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _heartController;
+  late Animation<double> _heartScale;
+
+  @override
+  void initState() {
+    super.initState();
+    _heartController = AnimationController(
+      duration: const Duration(milliseconds: 200),
+      vsync: this,
+    );
+    _heartScale = Tween<double>(begin: 1.0, end: 1.3).animate(
+      CurvedAnimation(parent: _heartController, curve: Curves.easeInOut),
+    );
+  }
+
+  @override
+  void dispose() {
+    _heartController.dispose();
+    super.dispose();
+  }
+
+  void _handleHeartTap() {
+    _heartController.forward().then((_) => _heartController.reverse());
+    widget.onSaveToggle?.call();
+  }
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => context.push('/hotel/$id'),
+      onTap: () => context.push('/hotel/${widget.id}'),
       child: Container(
+        margin: const EdgeInsets.only(bottom: 20),
         decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(24),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.05),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
+              color: Colors.black.withValues(alpha: 0.15),
+              blurRadius: 20,
+              offset: const Offset(0, 8),
             ),
           ],
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Image
-            ClipRRect(
-              borderRadius: const BorderRadius.vertical(
-                top: Radius.circular(16),
-              ),
-              child: AspectRatio(
-                aspectRatio: 16 / 9,
-                child: imageUrl != null
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(24),
+          child: Stack(
+            children: [
+              // Hotel Image
+              SizedBox(
+                width: double.infinity,
+                height: 280,
+                child: widget.imageUrl != null
                     ? CachedNetworkImage(
-                        imageUrl: imageUrl!,
+                        imageUrl: widget.imageUrl!,
                         fit: BoxFit.cover,
                         placeholder: (context, url) => Container(
                           color: AppColors.shimmerBase,
+                          child: const Center(
+                            child: CircularProgressIndicator(
+                              color: AppColors.primary,
+                              strokeWidth: 2,
+                            ),
+                          ),
                         ),
-                        errorWidget: (context, url, error) => _PlaceholderImage(),
+                        errorWidget: (context, url, error) =>
+                            _PlaceholderImage(),
                       )
                     : _PlaceholderImage(),
               ),
-            ),
 
-            // Content
-            Padding(
-              padding: const EdgeInsets.all(12),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Name
-                  Text(
-                    name,
-                    style: AppTypography.h4,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+              // Gradient Overlay
+              Positioned.fill(
+                child: Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        Colors.transparent,
+                        Colors.black.withValues(alpha: 0.2),
+                        Colors.black.withValues(alpha: 0.75),
+                      ],
+                      stops: const [0.0, 0.5, 1.0],
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                    ),
                   ),
-                  const SizedBox(height: 4),
+                ),
+              ),
 
-                  // Location
-                  Row(
+              // Rating Badge - Top Left
+              Positioned(
+                top: 16,
+                left: 16,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 8,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withValues(alpha: 0.4),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(
+                      color: Colors.white.withValues(alpha: 0.2),
+                      width: 1,
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(
-                        Icons.location_on_outlined,
+                      const Icon(
+                        Icons.star_rounded,
+                        color: AppColors.starFilled,
                         size: 16,
-                        color: AppColors.textSecondary,
                       ),
                       const SizedBox(width: 4),
                       Text(
-                        city,
-                        style: AppTypography.bodySmall,
+                        widget.rating.toStringAsFixed(1),
+                        style: AppTypography.labelLarge.copyWith(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 8),
+                ),
+              ),
 
-                  // Rating and Price
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              // Distance Badge (if available)
+              if (widget.distance != null)
+                Positioned(
+                  top: 60,
+                  left: 16,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 6,
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppColors.info,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Text(
+                      '${widget.distance!.toStringAsFixed(1)} km',
+                      style: AppTypography.labelSmall.copyWith(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+
+              // Heart Button - Top Right
+              Positioned(
+                top: 16,
+                right: 16,
+                child: GestureDetector(
+                  onTap: _handleHeartTap,
+                  child: ScaleTransition(
+                    scale: _heartScale,
+                    child: Container(
+                      width: 44,
+                      height: 44,
+                      decoration: BoxDecoration(
+                        color: widget.isSaved
+                            ? AppColors.error
+                            : Colors.black.withValues(alpha: 0.4),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        widget.isSaved ? Icons.favorite : Icons.favorite_border,
+                        color: Colors.white,
+                        size: 22,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+
+              // Content Overlay - Bottom
+              Positioned(
+                bottom: 0,
+                left: 0,
+                right: 60,
+                child: Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      // Rating
+                      // Location
                       Row(
                         children: [
                           Icon(
-                            Icons.star,
-                            size: 18,
-                            color: AppColors.starFilled,
+                            Icons.location_on,
+                            color: Colors.white.withValues(alpha: 0.85),
+                            size: 14,
                           ),
                           const SizedBox(width: 4),
-                          Text(
-                            rating.toStringAsFixed(1),
-                            style: AppTypography.labelLarge.copyWith(
-                              fontWeight: FontWeight.bold,
+                          Expanded(
+                            child: Text(
+                              widget.city,
+                              style: AppTypography.bodySmall.copyWith(
+                                color: Colors.white.withValues(alpha: 0.85),
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                             ),
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            '($reviewCount)',
-                            style: AppTypography.bodySmall,
                           ),
                         ],
                       ),
+                      const SizedBox(height: 4),
+
+                      // Hotel Name
+                      Text(
+                        widget.name,
+                        style: AppTypography.h3.copyWith(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 4),
 
                       // Price
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          Text(
-                            '৳${price.toInt()}',
-                            style: AppTypography.priceLarge,
-                          ),
-                          Text(
-                            '/রাত',
-                            style: AppTypography.labelSmall,
-                          ),
-                        ],
+                      RichText(
+                        text: TextSpan(
+                          children: [
+                            TextSpan(
+                              text:
+                                  '৳${widget.price.toInt().toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},')}',
+                              style: AppTypography.h4.copyWith(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            TextSpan(
+                              text: '/রাত',
+                              style: AppTypography.bodySmall.copyWith(
+                                color: Colors.white.withValues(alpha: 0.7),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ],
                   ),
-                ],
+                ),
               ),
-            ),
-          ],
+
+              // Arrow Button - Bottom Right
+              Positioned(
+                bottom: 16,
+                right: 16,
+                child: Container(
+                  width: 48,
+                  height: 48,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.15),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: Transform.rotate(
+                    angle: -0.785398, // -45 degrees
+                    child: const Icon(
+                      Icons.arrow_forward,
+                      color: AppColors.textPrimary,
+                      size: 20,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -154,12 +326,8 @@ class _PlaceholderImage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       color: AppColors.surfaceVariant,
-      child: Center(
-        child: Icon(
-          Icons.hotel,
-          size: 48,
-          color: AppColors.textTertiary,
-        ),
+      child: const Center(
+        child: Icon(Icons.hotel, size: 64, color: AppColors.textTertiary),
       ),
     );
   }

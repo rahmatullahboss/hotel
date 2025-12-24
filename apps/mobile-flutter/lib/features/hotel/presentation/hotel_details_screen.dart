@@ -1,229 +1,585 @@
-// Hotel Details Screen
+// Hotel Details Screen - World-Class Premium Design
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:share_plus/share_plus.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 
-class HotelDetailsScreen extends ConsumerWidget {
+// Dummy hotel data
+const dummyHotelData = {
+  'id': '1',
+  'name': 'Pan Pacific Sonargaon',
+  'city': 'ঢাকা, বাংলাদেশ',
+  'rating': 4.8,
+  'reviewCount': 320,
+  'price': 8500,
+  'description':
+      'এটি একটি চমৎকার হোটেল যেখানে আপনি আরামদায়ক থাকার ব্যবস্থা পাবেন। আধুনিক সুযোগ-সুবিধা সহ এই হোটেল আপনার ভ্রমণকে আরও আনন্দদায়ক করে তুলবে। শহরের কেন্দ্রে অবস্থিত এই হোটেলে সব ধরনের সুযোগ-সুবিধা রয়েছে।',
+  'images': [
+    'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800',
+    'https://images.unsplash.com/photo-1582719508461-905c673771fd?w=800',
+    'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=800',
+    'https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=800',
+  ],
+  'amenities': [
+    {'icon': 'wifi', 'label': 'ফ্রি ওয়াইফাই'},
+    {'icon': 'ac', 'label': 'এসি'},
+    {'icon': 'parking', 'label': 'পার্কিং'},
+    {'icon': 'restaurant', 'label': 'রেস্টুরেন্ট'},
+    {'icon': 'pool', 'label': 'সুইমিং পুল'},
+    {'icon': 'gym', 'label': 'জিম'},
+  ],
+  'rooms': [
+    {
+      'id': 'r1',
+      'name': 'ডিলাক্স রুম',
+      'capacity': '২ জন',
+      'beds': '১ বেড',
+      'features': 'এসি',
+      'price': 8500,
+      'image':
+          'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=400',
+    },
+    {
+      'id': 'r2',
+      'name': 'প্রিমিয়াম স্যুট',
+      'capacity': '৪ জন',
+      'beds': '২ বেড',
+      'features': 'এসি • সি ভিউ',
+      'price': 12500,
+      'image':
+          'https://images.unsplash.com/photo-1618773928121-c32242e63f39?w=400',
+    },
+  ],
+};
+
+class HotelDetailsScreen extends ConsumerStatefulWidget {
   final String hotelId;
 
   const HotelDetailsScreen({super.key, required this.hotelId});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<HotelDetailsScreen> createState() => _HotelDetailsScreenState();
+}
+
+class _HotelDetailsScreenState extends ConsumerState<HotelDetailsScreen> {
+  int _currentImageIndex = 0;
+  bool _isSaved = false;
+  final PageController _pageController = PageController();
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  void _handleShare() {
+    SharePlus.instance.share(
+      ShareParams(
+        text:
+            'Check out this hotel: ${dummyHotelData['name']} - https://zinurooms.com/hotel/${widget.hotelId}',
+      ),
+    );
+  }
+
+  void _handleSave() {
+    setState(() => _isSaved = !_isSaved);
+    // TODO: Save to backend
+  }
+
+  IconData _getAmenityIcon(String iconName) {
+    switch (iconName) {
+      case 'wifi':
+        return Icons.wifi;
+      case 'ac':
+        return Icons.ac_unit;
+      case 'parking':
+        return Icons.local_parking;
+      case 'restaurant':
+        return Icons.restaurant;
+      case 'pool':
+        return Icons.pool;
+      case 'gym':
+        return Icons.fitness_center;
+      default:
+        return Icons.check_circle_outline;
+    }
+  }
+
+  String _formatPrice(num price) {
+    return price.toString().replaceAllMapped(
+      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+      (Match m) => '${m[1]},',
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final topPadding = MediaQuery.of(context).padding.top;
+    final screenWidth = MediaQuery.of(context).size.width;
+    final heroHeight = screenWidth * 0.85;
+    final images = dummyHotelData['images'] as List<String>;
+    final amenities = dummyHotelData['amenities'] as List<Map<String, String>>;
+    final rooms = dummyHotelData['rooms'] as List<Map<String, dynamic>>;
+    final price = dummyHotelData['price'] as int;
+
     return Scaffold(
       backgroundColor: AppColors.background,
-      body: CustomScrollView(
-        slivers: [
-          // App Bar with Image
-          SliverAppBar(
-            expandedHeight: 250,
-            pinned: true,
-            flexibleSpace: FlexibleSpaceBar(
-              background: Container(
-                color: AppColors.secondary,
-                child: const Center(
-                  child: Icon(Icons.hotel, size: 80, color: Colors.white54),
-                ),
-              ),
-            ),
-            actions: [
-              IconButton(
-                icon: const Icon(Icons.favorite_border),
-                onPressed: () {},
-              ),
-              IconButton(
-                icon: const Icon(Icons.share_outlined),
-                onPressed: () {},
-              ),
-            ],
-          ),
-
-          // Content
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Name and Rating
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.start,
+      body: Stack(
+        children: [
+          CustomScrollView(
+            slivers: [
+              // Hero Image Gallery
+              SliverToBoxAdapter(
+                child: SizedBox(
+                  height: heroHeight,
+                  child: Stack(
                     children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text('হোটেল নাম', style: AppTypography.h2),
-                            const SizedBox(height: 4),
-                            Row(
-                              children: [
-                                const Icon(
-                                  Icons.location_on_outlined,
-                                  size: 16,
-                                  color: AppColors.textSecondary,
+                      // Image PageView
+                      PageView.builder(
+                        controller: _pageController,
+                        onPageChanged: (index) {
+                          setState(() => _currentImageIndex = index);
+                        },
+                        itemCount: images.length,
+                        itemBuilder: (context, index) {
+                          return CachedNetworkImage(
+                            imageUrl: images[index],
+                            fit: BoxFit.cover,
+                            placeholder: (context, url) => Container(
+                              color: AppColors.secondary,
+                              child: const Center(
+                                child: CircularProgressIndicator(
+                                  color: Colors.white,
+                                  strokeWidth: 2,
                                 ),
-                                const SizedBox(width: 4),
-                                Text(
-                                  'ঢাকা, বাংলাদেশ',
-                                  style: AppTypography.bodyMedium.copyWith(
-                                    color: AppColors.textSecondary,
-                                  ),
-                                ),
-                              ],
+                              ),
                             ),
-                          ],
+                            errorWidget: (context, url, error) => Container(
+                              color: AppColors.secondary,
+                              child: const Icon(
+                                Icons.hotel,
+                                size: 80,
+                                color: Colors.white54,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+
+                      // Gradient Overlay
+                      Positioned.fill(
+                        child: Container(
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [
+                                Colors.transparent,
+                                Colors.black.withValues(alpha: 0.7),
+                              ],
+                              begin: const Alignment(0, 0.3),
+                              end: Alignment.bottomCenter,
+                            ),
+                          ),
                         ),
                       ),
-                      // Rating Badge
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 8,
-                        ),
-                        decoration: BoxDecoration(
-                          color: AppColors.primary,
-                          borderRadius: BorderRadius.circular(12),
-                        ),
+
+                      // Top Bar
+                      Positioned(
+                        top: topPadding + 8,
+                        left: 16,
+                        right: 16,
                         child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            const Icon(
-                              Icons.star,
-                              size: 18,
-                              color: Colors.white,
+                            // Back Button
+                            GestureDetector(
+                              onTap: () => context.pop(),
+                              child: Container(
+                                width: 44,
+                                height: 44,
+                                decoration: BoxDecoration(
+                                  color: Colors.black.withValues(alpha: 0.4),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(
+                                  Icons.arrow_back,
+                                  color: Colors.white,
+                                  size: 20,
+                                ),
+                              ),
                             ),
-                            const SizedBox(width: 4),
+
+                            // Title
                             Text(
-                              '4.5',
+                              'হোটেল বিস্তারিত',
                               style: AppTypography.labelLarge.copyWith(
                                 color: Colors.white,
-                                fontWeight: FontWeight.bold,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+
+                            // Share Button
+                            GestureDetector(
+                              onTap: _handleShare,
+                              child: Container(
+                                width: 44,
+                                height: 44,
+                                decoration: BoxDecoration(
+                                  color: Colors.black.withValues(alpha: 0.4),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(
+                                  Icons.share,
+                                  color: Colors.white,
+                                  size: 20,
+                                ),
                               ),
                             ),
                           ],
                         ),
                       ),
-                    ],
-                  ),
-                  const SizedBox(height: 24),
 
-                  // Amenities
-                  Text('সুবিধাসমূহ', style: AppTypography.h4),
-                  const SizedBox(height: 12),
-                  Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
-                    children: [
-                      _AmenityChip(icon: Icons.wifi, label: 'ফ্রি ওয়াইফাই'),
-                      _AmenityChip(icon: Icons.ac_unit, label: 'এসি'),
-                      _AmenityChip(icon: Icons.local_parking, label: 'পার্কিং'),
-                      _AmenityChip(
-                        icon: Icons.restaurant,
-                        label: 'রেস্টুরেন্ট',
+                      // Page Indicators
+                      Positioned(
+                        bottom: 80,
+                        left: 0,
+                        right: 0,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: List.generate(
+                            images.length,
+                            (index) => AnimatedContainer(
+                              duration: const Duration(milliseconds: 200),
+                              width: index == _currentImageIndex ? 24 : 8,
+                              height: 8,
+                              margin: const EdgeInsets.symmetric(horizontal: 4),
+                              decoration: BoxDecoration(
+                                color: index == _currentImageIndex
+                                    ? Colors.white
+                                    : Colors.white.withValues(alpha: 0.5),
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                            ),
+                          ),
+                        ),
                       ),
-                      _AmenityChip(icon: Icons.pool, label: 'সুইমিং পুল'),
+
+                      // Price Badge
+                      Positioned(
+                        bottom: 20,
+                        right: 20,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 10,
+                          ),
+                          decoration: BoxDecoration(
+                            color: AppColors.primary,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                '৳${_formatPrice(price)}',
+                                style: AppTypography.h4.copyWith(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              Text(
+                                '/রাত',
+                                style: AppTypography.labelSmall.copyWith(
+                                  color: Colors.white.withValues(alpha: 0.7),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
                     ],
                   ),
-                  const SizedBox(height: 24),
+                ),
+              ),
 
-                  // Description
-                  Text('বিবরণ', style: AppTypography.h4),
-                  const SizedBox(height: 12),
-                  Text(
-                    'এটি একটি চমৎকার হোটেল যেখানে আপনি আরামদায়ক থাকার ব্যবস্থা পাবেন। আধুনিক সুযোগ-সুবিধা সহ এই হোটেল আপনার ভ্রমণকে আরও আনন্দদায়ক করে তুলবে।',
-                    style: AppTypography.bodyMedium.copyWith(
-                      color: AppColors.textSecondary,
-                      height: 1.6,
+              // Content
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Name and Rating
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  dummyHotelData['name'] as String,
+                                  style: AppTypography.h2,
+                                ),
+                                const SizedBox(height: 6),
+                                Row(
+                                  children: [
+                                    Icon(
+                                      Icons.location_on,
+                                      size: 16,
+                                      color: AppColors.textSecondary,
+                                    ),
+                                    const SizedBox(width: 4),
+                                    Expanded(
+                                      child: Text(
+                                        dummyHotelData['city'] as String,
+                                        style: AppTypography.bodyMedium
+                                            .copyWith(
+                                              color: AppColors.textSecondary,
+                                            ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+
+                          // Rating Badge
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 14,
+                              vertical: 10,
+                            ),
+                            decoration: BoxDecoration(
+                              color: AppColors.starFilled,
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Row(
+                              children: [
+                                const Icon(
+                                  Icons.star,
+                                  size: 18,
+                                  color: Colors.white,
+                                ),
+                                const SizedBox(width: 4),
+                                Text(
+                                  (dummyHotelData['rating'] as double)
+                                      .toStringAsFixed(1),
+                                  style: AppTypography.labelLarge.copyWith(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+
+                      // Review Count
+                      Padding(
+                        padding: const EdgeInsets.only(top: 8),
+                        child: Text(
+                          '${dummyHotelData['reviewCount']} reviews',
+                          style: AppTypography.bodySmall.copyWith(
+                            color: AppColors.textTertiary,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+
+                      // Amenities
+                      Text('সুবিধাসমূহ', style: AppTypography.h4),
+                      const SizedBox(height: 16),
+                      SizedBox(
+                        height: 80,
+                        child: ListView.separated(
+                          scrollDirection: Axis.horizontal,
+                          itemCount: amenities.length,
+                          separatorBuilder: (_, __) =>
+                              const SizedBox(width: 12),
+                          itemBuilder: (context, index) {
+                            final amenity = amenities[index];
+                            return _AmenityCard(
+                              icon: _getAmenityIcon(amenity['icon']!),
+                              label: amenity['label']!,
+                            );
+                          },
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+
+                      // Description
+                      Text('বিবরণ', style: AppTypography.h4),
+                      const SizedBox(height: 12),
+                      Text(
+                        dummyHotelData['description'] as String,
+                        style: AppTypography.bodyMedium.copyWith(
+                          color: AppColors.textSecondary,
+                          height: 1.6,
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+
+                      // Rooms Section
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text('উপলব্ধ রুম', style: AppTypography.h4),
+                          Text(
+                            '${rooms.length} রুম',
+                            style: AppTypography.labelMedium.copyWith(
+                              color: AppColors.textSecondary,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+
+                      // Room Cards
+                      ...rooms.map(
+                        (room) => Padding(
+                          padding: const EdgeInsets.only(bottom: 16),
+                          child: _RoomCard(
+                            name: room['name'] as String,
+                            capacity: room['capacity'] as String,
+                            beds: room['beds'] as String,
+                            features: room['features'] as String,
+                            price: room['price'] as int,
+                            imageUrl: room['image'] as String,
+                            onSelect: () {
+                              context.push(
+                                '/booking/${widget.hotelId}?room=${room['id']}',
+                              );
+                            },
+                          ),
+                        ),
+                      ),
+
+                      const SizedBox(height: 100),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+
+          // Bottom Bar
+          Positioned(
+            bottom: 0,
+            left: 0,
+            right: 0,
+            child: Container(
+              padding: EdgeInsets.only(
+                left: 20,
+                right: 20,
+                top: 16,
+                bottom: MediaQuery.of(context).padding.bottom + 16,
+              ),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.08),
+                    blurRadius: 16,
+                    offset: const Offset(0, -4),
+                  ),
+                ],
+              ),
+              child: Row(
+                children: [
+                  // Save Button
+                  GestureDetector(
+                    onTap: _handleSave,
+                    child: Container(
+                      width: 52,
+                      height: 52,
+                      decoration: BoxDecoration(
+                        color: _isSaved
+                            ? AppColors.error.withValues(alpha: 0.1)
+                            : AppColors.surfaceVariant,
+                        borderRadius: BorderRadius.circular(14),
+                        border: Border.all(
+                          color: _isSaved
+                              ? AppColors.error.withValues(alpha: 0.3)
+                              : AppColors.divider,
+                        ),
+                      ),
+                      child: Icon(
+                        _isSaved ? Icons.favorite : Icons.favorite_border,
+                        color: _isSaved
+                            ? AppColors.error
+                            : AppColors.textSecondary,
+                        size: 24,
+                      ),
                     ),
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(width: 16),
 
-                  // Rooms Section
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text('উপলব্ধ রুম', style: AppTypography.h4),
-                      TextButton(
-                        onPressed: () {},
-                        child: const Text('সব দেখুন'),
+                  // Book Now Button
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: () => context.push('/booking/${widget.hotelId}'),
+                      child: Container(
+                        height: 52,
+                        decoration: BoxDecoration(
+                          color: AppColors.primary,
+                          borderRadius: BorderRadius.circular(14),
+                          boxShadow: AppColors.buttonShadow,
+                        ),
+                        child: Center(
+                          child: Text(
+                            'বুকিং করুন',
+                            style: AppTypography.button,
+                          ),
+                        ),
                       ),
-                    ],
+                    ),
                   ),
-                  const SizedBox(height: 12),
-
-                  // Room Cards Placeholder
-                  _RoomCard(),
-                  const SizedBox(height: 12),
-                  _RoomCard(),
-
-                  const SizedBox(height: 100),
                 ],
               ),
             ),
           ),
         ],
       ),
-      // Bottom Price Bar
-      bottomNavigationBar: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.05),
-              blurRadius: 10,
-              offset: const Offset(0, -5),
-            ),
-          ],
-        ),
-        child: SafeArea(
-          child: Row(
-            children: [
-              Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('শুরু', style: AppTypography.labelSmall),
-                  Text('৳2,500/রাত', style: AppTypography.priceLarge),
-                ],
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: ElevatedButton(
-                  onPressed: () {},
-                  child: const Text('বুকিং করুন'),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
     );
   }
 }
 
-class _AmenityChip extends StatelessWidget {
+class _AmenityCard extends StatelessWidget {
   final IconData icon;
   final String label;
 
-  const _AmenityChip({required this.icon, required this.label});
+  const _AmenityCard({required this.icon, required this.label});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      width: 80,
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: AppColors.surfaceVariant,
-        borderRadius: BorderRadius.circular(20),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: AppColors.softShadow,
       ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(icon, size: 16, color: AppColors.textSecondary),
-          const SizedBox(width: 6),
-          Text(label, style: AppTypography.labelMedium),
+          Icon(icon, size: 24, color: AppColors.primary),
+          const SizedBox(height: 8),
+          Text(
+            label,
+            style: AppTypography.labelSmall.copyWith(
+              color: AppColors.textSecondary,
+              fontSize: 10,
+            ),
+            textAlign: TextAlign.center,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
         ],
       ),
     );
@@ -231,55 +587,129 @@ class _AmenityChip extends StatelessWidget {
 }
 
 class _RoomCard extends StatelessWidget {
+  final String name;
+  final String capacity;
+  final String beds;
+  final String features;
+  final int price;
+  final String imageUrl;
+  final VoidCallback onSelect;
+
+  const _RoomCard({
+    required this.name,
+    required this.capacity,
+    required this.beds,
+    required this.features,
+    required this.price,
+    required this.imageUrl,
+    required this.onSelect,
+  });
+
+  String _formatPrice(int price) {
+    return price.toString().replaceAllMapped(
+      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+      (Match m) => '${m[1]},',
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        boxShadow: AppColors.softShadow,
       ),
-      child: Row(
+      child: Column(
         children: [
           // Room Image
-          Container(
-            width: 80,
-            height: 80,
-            decoration: BoxDecoration(
-              color: AppColors.surfaceVariant,
-              borderRadius: BorderRadius.circular(12),
+          ClipRRect(
+            borderRadius: const BorderRadius.only(
+              topLeft: Radius.circular(16),
+              topRight: Radius.circular(16),
             ),
-            child: const Icon(
-              Icons.bed,
-              size: 32,
-              color: AppColors.textTertiary,
+            child: SizedBox(
+              height: 140,
+              width: double.infinity,
+              child: CachedNetworkImage(
+                imageUrl: imageUrl,
+                fit: BoxFit.cover,
+                placeholder: (context, url) =>
+                    Container(color: AppColors.shimmerBase),
+                errorWidget: (context, url, error) => Container(
+                  color: AppColors.surfaceVariant,
+                  child: const Icon(
+                    Icons.bed,
+                    size: 48,
+                    color: AppColors.textTertiary,
+                  ),
+                ),
+              ),
             ),
           ),
-          const SizedBox(width: 16),
 
           // Room Info
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Row(
               children: [
-                Text('ডিলাক্স রুম', style: AppTypography.h4),
-                const SizedBox(height: 4),
-                Text('২ জন • ১ বেড • এসি', style: AppTypography.bodySmall),
-                const SizedBox(height: 8),
-                Text('৳2,500', style: AppTypography.priceSmall),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(name, style: AppTypography.h4),
+                      const SizedBox(height: 4),
+                      Text(
+                        '$capacity • $beds • $features',
+                        style: AppTypography.bodySmall.copyWith(
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      RichText(
+                        text: TextSpan(
+                          children: [
+                            TextSpan(
+                              text: '৳${_formatPrice(price)}',
+                              style: AppTypography.priceSmall,
+                            ),
+                            TextSpan(
+                              text: '/রাত',
+                              style: AppTypography.bodySmall.copyWith(
+                                color: AppColors.textSecondary,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                // Select Button
+                GestureDetector(
+                  onTap: onSelect,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 12,
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppColors.primary,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(
+                      'নির্বাচন',
+                      style: AppTypography.labelLarge.copyWith(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ),
               ],
             ),
           ),
-
-          // Select Button
-          OutlinedButton(onPressed: () {}, child: const Text('নির্বাচন')),
         ],
       ),
     );

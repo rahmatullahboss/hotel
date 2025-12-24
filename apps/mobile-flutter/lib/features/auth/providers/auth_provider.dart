@@ -1,7 +1,7 @@
 // Auth Provider - Riverpod state management for authentication
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:dio/dio.dart';
-import 'package:google_sign_in/google_sign_in.dart';
+// import 'package:google_sign_in/google_sign_in.dart'; // Disabled - package not installed
 import '../../../core/api/api_client.dart';
 import '../../../core/storage/secure_storage.dart';
 
@@ -74,11 +74,11 @@ class AuthState {
 class AuthNotifier extends StateNotifier<AuthState> {
   final Dio _dio;
   final SecureStorageService _storage;
-  final GoogleSignIn _googleSignIn;
+  // final GoogleSignIn _googleSignIn; // Disabled
 
   AuthNotifier(this._dio, this._storage)
-    : _googleSignIn = GoogleSignIn(scopes: ['email', 'profile']),
-      super(AuthState());
+    // : _googleSignIn = GoogleSignIn(scopes: ['email', 'profile'])
+    : super(AuthState());
 
   // Initialize auth state from storage
   Future<void> initialize() async {
@@ -118,58 +118,17 @@ class AuthNotifier extends StateNotifier<AuthState> {
     }
   }
 
-  // Login with Google
+  // Login with Google (Disabled)
   Future<bool> loginWithGoogle() async {
-    state = state.copyWith(isLoading: true, error: null);
-
-    try {
-      final googleUser = await _googleSignIn.signIn();
-      if (googleUser == null) {
-        state = state.copyWith(isLoading: false);
-        return false;
-      }
-
-      final googleAuth = await googleUser.authentication;
-      final idToken = googleAuth.idToken;
-
-      if (idToken == null) {
-        state = state.copyWith(
-          isLoading: false,
-          error: 'Google authentication failed',
-        );
-        return false;
-      }
-
-      // Send token to backend
-      final response = await _dio.post(
-        '/auth/google',
-        data: {'idToken': idToken},
-      );
-
-      final token = response.data['token'] as String;
-      await _storage.setToken(token);
-
-      await _fetchCurrentUser();
-      return true;
-    } on DioException catch (e) {
-      state = state.copyWith(
-        isLoading: false,
-        error: e.response?.data?['message'] ?? 'Google লগইন ব্যর্থ হয়েছে',
-      );
-      return false;
-    } catch (e) {
-      state = state.copyWith(
-        isLoading: false,
-        error: 'Google লগইন ব্যর্থ হয়েছে',
-      );
-      return false;
-    }
+    // Disabled due to missing google-services.json
+    state = state.copyWith(error: 'Google Sign-in disabled in development');
+    return false;
   }
 
   // Logout
   Future<void> logout() async {
     await _storage.deleteToken();
-    await _googleSignIn.signOut();
+    // await _googleSignIn.signOut();
     state = AuthState();
   }
 
