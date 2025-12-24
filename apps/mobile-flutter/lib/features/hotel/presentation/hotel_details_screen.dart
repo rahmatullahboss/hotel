@@ -588,7 +588,9 @@ class _HotelDetailsScreenState extends ConsumerState<HotelDetailsScreen> {
                               isAvailable: room.isAvailable,
                               availableCount: room.availableCount,
                               onSelect: () {
-                                context.push('/book/${room.id}');
+                                context.push(
+                                  '/book/${room.id}?hotel=${widget.hotelId}',
+                                );
                               },
                             ),
                           ),
@@ -657,7 +659,15 @@ class _HotelDetailsScreenState extends ConsumerState<HotelDetailsScreen> {
                   // Book Now Button
                   Expanded(
                     child: GestureDetector(
-                      onTap: () => context.push('/book/${widget.hotelId}'),
+                      onTap: () {
+                        // Scroll up to show rooms - user should select a specific room
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('উপরে স্ক্রল করে রুম নির্বাচন করুন'),
+                            duration: Duration(seconds: 2),
+                          ),
+                        );
+                      },
                       child: Container(
                         height: 52,
                         decoration: BoxDecoration(

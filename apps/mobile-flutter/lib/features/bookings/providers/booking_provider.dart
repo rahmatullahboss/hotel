@@ -1,4 +1,5 @@
 // Booking Provider - Riverpod state management for bookings
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:dio/dio.dart';
 import '../../../core/api/api_client.dart';
@@ -125,34 +126,51 @@ class BookingsNotifier extends StateNotifier<BookingsState> {
   }
 
   Future<bool> createBooking({
+    required String hotelId,
     required String roomId,
     required DateTime checkIn,
     required DateTime checkOut,
     required int guests,
     required String paymentMethod,
+    required int totalAmount,
+    String? guestName,
+    String? guestPhone,
+    String? guestEmail,
   }) async {
     try {
-      await _dio.post(
+      final response = await _dio.post(
         '/bookings',
         data: {
+          'hotelId': hotelId,
           'roomId': roomId,
-          'checkIn': checkIn.toIso8601String(),
-          'checkOut': checkOut.toIso8601String(),
+          'checkIn': checkIn.toIso8601String().split('T')[0],
+          'checkOut': checkOut.toIso8601String().split('T')[0],
           'guests': guests,
           'paymentMethod': paymentMethod,
+          'totalAmount': totalAmount,
+          if (guestName != null) 'guestName': guestName,
+          if (guestPhone != null) 'guestPhone': guestPhone,
+          if (guestEmail != null) 'guestEmail': guestEmail,
         },
       );
 
-      await fetchBookings();
-      return true;
-    } on DioException catch (_) {
+      if (response.data['success'] == true) {
+        await fetchBookings();
+        return true;
+      }
+      return false;
+    } on DioException catch (e) {
+      debugPrint('Booking error: ${e.response?.data}');
       return false;
     }
   }
 
-  Future<bool> cancelBooking(String bookingId) async {
+  Future<bool> cancelBooking(String bookingId, {String? reason}) async {
     try {
-      await _dio.put('/bookings/$bookingId/cancel');
+      await _dio.put(
+        '/bookings/$bookingId/cancel',
+        data: {if (reason != null) 'reason': reason},
+      );
       await fetchBookings();
       return true;
     } on DioException catch (_) {

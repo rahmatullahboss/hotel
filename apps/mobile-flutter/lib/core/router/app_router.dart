@@ -148,7 +148,8 @@ final routerProvider = Provider<GoRouter>((ref) {
         name: 'booking',
         builder: (context, state) {
           final roomId = state.pathParameters['roomId']!;
-          return BookingFlowScreen(roomId: roomId);
+          final hotelId = state.uri.queryParameters['hotel'];
+          return BookingFlowScreen(roomId: roomId, hotelId: hotelId);
         },
       ),
 
