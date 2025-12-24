@@ -589,9 +589,7 @@ class _HotelDetailsScreenState extends ConsumerState<HotelDetailsScreen> {
                               isAvailable: room.isAvailable,
                               availableCount: room.availableCount,
                               onSelect: () {
-                                context.push(
-                                  '/booking/${widget.hotelId}?room=${room.id}',
-                                );
+                                context.push('/book/${room.id}');
                               },
                             ),
                           ),
@@ -660,7 +658,7 @@ class _HotelDetailsScreenState extends ConsumerState<HotelDetailsScreen> {
                   // Book Now Button
                   Expanded(
                     child: GestureDetector(
-                      onTap: () => context.push('/booking/${widget.hotelId}'),
+                      onTap: () => context.push('/book/${widget.hotelId}'),
                       child: Container(
                         height: 52,
                         decoration: BoxDecoration(
