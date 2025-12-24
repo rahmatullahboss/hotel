@@ -6,10 +6,10 @@ import '../../../core/api/api_client.dart';
 // Transaction model
 class Transaction {
   final String id;
-  final String type; // 'credit', 'debit'
+  final String type; // 'CREDIT', 'DEBIT'
   final int amount;
   final String description;
-  final String? referenceId;
+  final String? reason;
   final DateTime createdAt;
 
   Transaction({
@@ -17,22 +17,23 @@ class Transaction {
     required this.type,
     required this.amount,
     required this.description,
-    this.referenceId,
+    this.reason,
     required this.createdAt,
   });
 
   factory Transaction.fromJson(Map<String, dynamic> json) {
     return Transaction(
       id: json['id'] as String,
-      type: json['type'] as String,
-      amount: json['amount'] as int,
-      description: json['description'] as String,
-      referenceId: json['referenceId'] as String?,
+      type: (json['type'] as String).toUpperCase(),
+      amount: (json['amount'] as num).toInt(),
+      description:
+          json['description'] as String? ?? json['reason'] as String? ?? '',
+      reason: json['reason'] as String?,
       createdAt: DateTime.parse(json['createdAt'] as String),
     );
   }
 
-  bool get isCredit => type == 'credit';
+  bool get isCredit => type == 'CREDIT';
 }
 
 // Wallet state
@@ -95,15 +96,25 @@ class WalletNotifier extends StateNotifier<WalletState> {
     state = state.copyWith(isLoading: true, error: null);
 
     try {
-      final response = await _dio.get('/wallet');
+      final response = await _dio.get('/user/wallet');
       final data = response.data;
 
+      // Parse loyalty from nested object
+      final loyalty = data['loyalty'] as Map<String, dynamic>?;
+
       state = state.copyWith(
-        balance: data['balance'] as int? ?? 0,
-        loyaltyPoints: data['loyaltyPoints'] as int? ?? 0,
-        loyaltyTier: data['loyaltyTier'] as String? ?? 'bronze',
+        balance: (data['balance'] as num?)?.toInt() ?? 0,
+        loyaltyPoints: loyalty?['points'] as int? ?? 0,
+        loyaltyTier: (loyalty?['tier'] as String?)?.toLowerCase() ?? 'bronze',
         isLoading: false,
       );
+
+      // Parse transactions from same response
+      final txData = data['transactions'] as List<dynamic>? ?? [];
+      final transactions = txData
+          .map((json) => Transaction.fromJson(json))
+          .toList();
+      state = state.copyWith(transactions: transactions);
     } on DioException catch (e) {
       state = state.copyWith(
         isLoading: false,
@@ -113,17 +124,8 @@ class WalletNotifier extends StateNotifier<WalletState> {
   }
 
   Future<void> fetchTransactions() async {
-    try {
-      final response = await _dio.get('/wallet/transactions');
-      final List<dynamic> data = response.data['transactions'] ?? [];
-      final transactions = data
-          .map((json) => Transaction.fromJson(json))
-          .toList();
-
-      state = state.copyWith(transactions: transactions);
-    } on DioException catch (_) {
-      // Silent fail for transactions
-    }
+    // Transactions are now fetched in fetchWallet, this is kept for manual refresh
+    await fetchWallet();
   }
 
   Future<bool> topUp(int amount, String paymentMethod) async {
