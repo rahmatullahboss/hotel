@@ -8,7 +8,13 @@ import '../../features/home/presentation/home_screen.dart';
 import '../../features/search/presentation/search_screen.dart';
 import '../../features/bookings/presentation/bookings_screen.dart';
 import '../../features/profile/presentation/profile_screen.dart';
+import '../../features/profile/presentation/wallet_screen.dart';
+import '../../features/profile/presentation/referral_screen.dart';
+import '../../features/profile/presentation/help_screen.dart';
 import '../../features/hotel/presentation/hotel_details_screen.dart';
+import '../../features/hotel/presentation/room_details_screen.dart';
+import '../../features/booking_flow/presentation/booking_flow_screen.dart';
+import '../../features/booking_flow/presentation/qr_scanner_screen.dart';
 import '../../shared/widgets/main_shell.dart';
 import '../storage/secure_storage.dart';
 
@@ -37,12 +43,10 @@ final routerProvider = Provider<GoRouter>((ref) {
     redirect: (context, state) async {
       final storage = ref.read(secureStorageProvider);
       final isLoggedIn = await storage.isLoggedIn();
-      final isLoggingIn = state.matchedLocation == AppRoutes.login;
 
       // Protected routes that require auth
       final protectedRoutes = [
         AppRoutes.bookings,
-        AppRoutes.profile,
         AppRoutes.wallet,
         AppRoutes.referral,
       ];
@@ -65,30 +69,26 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: AppRoutes.home,
             name: 'home',
-            pageBuilder: (context, state) => const NoTransitionPage(
-              child: HomeScreen(),
-            ),
+            pageBuilder: (context, state) =>
+                const NoTransitionPage(child: HomeScreen()),
           ),
           GoRoute(
             path: AppRoutes.search,
             name: 'search',
-            pageBuilder: (context, state) => const NoTransitionPage(
-              child: SearchScreen(),
-            ),
+            pageBuilder: (context, state) =>
+                const NoTransitionPage(child: SearchScreen()),
           ),
           GoRoute(
             path: AppRoutes.bookings,
             name: 'bookings',
-            pageBuilder: (context, state) => const NoTransitionPage(
-              child: BookingsScreen(),
-            ),
+            pageBuilder: (context, state) =>
+                const NoTransitionPage(child: BookingsScreen()),
           ),
           GoRoute(
             path: AppRoutes.profile,
             name: 'profile',
-            pageBuilder: (context, state) => const NoTransitionPage(
-              child: ProfileScreen(),
-            ),
+            pageBuilder: (context, state) =>
+                const NoTransitionPage(child: ProfileScreen()),
           ),
         ],
       ),
@@ -110,12 +110,56 @@ final routerProvider = Provider<GoRouter>((ref) {
         },
       ),
 
-      // TODO: Add more routes as screens are implemented
+      // Room details
+      GoRoute(
+        path: AppRoutes.roomDetails,
+        name: 'roomDetails',
+        builder: (context, state) {
+          final roomId = state.pathParameters['id']!;
+          return RoomDetailsScreen(roomId: roomId);
+        },
+      ),
+
+      // Booking flow
+      GoRoute(
+        path: AppRoutes.booking,
+        name: 'booking',
+        builder: (context, state) {
+          final roomId = state.pathParameters['roomId']!;
+          return BookingFlowScreen(roomId: roomId);
+        },
+      ),
+
+      // Wallet
+      GoRoute(
+        path: AppRoutes.wallet,
+        name: 'wallet',
+        builder: (context, state) => const WalletScreen(),
+      ),
+
+      // Referral
+      GoRoute(
+        path: AppRoutes.referral,
+        name: 'referral',
+        builder: (context, state) => const ReferralScreen(),
+      ),
+
+      // QR Scanner
+      GoRoute(
+        path: AppRoutes.qrScanner,
+        name: 'qrScanner',
+        builder: (context, state) => const QrScannerScreen(),
+      ),
+
+      // Help
+      GoRoute(
+        path: AppRoutes.help,
+        name: 'help',
+        builder: (context, state) => const HelpScreen(),
+      ),
     ],
     errorBuilder: (context, state) => Scaffold(
-      body: Center(
-        child: Text('Page not found: ${state.matchedLocation}'),
-      ),
+      body: Center(child: Text('Page not found: ${state.matchedLocation}')),
     ),
   );
 });
