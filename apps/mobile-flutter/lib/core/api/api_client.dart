@@ -6,28 +6,28 @@ import '../storage/secure_storage.dart';
 // API Configuration
 const String apiBaseUrl = String.fromEnvironment(
   'API_BASE_URL',
-  defaultValue: 'https://zinurooms.vercel.app',
+  defaultValue: 'https://zinurooms.vercel.app/api',
 );
 
 // Dio provider
 final dioProvider = Provider<Dio>((ref) {
-  final dio = Dio(BaseOptions(
-    baseUrl: apiBaseUrl,
-    connectTimeout: const Duration(seconds: 15),
-    receiveTimeout: const Duration(seconds: 15),
-    headers: {
-      'Content-Type': 'application/json',
-      'x-client-platform': 'mobile-flutter',
-    },
-  ));
+  final dio = Dio(
+    BaseOptions(
+      baseUrl: apiBaseUrl,
+      connectTimeout: const Duration(seconds: 15),
+      receiveTimeout: const Duration(seconds: 15),
+      headers: {
+        'Content-Type': 'application/json',
+        'x-client-platform': 'mobile-flutter',
+      },
+    ),
+  );
 
   // Add interceptors
   dio.interceptors.add(AuthInterceptor(ref));
-  dio.interceptors.add(LogInterceptor(
-    requestBody: true,
-    responseBody: true,
-    error: true,
-  ));
+  dio.interceptors.add(
+    LogInterceptor(requestBody: true, responseBody: true, error: true),
+  );
 
   return dio;
 });
@@ -74,10 +74,7 @@ class ApiResponse<T> {
   final String? error;
   final bool isSuccess;
 
-  ApiResponse({
-    this.data,
-    this.error,
-  }) : isSuccess = error == null;
+  ApiResponse({this.data, this.error}) : isSuccess = error == null;
 
   factory ApiResponse.success(T data) => ApiResponse(data: data);
   factory ApiResponse.failure(String error) => ApiResponse(error: error);
@@ -89,11 +86,7 @@ class ApiException implements Exception {
   final int? statusCode;
   final dynamic data;
 
-  ApiException({
-    required this.message,
-    this.statusCode,
-    this.data,
-  });
+  ApiException({required this.message, this.statusCode, this.data});
 
   @override
   String toString() => message;

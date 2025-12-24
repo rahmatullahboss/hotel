@@ -100,8 +100,8 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
     try {
       final response = await _dio.post(
-        '/auth/login',
-        data: {'identifier': identifier, 'password': password},
+        '/auth/mobile-login',
+        data: {'email': identifier, 'password': password},
       );
 
       final token = response.data['token'] as String;
@@ -142,7 +142,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
       // Send ID token to backend
       final response = await _dio.post(
-        '/auth/google',
+        '/mobile/google-auth',
         data: {'idToken': idToken},
       );
 
@@ -176,7 +176,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
   // Fetch current user
   Future<void> _fetchCurrentUser() async {
     try {
-      final response = await _dio.get('/auth/me');
+      final response = await _dio.get('/user/profile');
       final user = User.fromJson(response.data);
 
       state = state.copyWith(

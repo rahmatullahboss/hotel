@@ -14,6 +14,7 @@ import '../../features/profile/presentation/referral_screen.dart';
 import '../../features/profile/presentation/help_screen.dart';
 import '../../features/profile/presentation/achievements_screen.dart';
 import '../../features/hotel/presentation/hotel_details_screen.dart';
+import '../../features/hotel/presentation/all_hotels_screen.dart';
 import '../../features/hotel/presentation/room_details_screen.dart';
 import '../../features/booking_flow/presentation/booking_flow_screen.dart';
 import '../../features/booking_flow/presentation/qr_scanner_screen.dart';
@@ -29,6 +30,7 @@ class AppRoutes {
   static const String bookings = '/bookings';
   static const String bookingDetails = '/bookings/:id';
   static const String profile = '/profile';
+  static const String hotels = '/hotels';
   static const String hotelDetails = '/hotel/:id';
   static const String roomDetails = '/room/:id';
   static const String booking = '/book/:roomId';
@@ -103,6 +105,16 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: AppRoutes.login,
         name: 'login',
         builder: (context, state) => const LoginScreen(),
+      ),
+
+      // All hotels
+      GoRoute(
+        path: AppRoutes.hotels,
+        name: 'hotels',
+        builder: (context, state) {
+          final offer = state.uri.queryParameters['offer'];
+          return AllHotelsScreen(offer: offer);
+        },
       ),
 
       // Hotel details

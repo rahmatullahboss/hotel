@@ -3,12 +3,24 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:zinu_rooms/l10n/generated/app_localizations.dart';
 
 import 'core/theme/app_theme.dart';
+import 'core/theme/theme_provider.dart';
 import 'core/router/app_router.dart';
+import 'core/l10n/locale_provider.dart';
+import 'core/notifications/notification_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize Firebase (Safely)
+  try {
+    await Firebase.initializeApp();
+  } catch (e) {
+    debugPrint('Firebase initialization failed (Check config files): $e');
+  }
 
   // Set preferred orientations
   await SystemChrome.setPreferredOrientations([
@@ -29,12 +41,28 @@ void main() async {
   runApp(const ProviderScope(child: ZinuRoomsApp()));
 }
 
-class ZinuRoomsApp extends ConsumerWidget {
+class ZinuRoomsApp extends ConsumerStatefulWidget {
   const ZinuRoomsApp({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ZinuRoomsApp> createState() => _ZinuRoomsAppState();
+}
+
+class _ZinuRoomsAppState extends ConsumerState<ZinuRoomsApp> {
+  @override
+  void initState() {
+    super.initState();
+    // Initialize notifications
+    Future.microtask(() {
+      ref.read(notificationProvider.notifier).initialize();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final router = ref.watch(routerProvider);
+    final themeState = ref.watch(themeProvider);
+    final localeState = ref.watch(localeProvider);
 
     return MaterialApp.router(
       title: 'Zinu Rooms',
@@ -43,22 +71,16 @@ class ZinuRoomsApp extends ConsumerWidget {
       // Theme
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
-      themeMode: ThemeMode.light,
+      themeMode: themeState.themeMode,
 
       // Router
       routerConfig: router,
 
-      // Localization - Bengali and English support
-      localizationsDelegates: const [
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
-      supportedLocales: const [
-        Locale('bn', 'BD'), // Bengali
-        Locale('en', 'US'), // English
-      ],
-      locale: const Locale('bn', 'BD'), // Default to Bengali
+      // Localization
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      locale: localeState.locale,
+
       // Builder for global error handling and overlays
       builder: (context, child) {
         // Apply text scaling limits to prevent text overflow

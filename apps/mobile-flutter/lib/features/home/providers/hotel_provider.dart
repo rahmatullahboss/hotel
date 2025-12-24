@@ -196,3 +196,162 @@ final searchHotelsProvider = FutureProvider.family<List<Hotel>, String>((
     return [];
   }
 });
+
+// Hotel Filters Model
+class HotelFilters {
+  final String searchQuery;
+  final String sortBy; // 'rating', 'price', 'priceLow', 'priceHigh'
+  final double minPrice;
+  final double maxPrice;
+  final double? minRating;
+  final List<String> selectedAmenities;
+  final String? selectedCity;
+
+  const HotelFilters({
+    this.searchQuery = '',
+    this.sortBy = 'rating',
+    this.minPrice = 500,
+    this.maxPrice = 15000,
+    this.minRating,
+    this.selectedAmenities = const [],
+    this.selectedCity,
+  });
+
+  HotelFilters copyWith({
+    String? searchQuery,
+    String? sortBy,
+    double? minPrice,
+    double? maxPrice,
+    double? minRating,
+    bool clearMinRating = false,
+    List<String>? selectedAmenities,
+    String? selectedCity,
+    bool clearSelectedCity = false,
+  }) {
+    return HotelFilters(
+      searchQuery: searchQuery ?? this.searchQuery,
+      sortBy: sortBy ?? this.sortBy,
+      minPrice: minPrice ?? this.minPrice,
+      maxPrice: maxPrice ?? this.maxPrice,
+      minRating: clearMinRating ? null : (minRating ?? this.minRating),
+      selectedAmenities: selectedAmenities ?? this.selectedAmenities,
+      selectedCity: clearSelectedCity
+          ? null
+          : (selectedCity ?? this.selectedCity),
+    );
+  }
+
+  bool get hasActiveFilters =>
+      searchQuery.isNotEmpty ||
+      minPrice > 500 ||
+      maxPrice < 15000 ||
+      minRating != null ||
+      selectedAmenities.isNotEmpty ||
+      selectedCity != null;
+
+  int get activeFilterCount {
+    int count = 0;
+    if (minPrice > 500 || maxPrice < 15000) count++;
+    if (minRating != null) count++;
+    if (selectedAmenities.isNotEmpty) count++;
+    if (selectedCity != null) count++;
+    return count;
+  }
+}
+
+// Available amenities for filtering
+const kAvailableAmenities = [
+  'WiFi',
+  'AC',
+  'TV',
+  'Parking',
+  'Pool',
+  'Restaurant',
+  'Gym',
+  'Room Service',
+];
+
+// Rating options for filtering
+const kRatingOptions = [4.5, 4.0, 3.5, 3.0];
+
+// Popular cities in Bangladesh
+const kPopularCities = [
+  'Dhaka',
+  'Chittagong',
+  "Cox's Bazar",
+  'Sylhet',
+  'Rajshahi',
+  'Khulna',
+];
+
+// Hotel filters state provider
+final hotelFiltersProvider = StateProvider<HotelFilters>((ref) {
+  return const HotelFilters();
+});
+
+// Filtered hotels provider - applies filters to the hotels list
+final filteredHotelsProvider = Provider<List<Hotel>>((ref) {
+  final hotels = ref.watch(hotelsProvider).hotels;
+  final filters = ref.watch(hotelFiltersProvider);
+
+  var filtered = hotels.where((hotel) {
+    // Search filter
+    if (filters.searchQuery.isNotEmpty) {
+      final query = filters.searchQuery.toLowerCase();
+      if (!hotel.name.toLowerCase().contains(query) &&
+          !hotel.city.toLowerCase().contains(query) &&
+          !hotel.address.toLowerCase().contains(query)) {
+        return false;
+      }
+    }
+
+    // Price filter
+    if (hotel.pricePerNight < filters.minPrice ||
+        hotel.pricePerNight > filters.maxPrice) {
+      return false;
+    }
+
+    // Rating filter
+    if (filters.minRating != null && hotel.rating < filters.minRating!) {
+      return false;
+    }
+
+    // Amenities filter
+    if (filters.selectedAmenities.isNotEmpty) {
+      final hotelAmenities = hotel.amenities
+          .map((a) => a.toLowerCase())
+          .toSet();
+      for (final amenity in filters.selectedAmenities) {
+        if (!hotelAmenities.contains(amenity.toLowerCase())) {
+          return false;
+        }
+      }
+    }
+
+    // City filter
+    if (filters.selectedCity != null &&
+        !hotel.city.toLowerCase().contains(
+          filters.selectedCity!.toLowerCase(),
+        )) {
+      return false;
+    }
+
+    return true;
+  }).toList();
+
+  // Sort
+  switch (filters.sortBy) {
+    case 'priceLow':
+      filtered.sort((a, b) => a.pricePerNight.compareTo(b.pricePerNight));
+      break;
+    case 'priceHigh':
+      filtered.sort((a, b) => b.pricePerNight.compareTo(a.pricePerNight));
+      break;
+    case 'rating':
+    default:
+      filtered.sort((a, b) => b.rating.compareTo(a.rating));
+      break;
+  }
+
+  return filtered;
+});
