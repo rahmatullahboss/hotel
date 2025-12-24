@@ -141,6 +141,13 @@ class _HotelDetailsScreenState extends ConsumerState<HotelDetailsScreen> {
     );
     final roomsAsync = ref.watch(roomsProvider(roomsParams));
 
+    // Debug logging
+    debugPrint('Rooms loading: ${roomsAsync.isLoading}');
+    debugPrint(
+      'Rooms error: ${roomsAsync.hasError ? roomsAsync.error : "none"}',
+    );
+    debugPrint('Rooms count: ${roomsAsync.valueOrNull?.length ?? 0}');
+
     return hotelAsync.when(
       loading: () => _buildLoadingState(),
       error: (_, __) => _buildErrorState(),
@@ -168,6 +175,7 @@ class _HotelDetailsScreenState extends ConsumerState<HotelDetailsScreen> {
 
         // Get rooms from API (with dynamic prices)
         final apiRooms = roomsAsync.valueOrNull ?? [];
+        final hasRoomsError = roomsAsync.hasError;
 
         return _buildContent(
           context,
@@ -180,6 +188,7 @@ class _HotelDetailsScreenState extends ConsumerState<HotelDetailsScreen> {
           amenities: amenities,
           apiRooms: apiRooms,
           isLoadingRooms: roomsAsync.isLoading,
+          hasRoomsError: hasRoomsError,
         );
       },
     );
@@ -265,6 +274,7 @@ class _HotelDetailsScreenState extends ConsumerState<HotelDetailsScreen> {
     required List<Map<String, String>> amenities,
     required List<Room> apiRooms,
     required bool isLoadingRooms,
+    bool hasRoomsError = false,
   }) {
     final topPadding = MediaQuery.of(context).padding.top;
     final screenWidth = MediaQuery.of(context).size.width;
@@ -525,12 +535,32 @@ class _HotelDetailsScreenState extends ConsumerState<HotelDetailsScreen> {
                       ),
                       const SizedBox(height: 16),
 
-                      // Room Cards - Show loading or actual rooms with dynamic prices
+                      // Room Cards - Show loading, error, or actual rooms with dynamic prices
                       if (isLoadingRooms)
                         const Center(
                           child: Padding(
                             padding: EdgeInsets.all(20),
                             child: CircularProgressIndicator(),
+                          ),
+                        )
+                      else if (hasRoomsError)
+                        Padding(
+                          padding: const EdgeInsets.all(20),
+                          child: Column(
+                            children: [
+                              const Icon(
+                                Icons.error_outline,
+                                color: AppColors.error,
+                                size: 40,
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                'রুম লোড করতে সমস্যা হয়েছে',
+                                style: AppTypography.bodyMedium.copyWith(
+                                  color: AppColors.textSecondary,
+                                ),
+                              ),
+                            ],
                           ),
                         )
                       else if (apiRooms.isEmpty)
