@@ -1,0 +1,58 @@
+{
+  "@@locale": "bn",
+  "@@last_modified": "2024-12-24",
+  
+  "appTitle": "জিনু রুমস",
+  
+  "home": "হোম",
+  "search": "সার্চ",
+  "bookings": "বুকিং",
+  "profile": "প্রোফাইল",
+  
+  "greeting": "হ্যালো",
+  "findPerfectStay": "আপনার পছন্দের হোটেল খুঁজুন",
+  
+  "searchHint": "হোটেল বা শহর খুঁজুন...",
+  "popularDestinations": "জনপ্রিয় গন্তব্য",
+  "featuredHotels": "বিশেষ হোটেল",
+  "viewAll": "সব দেখুন",
+  
+  "checkIn": "চেক-ইন",
+  "checkOut": "চেক-আউট",
+  "guests": "অতিথি",
+  "rooms": "রুম",
+  
+  "bookNow": "এখনই বুক করুন",
+  "perNight": "প্রতি রাতে",
+  "reviews": "রিভিউ",
+  
+  "myBookings": "আমার বুকিং",
+  "upcoming": "আসন্ন",
+  "completed": "সম্পন্ন",
+  "cancelled": "বাতিল",
+  "noBookings": "কোনো বুকিং নেই",
+  "bookingConfirmed": "বুকিং সম্পন্ন!",
+  
+  "notifications": "নোটিফিকেশন",
+  "noNotifications": "কোনো নোটিফিকেশন নেই",
+  
+  "editProfile": "প্রোফাইল এডিট",
+  "name": "নাম",
+  "email": "ইমেইল",
+  "phone": "ফোন",
+  "save": "সেভ করুন",
+  
+  "settings": "সেটিংস",
+  "darkMode": "ডার্ক মোড",
+  "language": "ভাষা",
+  "english": "ইংরেজি",
+  "bengali": "বাংলা",
+  
+  "login": "লগইন",
+  "logout": "লগআউট",
+  "register": "রেজিস্টার",
+  
+  "retry": "পুনরায় চেষ্টা করুন",
+  "loadError": "লোড করতে সমস্যা হয়েছে। আবার চেষ্টা করুন।",
+  "noResults": "কোনো ফলাফল পাওয়া যায়নি"
+}

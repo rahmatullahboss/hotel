@@ -1,0 +1,59 @@
+{
+  "@@locale": "en",
+  "@@last_modified": "2024-12-24",
+  
+  "appTitle": "Zinu Rooms",
+  "@appTitle": { "description": "App title" },
+  
+  "home": "Home",
+  "search": "Search",
+  "bookings": "Bookings",
+  "profile": "Profile",
+  
+  "greeting": "Hello",
+  "findPerfectStay": "Find your perfect stay",
+  
+  "searchHint": "Search hotels or cities...",
+  "popularDestinations": "Popular Destinations",
+  "featuredHotels": "Featured Hotels",
+  "viewAll": "View All",
+  
+  "checkIn": "Check-in",
+  "checkOut": "Check-out",
+  "guests": "Guests",
+  "rooms": "Rooms",
+  
+  "bookNow": "Book Now",
+  "perNight": "per night",
+  "reviews": "reviews",
+  
+  "myBookings": "My Bookings",
+  "upcoming": "Upcoming",
+  "completed": "Completed",
+  "cancelled": "Cancelled",
+  "noBookings": "No bookings yet",
+  "bookingConfirmed": "Booking Confirmed!",
+  
+  "notifications": "Notifications",
+  "noNotifications": "No notifications",
+  
+  "editProfile": "Edit Profile",
+  "name": "Name",
+  "email": "Email",
+  "phone": "Phone",
+  "save": "Save",
+  
+  "settings": "Settings",
+  "darkMode": "Dark Mode",
+  "language": "Language",
+  "english": "English",
+  "bengali": "Bengali",
+  
+  "login": "Login",
+  "logout": "Logout",
+  "register": "Register",
+  
+  "retry": "Retry",
+  "loadError": "Failed to load. Please try again.",
+  "noResults": "No results found"
+}
