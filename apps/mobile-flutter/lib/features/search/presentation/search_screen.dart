@@ -1,13 +1,15 @@
-// Search Screen - World-Class Premium Design
+// Search Screen - Premium Design with Real API Search
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shimmer/shimmer.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
-
 import '../../../shared/widgets/city_card.dart';
 import '../../../shared/widgets/search_bar_widget.dart';
 import '../../../shared/widgets/quick_filter_button.dart';
+import '../../../shared/widgets/hotel_card.dart';
+import '../../home/providers/hotel_provider.dart';
 
 // City images
 const Map<String, String> cityImages = {
@@ -61,6 +63,9 @@ const List<Map<String, dynamic>> popularCities = [
   {'name': 'Khulna', 'hotels': 3},
 ];
 
+// Search query provider for debouncing
+final searchQueryProvider = StateProvider<String>((ref) => '');
+
 class SearchScreen extends ConsumerStatefulWidget {
   const SearchScreen({super.key});
 
@@ -72,8 +77,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
   final _searchController = TextEditingController();
   final _focusNode = FocusNode();
   String? activeFilter;
-  bool isSearching = false;
-  List<Map<String, dynamic>> searchResults = [];
+  Set<String> savedHotels = {};
 
   @override
   void dispose() {
@@ -86,24 +90,30 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
     setState(() {
       activeFilter = activeFilter == filterId ? null : filterId;
       if (filterId == 'nearby') {
-        // Navigate to nearby results
         context.push('/search-results?nearby=true');
       }
     });
   }
 
   void _handleSearch(String query) {
-    setState(() {
-      isSearching = query.isNotEmpty;
-      // TODO: Implement actual search
-    });
+    ref.read(searchQueryProvider.notifier).state = query;
   }
 
   void _clearSearch() {
+    _searchController.clear();
+    ref.read(searchQueryProvider.notifier).state = '';
     setState(() {
-      isSearching = false;
       activeFilter = null;
-      searchResults = [];
+    });
+  }
+
+  void _handleSaveToggle(String hotelId) {
+    setState(() {
+      if (savedHotels.contains(hotelId)) {
+        savedHotels.remove(hotelId);
+      } else {
+        savedHotels.add(hotelId);
+      }
     });
   }
 
@@ -111,7 +121,9 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
   Widget build(BuildContext context) {
     final topPadding = MediaQuery.of(context).padding.top;
     final screenWidth = MediaQuery.of(context).size.width;
-    final gridItemWidth = (screenWidth - 52) / 2; // 20 + 12 + 20 padding
+    final gridItemWidth = (screenWidth - 52) / 2;
+    final searchQuery = ref.watch(searchQueryProvider);
+    final isSearching = searchQuery.isNotEmpty;
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -179,9 +191,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                       child: ListView.separated(
                         scrollDirection: Axis.horizontal,
                         padding: const EdgeInsets.symmetric(horizontal: 20),
-                        itemCount:
-                            quickFilters.length +
-                            2, // +1 for Clear, +1 for Filters
+                        itemCount: quickFilters.length + (isSearching ? 1 : 0),
                         separatorBuilder: (_, __) => const SizedBox(width: 10),
                         itemBuilder: (context, index) {
                           if (index < quickFilters.length) {
@@ -194,8 +204,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                               onPressed: () =>
                                   _handleFilterTap(filter['id'] as String),
                             );
-                          } else if (index == quickFilters.length &&
-                              (isSearching || activeFilter != null)) {
+                          } else {
                             // Clear button
                             return GestureDetector(
                               onTap: _clearSearch,
@@ -218,46 +227,9 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                                     ),
                                     const SizedBox(width: 4),
                                     Text(
-                                      'Clear',
+                                      'মুছুন',
                                       style: AppTypography.labelLarge.copyWith(
                                         color: AppColors.textSecondary,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            );
-                          } else {
-                            // Filters button
-                            return GestureDetector(
-                              onTap: () {
-                                // TODO: Show filters modal
-                              },
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                  vertical: 10,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(24),
-                                  border: Border.all(color: AppColors.divider),
-                                  boxShadow: AppColors.softShadow,
-                                ),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Icon(
-                                      Icons.tune,
-                                      size: 16,
-                                      color: AppColors.primary,
-                                    ),
-                                    const SizedBox(width: 8),
-                                    Text(
-                                      'Filters',
-                                      style: AppTypography.labelLarge.copyWith(
-                                        color: AppColors.textPrimary,
                                         fontWeight: FontWeight.w600,
                                       ),
                                     ),
@@ -277,7 +249,6 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                       padding: const EdgeInsets.fromLTRB(20, 24, 20, 12),
                       child: Text('জনপ্রিয় গন্তব্য', style: AppTypography.h4),
                     ),
-
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 20),
                       child: GridView.builder(
@@ -363,37 +334,10 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                     ),
                   ] else ...[
                     // Search Results
-                    Padding(
-                      padding: const EdgeInsets.all(20),
-                      child: Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Container(
-                              width: 80,
-                              height: 80,
-                              decoration: BoxDecoration(
-                                color: AppColors.surfaceVariant,
-                                shape: BoxShape.circle,
-                              ),
-                              child: Icon(
-                                Icons.search,
-                                size: 40,
-                                color: AppColors.textTertiary,
-                              ),
-                            ),
-                            const SizedBox(height: 16),
-                            Text('সার্চ করুন', style: AppTypography.h4),
-                            const SizedBox(height: 8),
-                            Text(
-                              'হোটেল বা শহরের নাম লিখুন',
-                              style: AppTypography.bodyMedium.copyWith(
-                                color: AppColors.textSecondary,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
+                    _SearchResults(
+                      query: searchQuery,
+                      savedHotels: savedHotels,
+                      onSaveToggle: _handleSaveToggle,
                     ),
                   ],
 
@@ -403,6 +347,135 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+// Search results widget with API integration
+class _SearchResults extends ConsumerWidget {
+  final String query;
+  final Set<String> savedHotels;
+  final Function(String) onSaveToggle;
+
+  const _SearchResults({
+    required this.query,
+    required this.savedHotels,
+    required this.onSaveToggle,
+  });
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final searchResults = ref.watch(searchHotelsProvider(query));
+
+    return searchResults.when(
+      loading: () => Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          children: List.generate(3, (_) => const _HotelCardShimmer()),
+        ),
+      ),
+      error: (error, _) => Padding(
+        padding: const EdgeInsets.all(40),
+        child: Column(
+          children: [
+            const Icon(Icons.error_outline, size: 48, color: AppColors.error),
+            const SizedBox(height: 12),
+            Text(
+              'সার্চ করতে সমস্যা হয়েছে',
+              style: AppTypography.bodyMedium.copyWith(
+                color: AppColors.textSecondary,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      ),
+      data: (hotels) {
+        if (hotels.isEmpty) {
+          return Padding(
+            padding: const EdgeInsets.all(40),
+            child: Column(
+              children: [
+                Container(
+                  width: 80,
+                  height: 80,
+                  decoration: BoxDecoration(
+                    color: AppColors.surfaceVariant,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    Icons.search_off,
+                    size: 40,
+                    color: AppColors.textTertiary,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Text('কোনো হোটেল পাওয়া যায়নি', style: AppTypography.h4),
+                const SizedBox(height: 8),
+                Text(
+                  '"$query" দিয়ে কোনো হোটেল খুঁজে পাওয়া যায়নি',
+                  style: AppTypography.bodyMedium.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
+          );
+        }
+
+        return Padding(
+          padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                '${hotels.length}টি হোটেল পাওয়া গেছে',
+                style: AppTypography.labelLarge.copyWith(
+                  color: AppColors.textSecondary,
+                ),
+              ),
+              const SizedBox(height: 12),
+              ...hotels.map(
+                (hotel) => HotelCard(
+                  id: hotel.id,
+                  name: hotel.name,
+                  city: hotel.city,
+                  rating: hotel.rating,
+                  reviewCount: hotel.reviewCount,
+                  price: hotel.pricePerNight.toDouble(),
+                  imageUrl: hotel.imageUrl,
+                  isSaved: savedHotels.contains(hotel.id),
+                  onSaveToggle: () => onSaveToggle(hotel.id),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+}
+
+// Shimmer loading for hotel cards
+class _HotelCardShimmer extends StatelessWidget {
+  const _HotelCardShimmer();
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: Shimmer.fromColors(
+        baseColor: AppColors.shimmerBase,
+        highlightColor: AppColors.shimmerHighlight,
+        child: Container(
+          height: 280,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+          ),
+        ),
       ),
     );
   }

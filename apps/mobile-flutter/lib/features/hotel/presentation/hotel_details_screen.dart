@@ -1,11 +1,13 @@
-// Hotel Details Screen - World-Class Premium Design
+// Hotel Details Screen - World-Class Premium Design with API Integration
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:shimmer/shimmer.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
+import '../../home/providers/hotel_provider.dart';
 
 // Dummy hotel data
 const dummyHotelData = {
@@ -117,13 +119,124 @@ class _HotelDetailsScreenState extends ConsumerState<HotelDetailsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final hotelAsync = ref.watch(hotelProvider(widget.hotelId));
+
+    return hotelAsync.when(
+      loading: () => _buildLoadingState(),
+      error: (_, __) => _buildErrorState(),
+      data: (hotel) {
+        // Use API data or fallback to dummy data
+        final hotelName = hotel?.name ?? dummyHotelData['name'] as String;
+        final hotelCity = hotel?.city ?? dummyHotelData['city'] as String;
+        final hotelRating = hotel?.rating ?? dummyHotelData['rating'] as double;
+        final hotelReviewCount =
+            hotel?.reviewCount ?? dummyHotelData['reviewCount'] as int;
+        final price = hotel?.pricePerNight ?? dummyHotelData['price'] as int;
+        final images = hotel?.imageUrl != null
+            ? [hotel!.imageUrl!]
+            : dummyHotelData['images'] as List<String>;
+        final amenities =
+            dummyHotelData['amenities'] as List<Map<String, String>>;
+        final rooms = dummyHotelData['rooms'] as List<Map<String, dynamic>>;
+
+        return _buildContent(
+          context,
+          hotelName: hotelName,
+          hotelCity: hotelCity,
+          hotelRating: hotelRating,
+          hotelReviewCount: hotelReviewCount,
+          price: price,
+          images: images,
+          amenities: amenities,
+          rooms: rooms,
+        );
+      },
+    );
+  }
+
+  Widget _buildLoadingState() {
+    return Scaffold(
+      backgroundColor: AppColors.background,
+      body: SafeArea(
+        child: Column(
+          children: [
+            Shimmer.fromColors(
+              baseColor: AppColors.shimmerBase,
+              highlightColor: AppColors.shimmerHighlight,
+              child: Container(height: 300, color: Colors.white),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Shimmer.fromColors(
+                    baseColor: AppColors.shimmerBase,
+                    highlightColor: AppColors.shimmerHighlight,
+                    child: Container(
+                      height: 24,
+                      width: 200,
+                      color: Colors.white,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Shimmer.fromColors(
+                    baseColor: AppColors.shimmerBase,
+                    highlightColor: AppColors.shimmerHighlight,
+                    child: Container(
+                      height: 16,
+                      width: 150,
+                      color: Colors.white,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildErrorState() {
+    return Scaffold(
+      backgroundColor: AppColors.background,
+      appBar: AppBar(backgroundColor: Colors.transparent),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.error_outline, size: 64, color: AppColors.error),
+            const SizedBox(height: 16),
+            Text(
+              'হোটেল লোড করতে সমস্যা হয়েছে',
+              style: AppTypography.bodyMedium,
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () => ref.refresh(hotelProvider(widget.hotelId)),
+              child: const Text('পুনরায় চেষ্টা করুন'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildContent(
+    BuildContext context, {
+    required String hotelName,
+    required String hotelCity,
+    required double hotelRating,
+    required int hotelReviewCount,
+    required int price,
+    required List<String> images,
+    required List<Map<String, String>> amenities,
+    required List<Map<String, dynamic>> rooms,
+  }) {
     final topPadding = MediaQuery.of(context).padding.top;
     final screenWidth = MediaQuery.of(context).size.width;
     final heroHeight = screenWidth * 0.85;
-    final images = dummyHotelData['images'] as List<String>;
-    final amenities = dummyHotelData['amenities'] as List<Map<String, String>>;
-    final rooms = dummyHotelData['rooms'] as List<Map<String, dynamic>>;
-    final price = dummyHotelData['price'] as int;
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -319,10 +432,7 @@ class _HotelDetailsScreenState extends ConsumerState<HotelDetailsScreen> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(
-                                  dummyHotelData['name'] as String,
-                                  style: AppTypography.h2,
-                                ),
+                                Text(hotelName, style: AppTypography.h2),
                                 const SizedBox(height: 6),
                                 Row(
                                   children: [
@@ -334,7 +444,7 @@ class _HotelDetailsScreenState extends ConsumerState<HotelDetailsScreen> {
                                     const SizedBox(width: 4),
                                     Expanded(
                                       child: Text(
-                                        dummyHotelData['city'] as String,
+                                        hotelCity,
                                         style: AppTypography.bodyMedium
                                             .copyWith(
                                               color: AppColors.textSecondary,
@@ -366,8 +476,7 @@ class _HotelDetailsScreenState extends ConsumerState<HotelDetailsScreen> {
                                 ),
                                 const SizedBox(width: 4),
                                 Text(
-                                  (dummyHotelData['rating'] as double)
-                                      .toStringAsFixed(1),
+                                  hotelRating.toStringAsFixed(1),
                                   style: AppTypography.labelLarge.copyWith(
                                     color: Colors.white,
                                     fontWeight: FontWeight.bold,
@@ -383,7 +492,7 @@ class _HotelDetailsScreenState extends ConsumerState<HotelDetailsScreen> {
                       Padding(
                         padding: const EdgeInsets.only(top: 8),
                         child: Text(
-                          '${dummyHotelData['reviewCount']} reviews',
+                          '$hotelReviewCount reviews',
                           style: AppTypography.bodySmall.copyWith(
                             color: AppColors.textTertiary,
                           ),
@@ -416,7 +525,8 @@ class _HotelDetailsScreenState extends ConsumerState<HotelDetailsScreen> {
                       Text('বিবরণ', style: AppTypography.h4),
                       const SizedBox(height: 12),
                       Text(
-                        dummyHotelData['description'] as String,
+                        dummyHotelData['description'] as String? ??
+                            'এই হোটেলটি আপনার থাকার জন্য একটি চমৎকার জায়গা।',
                         style: AppTypography.bodyMedium.copyWith(
                           color: AppColors.textSecondary,
                           height: 1.6,

@@ -1,9 +1,10 @@
-// Profile Screen - World-Class Premium Design
+// Profile Screen - World-Class Premium Design with API Integration
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
+import '../../auth/providers/auth_provider.dart';
 
 class ProfileScreen extends ConsumerStatefulWidget {
   const ProfileScreen({super.key});
@@ -13,16 +14,20 @@ class ProfileScreen extends ConsumerStatefulWidget {
 }
 
 class _ProfileScreenState extends ConsumerState<ProfileScreen> {
-  bool isLoggedIn = false; // Simulate logged in state
-  String membershipTier = 'BRONZE';
-  int bookingsCount = 3;
-  int walletBalance = 500;
-  int loyaltyPoints = 150;
   String selectedLanguage = 'bn';
 
   @override
   Widget build(BuildContext context) {
     final topPadding = MediaQuery.of(context).padding.top;
+    final authState = ref.watch(authProvider);
+    final isLoggedIn = authState.isAuthenticated;
+    final user = authState.user;
+
+    // Use user data from API or defaults
+    final membershipTier = 'BRONZE';
+    final bookingsCount = user?.totalBookings ?? 0;
+    final walletBalance = user?.walletBalance ?? 0;
+    final loyaltyPoints = user?.loyaltyPoints ?? 0;
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -334,7 +339,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: GestureDetector(
                   onTap: () {
-                    setState(() => isLoggedIn = false);
+                    ref.read(authProvider.notifier).logout();
                   },
                   child: Container(
                     width: double.infinity,
