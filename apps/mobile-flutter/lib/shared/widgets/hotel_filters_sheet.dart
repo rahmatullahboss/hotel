@@ -180,7 +180,7 @@ class _HotelFiltersSheetState extends ConsumerState<HotelFiltersSheet> {
                               ),
                               const SizedBox(width: 4),
                               Text(
-                                '${rating}+',
+                                '$rating+',
                                 style: AppTypography.labelLarge.copyWith(
                                   color: isSelected
                                       ? Colors.white

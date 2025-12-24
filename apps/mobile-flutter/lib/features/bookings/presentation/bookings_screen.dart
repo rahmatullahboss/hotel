@@ -239,7 +239,7 @@ class _BookingsScreenState extends ConsumerState<BookingsScreen>
       return ListView.builder(
         padding: const EdgeInsets.all(20),
         itemCount: 2,
-        itemBuilder: (_, __) => const _BookingCardShimmer(),
+        itemBuilder: (_, _) => const _BookingCardShimmer(),
       );
     }
 

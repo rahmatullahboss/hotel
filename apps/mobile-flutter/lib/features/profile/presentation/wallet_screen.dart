@@ -231,7 +231,7 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
                           shrinkWrap: true,
                           physics: const NeverScrollableScrollPhysics(),
                           itemCount: walletState.transactions.length,
-                          separatorBuilder: (_, __) =>
+                          separatorBuilder: (_, _) =>
                               Divider(height: 1, color: AppColors.divider),
                           itemBuilder: (context, index) {
                             final transaction = walletState.transactions[index];

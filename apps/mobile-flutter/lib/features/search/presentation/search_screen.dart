@@ -213,7 +213,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                         scrollDirection: Axis.horizontal,
                         padding: const EdgeInsets.symmetric(horizontal: 20),
                         itemCount: quickFilters.length + (isSearching ? 1 : 0),
-                        separatorBuilder: (_, __) => const SizedBox(width: 10),
+                        separatorBuilder: (_, _) => const SizedBox(width: 10),
                         itemBuilder: (context, index) {
                           if (index < quickFilters.length) {
                             final filter = quickFilters[index];

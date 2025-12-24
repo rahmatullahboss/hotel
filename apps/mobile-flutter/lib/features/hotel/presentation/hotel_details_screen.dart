@@ -150,7 +150,7 @@ class _HotelDetailsScreenState extends ConsumerState<HotelDetailsScreen> {
 
     return hotelAsync.when(
       loading: () => _buildLoadingState(),
-      error: (_, __) => _buildErrorState(),
+      error: (_, _) => _buildErrorState(),
       data: (hotel) {
         // Use API data - hotel should never be null at this point
         if (hotel == null) return _buildErrorState();
@@ -494,8 +494,7 @@ class _HotelDetailsScreenState extends ConsumerState<HotelDetailsScreen> {
                         child: ListView.separated(
                           scrollDirection: Axis.horizontal,
                           itemCount: amenities.length,
-                          separatorBuilder: (_, __) =>
-                              const SizedBox(width: 12),
+                          separatorBuilder: (_, _) => const SizedBox(width: 12),
                           itemBuilder: (context, index) {
                             final amenity = amenities[index];
                             return _AmenityCard(
