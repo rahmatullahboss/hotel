@@ -16,17 +16,17 @@ import '../providers/hotel_provider.dart';
 // City images - Real photos of Bangladeshi landmarks
 const Map<String, String> cityImages = {
   'ঢাকা':
-      'https://images.unsplash.com/photo-1619468129170-28dd035fb141?q=80&w=800',
+      'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?q=80&w=800',
   'চট্টগ্রাম':
-      'https://images.unsplash.com/photo-1599587440406-03f4340a97a3?q=80&w=800',
+      'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?q=80&w=800',
   'কক্সবাজার':
-      'https://images.unsplash.com/photo-1608958435020-e8a710988090?q=80&w=800',
+      'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=800',
   'সিলেট':
-      'https://images.unsplash.com/photo-1628005370222-38d58dd75638?q=80&w=800',
+      'https://images.unsplash.com/photo-1501785888041-af3ef285b470?q=80&w=800',
   'রাজশাহী':
-      'https://images.unsplash.com/photo-1633461247458-941838637769?q=80&w=800',
+      'https://images.unsplash.com/photo-1518495973542-4542c06a5843?q=80&w=800',
   'খুলনা':
-      'https://images.unsplash.com/photo-1603956461970-d7a8ce0b0213?q=80&w=800',
+      'https://images.unsplash.com/photo-1468746587034-766ade47c1ac?q=80&w=800',
 };
 
 // Quick filter data
