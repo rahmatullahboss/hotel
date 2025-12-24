@@ -46,18 +46,36 @@ class Hotel {
       imagesList = [json['coverImage'] as String];
     }
 
+    // Helper to parse number from string or num
+    double parseDouble(dynamic value) {
+      if (value == null) return 0.0;
+      if (value is num) return value.toDouble();
+      if (value is String) return double.tryParse(value) ?? 0.0;
+      return 0.0;
+    }
+
+    int parseInt(dynamic value) {
+      if (value == null) return 0;
+      if (value is int) return value;
+      if (value is num) return value.toInt();
+      if (value is String) return int.tryParse(value) ?? 0;
+      return 0;
+    }
+
     return Hotel(
       id: json['id'] as String,
       name: json['name'] as String,
       city: json['city'] as String,
-      address: json['address'] as String? ?? '',
+      address: json['address'] as String? ?? json['location'] as String? ?? '',
       imageUrl: json['imageUrl'] as String? ?? json['coverImage'] as String?,
       images: imagesList,
-      rating: (json['rating'] as num?)?.toDouble() ?? 0.0,
-      reviewCount: json['reviewCount'] as int? ?? 0,
-      pricePerNight:
-          (json['lowestPrice'] as num?)?.toInt() ??
-          (json['pricePerNight'] as int? ?? 0),
+      rating: parseDouble(json['rating']),
+      reviewCount: parseInt(json['reviewCount']),
+      pricePerNight: parseInt(
+        json['lowestPrice'] ??
+            json['lowestDynamicPrice'] ??
+            json['pricePerNight'],
+      ),
       amenities:
           (json['amenities'] as List<dynamic>?)
               ?.map((e) => e as String)
