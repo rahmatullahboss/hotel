@@ -58,7 +58,10 @@ class Hotel {
       if (value == null) return 0;
       if (value is int) return value;
       if (value is num) return value.toInt();
-      if (value is String) return int.tryParse(value) ?? 0;
+      if (value is String) {
+        // Try int first, then double (for values like "2178.00")
+        return int.tryParse(value) ?? double.tryParse(value)?.toInt() ?? 0;
+      }
       return 0;
     }
 
