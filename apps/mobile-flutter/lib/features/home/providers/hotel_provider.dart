@@ -38,7 +38,9 @@ class Hotel {
       imageUrl: json['imageUrl'] as String?,
       rating: (json['rating'] as num?)?.toDouble() ?? 0.0,
       reviewCount: json['reviewCount'] as int? ?? 0,
-      pricePerNight: json['pricePerNight'] as int? ?? 0,
+      pricePerNight:
+          (json['lowestPrice'] as num?)?.toInt() ??
+          (json['pricePerNight'] as int? ?? 0),
       amenities:
           (json['amenities'] as List<dynamic>?)
               ?.map((e) => e as String)
@@ -93,7 +95,17 @@ class HotelsNotifier extends StateNotifier<HotelsState> {
       if (search != null) queryParams['search'] = search;
 
       final response = await _dio.get('/hotels', queryParameters: queryParams);
-      final List<dynamic> data = response.data['hotels'] ?? [];
+
+      final dynamic responseData = response.data;
+      final List<dynamic> data;
+      if (responseData is Map<String, dynamic> &&
+          responseData.containsKey('hotels')) {
+        data = responseData['hotels'];
+      } else if (responseData is List) {
+        data = responseData;
+      } else {
+        data = [];
+      }
       final hotels = data.map((json) => Hotel.fromJson(json)).toList();
 
       state = state.copyWith(hotels: hotels, isLoading: false);
@@ -107,8 +119,18 @@ class HotelsNotifier extends StateNotifier<HotelsState> {
 
   Future<void> fetchFeaturedHotels() async {
     try {
-      final response = await _dio.get('/hotels/featured');
-      final List<dynamic> data = response.data['hotels'] ?? [];
+      final response = await _dio.get('/hotels?limit=5');
+
+      final dynamic responseData = response.data;
+      final List<dynamic> data;
+      if (responseData is Map<String, dynamic> &&
+          responseData.containsKey('hotels')) {
+        data = responseData['hotels'];
+      } else if (responseData is List) {
+        data = responseData;
+      } else {
+        data = [];
+      }
       final hotels = data.map((json) => Hotel.fromJson(json)).toList();
 
       state = state.copyWith(featuredHotels: hotels);
@@ -134,7 +156,15 @@ final hotelProvider = FutureProvider.family<Hotel?, String>((
   final dio = ref.watch(dioProvider);
   try {
     final response = await dio.get('/hotels/$hotelId');
-    return Hotel.fromJson(response.data);
+    final dynamic responseData = response.data;
+    final Map<String, dynamic> json;
+    if (responseData is Map<String, dynamic> &&
+        responseData.containsKey('hotel')) {
+      json = responseData['hotel'];
+    } else {
+      json = responseData;
+    }
+    return Hotel.fromJson(json);
   } catch (_) {
     return null;
   }
@@ -151,7 +181,16 @@ final searchHotelsProvider = FutureProvider.family<List<Hotel>, String>((
       '/hotels',
       queryParameters: {'search': query},
     );
-    final List<dynamic> data = response.data['hotels'] ?? [];
+    final dynamic responseData = response.data;
+    final List<dynamic> data;
+    if (responseData is Map<String, dynamic> &&
+        responseData.containsKey('hotels')) {
+      data = responseData['hotels'];
+    } else if (responseData is List) {
+      data = responseData;
+    } else {
+      data = [];
+    }
     return data.map((json) => Hotel.fromJson(json)).toList();
   } catch (_) {
     return [];
