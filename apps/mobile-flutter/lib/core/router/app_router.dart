@@ -82,8 +82,13 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: AppRoutes.search,
             name: 'search',
-            pageBuilder: (context, state) =>
-                const NoTransitionPage(child: SearchScreen()),
+            pageBuilder: (context, state) {
+              final city = state.uri.queryParameters['city'];
+              final filter = state.uri.queryParameters['filter'];
+              return NoTransitionPage(
+                child: SearchScreen(initialCity: city, initialFilter: filter),
+              );
+            },
           ),
           GoRoute(
             path: AppRoutes.bookings,

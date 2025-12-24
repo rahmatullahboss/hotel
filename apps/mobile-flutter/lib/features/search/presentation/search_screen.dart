@@ -67,7 +67,10 @@ const List<Map<String, dynamic>> popularCities = [
 final searchQueryProvider = StateProvider<String>((ref) => '');
 
 class SearchScreen extends ConsumerStatefulWidget {
-  const SearchScreen({super.key});
+  final String? initialCity;
+  final String? initialFilter;
+
+  const SearchScreen({super.key, this.initialCity, this.initialFilter});
 
   @override
   ConsumerState<SearchScreen> createState() => _SearchScreenState();
@@ -77,7 +80,24 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
   final _searchController = TextEditingController();
   final _focusNode = FocusNode();
   String? activeFilter;
+  String? selectedCity;
   Set<String> savedHotels = {};
+
+  @override
+  void initState() {
+    super.initState();
+    // Set initial city from navigation
+    selectedCity = widget.initialCity;
+    activeFilter = widget.initialFilter;
+
+    // If we have a city, set it as the search query
+    if (selectedCity != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        ref.read(searchQueryProvider.notifier).state = selectedCity!;
+        _searchController.text = selectedCity!;
+      });
+    }
+  }
 
   @override
   void dispose() {
@@ -104,6 +124,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
     ref.read(searchQueryProvider.notifier).state = '';
     setState(() {
       activeFilter = null;
+      selectedCity = null;
     });
   }
 
