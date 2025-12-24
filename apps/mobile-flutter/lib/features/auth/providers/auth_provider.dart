@@ -184,9 +184,21 @@ class AuthNotifier extends StateNotifier<AuthState> {
         isAuthenticated: true,
         isLoading: false,
       );
+
+      // Record daily login for streak tracking
+      _recordDailyLogin();
     } on DioException catch (_) {
       await _storage.deleteToken();
       state = state.copyWith(isLoading: false, isAuthenticated: false);
+    }
+  }
+
+  // Record daily login for gamification
+  Future<void> _recordDailyLogin() async {
+    try {
+      await _dio.post('/user/gamification');
+    } catch (_) {
+      // Silent fail - don't break auth flow
     }
   }
 }
