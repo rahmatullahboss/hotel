@@ -145,16 +145,24 @@ class _HotelDetailsScreenState extends ConsumerState<HotelDetailsScreen> {
       loading: () => _buildLoadingState(),
       error: (_, __) => _buildErrorState(),
       data: (hotel) {
-        // Use API data or fallback to dummy data
-        final hotelName = hotel?.name ?? dummyHotelData['name'] as String;
-        final hotelCity = hotel?.city ?? dummyHotelData['city'] as String;
-        final hotelRating = hotel?.rating ?? dummyHotelData['rating'] as double;
-        final hotelReviewCount =
-            hotel?.reviewCount ?? dummyHotelData['reviewCount'] as int;
-        final price = hotel?.pricePerNight ?? dummyHotelData['price'] as int;
-        final images = hotel?.imageUrl != null
-            ? [hotel!.imageUrl!]
-            : dummyHotelData['images'] as List<String>;
+        // Use API data - hotel should never be null at this point
+        if (hotel == null) return _buildErrorState();
+
+        final hotelName = hotel.name;
+        final hotelCity = hotel.city;
+        final hotelRating = hotel.rating;
+        final hotelReviewCount = hotel.reviewCount;
+        final price = hotel.pricePerNight;
+
+        // Use images array from API for carousel
+        final images = hotel.images.isNotEmpty
+            ? hotel.images
+            : (hotel.imageUrl != null
+                  ? [hotel.imageUrl!]
+                  : [
+                      'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800',
+                    ]);
+
         final amenities =
             dummyHotelData['amenities'] as List<Map<String, String>>;
 

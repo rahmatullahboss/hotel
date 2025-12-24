@@ -350,7 +350,7 @@ class _HotelFiltersSheetState extends ConsumerState<HotelFiltersSheet> {
   Widget _buildSectionTitle(String title) {
     return Text(
       title,
-      style: AppTypography.h5.copyWith(
+      style: AppTypography.bodyLarge.copyWith(
         fontWeight: FontWeight.w600,
         color: AppColors.textPrimary,
       ),

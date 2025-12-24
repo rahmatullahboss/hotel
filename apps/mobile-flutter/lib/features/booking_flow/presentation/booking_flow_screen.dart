@@ -1,8 +1,10 @@
 // Booking Flow Screen
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
+import '../../bookings/providers/booking_provider.dart';
 
 class BookingFlowScreen extends ConsumerStatefulWidget {
   final String roomId;
@@ -230,27 +232,70 @@ class _BookingFlowScreenState extends ConsumerState<BookingFlowScreen> {
     return '${date.day}/${date.month}/${date.year}';
   }
 
-  void _completeBooking() {
-    // TODO: Implement booking API call
+  void _completeBooking() async {
+    // Validate dates
+    if (_checkIn == null || _checkOut == null) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('তারিখ নির্বাচন করুন')));
+      return;
+    }
+
+    // Show loading
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text('বুকিং সম্পন্ন!', style: AppTypography.h3),
-        content: Text(
-          'আপনার বুকিং সফলভাবে সম্পন্ন হয়েছে।',
-          style: AppTypography.bodyMedium,
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-              Navigator.of(context).pop();
-            },
-            child: const Text('ঠিক আছে'),
-          ),
-        ],
-      ),
+      barrierDismissible: false,
+      builder: (context) => const Center(child: CircularProgressIndicator()),
     );
+
+    // Call booking API
+    final success = await ref
+        .read(bookingsProvider.notifier)
+        .createBooking(
+          roomId: widget.roomId,
+          checkIn: _checkIn!,
+          checkOut: _checkOut!,
+          guests: _guests,
+          paymentMethod: _paymentMethod,
+        );
+
+    // Hide loading
+    if (mounted) Navigator.of(context).pop();
+
+    if (success) {
+      // Show success dialog
+      if (mounted) {
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: Text('বুকিং সম্পন্ন!', style: AppTypography.h3),
+            content: Text(
+              'আপনার বুকিং সফলভাবে সম্পন্ন হয়েছে।',
+              style: AppTypography.bodyMedium,
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  context.go('/bookings'); // Navigate to bookings tab
+                },
+                child: const Text('ঠিক আছে'),
+              ),
+            ],
+          ),
+        );
+      }
+    } else {
+      // Show error
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('বুকিং করতে সমস্যা হয়েছে। পুনরায় চেষ্টা করুন।'),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
+    }
   }
 }
 

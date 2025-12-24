@@ -10,11 +10,13 @@ class Hotel {
   final String city;
   final String address;
   final String? imageUrl;
+  final List<String> images; // For photo carousel
   final double rating;
   final int reviewCount;
   final int pricePerNight;
   final List<String> amenities;
   final bool isFeatured;
+  final String? description;
 
   Hotel({
     required this.id,
@@ -22,20 +24,35 @@ class Hotel {
     required this.city,
     required this.address,
     this.imageUrl,
+    this.images = const [],
     required this.rating,
     required this.reviewCount,
     required this.pricePerNight,
     required this.amenities,
     this.isFeatured = false,
+    this.description,
   });
 
   factory Hotel.fromJson(Map<String, dynamic> json) {
+    // Parse images array from API
+    List<String> imagesList = [];
+    if (json['images'] != null) {
+      imagesList = (json['images'] as List<dynamic>)
+          .map((e) => e as String)
+          .toList();
+    } else if (json['imageUrl'] != null) {
+      imagesList = [json['imageUrl'] as String];
+    } else if (json['coverImage'] != null) {
+      imagesList = [json['coverImage'] as String];
+    }
+
     return Hotel(
       id: json['id'] as String,
       name: json['name'] as String,
       city: json['city'] as String,
       address: json['address'] as String? ?? '',
-      imageUrl: json['imageUrl'] as String?,
+      imageUrl: json['imageUrl'] as String? ?? json['coverImage'] as String?,
+      images: imagesList,
       rating: (json['rating'] as num?)?.toDouble() ?? 0.0,
       reviewCount: json['reviewCount'] as int? ?? 0,
       pricePerNight:
@@ -47,6 +64,7 @@ class Hotel {
               .toList() ??
           [],
       isFeatured: json['isFeatured'] as bool? ?? false,
+      description: json['description'] as String?,
     );
   }
 }
