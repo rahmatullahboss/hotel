@@ -16,14 +16,12 @@ class SecureStorageService {
   final FlutterSecureStorage _storage;
 
   SecureStorageService()
-      : _storage = const FlutterSecureStorage(
-          aOptions: AndroidOptions(
-            encryptedSharedPreferences: true,
-          ),
-          iOptions: IOSOptions(
-            accessibility: KeychainAccessibility.first_unlock_this_device,
-          ),
-        );
+    : _storage = const FlutterSecureStorage(
+        aOptions: AndroidOptions(encryptedSharedPreferences: true),
+        iOptions: IOSOptions(
+          accessibility: KeychainAccessibility.first_unlock_this_device,
+        ),
+      );
 
   // Token management
   Future<String?> getToken() async {
@@ -54,6 +52,16 @@ class SecureStorageService {
 
   Future<void> setRefreshToken(String token) async {
     await _storage.write(key: _refreshTokenKey, value: token);
+  }
+
+  // Generic write for arbitrary data
+  Future<void> write(String key, String value) async {
+    await _storage.write(key: key, value: value);
+  }
+
+  // Generic read for arbitrary data
+  Future<String?> read(String key) async {
+    return await _storage.read(key: key);
   }
 
   // Clear all secure data (logout)
