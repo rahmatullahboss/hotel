@@ -209,17 +209,49 @@ final hotelProvider = FutureProvider.family<Hotel?, String>((
   }
 });
 
-// Search hotels provider
+// Search hotels provider - with proper city/location filtering
 final searchHotelsProvider = FutureProvider.family<List<Hotel>, String>((
   ref,
   query,
 ) async {
+  if (query.isEmpty) return [];
+
   final dio = ref.watch(dioProvider);
+  final queryLower = query.toLowerCase().trim();
+
+  // Check if query matches a known city name
+  final cityNames = [
+    'dhaka',
+    'chittagong',
+    "cox's bazar",
+    'coxs bazar',
+    'sylhet',
+    'rajshahi',
+    'khulna',
+    'barisal',
+    'rangpur',
+    'mymensingh',
+    'comilla',
+    'gazipur',
+    'narayanganj',
+    'barguna',
+  ];
+
+  final isLocationSearch = cityNames.any(
+    (city) => city.contains(queryLower) || queryLower.contains(city),
+  );
+
   try {
-    final response = await dio.get(
-      '/hotels',
-      queryParameters: {'search': query},
-    );
+    final Map<String, dynamic> queryParams = {};
+
+    // Use city parameter for location searches, search for others
+    if (isLocationSearch) {
+      queryParams['city'] = query;
+    } else {
+      queryParams['search'] = query;
+    }
+
+    final response = await dio.get('/hotels', queryParameters: queryParams);
     final dynamic responseData = response.data;
     final List<dynamic> data;
     if (responseData is Map<String, dynamic> &&
@@ -230,7 +262,22 @@ final searchHotelsProvider = FutureProvider.family<List<Hotel>, String>((
     } else {
       data = [];
     }
-    return data.map((json) => Hotel.fromJson(json)).toList();
+
+    final hotels = data.map((json) => Hotel.fromJson(json)).toList();
+
+    // Additional client-side filtering for location searches
+    // to ensure only hotels from that location are shown
+    if (isLocationSearch) {
+      return hotels.where((hotel) {
+        final hotelCity = hotel.city.toLowerCase();
+        final hotelAddress = hotel.address.toLowerCase();
+        return hotelCity.contains(queryLower) ||
+            queryLower.contains(hotelCity) ||
+            hotelAddress.contains(queryLower);
+      }).toList();
+    }
+
+    return hotels;
   } catch (_) {
     return [];
   }
