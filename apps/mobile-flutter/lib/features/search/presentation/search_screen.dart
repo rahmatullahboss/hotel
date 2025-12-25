@@ -421,13 +421,15 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                         itemBuilder: (context, index) {
                           if (index < quickFilters.length) {
                             final filter = quickFilters[index];
+                            final filterId = filter['id'] as String;
                             return QuickFilterButton(
-                              id: filter['id'] as String,
+                              id: filterId,
                               label: filter['label'] as String,
                               emoji: filter['emoji'] as String,
-                              isActive: activeFilter == filter['id'],
-                              onPressed: () =>
-                                  _handleFilterTap(filter['id'] as String),
+                              isActive: activeFilter == filterId,
+                              isLoading:
+                                  filterId == 'nearby' && _isLoadingLocation,
+                              onPressed: () => _handleFilterTap(filterId),
                             );
                           } else {
                             // Clear button
@@ -467,6 +469,85 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                       ),
                     ),
                   ),
+
+                  // Location Status Banner - shows when nearby filter is active
+                  if (activeFilter == 'nearby') ...[
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 300),
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: _locationError != null
+                              ? AppColors.error.withValues(alpha: 0.1)
+                              : AppColors.success.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: _locationError != null
+                                ? AppColors.error.withValues(alpha: 0.3)
+                                : AppColors.success.withValues(alpha: 0.3),
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(
+                              _locationError != null
+                                  ? Icons.location_off
+                                  : Icons.my_location,
+                              size: 20,
+                              color: _locationError != null
+                                  ? AppColors.error
+                                  : AppColors.success,
+                            ),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    _locationError != null
+                                        ? _locationError!
+                                        : 'লোকেশন পাওয়া গেছে',
+                                    style: AppTypography.labelMedium.copyWith(
+                                      color: _locationError != null
+                                          ? AppColors.error
+                                          : AppColors.success,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                  if (_currentPosition != null &&
+                                      _locationError == null)
+                                    Text(
+                                      'lat: ${_currentPosition!.latitude.toStringAsFixed(4)}, lng: ${_currentPosition!.longitude.toStringAsFixed(4)}',
+                                      style: AppTypography.labelSmall.copyWith(
+                                        color: AppColors.textTertiary,
+                                      ),
+                                    ),
+                                ],
+                              ),
+                            ),
+                            if (_locationError != null)
+                              TextButton(
+                                onPressed: () => _handleNearbyFilter(),
+                                style: TextButton.styleFrom(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                  ),
+                                  minimumSize: Size.zero,
+                                ),
+                                child: Text(
+                                  'আবার চেষ্টা',
+                                  style: AppTypography.labelSmall.copyWith(
+                                    color: AppColors.primary,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
 
                   // Suggestions Dropdown - shows when typing
                   if (_showSuggestions && _typingQuery.isNotEmpty) ...[

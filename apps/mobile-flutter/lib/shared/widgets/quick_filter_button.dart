@@ -8,6 +8,7 @@ class QuickFilterButton extends StatelessWidget {
   final String label;
   final String emoji;
   final bool isActive;
+  final bool isLoading;
   final VoidCallback onPressed;
 
   const QuickFilterButton({
@@ -16,13 +17,14 @@ class QuickFilterButton extends StatelessWidget {
     required this.label,
     required this.emoji,
     this.isActive = false,
+    this.isLoading = false,
     required this.onPressed,
   });
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: onPressed,
+      onTap: isLoading ? null : onPressed,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
@@ -45,7 +47,17 @@ class QuickFilterButton extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(emoji, style: const TextStyle(fontSize: 16)),
+            if (isLoading)
+              SizedBox(
+                width: 16,
+                height: 16,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: isActive ? Colors.white : AppColors.primary,
+                ),
+              )
+            else
+              Text(emoji, style: const TextStyle(fontSize: 16)),
             const SizedBox(width: 8),
             Text(
               label,
