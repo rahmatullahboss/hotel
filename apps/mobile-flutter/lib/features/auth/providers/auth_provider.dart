@@ -79,9 +79,9 @@ class AuthNotifier extends StateNotifier<AuthState> {
   AuthNotifier(this._dio, this._storage)
     : _googleSignIn = GoogleSignIn(
         scopes: ['email', 'profile'],
-        // Server client ID for backend verification
+        // Server client ID for backend verification (from Firebase)
         serverClientId:
-            '104361665388-erqs6259250hkjg13v378jshge11kaht.apps.googleusercontent.com',
+            '46787300862-ev3ra7q0t5e1jrr1jal8tas61p33v9hr.apps.googleusercontent.com',
       ),
       super(AuthState());
 

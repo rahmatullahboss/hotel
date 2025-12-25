@@ -12,7 +12,12 @@
           "package_name": "com.vibehospitality.app"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "46787300862-ev3ra7q0t5e1jrr1jal8tas61p33v9hr.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyBmF5h9xqnK6jdkrKoSFv5-ocZAF_V8K6s"
@@ -20,7 +25,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "46787300862-ev3ra7q0t5e1jrr1jal8tas61p33v9hr.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     },
@@ -31,7 +41,20 @@
           "package_name": "com.zinurooms.zinu_rooms"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "46787300862-s5he2ucm8ikef1m86cp7dnk141q0sfdk.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.zinurooms.zinu_rooms",
+            "certificate_hash": "19dfe9e44aa066d044048131e615a82e2d9cd7b6"
+          }
+        },
+        {
+          "client_id": "46787300862-ev3ra7q0t5e1jrr1jal8tas61p33v9hr.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyBmF5h9xqnK6jdkrKoSFv5-ocZAF_V8K6s"
@@ -39,7 +62,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "46787300862-ev3ra7q0t5e1jrr1jal8tas61p33v9hr.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }
