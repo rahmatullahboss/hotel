@@ -99,4 +99,47 @@ class AppColors {
       offset: const Offset(0, 4),
     ),
   ];
+
+  // Adaptive Colors (for dark mode support)
+  // Use these with BuildContext to get theme-aware colors
+
+  static Color adaptiveBackground(BuildContext context) {
+    return Theme.of(context).brightness == Brightness.dark
+        ? backgroundDark
+        : background;
+  }
+
+  static Color adaptiveSurface(BuildContext context) {
+    return Theme.of(context).brightness == Brightness.dark
+        ? surfaceDark
+        : surface;
+  }
+
+  static Color adaptiveTextPrimary(BuildContext context) {
+    return Theme.of(context).brightness == Brightness.dark
+        ? Colors.white
+        : textPrimary;
+  }
+
+  static Color adaptiveTextSecondary(BuildContext context) {
+    return Theme.of(context).brightness == Brightness.dark
+        ? Colors.white70
+        : textSecondary;
+  }
+
+  static Color adaptiveDivider(BuildContext context) {
+    return Theme.of(context).brightness == Brightness.dark
+        ? Colors.white24
+        : divider;
+  }
+
+  static Color adaptiveSurfaceVariant(BuildContext context) {
+    return Theme.of(context).brightness == Brightness.dark
+        ? const Color(0xFF2A2A2A)
+        : surfaceVariant;
+  }
+
+  static bool isDarkMode(BuildContext context) {
+    return Theme.of(context).brightness == Brightness.dark;
+  }
 }

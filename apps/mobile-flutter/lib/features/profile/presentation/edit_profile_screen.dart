@@ -62,7 +62,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     final topPadding = MediaQuery.of(context).padding.top;
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppColors.adaptiveBackground(context),
       body: Column(
         children: [
           // Header

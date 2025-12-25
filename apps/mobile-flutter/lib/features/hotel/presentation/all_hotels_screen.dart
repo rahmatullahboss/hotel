@@ -85,7 +85,7 @@ class _AllHotelsScreenState extends ConsumerState<AllHotelsScreen> {
     final filters = ref.watch(hotelFiltersProvider);
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppColors.adaptiveBackground(context),
       appBar: AppBar(
         backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,

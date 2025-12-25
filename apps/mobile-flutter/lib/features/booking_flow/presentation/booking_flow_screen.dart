@@ -101,7 +101,7 @@ class _BookingFlowScreenState extends ConsumerState<BookingFlowScreen> {
     });
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppColors.adaptiveBackground(context),
       appBar: AppBar(
         title: Text('বুকিং', style: AppTypography.h4),
         backgroundColor: Colors.transparent,

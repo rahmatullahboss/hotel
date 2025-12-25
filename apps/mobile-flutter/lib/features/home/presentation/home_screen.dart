@@ -98,7 +98,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final hotelsState = ref.watch(hotelsProvider);
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppColors.adaptiveBackground(context),
       body: RefreshIndicator(
         onRefresh: () async => _onRefresh(),
         color: AppColors.primary,

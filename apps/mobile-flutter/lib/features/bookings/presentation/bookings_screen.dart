@@ -61,7 +61,7 @@ class _BookingsScreenState extends ConsumerState<BookingsScreen>
         bookingsState.completedBookings.length;
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppColors.adaptiveBackground(context),
       body: Column(
         children: [
           // Premium Header

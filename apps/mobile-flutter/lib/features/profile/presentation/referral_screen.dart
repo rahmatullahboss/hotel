@@ -38,7 +38,7 @@ class _ReferralScreenState extends ConsumerState<ReferralScreen> {
     final referralCode = referralState.code ?? 'ZINU-XXXX';
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppColors.adaptiveBackground(context),
       appBar: AppBar(
         title: Text('রেফারেল', style: AppTypography.h4),
         backgroundColor: Colors.transparent,

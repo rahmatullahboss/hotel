@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/theme/theme_provider.dart';
+import '../../../core/l10n/locale_provider.dart';
 import '../../auth/providers/auth_provider.dart';
 
 class ProfileScreen extends ConsumerStatefulWidget {
@@ -15,8 +16,6 @@ class ProfileScreen extends ConsumerStatefulWidget {
 }
 
 class _ProfileScreenState extends ConsumerState<ProfileScreen> {
-  String selectedLanguage = 'bn';
-
   @override
   Widget build(BuildContext context) {
     final topPadding = MediaQuery.of(context).padding.top;
@@ -31,13 +30,14 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     final loyaltyPoints = user?.loyaltyPoints ?? 0;
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppColors.adaptiveBackground(context),
       body: SingleChildScrollView(
         child: Column(
           children: [
             // Premium Header
             _ProfileHeader(
               isLoggedIn: isLoggedIn,
+              userName: user?.name,
               membershipTier: membershipTier,
               onSignIn: () => context.push('/login'),
               onEditProfile: () => context.push('/edit-profile'),
@@ -186,78 +186,90 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                               const SizedBox(height: 12),
                               Padding(
                                 padding: const EdgeInsets.only(left: 52),
-                                child: Row(
-                                  children: [
-                                    Expanded(
-                                      child: GestureDetector(
-                                        onTap: () => setState(
-                                          () => selectedLanguage = 'en',
-                                        ),
-                                        child: Container(
-                                          padding: const EdgeInsets.symmetric(
-                                            vertical: 10,
-                                          ),
-                                          decoration: BoxDecoration(
-                                            color: selectedLanguage == 'en'
-                                                ? AppColors.primary
-                                                : AppColors.surfaceVariant,
-                                            borderRadius: BorderRadius.circular(
-                                              12,
-                                            ),
-                                          ),
-                                          child: Center(
-                                            child: Text(
-                                              'English',
-                                              style: AppTypography.labelLarge
-                                                  .copyWith(
-                                                    color:
-                                                        selectedLanguage == 'en'
-                                                        ? Colors.white
-                                                        : AppColors
-                                                              .textSecondary,
-                                                    fontWeight: FontWeight.w600,
+                                child: Builder(
+                                  builder: (context) {
+                                    final isEnglish =
+                                        ref
+                                            .watch(localeProvider)
+                                            .locale
+                                            .languageCode ==
+                                        'en';
+                                    return Row(
+                                      children: [
+                                        Expanded(
+                                          child: GestureDetector(
+                                            onTap: () => ref
+                                                .read(localeProvider.notifier)
+                                                .setLocale(AppLocales.english),
+                                            child: Container(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                    vertical: 10,
                                                   ),
+                                              decoration: BoxDecoration(
+                                                color: isEnglish
+                                                    ? AppColors.primary
+                                                    : AppColors.surfaceVariant,
+                                                borderRadius:
+                                                    BorderRadius.circular(12),
+                                              ),
+                                              child: Center(
+                                                child: Text(
+                                                  'English',
+                                                  style: AppTypography
+                                                      .labelLarge
+                                                      .copyWith(
+                                                        color: isEnglish
+                                                            ? Colors.white
+                                                            : AppColors
+                                                                  .textSecondary,
+                                                        fontWeight:
+                                                            FontWeight.w600,
+                                                      ),
+                                                ),
+                                              ),
                                             ),
                                           ),
                                         ),
-                                      ),
-                                    ),
-                                    const SizedBox(width: 12),
-                                    Expanded(
-                                      child: GestureDetector(
-                                        onTap: () => setState(
-                                          () => selectedLanguage = 'bn',
-                                        ),
-                                        child: Container(
-                                          padding: const EdgeInsets.symmetric(
-                                            vertical: 10,
-                                          ),
-                                          decoration: BoxDecoration(
-                                            color: selectedLanguage == 'bn'
-                                                ? AppColors.primary
-                                                : AppColors.surfaceVariant,
-                                            borderRadius: BorderRadius.circular(
-                                              12,
-                                            ),
-                                          ),
-                                          child: Center(
-                                            child: Text(
-                                              'বাংলা',
-                                              style: AppTypography.labelLarge
-                                                  .copyWith(
-                                                    color:
-                                                        selectedLanguage == 'bn'
-                                                        ? Colors.white
-                                                        : AppColors
-                                                              .textSecondary,
-                                                    fontWeight: FontWeight.w600,
+                                        const SizedBox(width: 12),
+                                        Expanded(
+                                          child: GestureDetector(
+                                            onTap: () => ref
+                                                .read(localeProvider.notifier)
+                                                .setLocale(AppLocales.bengali),
+                                            child: Container(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                    vertical: 10,
                                                   ),
+                                              decoration: BoxDecoration(
+                                                color: !isEnglish
+                                                    ? AppColors.primary
+                                                    : AppColors.surfaceVariant,
+                                                borderRadius:
+                                                    BorderRadius.circular(12),
+                                              ),
+                                              child: Center(
+                                                child: Text(
+                                                  'বাংলা',
+                                                  style: AppTypography
+                                                      .labelLarge
+                                                      .copyWith(
+                                                        color: !isEnglish
+                                                            ? Colors.white
+                                                            : AppColors
+                                                                  .textSecondary,
+                                                        fontWeight:
+                                                            FontWeight.w600,
+                                                      ),
+                                                ),
+                                              ),
                                             ),
                                           ),
                                         ),
-                                      ),
-                                    ),
-                                  ],
+                                      ],
+                                    );
+                                  },
                                 ),
                               ),
                             ],
@@ -425,6 +437,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
 
 class _ProfileHeader extends StatelessWidget {
   final bool isLoggedIn;
+  final String? userName;
   final String membershipTier;
   final VoidCallback onSignIn;
   final VoidCallback onEditProfile;
@@ -432,6 +445,7 @@ class _ProfileHeader extends StatelessWidget {
 
   const _ProfileHeader({
     required this.isLoggedIn,
+    this.userName,
     required this.membershipTier,
     required this.onSignIn,
     required this.onEditProfile,
@@ -521,7 +535,7 @@ class _ProfileHeader extends StatelessWidget {
 
             // Name
             Text(
-              isLoggedIn ? 'ব্যবহারকারী' : 'অতিথি ব্যবহারকারী',
+              isLoggedIn ? (userName ?? 'ব্যবহারকারী') : 'অতিথি ব্যবহারকারী',
               style: AppTypography.h3.copyWith(color: Colors.white),
             ),
 

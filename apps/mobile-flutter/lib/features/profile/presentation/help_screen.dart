@@ -11,7 +11,7 @@ class HelpScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppColors.adaptiveBackground(context),
       appBar: AppBar(
         title: Text('সাহায্য', style: AppTypography.h4),
         backgroundColor: Colors.transparent,

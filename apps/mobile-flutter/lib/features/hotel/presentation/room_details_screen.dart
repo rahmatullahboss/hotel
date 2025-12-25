@@ -13,7 +13,7 @@ class RoomDetailsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppColors.adaptiveBackground(context),
       body: CustomScrollView(
         slivers: [
           // App Bar with Image

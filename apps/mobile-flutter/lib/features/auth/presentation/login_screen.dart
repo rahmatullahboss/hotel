@@ -107,7 +107,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     });
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppColors.adaptiveBackground(context),
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,

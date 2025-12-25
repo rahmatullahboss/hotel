@@ -29,7 +29,7 @@ class _AchievementsScreenState extends ConsumerState<AchievementsScreen> {
     final walletState = ref.watch(walletProvider);
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppColors.adaptiveBackground(context),
       appBar: AppBar(
         title: Text('অ্যাচিভমেন্ট', style: AppTypography.h4),
         backgroundColor: Colors.transparent,

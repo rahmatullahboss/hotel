@@ -351,7 +351,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
     final isSearching = searchQuery.isNotEmpty;
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppColors.adaptiveBackground(context),
       body: Column(
         children: [
           // Header with Rounded Bottom

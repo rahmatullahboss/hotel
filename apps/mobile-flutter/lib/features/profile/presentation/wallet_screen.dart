@@ -37,7 +37,7 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
     final walletState = ref.watch(walletProvider);
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppColors.adaptiveBackground(context),
       appBar: AppBar(
         title: Text('ওয়ালেট', style: AppTypography.h4),
         backgroundColor: Colors.transparent,

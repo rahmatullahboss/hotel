@@ -198,7 +198,7 @@ class _HotelDetailsScreenState extends ConsumerState<HotelDetailsScreen> {
 
   Widget _buildLoadingState() {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppColors.adaptiveBackground(context),
       body: SafeArea(
         child: Column(
           children: [
@@ -242,7 +242,7 @@ class _HotelDetailsScreenState extends ConsumerState<HotelDetailsScreen> {
 
   Widget _buildErrorState() {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppColors.adaptiveBackground(context),
       appBar: AppBar(backgroundColor: Colors.transparent),
       body: Center(
         child: Column(
@@ -283,7 +283,7 @@ class _HotelDetailsScreenState extends ConsumerState<HotelDetailsScreen> {
     final heroHeight = screenWidth * 0.85;
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppColors.adaptiveBackground(context),
       body: Stack(
         children: [
           CustomScrollView(
