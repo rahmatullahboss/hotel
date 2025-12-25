@@ -4,12 +4,108 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
+import '../providers/auth_provider.dart';
 
-class LoginScreen extends ConsumerWidget {
+class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends ConsumerState<LoginScreen> {
+  final _phoneController = TextEditingController();
+  final _passwordController = TextEditingController();
+  bool _isPasswordVisible = false;
+  bool _isGoogleLoading = false;
+
+  @override
+  void dispose() {
+    _phoneController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _handleGoogleSignIn() async {
+    setState(() => _isGoogleLoading = true);
+
+    final success = await ref.read(authProvider.notifier).loginWithGoogle();
+
+    setState(() => _isGoogleLoading = false);
+
+    if (success && mounted) {
+      _showSuccessSnackbar('সফলভাবে লগইন হয়েছে!');
+      context.go('/');
+    }
+  }
+
+  Future<void> _handleCredentialLogin() async {
+    final identifier = _phoneController.text.trim();
+    final password = _passwordController.text;
+
+    if (identifier.isEmpty || password.isEmpty) {
+      _showErrorSnackbar('ফোন নম্বর এবং পাসওয়ার্ড দিন');
+      return;
+    }
+
+    final success = await ref
+        .read(authProvider.notifier)
+        .loginWithCredentials(identifier, password);
+
+    if (success && mounted) {
+      _showSuccessSnackbar('সফলভাবে লগইন হয়েছে!');
+      context.go('/');
+    }
+  }
+
+  void _showErrorSnackbar(String message) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            const Icon(Icons.error_outline, color: Colors.white),
+            const SizedBox(width: 12),
+            Expanded(child: Text(message)),
+          ],
+        ),
+        backgroundColor: AppColors.error,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+    );
+  }
+
+  void _showSuccessSnackbar(String message) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            const Icon(Icons.check_circle, color: Colors.white),
+            const SizedBox(width: 12),
+            Expanded(child: Text(message)),
+          ],
+        ),
+        backgroundColor: AppColors.success,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final authState = ref.watch(authProvider);
+    final isLoading = authState.isLoading || _isGoogleLoading;
+
+    // Show error if any
+    ref.listen<AuthState>(authProvider, (previous, next) {
+      if (next.error != null && next.error != previous?.error) {
+        _showErrorSnackbar(next.error!);
+      }
+    });
+
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
@@ -38,12 +134,9 @@ class LoginScreen extends ConsumerWidget {
               const SizedBox(height: 40),
 
               // Google Sign In Button
-              _SocialButton(
-                icon: 'G',
-                label: 'Google দিয়ে লগইন করুন',
-                onPressed: () {
-                  // Google sign in logic
-                },
+              _GoogleSignInButton(
+                isLoading: _isGoogleLoading,
+                onPressed: isLoading ? null : _handleGoogleSignIn,
               ),
               const SizedBox(height: 16),
 
@@ -62,9 +155,11 @@ class LoginScreen extends ConsumerWidget {
 
               // Phone Input
               TextField(
+                controller: _phoneController,
                 keyboardType: TextInputType.phone,
+                enabled: !isLoading,
                 decoration: const InputDecoration(
-                  labelText: 'ফোন নম্বর',
+                  labelText: 'ফোন নম্বর / ইমেইল',
                   hintText: '01XXXXXXXXX',
                   prefixIcon: Icon(Icons.phone_outlined),
                 ),
@@ -73,12 +168,24 @@ class LoginScreen extends ConsumerWidget {
 
               // Password Input
               TextField(
-                obscureText: true,
-                decoration: const InputDecoration(
+                controller: _passwordController,
+                obscureText: !_isPasswordVisible,
+                enabled: !isLoading,
+                decoration: InputDecoration(
                   labelText: 'পাসওয়ার্ড',
-                  prefixIcon: Icon(Icons.lock_outline),
-                  suffixIcon: Icon(Icons.visibility_off_outlined),
+                  prefixIcon: const Icon(Icons.lock_outline),
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      _isPasswordVisible
+                          ? Icons.visibility_outlined
+                          : Icons.visibility_off_outlined,
+                    ),
+                    onPressed: () {
+                      setState(() => _isPasswordVisible = !_isPasswordVisible);
+                    },
+                  ),
                 ),
+                onSubmitted: (_) => _handleCredentialLogin(),
               ),
               const SizedBox(height: 24),
 
@@ -86,10 +193,17 @@ class LoginScreen extends ConsumerWidget {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: () {
-                    // Login logic
-                  },
-                  child: const Text('লগইন করুন'),
+                  onPressed: isLoading ? null : _handleCredentialLogin,
+                  child: authState.isLoading
+                      ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
+                        )
+                      : const Text('লগইন করুন'),
                 ),
               ),
               const SizedBox(height: 16),
@@ -97,7 +211,7 @@ class LoginScreen extends ConsumerWidget {
               // Forgot Password
               Center(
                 child: TextButton(
-                  onPressed: () {},
+                  onPressed: isLoading ? null : () {},
                   child: Text(
                     'পাসওয়ার্ড ভুলে গেছেন?',
                     style: AppTypography.labelMedium.copyWith(
@@ -115,7 +229,7 @@ class LoginScreen extends ConsumerWidget {
                 children: [
                   Text('অ্যাকাউন্ট নেই? ', style: AppTypography.bodyMedium),
                   TextButton(
-                    onPressed: () {},
+                    onPressed: isLoading ? null : () {},
                     child: Text(
                       'রেজিস্টার করুন',
                       style: AppTypography.labelLarge.copyWith(
@@ -133,16 +247,12 @@ class LoginScreen extends ConsumerWidget {
   }
 }
 
-class _SocialButton extends StatelessWidget {
-  final String icon;
-  final String label;
-  final VoidCallback onPressed;
+// Google Sign In Button with proper styling
+class _GoogleSignInButton extends StatelessWidget {
+  final bool isLoading;
+  final VoidCallback? onPressed;
 
-  const _SocialButton({
-    required this.icon,
-    required this.label,
-    required this.onPressed,
-  });
+  const _GoogleSignInButton({required this.isLoading, required this.onPressed});
 
   @override
   Widget build(BuildContext context) {
@@ -151,25 +261,43 @@ class _SocialButton extends StatelessWidget {
       style: OutlinedButton.styleFrom(
         padding: const EdgeInsets.symmetric(vertical: 16),
         side: BorderSide(color: AppColors.divider),
+        backgroundColor: Colors.white,
       ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(
-            icon,
-            style: const TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: Colors.red,
+      child: isLoading
+          ? const SizedBox(
+              width: 24,
+              height: 24,
+              child: CircularProgressIndicator(strokeWidth: 2),
+            )
+          : Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                // Google logo
+                Container(
+                  width: 24,
+                  height: 24,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: const Text(
+                    'G',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.red,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Text(
+                  'Google দিয়ে লগইন করুন',
+                  style: AppTypography.button.copyWith(
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+              ],
             ),
-          ),
-          const SizedBox(width: 12),
-          Text(
-            label,
-            style: AppTypography.button.copyWith(color: AppColors.textPrimary),
-          ),
-        ],
-      ),
     );
   }
 }

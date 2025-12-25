@@ -77,7 +77,12 @@ class AuthNotifier extends StateNotifier<AuthState> {
   final GoogleSignIn _googleSignIn;
 
   AuthNotifier(this._dio, this._storage)
-    : _googleSignIn = GoogleSignIn(scopes: ['email', 'profile']),
+    : _googleSignIn = GoogleSignIn(
+        scopes: ['email', 'profile'],
+        // Server client ID for backend verification
+        serverClientId:
+            '104361665388-erqs6259250hkjg13v378jshge11kaht.apps.googleusercontent.com',
+      ),
       super(AuthState());
 
   // Initialize auth state from storage
