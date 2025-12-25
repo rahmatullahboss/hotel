@@ -63,6 +63,27 @@ const List<Map<String, dynamic>> popularCities = [
   {'name': 'Khulna', 'hotels': 3},
 ];
 
+// All searchable locations for suggestions
+const List<Map<String, dynamic>> allSuggestions = [
+  {'name': 'Dhaka', 'type': 'city', 'icon': '🏙️'},
+  {'name': 'Chittagong', 'type': 'city', 'icon': '🏙️'},
+  {"name": "Cox's Bazar", 'type': 'city', 'icon': '🏖️'},
+  {'name': 'Sylhet', 'type': 'city', 'icon': '🌿'},
+  {'name': 'Rajshahi', 'type': 'city', 'icon': '🏙️'},
+  {'name': 'Khulna', 'type': 'city', 'icon': '🏙️'},
+  {'name': 'Barisal', 'type': 'city', 'icon': '🏙️'},
+  {'name': 'Rangpur', 'type': 'city', 'icon': '🏙️'},
+  {'name': 'Mymensingh', 'type': 'city', 'icon': '🏙️'},
+  {'name': 'Comilla', 'type': 'city', 'icon': '🏙️'},
+  {'name': 'Gazipur', 'type': 'city', 'icon': '🏙️'},
+  {'name': 'Narayanganj', 'type': 'city', 'icon': '🏙️'},
+  {'name': 'Barguna', 'type': 'city', 'icon': '🏙️'},
+  {'name': 'Luxury Hotels', 'type': 'filter', 'icon': '⭐'},
+  {'name': 'Budget Hotels', 'type': 'filter', 'icon': '💰'},
+  {'name': 'Couple Friendly', 'type': 'filter', 'icon': '💕'},
+  {'name': 'Beach Hotels', 'type': 'filter', 'icon': '🏖️'},
+];
+
 // Search query provider for debouncing
 final searchQueryProvider = StateProvider<String>((ref) => '');
 
@@ -82,6 +103,8 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
   String? activeFilter;
   String? selectedCity;
   Set<String> savedHotels = {};
+  bool _showSuggestions = false;
+  String _typingQuery = '';
 
   @override
   void initState() {
@@ -116,7 +139,33 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
   }
 
   void _handleSearch(String query) {
-    ref.read(searchQueryProvider.notifier).state = query;
+    setState(() {
+      _typingQuery = query;
+      _showSuggestions = query.isNotEmpty;
+    });
+    // Only trigger actual search when user stops typing (debounced in UI)
+    // For now, don't immediately search - wait for suggestion selection or blur
+  }
+
+  void _selectSuggestion(String suggestion) {
+    _searchController.text = suggestion;
+    ref.read(searchQueryProvider.notifier).state = suggestion;
+    setState(() {
+      _showSuggestions = false;
+      _typingQuery = suggestion;
+    });
+    _focusNode.unfocus();
+  }
+
+  void _submitSearch() {
+    final query = _searchController.text.trim();
+    if (query.isNotEmpty) {
+      ref.read(searchQueryProvider.notifier).state = query;
+      setState(() {
+        _showSuggestions = false;
+      });
+      _focusNode.unfocus();
+    }
   }
 
   void _clearSearch() {
@@ -264,7 +313,110 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                     ),
                   ),
 
-                  if (!isSearching) ...[
+                  // Suggestions Dropdown - shows when typing
+                  if (_showSuggestions && _typingQuery.isNotEmpty) ...[
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(16),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.08),
+                              blurRadius: 16,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+                              child: Text(
+                                'সাজেশন',
+                                style: AppTypography.labelMedium.copyWith(
+                                  color: AppColors.textTertiary,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                            ...allSuggestions
+                                .where(
+                                  (s) => (s['name'] as String)
+                                      .toLowerCase()
+                                      .contains(_typingQuery.toLowerCase()),
+                                )
+                                .take(6)
+                                .map(
+                                  (suggestion) => _SuggestionItem(
+                                    name: suggestion['name'] as String,
+                                    icon: suggestion['icon'] as String,
+                                    type: suggestion['type'] as String,
+                                    onTap: () => _selectSuggestion(
+                                      suggestion['name'] as String,
+                                    ),
+                                  ),
+                                ),
+                            // Search this query option
+                            InkWell(
+                              onTap: _submitSearch,
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 12,
+                                ),
+                                decoration: BoxDecoration(
+                                  border: Border(
+                                    top: BorderSide(
+                                      color: AppColors.divider,
+                                      width: 1,
+                                    ),
+                                  ),
+                                ),
+                                child: Row(
+                                  children: [
+                                    Container(
+                                      width: 36,
+                                      height: 36,
+                                      decoration: BoxDecoration(
+                                        color: AppColors.primary.withValues(
+                                          alpha: 0.1,
+                                        ),
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: const Icon(
+                                        Icons.search,
+                                        size: 18,
+                                        color: AppColors.primary,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 12),
+                                    Expanded(
+                                      child: Text(
+                                        '"$_typingQuery" সার্চ করুন',
+                                        style: AppTypography.bodyMedium
+                                            .copyWith(
+                                              color: AppColors.primary,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                      ),
+                                    ),
+                                    const Icon(
+                                      Icons.arrow_forward_ios,
+                                      size: 14,
+                                      color: AppColors.primary,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ] else if (!isSearching) ...[
                     // Popular Cities Grid
                     Padding(
                       padding: const EdgeInsets.fromLTRB(20, 24, 20, 12),
@@ -529,6 +681,70 @@ class _TipItem extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+// Suggestion item widget
+class _SuggestionItem extends StatelessWidget {
+  final String name;
+  final String icon;
+  final String type;
+  final VoidCallback onTap;
+
+  const _SuggestionItem({
+    required this.name,
+    required this.icon,
+    required this.type,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        child: Row(
+          children: [
+            Container(
+              width: 36,
+              height: 36,
+              decoration: BoxDecoration(
+                color: type == 'city'
+                    ? AppColors.primary.withValues(alpha: 0.1)
+                    : AppColors.warning.withValues(alpha: 0.15),
+                shape: BoxShape.circle,
+              ),
+              child: Center(
+                child: Text(icon, style: const TextStyle(fontSize: 16)),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    name,
+                    style: AppTypography.bodyMedium.copyWith(
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.textPrimary,
+                    ),
+                  ),
+                  Text(
+                    type == 'city' ? 'শহর' : 'ফিল্টার',
+                    style: AppTypography.bodySmall.copyWith(
+                      color: AppColors.textTertiary,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Icon(Icons.north_west, size: 16, color: AppColors.textTertiary),
+          ],
+        ),
+      ),
     );
   }
 }
