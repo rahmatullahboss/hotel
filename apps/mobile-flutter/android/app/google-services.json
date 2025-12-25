@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "46787300862",
+    "project_id": "hotel-android-app-1267c",
+    "storage_bucket": "hotel-android-app-1267c.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:46787300862:android:0d8e8790c6e11ce30a04af",
+        "android_client_info": {
+          "package_name": "com.vibehospitality.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBmF5h9xqnK6jdkrKoSFv5-ocZAF_V8K6s"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:46787300862:android:bb6d589501eaaee30a04af",
+        "android_client_info": {
+          "package_name": "com.zinurooms.zinu_rooms"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBmF5h9xqnK6jdkrKoSFv5-ocZAF_V8K6s"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
