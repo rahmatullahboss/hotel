@@ -21,28 +21,28 @@ dependencies:
   lottie: ^3.3.1
 
   # State Management
-  flutter_riverpod: ^2.6.1
-  riverpod_annotation: ^2.6.1
+  flutter_riverpod: ^3.0.3
+  riverpod_annotation: ^3.0.3
 
   # Navigation
-  go_router: ^15.1.2
+  go_router: ^17.0.1
 
   # Networking
   dio: ^5.8.0
-  connectivity_plus: ^6.1.2
+  connectivity_plus: ^7.0.0
 
   # Storage
-  flutter_secure_storage: ^9.2.4
+  flutter_secure_storage: ^10.0.0
   shared_preferences: ^2.5.3
 
   # Auth
-  google_sign_in: ^6.2.2
+  google_sign_in: ^7.2.0
 
   # Utils
   intl: ^0.20.2
   url_launcher: ^6.3.1
-  share_plus: ^11.0.0
-  permission_handler: ^11.4.0
+  share_plus: ^12.0.1
+  permission_handler: ^12.0.1
   image_picker: ^1.1.2
 
   # QR Code
@@ -50,15 +50,15 @@ dependencies:
   qr_flutter: ^4.1.0
 
   # Firebase
-  firebase_core: ^3.9.0
-  firebase_messaging: ^15.2.10
+  firebase_core: ^4.3.0
+  firebase_messaging: ^16.1.0
   geolocator: ^14.0.2
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^6.0.0
-  riverpod_generator: ^2.6.5
+  riverpod_generator: ^3.0.3
   build_runner: ^2.4.15
 
 flutter:
