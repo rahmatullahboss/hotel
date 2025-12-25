@@ -35,7 +35,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
     if (success && mounted) {
       _showSuccessSnackbar('সফলভাবে লগইন হয়েছে!');
-      context.go('/');
+      context.go('/home');
     }
   }
 
@@ -54,7 +54,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
     if (success && mounted) {
       _showSuccessSnackbar('সফলভাবে লগইন হয়েছে!');
-      context.go('/');
+      context.go('/home');
     }
   }
 
