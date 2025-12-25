@@ -1,4 +1,4 @@
-// Push Notification Provider
+// Push Notification Provider (Riverpod 3.0)
 // Note: Requires google-services.json (Android) and GoogleService-Info.plist (iOS)
 
 import 'dart:async';
@@ -48,20 +48,25 @@ class NotificationState {
   }
 }
 
-// Notification notifier
-class NotificationNotifier extends StateNotifier<NotificationState> {
-  final SecureStorageService _storage;
+// Notification notifier (Riverpod 3.0)
+class NotificationNotifier extends Notifier<NotificationState> {
   StreamSubscription<RemoteMessage>? _foregroundSubscription;
   StreamSubscription<RemoteMessage>? _openedAppSubscription;
 
-  NotificationNotifier(this._storage) : super(NotificationState());
+  SecureStorageService get _storage => ref.read(secureStorageProvider);
+
+  @override
+  NotificationState build() {
+    ref.onDispose(() {
+      _foregroundSubscription?.cancel();
+      _openedAppSubscription?.cancel();
+    });
+    return NotificationState();
+  }
 
   /// Initialize Firebase Messaging
   Future<void> initialize() async {
     try {
-      // Initialize Firebase (should be done in main.dart first)
-      // await Firebase.initializeApp();
-
       // Set background handler
       FirebaseMessaging.onBackgroundMessage(
         _firebaseMessagingBackgroundHandler,
@@ -113,7 +118,6 @@ class NotificationNotifier extends StateNotifier<NotificationState> {
         ) {
           debugPrint('Opened app from notification: ${message.data}');
           state = state.copyWith(lastMessage: message);
-          // TODO: Navigate based on message data
         });
 
         // Check if app was opened from a terminated state via notification
@@ -121,7 +125,6 @@ class NotificationNotifier extends StateNotifier<NotificationState> {
             .getInitialMessage();
         if (initialMessage != null) {
           state = state.copyWith(lastMessage: initialMessage);
-          // TODO: Handle navigation
         }
       } else {
         state = state.copyWith(isInitialized: true, hasPermission: false);
@@ -134,19 +137,12 @@ class NotificationNotifier extends StateNotifier<NotificationState> {
 
   /// Show local notification for foreground messages
   void _showLocalNotification(RemoteMessage message) {
-    // This would typically use flutter_local_notifications
-    // For now, we just update state and let UI handle it
     debugPrint('Notification: ${message.notification?.title}');
   }
 
   /// Send FCM token to backend for targeted push notifications
   Future<void> sendTokenToBackend(String backendToken) async {
     if (state.fcmToken == null) return;
-
-    // TODO: Send FCM token to your backend
-    // dio.post('/notifications/register', data: {
-    //   'fcmToken': state.fcmToken,
-    // });
   }
 
   /// Request permission again if denied
@@ -157,21 +153,13 @@ class NotificationNotifier extends StateNotifier<NotificationState> {
     state = state.copyWith(hasPermission: hasPermission);
     return hasPermission;
   }
-
-  @override
-  void dispose() {
-    _foregroundSubscription?.cancel();
-    _openedAppSubscription?.cancel();
-    super.dispose();
-  }
 }
 
-// Provider
+// Provider (Riverpod 3.0)
 final notificationProvider =
-    StateNotifierProvider<NotificationNotifier, NotificationState>((ref) {
-      final storage = ref.watch(secureStorageProvider);
-      return NotificationNotifier(storage);
-    });
+    NotifierProvider<NotificationNotifier, NotificationState>(
+      NotificationNotifier.new,
+    );
 
 // Convenience provider for FCM token
 final fcmTokenProvider = Provider<String?>((ref) {

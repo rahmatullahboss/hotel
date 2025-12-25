@@ -1,4 +1,4 @@
-// Gamification Provider - Riverpod state management for streaks and badges
+// Gamification Provider - Riverpod 3.0 state management for streaks and badges
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:dio/dio.dart';
@@ -50,7 +50,6 @@ class Badge {
     );
   }
 
-  // Get display name (Bengali if available)
   String get displayName => nameBn ?? name;
   String get displayDescription => descriptionBn ?? description ?? '';
 }
@@ -148,12 +147,10 @@ class GamificationState {
     );
   }
 
-  // Get badges by category
   List<Badge> getBadgesByCategory(String category) {
     return allBadges.where((b) => b.category == category).toList();
   }
 
-  // Calculate progress percentage to next reward
   double get progressToNextReward {
     if (streak.nextReward == null) return 1.0;
     final previous =
@@ -168,11 +165,12 @@ class GamificationState {
   }
 }
 
-// Gamification Notifier
-class GamificationNotifier extends StateNotifier<GamificationState> {
-  final Dio _dio;
+// Gamification Notifier (Riverpod 3.0)
+class GamificationNotifier extends Notifier<GamificationState> {
+  Dio get _dio => ref.read(dioProvider);
 
-  GamificationNotifier(this._dio) : super(GamificationState());
+  @override
+  GamificationState build() => GamificationState();
 
   Future<void> fetchGamificationData() async {
     state = state.copyWith(isLoading: true, error: null);
@@ -216,7 +214,6 @@ class GamificationNotifier extends StateNotifier<GamificationState> {
       final data = response.data;
 
       if (data['success'] == true && data['isNewDay'] == true) {
-        // Update local state with new streak
         final newStreak = state.streak;
         state = state.copyWith(
           streak: StreakData(
@@ -235,7 +232,6 @@ class GamificationNotifier extends StateNotifier<GamificationState> {
           ),
         );
 
-        // If there's a reward, refresh full data
         if (data['reward'] != null) {
           await fetchGamificationData();
         }
@@ -246,9 +242,8 @@ class GamificationNotifier extends StateNotifier<GamificationState> {
   }
 }
 
-// Provider
+// Provider (Riverpod 3.0)
 final gamificationProvider =
-    StateNotifierProvider<GamificationNotifier, GamificationState>((ref) {
-      final dio = ref.watch(dioProvider);
-      return GamificationNotifier(dio);
-    });
+    NotifierProvider<GamificationNotifier, GamificationState>(
+      GamificationNotifier.new,
+    );

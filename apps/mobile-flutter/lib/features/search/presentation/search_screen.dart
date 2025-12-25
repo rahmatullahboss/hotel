@@ -85,8 +85,18 @@ const List<Map<String, dynamic>> allSuggestions = [
   {'name': 'Beach Hotels', 'type': 'filter', 'icon': '🏖️'},
 ];
 
-// Search query provider for debouncing
-final searchQueryProvider = StateProvider<String>((ref) => '');
+// Search query notifier for Riverpod 3.0
+class SearchQueryNotifier extends Notifier<String> {
+  @override
+  String build() => '';
+
+  void update(String query) => state = query;
+  void clear() => state = '';
+}
+
+final searchQueryProvider = NotifierProvider<SearchQueryNotifier, String>(
+  SearchQueryNotifier.new,
+);
 
 class SearchScreen extends ConsumerStatefulWidget {
   final String? initialCity;
@@ -122,7 +132,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
     // If we have a city, set it as the search query
     if (selectedCity != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        ref.read(searchQueryProvider.notifier).state = selectedCity!;
+        ref.read(searchQueryProvider.notifier).update(selectedCity!);
         _searchController.text = selectedCity!;
       });
     }
@@ -142,7 +152,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
         activeFilter = null;
       });
       // Clear any filter-based search
-      ref.read(searchQueryProvider.notifier).state = '';
+      ref.read(searchQueryProvider.notifier).clear();
       return;
     }
 
@@ -157,15 +167,15 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
         break;
       case 'budget':
         // Budget hotels <= 3000 BDT
-        ref.read(searchQueryProvider.notifier).state = 'Budget Hotels';
+        ref.read(searchQueryProvider.notifier).update('Budget Hotels');
         break;
       case 'luxury':
         // Premium/Luxury hotels >= 8000 BDT
-        ref.read(searchQueryProvider.notifier).state = 'Luxury Hotels';
+        ref.read(searchQueryProvider.notifier).update('Luxury Hotels');
         break;
       case 'couple':
         // Couple friendly hotels
-        ref.read(searchQueryProvider.notifier).state = 'Couple Friendly';
+        ref.read(searchQueryProvider.notifier).update('Couple Friendly');
         break;
     }
   }
@@ -225,8 +235,9 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
       });
 
       // Search for nearby hotels
-      ref.read(searchQueryProvider.notifier).state =
-          'nearby:${position.latitude},${position.longitude}';
+      ref
+          .read(searchQueryProvider.notifier)
+          .update('nearby:${position.latitude},${position.longitude}');
 
       _showSuccessSnackbar(
         'আপনার লোকেশন পাওয়া গেছে! কাছের হোটেল দেখানো হচ্ছে...',
@@ -293,7 +304,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
 
   void _selectSuggestion(String suggestion) {
     _searchController.text = suggestion;
-    ref.read(searchQueryProvider.notifier).state = suggestion;
+    ref.read(searchQueryProvider.notifier).update(suggestion);
     setState(() {
       _showSuggestions = false;
       _typingQuery = suggestion;
@@ -304,7 +315,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
   void _submitSearch() {
     final query = _searchController.text.trim();
     if (query.isNotEmpty) {
-      ref.read(searchQueryProvider.notifier).state = query;
+      ref.read(searchQueryProvider.notifier).update(query);
       setState(() {
         _showSuggestions = false;
       });
@@ -314,7 +325,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
 
   void _clearSearch() {
     _searchController.clear();
-    ref.read(searchQueryProvider.notifier).state = '';
+    ref.read(searchQueryProvider.notifier).clear();
     setState(() {
       activeFilter = null;
       selectedCity = null;

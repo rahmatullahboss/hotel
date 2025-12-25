@@ -1,9 +1,14 @@
-// Auth Provider - Riverpod state management for authentication
+// Auth Provider - Riverpod 3.0 state management for authentication
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:dio/dio.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import '../../../core/api/api_client.dart';
 import '../../../core/storage/secure_storage.dart';
+
+// Server Client ID from Firebase
+const _serverClientId =
+    '46787300862-ev3ra7q0t5e1jrr1jal8tas61p33v9hr.apps.googleusercontent.com';
 
 // User model
 class User {
@@ -70,20 +75,28 @@ class AuthState {
   }
 }
 
-// Auth notifier
-class AuthNotifier extends StateNotifier<AuthState> {
-  final Dio _dio;
-  final SecureStorageService _storage;
-  final GoogleSignIn _googleSignIn;
+// Auth notifier (Riverpod 3.0)
+class AuthNotifier extends Notifier<AuthState> {
+  late final Dio _dio;
+  late final SecureStorageService _storage;
+  bool _googleSignInInitialized = false;
 
-  AuthNotifier(this._dio, this._storage)
-    : _googleSignIn = GoogleSignIn(
-        scopes: ['email', 'profile'],
-        // Server client ID for backend verification (from Firebase)
-        serverClientId:
-            '46787300862-ev3ra7q0t5e1jrr1jal8tas61p33v9hr.apps.googleusercontent.com',
-      ),
-      super(AuthState());
+  @override
+  AuthState build() {
+    _dio = ref.watch(dioProvider);
+    _storage = ref.watch(secureStorageProvider);
+    return AuthState();
+  }
+
+  Future<void> _ensureGoogleSignInInitialized() async {
+    if (_googleSignInInitialized) return;
+    try {
+      await GoogleSignIn.instance.initialize(clientId: _serverClientId);
+      _googleSignInInitialized = true;
+    } catch (e) {
+      debugPrint('Google Sign-In init error: $e');
+    }
+  }
 
   // Initialize auth state from storage
   Future<void> initialize() async {
@@ -123,29 +136,29 @@ class AuthNotifier extends StateNotifier<AuthState> {
     }
   }
 
-  // Login with Google
+  // Login with Google (v7 API)
   Future<bool> loginWithGoogle() async {
     state = state.copyWith(isLoading: true, error: null);
 
     try {
-      final googleUser = await _googleSignIn.signIn();
-      if (googleUser == null) {
-        state = state.copyWith(isLoading: false);
-        return false; // User cancelled
-      }
+      await _ensureGoogleSignInInitialized();
 
-      final googleAuth = await googleUser.authentication;
-      final idToken = googleAuth.idToken;
+      // Authenticate with Google Sign-In v7
+      final account = await GoogleSignIn.instance.authenticate();
+
+      // Get authentication credentials
+      final auth = account.authentication;
+      final idToken = auth.idToken;
 
       if (idToken == null) {
         state = state.copyWith(
           isLoading: false,
-          error: 'Google authentication failed',
+          error: 'Google authentication failed - no ID token',
         );
         return false;
       }
 
-      // Send ID token to backend
+      // Send to backend
       final response = await _dio.post(
         '/mobile/google-auth',
         data: {'idToken': idToken},
@@ -163,6 +176,13 @@ class AuthNotifier extends StateNotifier<AuthState> {
       );
       return false;
     } catch (e) {
+      debugPrint('Google login error: $e');
+      // Check if user cancelled
+      if (e.toString().contains('canceled') ||
+          e.toString().contains('cancelled')) {
+        state = state.copyWith(isLoading: false);
+        return false;
+      }
       state = state.copyWith(
         isLoading: false,
         error: 'গুগল লগইন ব্যর্থ হয়েছে',
@@ -174,7 +194,11 @@ class AuthNotifier extends StateNotifier<AuthState> {
   // Logout
   Future<void> logout() async {
     await _storage.deleteToken();
-    await _googleSignIn.signOut();
+    try {
+      await GoogleSignIn.instance.signOut();
+    } catch (e) {
+      debugPrint('Google sign out error: $e');
+    }
     state = AuthState();
   }
 
@@ -190,7 +214,6 @@ class AuthNotifier extends StateNotifier<AuthState> {
         isLoading: false,
       );
 
-      // Record daily login for streak tracking
       _recordDailyLogin();
     } on DioException catch (_) {
       await _storage.deleteToken();
@@ -203,17 +226,15 @@ class AuthNotifier extends StateNotifier<AuthState> {
     try {
       await _dio.post('/user/gamification');
     } catch (_) {
-      // Silent fail - don't break auth flow
+      // Silent fail
     }
   }
 }
 
-// Providers
-final authProvider = StateNotifierProvider<AuthNotifier, AuthState>((ref) {
-  final dio = ref.watch(dioProvider);
-  final storage = ref.watch(secureStorageProvider);
-  return AuthNotifier(dio, storage);
-});
+// Provider (Riverpod 3.0)
+final authProvider = NotifierProvider<AuthNotifier, AuthState>(
+  AuthNotifier.new,
+);
 
 // Convenience providers
 final currentUserProvider = Provider<User?>((ref) {

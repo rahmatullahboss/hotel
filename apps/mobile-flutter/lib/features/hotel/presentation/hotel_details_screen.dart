@@ -146,7 +146,9 @@ class _HotelDetailsScreenState extends ConsumerState<HotelDetailsScreen> {
     debugPrint(
       'Rooms error: ${roomsAsync.hasError ? roomsAsync.error : "none"}',
     );
-    debugPrint('Rooms count: ${roomsAsync.valueOrNull?.length ?? 0}');
+    debugPrint(
+      'Rooms count: ${roomsAsync.hasValue ? roomsAsync.value!.length : 0}',
+    );
 
     return hotelAsync.when(
       loading: () => _buildLoadingState(),
@@ -174,7 +176,7 @@ class _HotelDetailsScreenState extends ConsumerState<HotelDetailsScreen> {
             dummyHotelData['amenities'] as List<Map<String, String>>;
 
         // Get rooms from API (with dynamic prices)
-        final apiRooms = roomsAsync.valueOrNull ?? [];
+        final apiRooms = roomsAsync.hasValue ? roomsAsync.value! : <Room>[];
         final hasRoomsError = roomsAsync.hasError;
 
         return _buildContent(

@@ -1,4 +1,4 @@
-// Referral Provider - Riverpod state management for referrals
+// Referral Provider - Riverpod 3.0 state management for referrals
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:dio/dio.dart';
@@ -9,7 +9,7 @@ class ReferralHistoryItem {
   final String id;
   final String referredUserName;
   final String? referredUserImage;
-  final String status; // PENDING, COMPLETED
+  final String status;
   final int reward;
   final DateTime createdAt;
   final DateTime? completedAt;
@@ -87,11 +87,12 @@ class ReferralState {
   }
 }
 
-// Referral Notifier
-class ReferralNotifier extends StateNotifier<ReferralState> {
-  final Dio _dio;
+// Referral Notifier (Riverpod 3.0)
+class ReferralNotifier extends Notifier<ReferralState> {
+  Dio get _dio => ref.read(dioProvider);
 
-  ReferralNotifier(this._dio) : super(ReferralState());
+  @override
+  ReferralState build() => ReferralState();
 
   Future<void> fetchReferralData() async {
     state = state.copyWith(isLoading: true, error: null);
@@ -139,10 +140,7 @@ class ReferralNotifier extends StateNotifier<ReferralState> {
   }
 }
 
-// Provider
-final referralProvider = StateNotifierProvider<ReferralNotifier, ReferralState>(
-  (ref) {
-    final dio = ref.watch(dioProvider);
-    return ReferralNotifier(dio);
-  },
+// Provider (Riverpod 3.0)
+final referralProvider = NotifierProvider<ReferralNotifier, ReferralState>(
+  ReferralNotifier.new,
 );

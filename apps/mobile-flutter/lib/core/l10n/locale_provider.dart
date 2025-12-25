@@ -1,4 +1,4 @@
-// Locale Provider - Language Switching Support
+// Locale Provider - Language Switching Support (Riverpod 3.0)
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -33,13 +33,15 @@ class LocaleState {
   }
 }
 
-// Locale notifier
-class LocaleNotifier extends StateNotifier<LocaleState> {
-  LocaleNotifier() : super(LocaleState(locale: AppLocales.bengali)) {
-    _loadLocale();
-  }
-
+// Locale notifier (Riverpod 3.0)
+class LocaleNotifier extends Notifier<LocaleState> {
   static const _key = 'app_locale';
+
+  @override
+  LocaleState build() {
+    _loadLocale();
+    return LocaleState(locale: AppLocales.bengali);
+  }
 
   Future<void> _loadLocale() async {
     final prefs = await SharedPreferences.getInstance();
@@ -65,12 +67,10 @@ class LocaleNotifier extends StateNotifier<LocaleState> {
   bool get isBengali => state.locale == AppLocales.bengali;
 }
 
-// Provider
-final localeProvider = StateNotifierProvider<LocaleNotifier, LocaleState>((
-  ref,
-) {
-  return LocaleNotifier();
-});
+// Provider (Riverpod 3.0)
+final localeProvider = NotifierProvider<LocaleNotifier, LocaleState>(
+  LocaleNotifier.new,
+);
 
 // Helper to get current locale
 final currentLocaleProvider = Provider<Locale>((ref) {

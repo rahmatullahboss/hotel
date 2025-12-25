@@ -29,16 +29,20 @@ class _HotelFiltersSheetState extends ConsumerState<HotelFiltersSheet> {
   }
 
   void _applyFilters() {
-    ref.read(hotelFiltersProvider.notifier).state = ref
-        .read(hotelFiltersProvider)
-        .copyWith(
-          minPrice: _priceRange.start,
-          maxPrice: _priceRange.end,
-          minRating: _selectedRating,
-          clearMinRating: _selectedRating == null,
-          selectedAmenities: _selectedAmenities,
-          selectedCity: _selectedCity,
-          clearSelectedCity: _selectedCity == null,
+    ref
+        .read(hotelFiltersProvider.notifier)
+        .updateFilters(
+          ref
+              .read(hotelFiltersProvider)
+              .copyWith(
+                minPrice: _priceRange.start,
+                maxPrice: _priceRange.end,
+                minRating: _selectedRating,
+                clearMinRating: _selectedRating == null,
+                selectedAmenities: _selectedAmenities,
+                selectedCity: _selectedCity,
+                clearSelectedCity: _selectedCity == null,
+              ),
         );
     Navigator.pop(context);
   }

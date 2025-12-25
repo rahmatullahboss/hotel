@@ -1,4 +1,4 @@
-// Theme Provider - Dark Mode Support
+// Theme Provider - Dark Mode Support (Riverpod 3.0)
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -21,16 +21,16 @@ class ThemeState {
   }
 }
 
-// Theme notifier
-class ThemeNotifier extends StateNotifier<ThemeState> {
-  ThemeNotifier()
-    : super(
-        ThemeState(mode: AppThemeMode.system, themeMode: ThemeMode.system),
-      ) {
-    _loadTheme();
-  }
-
+// Theme notifier (Riverpod 3.0 Notifier pattern)
+class ThemeNotifier extends Notifier<ThemeState> {
   static const _key = 'theme_mode';
+
+  @override
+  ThemeState build() {
+    // Load theme on init
+    _loadTheme();
+    return ThemeState(mode: AppThemeMode.system, themeMode: ThemeMode.system);
+  }
 
   Future<void> _loadTheme() async {
     final prefs = await SharedPreferences.getInstance();
@@ -70,10 +70,10 @@ class ThemeNotifier extends StateNotifier<ThemeState> {
   bool get isDarkMode => state.mode == AppThemeMode.dark;
 }
 
-// Provider
-final themeProvider = StateNotifierProvider<ThemeNotifier, ThemeState>((ref) {
-  return ThemeNotifier();
-});
+// Provider (Riverpod 3.0 NotifierProvider)
+final themeProvider = NotifierProvider<ThemeNotifier, ThemeState>(
+  ThemeNotifier.new,
+);
 
 // Helper to check if currently in dark mode
 final isDarkModeProvider = Provider<bool>((ref) {

@@ -1,4 +1,4 @@
-// Booking Provider - Riverpod state management for bookings
+// Booking Provider - Riverpod 3.0 state management for bookings
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:dio/dio.dart';
@@ -16,7 +16,7 @@ class Booking {
   final DateTime checkOut;
   final int guests;
   final int totalAmount;
-  final String status; // 'upcoming', 'completed', 'cancelled'
+  final String status;
   final String paymentMethod;
   final String? qrCode;
   final DateTime createdAt;
@@ -58,7 +58,6 @@ class Booking {
   }
 
   int get nights => checkOut.difference(checkIn).inDays;
-
   bool get isUpcoming => status == 'upcoming';
   bool get isCompleted => status == 'completed';
   bool get isCancelled => status == 'cancelled';
@@ -97,11 +96,12 @@ class BookingsState {
   }
 }
 
-// Bookings notifier
-class BookingsNotifier extends StateNotifier<BookingsState> {
-  final Dio _dio;
+// Bookings notifier (Riverpod 3.0)
+class BookingsNotifier extends Notifier<BookingsState> {
+  Dio get _dio => ref.read(dioProvider);
 
-  BookingsNotifier(this._dio) : super(BookingsState());
+  @override
+  BookingsState build() => BookingsState();
 
   Future<void> fetchBookings() async {
     state = state.copyWith(isLoading: true, error: null);
@@ -179,12 +179,9 @@ class BookingsNotifier extends StateNotifier<BookingsState> {
   }
 }
 
-// Providers
-final bookingsProvider = StateNotifierProvider<BookingsNotifier, BookingsState>(
-  (ref) {
-    final dio = ref.watch(dioProvider);
-    return BookingsNotifier(dio);
-  },
+// Provider (Riverpod 3.0)
+final bookingsProvider = NotifierProvider<BookingsNotifier, BookingsState>(
+  BookingsNotifier.new,
 );
 
 // Single booking provider

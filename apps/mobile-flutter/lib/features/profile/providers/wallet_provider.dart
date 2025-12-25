@@ -1,4 +1,4 @@
-// Wallet Provider - Riverpod state management for wallet
+// Wallet Provider - Riverpod 3.0 state management for wallet
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:dio/dio.dart';
 import '../../../core/api/api_client.dart';
@@ -6,7 +6,7 @@ import '../../../core/api/api_client.dart';
 // Transaction model
 class Transaction {
   final String id;
-  final String type; // 'CREDIT', 'DEBIT'
+  final String type;
   final int amount;
   final String description;
   final String? reason;
@@ -40,7 +40,7 @@ class Transaction {
 class WalletState {
   final int balance;
   final int loyaltyPoints;
-  final String loyaltyTier; // 'bronze', 'silver', 'gold', 'platinum'
+  final String loyaltyTier;
   final List<Transaction> transactions;
   final bool isLoading;
   final String? error;
@@ -86,11 +86,12 @@ class WalletState {
   }
 }
 
-// Wallet notifier
-class WalletNotifier extends StateNotifier<WalletState> {
-  final Dio _dio;
+// Wallet notifier (Riverpod 3.0)
+class WalletNotifier extends Notifier<WalletState> {
+  Dio get _dio => ref.read(dioProvider);
 
-  WalletNotifier(this._dio) : super(WalletState());
+  @override
+  WalletState build() => WalletState();
 
   Future<void> fetchWallet() async {
     state = state.copyWith(isLoading: true, error: null);
@@ -99,7 +100,6 @@ class WalletNotifier extends StateNotifier<WalletState> {
       final response = await _dio.get('/user/wallet');
       final data = response.data;
 
-      // Parse loyalty from nested object
       final loyalty = data['loyalty'] as Map<String, dynamic>?;
 
       state = state.copyWith(
@@ -109,7 +109,6 @@ class WalletNotifier extends StateNotifier<WalletState> {
         isLoading: false,
       );
 
-      // Parse transactions from same response
       final txData = data['transactions'] as List<dynamic>? ?? [];
       final transactions = txData
           .map((json) => Transaction.fromJson(json))
@@ -124,7 +123,6 @@ class WalletNotifier extends StateNotifier<WalletState> {
   }
 
   Future<void> fetchTransactions() async {
-    // Transactions are now fetched in fetchWallet, this is kept for manual refresh
     await fetchWallet();
   }
 
@@ -136,7 +134,6 @@ class WalletNotifier extends StateNotifier<WalletState> {
       );
 
       await fetchWallet();
-      await fetchTransactions();
       return true;
     } on DioException catch (_) {
       return false;
@@ -144,10 +141,7 @@ class WalletNotifier extends StateNotifier<WalletState> {
   }
 }
 
-// Provider
-final walletProvider = StateNotifierProvider<WalletNotifier, WalletState>((
-  ref,
-) {
-  final dio = ref.watch(dioProvider);
-  return WalletNotifier(dio);
-});
+// Provider (Riverpod 3.0)
+final walletProvider = NotifierProvider<WalletNotifier, WalletState>(
+  WalletNotifier.new,
+);

@@ -1,4 +1,4 @@
-// Hotel Provider - Riverpod state management for hotels
+// Hotel Provider - Riverpod 3.0 state management for hotels
 import 'dart:math';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:dio/dio.dart';
@@ -6,7 +6,7 @@ import '../../../core/api/api_client.dart';
 
 // Haversine formula to calculate distance between two coordinates (in km)
 double _calculateDistance(double lat1, double lon1, double lat2, double lon2) {
-  const double earthRadius = 6371; // Earth's radius in kilometers
+  const double earthRadius = 6371;
 
   double dLat = _toRadians(lat2 - lat1);
   double dLon = _toRadians(lon2 - lon1);
@@ -34,7 +34,7 @@ class Hotel {
   final String city;
   final String address;
   final String? imageUrl;
-  final List<String> images; // For photo carousel
+  final List<String> images;
   final double rating;
   final int reviewCount;
   final int pricePerNight;
@@ -58,7 +58,6 @@ class Hotel {
   });
 
   factory Hotel.fromJson(Map<String, dynamic> json) {
-    // Parse images array from API
     List<String> imagesList = [];
     if (json['images'] != null) {
       imagesList = (json['images'] as List<dynamic>)
@@ -70,7 +69,6 @@ class Hotel {
       imagesList = [json['coverImage'] as String];
     }
 
-    // Helper to parse number from string or num
     double parseDouble(dynamic value) {
       if (value == null) return 0.0;
       if (value is num) return value.toDouble();
@@ -83,7 +81,6 @@ class Hotel {
       if (value is int) return value;
       if (value is num) return value.toInt();
       if (value is String) {
-        // Try int first, then double (for values like "2178.00")
         return int.tryParse(value) ?? double.tryParse(value)?.toInt() ?? 0;
       }
       return 0;
@@ -143,11 +140,12 @@ class HotelsState {
   }
 }
 
-// Hotels notifier
-class HotelsNotifier extends StateNotifier<HotelsState> {
-  final Dio _dio;
+// Hotels notifier (Riverpod 3.0)
+class HotelsNotifier extends Notifier<HotelsState> {
+  Dio get _dio => ref.read(dioProvider);
 
-  HotelsNotifier(this._dio) : super(HotelsState());
+  @override
+  HotelsState build() => HotelsState();
 
   Future<void> fetchHotels({String? city, String? search}) async {
     state = state.copyWith(isLoading: true, error: null);
@@ -203,13 +201,10 @@ class HotelsNotifier extends StateNotifier<HotelsState> {
   }
 }
 
-// Providers
-final hotelsProvider = StateNotifierProvider<HotelsNotifier, HotelsState>((
-  ref,
-) {
-  final dio = ref.watch(dioProvider);
-  return HotelsNotifier(dio);
-});
+// Provider (Riverpod 3.0)
+final hotelsProvider = NotifierProvider<HotelsNotifier, HotelsState>(
+  HotelsNotifier.new,
+);
 
 // Single hotel provider
 final hotelProvider = FutureProvider.family<Hotel?, String>((
@@ -243,14 +238,12 @@ final searchHotelsProvider = FutureProvider.family<List<Hotel>, String>((
   final dio = ref.watch(dioProvider);
   final queryLower = query.toLowerCase().trim();
 
-  // Check for special filter queries
   final isNearbySearch = query.startsWith('nearby:');
   final isBudgetFilter = queryLower == 'budget hotels';
   final isLuxuryFilter = queryLower == 'luxury hotels';
   final isCoupleFilter = queryLower == 'couple friendly';
   final isFilterQuery = isBudgetFilter || isLuxuryFilter || isCoupleFilter;
 
-  // Check if query matches a known city name
   final cityNames = [
     'dhaka',
     'chittagong',
@@ -276,7 +269,6 @@ final searchHotelsProvider = FutureProvider.family<List<Hotel>, String>((
       );
 
   try {
-    // Fetch all hotels for filter-based queries
     final response = await dio.get('/hotels');
     final dynamic responseData = response.data;
     final List<dynamic> data;
@@ -291,22 +283,13 @@ final searchHotelsProvider = FutureProvider.family<List<Hotel>, String>((
 
     var hotels = data.map((json) => Hotel.fromJson(json)).toList();
 
-    // Apply filter logic based on query type
     if (isNearbySearch) {
-      // Extract coordinates from "nearby:lat,lng" format
       final coords = query.substring(7).split(',');
       if (coords.length == 2) {
         final userLat = double.tryParse(coords[0]) ?? 0;
         final userLng = double.tryParse(coords[1]) ?? 0;
 
-        // Sort hotels by distance (using simple distance calculation)
-        // In production, use hotel's lat/lng from API
-        // For now, return all hotels but could filter by city proximity
         hotels.sort((a, b) {
-          // Simple heuristic: prioritize hotels from nearby major cities
-          // Cox's Bazar: 21.4272, 92.0058
-          // Dhaka: 23.8103, 90.4125
-          // Chittagong: 22.3569, 91.7832
           final cityDistances = {
             "Cox's Bazar": _calculateDistance(
               userLat,
@@ -332,19 +315,15 @@ final searchHotelsProvider = FutureProvider.family<List<Hotel>, String>((
           return distA.compareTo(distB);
         });
 
-        // Return top 10 nearest
         return hotels.take(10).toList();
       }
     } else if (isBudgetFilter) {
-      // Budget hotels: <= 3000 BDT, sorted by price low to high
       hotels = hotels.where((h) => h.pricePerNight <= 3000).toList();
       hotels.sort((a, b) => a.pricePerNight.compareTo(b.pricePerNight));
     } else if (isLuxuryFilter) {
-      // Luxury hotels: >= 8000 BDT, sorted by rating
       hotels = hotels.where((h) => h.pricePerNight >= 8000).toList();
       hotels.sort((a, b) => b.rating.compareTo(a.rating));
     } else if (isCoupleFilter) {
-      // Couple friendly: check amenities or description
       hotels = hotels.where((hotel) {
         final amenitiesLower = hotel.amenities
             .map((a) => a.toLowerCase())
@@ -360,14 +339,12 @@ final searchHotelsProvider = FutureProvider.family<List<Hotel>, String>((
             descLower.contains('honeymoon');
       }).toList();
 
-      // If no specific couple hotels, show premium hotels (likely couple-friendly)
       if (hotels.isEmpty) {
         hotels = data.map((json) => Hotel.fromJson(json)).toList();
         hotels = hotels.where((h) => h.rating >= 4.0).toList();
         hotels.sort((a, b) => b.rating.compareTo(a.rating));
       }
     } else if (isLocationSearch) {
-      // Filter by city/location
       hotels = hotels.where((hotel) {
         final hotelCity = hotel.city.toLowerCase();
         final hotelAddress = hotel.address.toLowerCase();
@@ -376,7 +353,6 @@ final searchHotelsProvider = FutureProvider.family<List<Hotel>, String>((
             hotelAddress.contains(queryLower);
       }).toList();
     } else {
-      // General text search
       hotels = hotels.where((hotel) {
         final name = hotel.name.toLowerCase();
         final city = hotel.city.toLowerCase();
@@ -396,7 +372,7 @@ final searchHotelsProvider = FutureProvider.family<List<Hotel>, String>((
 // Hotel Filters Model
 class HotelFilters {
   final String searchQuery;
-  final String sortBy; // 'rating', 'price', 'priceLow', 'priceHigh'
+  final String sortBy;
   final double minPrice;
   final double maxPrice;
   final double? minRating;
@@ -455,7 +431,6 @@ class HotelFilters {
   }
 }
 
-// Available amenities for filtering
 const kAvailableAmenities = [
   'WiFi',
   'AC',
@@ -466,11 +441,7 @@ const kAvailableAmenities = [
   'Gym',
   'Room Service',
 ];
-
-// Rating options for filtering
 const kRatingOptions = [4.5, 4.0, 3.5, 3.0];
-
-// Popular cities in Bangladesh
 const kPopularCities = [
   'Dhaka',
   'Chittagong',
@@ -480,18 +451,26 @@ const kPopularCities = [
   'Khulna',
 ];
 
-// Hotel filters state provider
-final hotelFiltersProvider = StateProvider<HotelFilters>((ref) {
-  return const HotelFilters();
-});
+// Hotel filters notifier (Riverpod 3.0 - replaces StateProvider)
+class HotelFiltersNotifier extends Notifier<HotelFilters> {
+  @override
+  HotelFilters build() => const HotelFilters();
 
-// Filtered hotels provider - applies filters to the hotels list
+  void updateFilters(HotelFilters filters) => state = filters;
+  void resetFilters() => state = const HotelFilters();
+}
+
+final hotelFiltersProvider =
+    NotifierProvider<HotelFiltersNotifier, HotelFilters>(
+      HotelFiltersNotifier.new,
+    );
+
+// Filtered hotels provider
 final filteredHotelsProvider = Provider<List<Hotel>>((ref) {
   final hotels = ref.watch(hotelsProvider).hotels;
   final filters = ref.watch(hotelFiltersProvider);
 
   var filtered = hotels.where((hotel) {
-    // Search filter
     if (filters.searchQuery.isNotEmpty) {
       final query = filters.searchQuery.toLowerCase();
       if (!hotel.name.toLowerCase().contains(query) &&
@@ -501,18 +480,15 @@ final filteredHotelsProvider = Provider<List<Hotel>>((ref) {
       }
     }
 
-    // Price filter
     if (hotel.pricePerNight < filters.minPrice ||
         hotel.pricePerNight > filters.maxPrice) {
       return false;
     }
 
-    // Rating filter
     if (filters.minRating != null && hotel.rating < filters.minRating!) {
       return false;
     }
 
-    // Amenities filter
     if (filters.selectedAmenities.isNotEmpty) {
       final hotelAmenities = hotel.amenities
           .map((a) => a.toLowerCase())
@@ -524,7 +500,6 @@ final filteredHotelsProvider = Provider<List<Hotel>>((ref) {
       }
     }
 
-    // City filter
     if (filters.selectedCity != null &&
         !hotel.city.toLowerCase().contains(
           filters.selectedCity!.toLowerCase(),
@@ -535,7 +510,6 @@ final filteredHotelsProvider = Provider<List<Hotel>>((ref) {
     return true;
   }).toList();
 
-  // Sort
   switch (filters.sortBy) {
     case 'priceLow':
       filtered.sort((a, b) => a.pricePerNight.compareTo(b.pricePerNight));

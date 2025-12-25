@@ -57,21 +57,25 @@ class _AllHotelsScreenState extends ConsumerState<AllHotelsScreen> {
   }
 
   void _onSearchChanged(String query) {
-    ref.read(hotelFiltersProvider.notifier).state = ref
-        .read(hotelFiltersProvider)
-        .copyWith(searchQuery: query);
+    ref
+        .read(hotelFiltersProvider.notifier)
+        .updateFilters(
+          ref.read(hotelFiltersProvider).copyWith(searchQuery: query),
+        );
   }
 
   void _onClearSearch() {
     _searchController.clear();
-    ref.read(hotelFiltersProvider.notifier).state = ref
-        .read(hotelFiltersProvider)
-        .copyWith(searchQuery: '');
+    ref
+        .read(hotelFiltersProvider.notifier)
+        .updateFilters(
+          ref.read(hotelFiltersProvider).copyWith(searchQuery: ''),
+        );
   }
 
   void _clearAllFilters() {
     _searchController.clear();
-    ref.read(hotelFiltersProvider.notifier).state = const HotelFilters();
+    ref.read(hotelFiltersProvider.notifier).resetFilters();
   }
 
   @override
@@ -273,9 +277,9 @@ class _AllHotelsScreenState extends ConsumerState<AllHotelsScreen> {
   }
 
   void _setSortBy(String sortBy) {
-    ref.read(hotelFiltersProvider.notifier).state = ref
-        .read(hotelFiltersProvider)
-        .copyWith(sortBy: sortBy);
+    ref
+        .read(hotelFiltersProvider.notifier)
+        .updateFilters(ref.read(hotelFiltersProvider).copyWith(sortBy: sortBy));
   }
 
   String _getActiveFiltersText(HotelFilters filters) {
