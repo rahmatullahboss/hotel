@@ -19,6 +19,8 @@ import '../../features/hotel/presentation/room_details_screen.dart';
 import '../../features/booking_flow/presentation/booking_flow_screen.dart';
 import '../../features/booking_flow/presentation/qr_scanner_screen.dart';
 import '../../shared/widgets/main_shell.dart';
+import '../../features/profile/presentation/edit_profile_screen.dart';
+import '../../features/profile/presentation/notifications_screen.dart';
 import '../storage/secure_storage.dart';
 
 // Route names
@@ -39,6 +41,9 @@ class AppRoutes {
   static const String achievements = '/achievements';
   static const String qrScanner = '/qr-scanner';
   static const String help = '/help';
+  static const String editProfile = '/edit-profile';
+  static const String notifications = '/notifications';
+  static const String saved = '/saved';
 }
 
 // Router provider
@@ -196,6 +201,27 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: AppRoutes.help,
         name: 'help',
         builder: (context, state) => const HelpScreen(),
+      ),
+
+      // Edit Profile
+      GoRoute(
+        path: AppRoutes.editProfile,
+        name: 'editProfile',
+        builder: (context, state) => const EditProfileScreen(),
+      ),
+
+      // Notifications
+      GoRoute(
+        path: AppRoutes.notifications,
+        name: 'notifications',
+        builder: (context, state) => const NotificationsScreen(),
+      ),
+
+      // Saved Hotels (placeholder - redirects to search with saved filter)
+      GoRoute(
+        path: AppRoutes.saved,
+        name: 'saved',
+        redirect: (context, state) => '/search?filter=saved',
       ),
     ],
     errorBuilder: (context, state) => Scaffold(
