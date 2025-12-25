@@ -11,6 +11,7 @@ import 'core/theme/theme_provider.dart';
 import 'core/router/app_router.dart';
 import 'core/l10n/locale_provider.dart';
 import 'core/notifications/notification_provider.dart';
+import 'features/auth/providers/auth_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -52,6 +53,10 @@ class _ZinuRoomsAppState extends ConsumerState<ZinuRoomsApp> {
   @override
   void initState() {
     super.initState();
+    // Initialize auth state from storage (restore session)
+    Future.microtask(() {
+      ref.read(authProvider.notifier).initialize();
+    });
     // Initialize notifications
     Future.microtask(() {
       ref.read(notificationProvider.notifier).initialize();
