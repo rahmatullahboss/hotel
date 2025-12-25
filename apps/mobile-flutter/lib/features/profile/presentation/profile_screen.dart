@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
+import '../../../core/theme/theme_provider.dart';
 import '../../auth/providers/auth_provider.dart';
 
 class ProfileScreen extends ConsumerStatefulWidget {
@@ -298,9 +299,11 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                                 ),
                               ),
                               Switch(
-                                value: false,
+                                value: ref.watch(isDarkModeProvider),
                                 onChanged: (value) {
-                                  // TODO: Toggle dark mode
+                                  ref
+                                      .read(themeProvider.notifier)
+                                      .toggleDarkMode();
                                 },
                                 activeThumbColor: AppColors.primary,
                               ),
