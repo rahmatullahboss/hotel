@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:geolocator/geolocator.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../shared/widgets/city_card.dart';
@@ -106,6 +107,11 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
   bool _showSuggestions = false;
   String _typingQuery = '';
 
+  // Location state
+  Position? _currentPosition;
+  bool _isLoadingLocation = false;
+  String? _locationError;
+
   @override
   void initState() {
     super.initState();
@@ -129,13 +135,151 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
     super.dispose();
   }
 
-  void _handleFilterTap(String filterId) {
+  void _handleFilterTap(String filterId) async {
+    // Toggle filter
+    if (activeFilter == filterId) {
+      setState(() {
+        activeFilter = null;
+      });
+      // Clear any filter-based search
+      ref.read(searchQueryProvider.notifier).state = '';
+      return;
+    }
+
     setState(() {
-      activeFilter = activeFilter == filterId ? null : filterId;
-      if (filterId == 'nearby') {
-        context.push('/search-results?nearby=true');
-      }
+      activeFilter = filterId;
     });
+
+    // Handle different filters
+    switch (filterId) {
+      case 'nearby':
+        await _handleNearbyFilter();
+        break;
+      case 'budget':
+        // Budget hotels <= 3000 BDT
+        ref.read(searchQueryProvider.notifier).state = 'Budget Hotels';
+        break;
+      case 'luxury':
+        // Premium/Luxury hotels >= 8000 BDT
+        ref.read(searchQueryProvider.notifier).state = 'Luxury Hotels';
+        break;
+      case 'couple':
+        // Couple friendly hotels
+        ref.read(searchQueryProvider.notifier).state = 'Couple Friendly';
+        break;
+    }
+  }
+
+  Future<void> _handleNearbyFilter() async {
+    setState(() {
+      _isLoadingLocation = true;
+      _locationError = null;
+    });
+
+    try {
+      // Check if location services are enabled
+      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) {
+        setState(() {
+          _isLoadingLocation = false;
+          _locationError = 'লোকেশন সার্ভিস বন্ধ আছে';
+        });
+        _showLocationErrorSnackbar('দয়া করে লোকেশন সার্ভিস চালু করুন');
+        return;
+      }
+
+      // Check permission
+      LocationPermission permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+        if (permission == LocationPermission.denied) {
+          setState(() {
+            _isLoadingLocation = false;
+            _locationError = 'লোকেশন অনুমতি প্রত্যাখ্যাত';
+          });
+          _showLocationErrorSnackbar('লোকেশন অনুমতি প্রয়োজন');
+          return;
+        }
+      }
+
+      if (permission == LocationPermission.deniedForever) {
+        setState(() {
+          _isLoadingLocation = false;
+          _locationError = 'লোকেশন অনুমতি স্থায়ীভাবে বন্ধ';
+        });
+        _showLocationErrorSnackbar('সেটিংস থেকে লোকেশন অনুমতি দিন');
+        return;
+      }
+
+      // Get current position
+      Position position = await Geolocator.getCurrentPosition(
+        locationSettings: const LocationSettings(
+          accuracy: LocationAccuracy.high,
+          timeLimit: Duration(seconds: 10),
+        ),
+      );
+
+      setState(() {
+        _currentPosition = position;
+        _isLoadingLocation = false;
+      });
+
+      // Search for nearby hotels
+      ref.read(searchQueryProvider.notifier).state =
+          'nearby:${position.latitude},${position.longitude}';
+
+      _showSuccessSnackbar(
+        'আপনার লোকেশন পাওয়া গেছে! কাছের হোটেল দেখানো হচ্ছে...',
+      );
+    } catch (e) {
+      setState(() {
+        _isLoadingLocation = false;
+        _locationError = 'লোকেশন পেতে সমস্যা হয়েছে';
+      });
+      _showLocationErrorSnackbar('লোকেশন পেতে সমস্যা হয়েছে');
+    }
+  }
+
+  void _showLocationErrorSnackbar(String message) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            const Icon(Icons.location_off, color: Colors.white),
+            const SizedBox(width: 12),
+            Expanded(child: Text(message)),
+          ],
+        ),
+        backgroundColor: AppColors.error,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        action: SnackBarAction(
+          label: 'সেটিংস',
+          textColor: Colors.white,
+          onPressed: () => Geolocator.openLocationSettings(),
+        ),
+      ),
+    );
+  }
+
+  void _showSuccessSnackbar(String message) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            const Icon(Icons.location_on, color: Colors.white),
+            const SizedBox(width: 12),
+            Expanded(child: Text(message)),
+          ],
+        ),
+        backgroundColor: AppColors.success,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        duration: const Duration(seconds: 2),
+      ),
+    );
   }
 
   void _handleSearch(String query) {

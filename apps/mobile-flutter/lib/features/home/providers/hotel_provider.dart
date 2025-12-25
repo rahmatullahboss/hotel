@@ -1,7 +1,31 @@
 // Hotel Provider - Riverpod state management for hotels
+import 'dart:math';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:dio/dio.dart';
 import '../../../core/api/api_client.dart';
+
+// Haversine formula to calculate distance between two coordinates (in km)
+double _calculateDistance(double lat1, double lon1, double lat2, double lon2) {
+  const double earthRadius = 6371; // Earth's radius in kilometers
+
+  double dLat = _toRadians(lat2 - lat1);
+  double dLon = _toRadians(lon2 - lon1);
+
+  double a =
+      sin(dLat / 2) * sin(dLat / 2) +
+      cos(_toRadians(lat1)) *
+          cos(_toRadians(lat2)) *
+          sin(dLon / 2) *
+          sin(dLon / 2);
+
+  double c = 2 * atan2(sqrt(a), sqrt(1 - a));
+
+  return earthRadius * c;
+}
+
+double _toRadians(double degrees) {
+  return degrees * pi / 180;
+}
 
 // Hotel model
 class Hotel {
@@ -209,7 +233,7 @@ final hotelProvider = FutureProvider.family<Hotel?, String>((
   }
 });
 
-// Search hotels provider - with proper city/location filtering
+// Search hotels provider - with proper city/location/filter handling
 final searchHotelsProvider = FutureProvider.family<List<Hotel>, String>((
   ref,
   query,
@@ -218,6 +242,13 @@ final searchHotelsProvider = FutureProvider.family<List<Hotel>, String>((
 
   final dio = ref.watch(dioProvider);
   final queryLower = query.toLowerCase().trim();
+
+  // Check for special filter queries
+  final isNearbySearch = query.startsWith('nearby:');
+  final isBudgetFilter = queryLower == 'budget hotels';
+  final isLuxuryFilter = queryLower == 'luxury hotels';
+  final isCoupleFilter = queryLower == 'couple friendly';
+  final isFilterQuery = isBudgetFilter || isLuxuryFilter || isCoupleFilter;
 
   // Check if query matches a known city name
   final cityNames = [
@@ -237,21 +268,16 @@ final searchHotelsProvider = FutureProvider.family<List<Hotel>, String>((
     'barguna',
   ];
 
-  final isLocationSearch = cityNames.any(
-    (city) => city.contains(queryLower) || queryLower.contains(city),
-  );
+  final isLocationSearch =
+      !isNearbySearch &&
+      !isFilterQuery &&
+      cityNames.any(
+        (city) => city.contains(queryLower) || queryLower.contains(city),
+      );
 
   try {
-    final Map<String, dynamic> queryParams = {};
-
-    // Use city parameter for location searches, search for others
-    if (isLocationSearch) {
-      queryParams['city'] = query;
-    } else {
-      queryParams['search'] = query;
-    }
-
-    final response = await dio.get('/hotels', queryParameters: queryParams);
+    // Fetch all hotels for filter-based queries
+    final response = await dio.get('/hotels');
     final dynamic responseData = response.data;
     final List<dynamic> data;
     if (responseData is Map<String, dynamic> &&
@@ -263,17 +289,101 @@ final searchHotelsProvider = FutureProvider.family<List<Hotel>, String>((
       data = [];
     }
 
-    final hotels = data.map((json) => Hotel.fromJson(json)).toList();
+    var hotels = data.map((json) => Hotel.fromJson(json)).toList();
 
-    // Additional client-side filtering for location searches
-    // to ensure only hotels from that location are shown
-    if (isLocationSearch) {
-      return hotels.where((hotel) {
+    // Apply filter logic based on query type
+    if (isNearbySearch) {
+      // Extract coordinates from "nearby:lat,lng" format
+      final coords = query.substring(7).split(',');
+      if (coords.length == 2) {
+        final userLat = double.tryParse(coords[0]) ?? 0;
+        final userLng = double.tryParse(coords[1]) ?? 0;
+
+        // Sort hotels by distance (using simple distance calculation)
+        // In production, use hotel's lat/lng from API
+        // For now, return all hotels but could filter by city proximity
+        hotels.sort((a, b) {
+          // Simple heuristic: prioritize hotels from nearby major cities
+          // Cox's Bazar: 21.4272, 92.0058
+          // Dhaka: 23.8103, 90.4125
+          // Chittagong: 22.3569, 91.7832
+          final cityDistances = {
+            "Cox's Bazar": _calculateDistance(
+              userLat,
+              userLng,
+              21.4272,
+              92.0058,
+            ),
+            'Dhaka': _calculateDistance(userLat, userLng, 23.8103, 90.4125),
+            'Chittagong': _calculateDistance(
+              userLat,
+              userLng,
+              22.3569,
+              91.7832,
+            ),
+            'Sylhet': _calculateDistance(userLat, userLng, 24.8949, 91.8687),
+            'Rajshahi': _calculateDistance(userLat, userLng, 24.3745, 88.6042),
+            'Khulna': _calculateDistance(userLat, userLng, 22.8456, 89.5403),
+            'Barguna': _calculateDistance(userLat, userLng, 22.1509, 90.1266),
+          };
+
+          final distA = cityDistances[a.city] ?? 9999.0;
+          final distB = cityDistances[b.city] ?? 9999.0;
+          return distA.compareTo(distB);
+        });
+
+        // Return top 10 nearest
+        return hotels.take(10).toList();
+      }
+    } else if (isBudgetFilter) {
+      // Budget hotels: <= 3000 BDT, sorted by price low to high
+      hotels = hotels.where((h) => h.pricePerNight <= 3000).toList();
+      hotels.sort((a, b) => a.pricePerNight.compareTo(b.pricePerNight));
+    } else if (isLuxuryFilter) {
+      // Luxury hotels: >= 8000 BDT, sorted by rating
+      hotels = hotels.where((h) => h.pricePerNight >= 8000).toList();
+      hotels.sort((a, b) => b.rating.compareTo(a.rating));
+    } else if (isCoupleFilter) {
+      // Couple friendly: check amenities or description
+      hotels = hotels.where((hotel) {
+        final amenitiesLower = hotel.amenities
+            .map((a) => a.toLowerCase())
+            .toList();
+        final descLower = (hotel.description ?? '').toLowerCase();
+        return amenitiesLower.any(
+              (a) =>
+                  a.contains('couple') ||
+                  a.contains('honeymoon') ||
+                  a.contains('romantic'),
+            ) ||
+            descLower.contains('couple') ||
+            descLower.contains('honeymoon');
+      }).toList();
+
+      // If no specific couple hotels, show premium hotels (likely couple-friendly)
+      if (hotels.isEmpty) {
+        hotels = data.map((json) => Hotel.fromJson(json)).toList();
+        hotels = hotels.where((h) => h.rating >= 4.0).toList();
+        hotels.sort((a, b) => b.rating.compareTo(a.rating));
+      }
+    } else if (isLocationSearch) {
+      // Filter by city/location
+      hotels = hotels.where((hotel) {
         final hotelCity = hotel.city.toLowerCase();
         final hotelAddress = hotel.address.toLowerCase();
         return hotelCity.contains(queryLower) ||
             queryLower.contains(hotelCity) ||
             hotelAddress.contains(queryLower);
+      }).toList();
+    } else {
+      // General text search
+      hotels = hotels.where((hotel) {
+        final name = hotel.name.toLowerCase();
+        final city = hotel.city.toLowerCase();
+        final address = hotel.address.toLowerCase();
+        return name.contains(queryLower) ||
+            city.contains(queryLower) ||
+            address.contains(queryLower);
       }).toList();
     }
 
