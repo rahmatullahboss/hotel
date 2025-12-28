@@ -6,6 +6,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/theme/theme_provider.dart';
 import '../../../core/l10n/locale_provider.dart';
+import '../../../l10n/generated/app_localizations.dart';
 import '../../auth/providers/auth_provider.dart';
 
 class ProfileScreen extends ConsumerStatefulWidget {
@@ -63,16 +64,16 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             // Account Section (only if logged in)
             if (isLoggedIn) ...[
               _MenuSection(
-                title: 'অ্যাকাউন্ট',
+                title: AppLocalizations.of(context)!.account,
                 items: [
                   _MenuItemData(
                     icon: Icons.person_outline,
-                    label: 'প্রোফাইল এডিট করুন',
+                    label: AppLocalizations.of(context)!.editProfile,
                     onTap: () => context.push('/edit-profile'),
                   ),
                   _MenuItemData(
                     icon: Icons.qr_code_scanner,
-                    label: 'QR স্ক্যান',
+                    label: AppLocalizations.of(context)!.qrScan,
                     onTap: () => context.push('/qr-scanner'),
                   ),
                 ],
@@ -81,16 +82,16 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
 
               // Bookings & Travel Section
               _MenuSection(
-                title: 'বুকিং ও ভ্রমণ',
+                title: AppLocalizations.of(context)!.bookingsAndTrips,
                 items: [
                   _MenuItemData(
                     icon: Icons.luggage_outlined,
-                    label: 'আমার ট্রিপ',
+                    label: AppLocalizations.of(context)!.myTrips,
                     onTap: () => context.go('/bookings'),
                   ),
                   _MenuItemData(
                     icon: Icons.favorite_border,
-                    label: 'সেভ করা হোটেল',
+                    label: AppLocalizations.of(context)!.savedHotels,
                     onTap: () => context.push('/saved'),
                   ),
                 ],
@@ -99,26 +100,26 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
 
               // Wallet & Rewards Section
               _MenuSection(
-                title: 'ওয়ালেট ও রিওয়ার্ড',
+                title: AppLocalizations.of(context)!.walletAndRewards,
                 items: [
                   _MenuItemData(
                     icon: Icons.account_balance_wallet_outlined,
-                    label: 'ওয়ালেট',
+                    label: AppLocalizations.of(context)!.wallet,
                     onTap: () => context.push('/wallet'),
                   ),
                   _MenuItemData(
                     icon: Icons.card_giftcard_outlined,
-                    label: 'রেফারেল',
+                    label: AppLocalizations.of(context)!.referral,
                     onTap: () => context.push('/referral'),
                   ),
                   _MenuItemData(
                     icon: Icons.emoji_events_outlined,
-                    label: 'অ্যাচিভমেন্ট',
+                    label: AppLocalizations.of(context)!.achievements,
                     onTap: () => context.push('/achievements'),
                   ),
                   _MenuItemData(
                     icon: Icons.local_offer_outlined,
-                    label: 'অফার ও রিওয়ার্ড',
+                    label: AppLocalizations.of(context)!.offersAndRewards,
                     onTap: () => context.push('/achievements'),
                   ),
                 ],
@@ -135,7 +136,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                   Padding(
                     padding: const EdgeInsets.only(left: 4, bottom: 8),
                     child: Text(
-                      'পছন্দসমূহ',
+                      AppLocalizations.of(context)!.preferences,
                       style: AppTypography.labelMedium.copyWith(
                         color: AppColors.textSecondary,
                         fontWeight: FontWeight.w600,
@@ -145,7 +146,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                   ),
                   Container(
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: AppColors.adaptiveSurface(context),
                       borderRadius: BorderRadius.circular(16),
                       boxShadow: AppColors.softShadow,
                     ),
@@ -176,7 +177,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                                   ),
                                   const SizedBox(width: 12),
                                   Text(
-                                    'ভাষা',
+                                    AppLocalizations.of(context)!.language,
                                     style: AppTypography.bodyMedium.copyWith(
                                       fontWeight: FontWeight.w500,
                                     ),
@@ -332,16 +333,16 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
 
             // Support Section
             _MenuSection(
-              title: 'সাহায্য',
+              title: AppLocalizations.of(context)!.help,
               items: [
                 _MenuItemData(
                   icon: Icons.notifications_outlined,
-                  label: 'নোটিফিকেশন',
+                  label: AppLocalizations.of(context)!.notifications,
                   onTap: () => context.push('/notifications'),
                 ),
                 _MenuItemData(
                   icon: Icons.help_outline,
-                  label: 'সাহায্য ও সাপোর্ট',
+                  label: AppLocalizations.of(context)!.helpAndSupport,
                   onTap: () => context.push('/help'),
                 ),
               ],
@@ -377,7 +378,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                         ),
                         const SizedBox(width: 8),
                         Text(
-                          'লগ আউট',
+                          AppLocalizations.of(context)!.logout,
                           style: AppTypography.button.copyWith(
                             color: AppColors.error,
                           ),
@@ -535,7 +536,9 @@ class _ProfileHeader extends StatelessWidget {
 
             // Name
             Text(
-              isLoggedIn ? (userName ?? 'ব্যবহারকারী') : 'অতিথি ব্যবহারকারী',
+              isLoggedIn
+                  ? (userName ?? AppLocalizations.of(context)!.user)
+                  : AppLocalizations.of(context)!.guestUser,
               style: AppTypography.h3.copyWith(color: Colors.white),
             ),
 
@@ -573,7 +576,7 @@ class _ProfileHeader extends StatelessWidget {
             if (!isLoggedIn) ...[
               const SizedBox(height: 8),
               Text(
-                'লগইন করুন সব ফিচার ব্যবহার করতে',
+                AppLocalizations.of(context)!.loginPrompt,
                 style: AppTypography.bodySmall.copyWith(
                   color: Colors.white.withValues(alpha: 0.8),
                 ),
@@ -591,7 +594,7 @@ class _ProfileHeader extends StatelessWidget {
                     borderRadius: BorderRadius.circular(24),
                   ),
                   child: Text(
-                    'লগইন করুন',
+                    AppLocalizations.of(context)!.login,
                     style: AppTypography.button.copyWith(
                       color: AppColors.primary,
                     ),
@@ -630,7 +633,7 @@ class _StatsCard extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: AppColors.adaptiveSurface(context),
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
@@ -646,7 +649,7 @@ class _StatsCard extends StatelessWidget {
               child: _StatItem(
                 icon: Icons.luggage_outlined,
                 value: bookingsCount.toString(),
-                label: 'বুকিং',
+                label: AppLocalizations.of(context)!.bookings,
                 onTap: onBookingsTap,
               ),
             ),
@@ -664,7 +667,7 @@ class _StatsCard extends StatelessWidget {
               child: _StatItem(
                 icon: Icons.star_outline,
                 value: loyaltyPoints.toString(),
-                label: 'পয়েন্ট',
+                label: AppLocalizations.of(context)!.points,
                 onTap: onPointsTap,
               ),
             ),
@@ -747,7 +750,7 @@ class _MenuSection extends StatelessWidget {
           ),
           Container(
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: AppColors.adaptiveSurface(context),
               borderRadius: BorderRadius.circular(16),
               boxShadow: AppColors.softShadow,
             ),

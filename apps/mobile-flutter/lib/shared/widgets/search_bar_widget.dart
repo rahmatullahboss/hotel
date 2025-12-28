@@ -2,9 +2,10 @@
 import 'package:flutter/material.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_typography.dart';
+import '../../l10n/generated/app_localizations.dart';
 
 class SearchBarWidget extends StatelessWidget {
-  final String placeholder;
+  final String? placeholder;
   final VoidCallback? onTap;
   final TextEditingController? controller;
   final ValueChanged<String>? onChanged;
@@ -15,7 +16,7 @@ class SearchBarWidget extends StatelessWidget {
 
   const SearchBarWidget({
     super.key,
-    this.placeholder = 'হোটেল খুঁজুন...',
+    this.placeholder,
     this.onTap,
     this.controller,
     this.onChanged,
@@ -61,7 +62,8 @@ class SearchBarWidget extends StatelessWidget {
             Expanded(
               child: readOnly
                   ? Text(
-                      placeholder,
+                      placeholder ??
+                          AppLocalizations.of(context)!.searchPlaceholder,
                       style: AppTypography.bodyMedium.copyWith(
                         color: AppColors.textTertiary,
                       ),
@@ -76,7 +78,9 @@ class SearchBarWidget extends StatelessWidget {
                         fontWeight: FontWeight.w500,
                       ),
                       decoration: InputDecoration(
-                        hintText: placeholder,
+                        hintText:
+                            placeholder ??
+                            AppLocalizations.of(context)!.searchPlaceholder,
                         hintStyle: AppTypography.bodyMedium.copyWith(
                           color: AppColors.textTertiary,
                         ),
@@ -115,14 +119,10 @@ class SearchBarWidget extends StatelessWidget {
 
 // Light variant for use on primary color backgrounds
 class SearchBarWidgetLight extends StatelessWidget {
-  final String placeholder;
+  final String? placeholder;
   final VoidCallback? onTap;
 
-  const SearchBarWidgetLight({
-    super.key,
-    this.placeholder = 'Search hotels...',
-    this.onTap,
-  });
+  const SearchBarWidgetLight({super.key, this.placeholder, this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -158,7 +158,7 @@ class SearchBarWidgetLight extends StatelessWidget {
             ),
             const SizedBox(width: 12),
             Text(
-              placeholder,
+              placeholder ?? AppLocalizations.of(context)!.searchPlaceholder,
               style: AppTypography.bodyMedium.copyWith(
                 color: AppColors.textTertiary,
               ),

@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:shimmer/shimmer.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
@@ -11,38 +12,41 @@ import '../../../shared/widgets/search_bar_widget.dart';
 import '../../../shared/widgets/date_selection_bar.dart';
 import '../../../shared/widgets/quick_filter_button.dart';
 import '../../../shared/widgets/promo_banner.dart';
+
+import '../../../l10n/generated/app_localizations.dart';
 import '../providers/hotel_provider.dart';
+import '../providers/saved_hotels_provider.dart';
 
 // City images - Real photos of Bangladeshi landmarks
 const Map<String, String> cityImages = {
-  'ঢাকা':
+  'Dhaka':
       'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?q=80&w=800',
-  'চট্টগ্রাম':
+  'Chittagong':
       'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?q=80&w=800',
-  'কক্সবাজার':
+  'Cox\'s Bazar':
       'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=800',
-  'সিলেট':
+  'Sylhet':
       'https://images.unsplash.com/photo-1501785888041-af3ef285b470?q=80&w=800',
-  'রাজশাহী':
+  'Rajshahi':
       'https://images.unsplash.com/photo-1518495973542-4542c06a5843?q=80&w=800',
-  'খুলনা':
+  'Khulna':
       'https://images.unsplash.com/photo-1468746587034-766ade47c1ac?q=80&w=800',
 };
 
 // Quick filter data
 const List<Map<String, String>> quickFilters = [
-  {'id': 'nearby', 'label': 'কাছে', 'emoji': '📍'},
-  {'id': 'budget', 'label': 'বাজেট', 'emoji': '💰'},
-  {'id': 'luxury', 'label': 'প্রিমিয়াম', 'emoji': '⭐'},
-  {'id': 'couple', 'label': 'কাপল', 'emoji': '💕'},
+  {'id': 'nearby', 'emoji': '📍'},
+  {'id': 'budget', 'emoji': '💰'},
+  {'id': 'luxury', 'emoji': '⭐'},
+  {'id': 'couple', 'emoji': '💕'},
 ];
 
 // Popular cities
 const List<Map<String, dynamic>> popularCities = [
-  {'name': 'ঢাকা', 'count': 45},
-  {'name': 'চট্টগ্রাম', 'count': 28},
-  {'name': 'কক্সবাজার', 'count': 52},
-  {'name': 'সিলেট', 'count': 18},
+  {'name': 'Dhaka', 'count': 45},
+  {'name': 'Chittagong', 'count': 28},
+  {'name': 'Cox\'s Bazar', 'count': 52},
+  {'name': 'Sylhet', 'count': 18},
 ];
 
 class HomeScreen extends ConsumerStatefulWidget {
@@ -56,7 +60,43 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   String? activeFilter;
   DateTime checkIn = DateTime.now().add(const Duration(days: 1));
   DateTime checkOut = DateTime.now().add(const Duration(days: 2));
-  Set<String> savedHotels = {};
+  // Set<String> savedHotels = {}; // Managed by provider
+
+  String _getFilterLabel(BuildContext context, String filterId) {
+    final loc = AppLocalizations.of(context)!;
+    switch (filterId) {
+      case 'nearby':
+        return loc.filterNearby;
+      case 'budget':
+        return loc.filterBudget;
+      case 'luxury':
+        return loc.filterLuxury;
+      case 'couple':
+        return loc.filterCouple;
+      default:
+        return '';
+    }
+  }
+
+  String _getCityName(BuildContext context, String cityId) {
+    final loc = AppLocalizations.of(context)!;
+    switch (cityId) {
+      case 'Dhaka':
+        return loc.cityDhaka;
+      case 'Chittagong':
+        return loc.cityChittagong;
+      case 'Cox\'s Bazar':
+        return loc.cityCoxsBazar;
+      case 'Sylhet':
+        return loc.citySylhet;
+      case 'Rajshahi':
+        return loc.cityRajshahi;
+      case 'Khulna':
+        return loc.cityKhulna;
+      default:
+        return cityId;
+    }
+  }
 
   @override
   void initState() {
@@ -68,23 +108,66 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     });
   }
 
-  void _handleFilterTap(String filterId) {
-    setState(() {
-      activeFilter = activeFilter == filterId ? null : filterId;
-    });
-    // Navigate to search with filter
-    context.push('/search?filter=$filterId');
+  Future<void> _handleFilterTap(String filterId) async {
+    if (filterId == 'nearby') {
+      setState(() {
+        activeFilter = activeFilter == filterId ? null : filterId;
+      });
+      if (activeFilter == null) return;
+
+      // Check permission
+      var permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+        if (permission == LocationPermission.denied) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Location permission denied')),
+            );
+          }
+          return;
+        }
+      }
+
+      if (permission == LocationPermission.deniedForever) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text(
+                'Location permissions are permanently denied, we cannot request permissions.',
+              ),
+            ),
+          );
+        }
+        return;
+      }
+
+      // Get location
+      try {
+        final position = await Geolocator.getCurrentPosition();
+        if (mounted) {
+          context.push(
+            '/search?query=nearby:${position.latitude},${position.longitude}',
+          );
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text('Error getting location: $e')));
+        }
+      }
+    } else {
+      setState(() {
+        activeFilter = activeFilter == filterId ? null : filterId;
+      });
+      // Navigate to search with filter
+      context.push('/search?filter=$filterId');
+    }
   }
 
   void _handleSaveToggle(String hotelId) {
-    setState(() {
-      if (savedHotels.contains(hotelId)) {
-        savedHotels.remove(hotelId);
-      } else {
-        savedHotels.add(hotelId);
-      }
-    });
-    // TODO: Save to backend
+    ref.read(savedHotelsProvider.notifier).toggleSaved(hotelId);
   }
 
   void _onRefresh() {
@@ -96,6 +179,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   Widget build(BuildContext context) {
     final topPadding = MediaQuery.of(context).padding.top;
     final hotelsState = ref.watch(hotelsProvider);
+    final savedHotels = ref.watch(savedHotelsProvider);
 
     return Scaffold(
       backgroundColor: AppColors.adaptiveBackground(context),
@@ -127,7 +211,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'স্বাগতম! 👋',
+                                  AppLocalizations.of(context)!.homeGreeting,
                                   style: AppTypography.h2.copyWith(
                                     color: Colors.white,
                                     fontWeight: FontWeight.bold,
@@ -135,7 +219,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                 ),
                                 const SizedBox(height: 4),
                                 Text(
-                                  'আজকে কোথায় থাকবেন?',
+                                  AppLocalizations.of(context)!.whereToStay,
                                   style: AppTypography.bodyMedium.copyWith(
                                     color: Colors.white.withValues(alpha: 0.8),
                                   ),
@@ -233,7 +317,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       final filter = quickFilters[index];
                       return QuickFilterButton(
                         id: filter['id']!,
-                        label: filter['label']!,
+                        label: _getFilterLabel(context, filter['id']!),
                         emoji: filter['emoji']!,
                         isActive: activeFilter == filter['id'],
                         onPressed: () => _handleFilterTap(filter['id']!),
@@ -248,7 +332,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             SliverToBoxAdapter(
               child: Padding(
                 padding: const EdgeInsets.only(left: 20, right: 20, bottom: 16),
-                child: Text('জনপ্রিয় গন্তব্য', style: AppTypography.h4),
+                child: Text(
+                  AppLocalizations.of(context)!.popularDestinations,
+                  style: AppTypography.h4,
+                ),
               ),
             ),
 
@@ -262,11 +349,16 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   separatorBuilder: (_, _) => const SizedBox(width: 12),
                   itemBuilder: (context, index) {
                     final city = popularCities[index];
+                    final String cityName = city['name'] as String;
+                    final int dynamicCount = hotelsState.hotels
+                        .where((h) => h.city == cityName)
+                        .length;
+
                     return CityCard(
-                      name: city['name'] as String,
-                      imageUrl: cityImages[city['name']],
-                      hotelCount: city['count'] as int,
-                      onTap: () => context.push('/search?city=${city['name']}'),
+                      name: _getCityName(context, cityName),
+                      imageUrl: cityImages[cityName],
+                      hotelCount: dynamicCount, // Use real count
+                      onTap: () => context.push('/search?city=$cityName'),
                     );
                   },
                 ),
@@ -278,11 +370,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               child: Padding(
                 padding: const EdgeInsets.only(top: 24),
                 child: PromoBanner(
-                  title: 'প্রথম বুকিং অফার!',
-                  subtitle: 'প্রথম থাকায় ২০% ছাড় পান',
-                  badgeText: 'সীমিত অফার',
+                  title: AppLocalizations.of(context)!.firstBookingOffer,
+                  subtitle: AppLocalizations.of(context)!.firstBookingDiscount,
+                  badgeText: AppLocalizations.of(context)!.limitedOffer,
                   emoji: '🎁',
-                  buttonText: 'বুক করুন',
+                  buttonText: AppLocalizations.of(context)!.book,
                   onTap: () => context.push('/hotels?offer=first-booking'),
                 ),
               ),
@@ -295,11 +387,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text('জনপ্রিয় হোটেল', style: AppTypography.h4),
+                    Text(
+                      AppLocalizations.of(context)!.popularHotels,
+                      style: AppTypography.h4,
+                    ),
                     GestureDetector(
                       onTap: () => context.push('/hotels'),
                       child: Text(
-                        'সব দেখুন',
+                        AppLocalizations.of(context)!.viewAll,
                         style: AppTypography.labelLarge.copyWith(
                           color: AppColors.primary,
                           fontWeight: FontWeight.w600,
@@ -312,7 +407,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             ),
 
             // Hotel List - With Loading/Error/Data States
-            _buildHotelsList(hotelsState),
+            _buildHotelsList(hotelsState, savedHotels),
 
             // Bottom Padding
             const SliverToBoxAdapter(child: SizedBox(height: 100)),
@@ -322,7 +417,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     );
   }
 
-  Widget _buildHotelsList(HotelsState state) {
+  Widget _buildHotelsList(HotelsState state, Set<String> savedHotels) {
     // Loading State
     if (state.isLoading && state.hotels.isEmpty) {
       return SliverPadding(
@@ -356,7 +451,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               ElevatedButton.icon(
                 onPressed: _onRefresh,
                 icon: const Icon(Icons.refresh),
-                label: const Text('পুনরায় চেষ্টা করুন'),
+                label: Text(AppLocalizations.of(context)!.retry),
               ),
             ],
           ),
@@ -378,7 +473,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               ),
               const SizedBox(height: 16),
               Text(
-                'কোনো হোটেল পাওয়া যায়নি',
+                AppLocalizations.of(context)!.noHotelsFound,
                 style: AppTypography.bodyMedium.copyWith(
                   color: AppColors.textSecondary,
                 ),

@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:shimmer/shimmer.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
+import '../../../l10n/generated/app_localizations.dart';
 import '../../../shared/widgets/booking_card.dart';
 import '../providers/booking_provider.dart';
 
@@ -89,7 +90,7 @@ class _BookingsScreenState extends ConsumerState<BookingsScreen>
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'আমার বুকিং',
+                            AppLocalizations.of(context)!.bookingsTitle,
                             style: AppTypography.h2.copyWith(
                               color: Colors.white,
                               fontWeight: FontWeight.bold,
@@ -97,7 +98,7 @@ class _BookingsScreenState extends ConsumerState<BookingsScreen>
                           ),
                           const SizedBox(height: 6),
                           Text(
-                            '$totalBookings বুকিং',
+                            '$totalBookings ${AppLocalizations.of(context)!.bookingsSubtitleSuffix}',
                             style: AppTypography.bodyMedium.copyWith(
                               color: Colors.white.withValues(alpha: 0.85),
                             ),
@@ -150,7 +151,7 @@ class _BookingsScreenState extends ConsumerState<BookingsScreen>
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              const Text('আসন্ন'),
+                              Text(AppLocalizations.of(context)!.tabUpcoming),
                               if (bookingsState.upcomingBookings.isNotEmpty)
                                 Container(
                                   margin: const EdgeInsets.only(left: 6),
@@ -174,8 +175,8 @@ class _BookingsScreenState extends ConsumerState<BookingsScreen>
                             ],
                           ),
                         ),
-                        const Tab(text: 'সম্পন্ন'),
-                        const Tab(text: 'বাতিল'),
+                        Tab(text: AppLocalizations.of(context)!.tabCompleted),
+                        Tab(text: AppLocalizations.of(context)!.tabCancelled),
                       ],
                     ),
                   ),
@@ -197,8 +198,8 @@ class _BookingsScreenState extends ConsumerState<BookingsScreen>
                     bookingsState.upcomingBookings,
                     bookingsState.isLoading,
                     bookingsState.error,
-                    'আসন্ন বুকিং নেই',
-                    'হোটেল বুক করে আপনার পরবর্তী ভ্রমণ প্ল্যান করুন',
+                    AppLocalizations.of(context)!.emptyUpcomingTitle,
+                    AppLocalizations.of(context)!.emptyUpcomingSubtitle,
                   ),
 
                   // Completed Bookings
@@ -206,8 +207,8 @@ class _BookingsScreenState extends ConsumerState<BookingsScreen>
                     bookingsState.completedBookings,
                     bookingsState.isLoading,
                     bookingsState.error,
-                    'সম্পন্ন বুকিং নেই',
-                    'আপনার সম্পন্ন বুকিং এখানে দেখা যাবে',
+                    AppLocalizations.of(context)!.emptyCompletedTitle,
+                    AppLocalizations.of(context)!.emptyCompletedSubtitle,
                   ),
 
                   // Cancelled Bookings
@@ -215,8 +216,8 @@ class _BookingsScreenState extends ConsumerState<BookingsScreen>
                     bookingsState.cancelledBookings,
                     bookingsState.isLoading,
                     bookingsState.error,
-                    'বাতিল বুকিং নেই',
-                    'বাতিল হওয়া বুকিং এখানে দেখা যাবে',
+                    AppLocalizations.of(context)!.emptyCancelledTitle,
+                    AppLocalizations.of(context)!.emptyCancelledSubtitle,
                   ),
                 ],
               ),
@@ -264,7 +265,7 @@ class _BookingsScreenState extends ConsumerState<BookingsScreen>
               ElevatedButton.icon(
                 onPressed: _onRefresh,
                 icon: const Icon(Icons.refresh),
-                label: const Text('পুনরায় চেষ্টা করুন'),
+                label: Text(AppLocalizations.of(context)!.searchTryAgain),
               ),
             ],
           ),
@@ -316,7 +317,10 @@ class _BookingsScreenState extends ConsumerState<BookingsScreen>
                     borderRadius: BorderRadius.circular(24),
                     boxShadow: AppColors.buttonShadow,
                   ),
-                  child: Text('হোটেল খুঁজুন', style: AppTypography.button),
+                  child: Text(
+                    AppLocalizations.of(context)!.findHotelsButton,
+                    style: AppTypography.button,
+                  ),
                 ),
               ),
             ],

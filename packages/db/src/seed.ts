@@ -1,3 +1,4 @@
+import "./env";
 /**
  * Demo Data Seed Script
  * 
@@ -148,6 +149,18 @@ const DEMO_CITIES = [
         latitude: "22.7010",
         longitude: "90.3535",
         isPopular: false,
+    },
+    {
+        name: "Kuakata",
+        nameBn: "কুয়াকাটা",
+        slug: "kuakata",
+        description: "Known as the Daughter of the Sea (Sagar Kanya), Kuakata is a rare spot where you can see both sunrise and sunset from the same beach.",
+        descriptionBn: "সাগর কন্যা হিসেবে পরিচিত কুয়াকাটা এমন এক বিরল স্থান যেখান থেকে একই সৈকত থেকে সূর্যোদয় এবং সূর্যাস্ত উভয়ই দেখা যায়।",
+        metaTitle: "Hotels in Kuakata - Sagar Kanya | ZinuRooms",
+        metaDescription: "Book hotels in Kuakata near the beach. Enjoy sunrise and sunset views from your room.",
+        latitude: "21.8214",
+        longitude: "90.1198",
+        isPopular: true,
     },
 ];
 
@@ -718,6 +731,59 @@ const DEMO_HOTELS = [
         rooms: [
             { roomNumber: "RG1", name: "Garden View", type: "DOUBLE" as const, basePrice: "2500", maxGuests: 2 },
             { roomNumber: "RG2", name: "Family Cottage", type: "SUITE" as const, basePrice: "4500", maxGuests: 5 },
+        ],
+    },
+    // Kuakata Hotels (3 new)
+    {
+        name: "Hotel Kuakata Inn",
+        description: "Excellent location near the beach. Comfortable stay for families and couples.",
+        address: "Parjatan Area, Kuakata",
+        city: "Kuakata",
+        latitude: "21.8214",
+        longitude: "90.1198",
+        amenities: ["WiFi", "AC", "Restaurant", "Parking"],
+        coverImage: "https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=800",
+        rating: "4.1",
+        reviewCount: 45,
+        status: "ACTIVE" as const,
+        rooms: [
+            { roomNumber: "KI1", name: "Standard Room", type: "SINGLE" as const, basePrice: "2000", maxGuests: 1 },
+            { roomNumber: "KI2", name: "Deluxe Room", type: "DOUBLE" as const, basePrice: "3500", maxGuests: 2 },
+            { roomNumber: "KI3", name: "Family Suite", type: "SUITE" as const, basePrice: "6000", maxGuests: 4 },
+        ],
+    },
+    {
+        name: "Sikder Resort & Villas",
+        description: "Luxury resort with villas and eco-park. A premium experience in Kuakata.",
+        address: "Kuakata, Patuakhali",
+        city: "Kuakata",
+        latitude: "21.8300",
+        longitude: "90.1300",
+        amenities: ["WiFi", "AC", "Pool", "Gym", "Restaurant", "Park"],
+        coverImage: "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800",
+        rating: "4.7",
+        reviewCount: 112,
+        status: "ACTIVE" as const,
+        rooms: [
+            { roomNumber: "SV1", name: "Deluxe Villa", type: "DOUBLE" as const, basePrice: "8000", maxGuests: 2 },
+            { roomNumber: "SV2", name: "Premium Villa", type: "SUITE" as const, basePrice: "15000", maxGuests: 4 },
+        ],
+    },
+    {
+        name: "Hotel Graver Inn",
+        description: "Modern hotel with good amenities. Close to the beach and local market.",
+        address: "Station Road, Kuakata",
+        city: "Kuakata",
+        latitude: "21.8250",
+        longitude: "90.1250",
+        amenities: ["WiFi", "AC", "Restaurant", "Room Service"],
+        coverImage: "https://images.unsplash.com/photo-1594563703937-fdc640497dcd?w=800",
+        rating: "4.0",
+        reviewCount: 67,
+        status: "ACTIVE" as const,
+        rooms: [
+            { roomNumber: "GI1", name: "Family Room", type: "DOUBLE" as const, basePrice: "3000", maxGuests: 3 },
+            { roomNumber: "GI2", name: "Double Room", type: "DOUBLE" as const, basePrice: "2500", maxGuests: 2 },
         ],
     },
 ];

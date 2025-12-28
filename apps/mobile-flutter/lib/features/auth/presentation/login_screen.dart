@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
+import '../../../l10n/generated/app_localizations.dart';
 import '../providers/auth_provider.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
@@ -34,7 +35,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     setState(() => _isGoogleLoading = false);
 
     if (success && mounted) {
-      _showSuccessSnackbar('সফলভাবে লগইন হয়েছে!');
+      _showSuccessSnackbar(AppLocalizations.of(context)!.loginSuccess);
       context.go('/home');
     }
   }
@@ -44,7 +45,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     final password = _passwordController.text;
 
     if (identifier.isEmpty || password.isEmpty) {
-      _showErrorSnackbar('ফোন নম্বর এবং পাসওয়ার্ড দিন');
+      _showErrorSnackbar(AppLocalizations.of(context)!.loginError);
       return;
     }
 
@@ -53,7 +54,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         .loginWithCredentials(identifier, password);
 
     if (success && mounted) {
-      _showSuccessSnackbar('সফলভাবে লগইন হয়েছে!');
+      _showSuccessSnackbar(AppLocalizations.of(context)!.loginSuccess);
       context.go('/home');
     }
   }
@@ -96,6 +97,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
     final authState = ref.watch(authProvider);
     final isLoading = authState.isLoading || _isGoogleLoading;
 
@@ -123,10 +125,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Header
-              Text('স্বাগতম!', style: AppTypography.h1),
+              Text(loc.loginWelcome, style: AppTypography.h1),
               const SizedBox(height: 8),
               Text(
-                'লগইন করুন আপনার অ্যাকাউন্টে',
+                loc.loginSubtitle,
                 style: AppTypography.bodyMedium.copyWith(
                   color: AppColors.textSecondary,
                 ),
@@ -146,7 +148,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   const Expanded(child: Divider()),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Text('অথবা', style: AppTypography.bodySmall),
+                    child: Text(loc.orDivider, style: AppTypography.bodySmall),
                   ),
                   const Expanded(child: Divider()),
                 ],
@@ -158,10 +160,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 controller: _phoneController,
                 keyboardType: TextInputType.phone,
                 enabled: !isLoading,
-                decoration: const InputDecoration(
-                  labelText: 'ফোন নম্বর / ইমেইল',
+                decoration: InputDecoration(
+                  labelText: loc.phoneInputLabel,
                   hintText: '01XXXXXXXXX',
-                  prefixIcon: Icon(Icons.phone_outlined),
+                  prefixIcon: const Icon(Icons.phone_outlined),
                 ),
               ),
               const SizedBox(height: 16),
@@ -172,7 +174,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 obscureText: !_isPasswordVisible,
                 enabled: !isLoading,
                 decoration: InputDecoration(
-                  labelText: 'পাসওয়ার্ড',
+                  labelText: loc.passwordInputLabel,
                   prefixIcon: const Icon(Icons.lock_outline),
                   suffixIcon: IconButton(
                     icon: Icon(
@@ -213,7 +215,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 child: TextButton(
                   onPressed: isLoading ? null : () {},
                   child: Text(
-                    'পাসওয়ার্ড ভুলে গেছেন?',
+                    loc.forgotPassword,
                     style: AppTypography.labelMedium.copyWith(
                       color: AppColors.primary,
                     ),
@@ -227,11 +229,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text('অ্যাকাউন্ট নেই? ', style: AppTypography.bodyMedium),
+                  Text(loc.noAccount, style: AppTypography.bodyMedium),
                   TextButton(
                     onPressed: isLoading ? null : () {},
                     child: Text(
-                      'রেজিস্টার করুন',
+                      loc.registerLink,
                       style: AppTypography.labelLarge.copyWith(
                         color: AppColors.primary,
                       ),
@@ -291,7 +293,7 @@ class _GoogleSignInButton extends StatelessWidget {
                 ),
                 const SizedBox(width: 12),
                 Text(
-                  'Google দিয়ে লগইন করুন',
+                  AppLocalizations.of(context)!.googleLogin,
                   style: AppTypography.button.copyWith(
                     color: AppColors.textPrimary,
                   ),

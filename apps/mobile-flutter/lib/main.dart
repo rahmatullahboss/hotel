@@ -68,6 +68,9 @@ class _ZinuRoomsAppState extends ConsumerState<ZinuRoomsApp> {
     final router = ref.watch(routerProvider);
     final themeState = ref.watch(themeProvider);
     final localeState = ref.watch(localeProvider);
+    debugPrint(
+      'Main: Building app with locale: ${localeState.locale.languageCode}',
+    );
 
     return MaterialApp.router(
       title: 'Zinu Rooms',

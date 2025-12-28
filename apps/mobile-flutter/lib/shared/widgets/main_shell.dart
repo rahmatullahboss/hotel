@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/router/app_router.dart';
+import '../../l10n/generated/app_localizations.dart';
 
 class MainShell extends StatelessWidget {
   final Widget child;
@@ -11,10 +12,7 @@ class MainShell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: child,
-      bottomNavigationBar: const _BottomNavBar(),
-    );
+    return Scaffold(body: child, bottomNavigationBar: const _BottomNavBar());
   }
 }
 
@@ -71,28 +69,28 @@ class _BottomNavBar extends StatelessWidget {
               _NavItem(
                 icon: Icons.home_outlined,
                 selectedIcon: Icons.home,
-                label: 'হোম',
+                label: AppLocalizations.of(context)!.navHome,
                 isSelected: selectedIndex == 0,
                 onTap: () => _onItemTapped(context, 0),
               ),
               _NavItem(
                 icon: Icons.search_outlined,
                 selectedIcon: Icons.search,
-                label: 'সার্চ',
+                label: AppLocalizations.of(context)!.navSearch,
                 isSelected: selectedIndex == 1,
                 onTap: () => _onItemTapped(context, 1),
               ),
               _NavItem(
                 icon: Icons.calendar_today_outlined,
                 selectedIcon: Icons.calendar_today,
-                label: 'বুকিং',
+                label: AppLocalizations.of(context)!.navBookings,
                 isSelected: selectedIndex == 2,
                 onTap: () => _onItemTapped(context, 2),
               ),
               _NavItem(
                 icon: Icons.person_outline,
                 selectedIcon: Icons.person,
-                label: 'প্রোফাইল',
+                label: AppLocalizations.of(context)!.navProfile,
                 isSelected: selectedIndex == 3,
                 onTap: () => _onItemTapped(context, 3),
               ),

@@ -239,7 +239,7 @@ class _ReferralScreenState extends ConsumerState<ReferralScreen> {
                           shrinkWrap: true,
                           physics: const NeverScrollableScrollPhysics(),
                           itemCount: referralState.history.length,
-                          separatorBuilder: (_, __) =>
+                          separatorBuilder: (context, index) =>
                               Divider(height: 1, color: AppColors.divider),
                           itemBuilder: (context, index) {
                             final item = referralState.history[index];

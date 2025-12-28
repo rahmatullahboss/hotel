@@ -10,6 +10,8 @@ import '../../../core/theme/app_typography.dart';
 import '../../home/providers/hotel_provider.dart';
 import '../providers/room_provider.dart';
 
+import '../../../l10n/generated/app_localizations.dart';
+
 // Dummy hotel data
 const dummyHotelData = {
   'id': '1',
@@ -90,10 +92,13 @@ class _HotelDetailsScreenState extends ConsumerState<HotelDetailsScreen> {
   }
 
   void _handleShare() {
+    final loc = AppLocalizations.of(context)!;
     SharePlus.instance.share(
       ShareParams(
-        text:
-            'Check out this hotel: ${dummyHotelData['name']} - https://zinurooms.com/hotel/${widget.hotelId}',
+        text: loc.shareHotelText(
+          dummyHotelData['name'] as String,
+          'https://zinurooms.com/hotel/${widget.hotelId}',
+        ),
       ),
     );
   }
@@ -251,13 +256,13 @@ class _HotelDetailsScreenState extends ConsumerState<HotelDetailsScreen> {
             const Icon(Icons.error_outline, size: 64, color: AppColors.error),
             const SizedBox(height: 16),
             Text(
-              'হোটেল লোড করতে সমস্যা হয়েছে',
+              AppLocalizations.of(context)!.errorLoadingHotel,
               style: AppTypography.bodyMedium,
             ),
             const SizedBox(height: 16),
             ElevatedButton(
               onPressed: () => ref.refresh(hotelProvider(widget.hotelId)),
-              child: const Text('পুনরায় চেষ্টা করুন'),
+              child: Text(AppLocalizations.of(context)!.retry),
             ),
           ],
         ),
@@ -391,7 +396,7 @@ class _HotelDetailsScreenState extends ConsumerState<HotelDetailsScreen> {
                                 ),
                               ),
                               Text(
-                                '/রাত',
+                                '/${AppLocalizations.of(context)!.night}',
                                 style: AppTypography.labelSmall.copyWith(
                                   color: Colors.white.withValues(alpha: 0.7),
                                 ),
@@ -480,7 +485,7 @@ class _HotelDetailsScreenState extends ConsumerState<HotelDetailsScreen> {
                       Padding(
                         padding: const EdgeInsets.only(top: 8),
                         child: Text(
-                          '$hotelReviewCount reviews',
+                          '$hotelReviewCount ${AppLocalizations.of(context)!.reviews}',
                           style: AppTypography.bodySmall.copyWith(
                             color: AppColors.textTertiary,
                           ),
@@ -489,7 +494,10 @@ class _HotelDetailsScreenState extends ConsumerState<HotelDetailsScreen> {
                       const SizedBox(height: 24),
 
                       // Amenities
-                      Text('সুবিধাসমূহ', style: AppTypography.h4),
+                      Text(
+                        AppLocalizations.of(context)!.detailsAmenities,
+                        style: AppTypography.h4,
+                      ),
                       const SizedBox(height: 16),
                       SizedBox(
                         height: 80,
@@ -509,7 +517,10 @@ class _HotelDetailsScreenState extends ConsumerState<HotelDetailsScreen> {
                       const SizedBox(height: 24),
 
                       // Description
-                      Text('বিবরণ', style: AppTypography.h4),
+                      Text(
+                        AppLocalizations.of(context)!.detailsDescription,
+                        style: AppTypography.h4,
+                      ),
                       const SizedBox(height: 12),
                       Text(
                         dummyHotelData['description'] as String? ??
@@ -525,9 +536,14 @@ class _HotelDetailsScreenState extends ConsumerState<HotelDetailsScreen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text('উপলব্ধ রুম', style: AppTypography.h4),
                           Text(
-                            '${apiRooms.length} রুম',
+                            AppLocalizations.of(context)!.detailsRooms,
+                            style: AppTypography.h4,
+                          ),
+                          Text(
+                            AppLocalizations.of(
+                              context,
+                            )!.roomsCount(apiRooms.length),
                             style: AppTypography.labelMedium.copyWith(
                               color: AppColors.textSecondary,
                             ),
@@ -556,7 +572,7 @@ class _HotelDetailsScreenState extends ConsumerState<HotelDetailsScreen> {
                               ),
                               const SizedBox(height: 8),
                               Text(
-                                'রুম লোড করতে সমস্যা হয়েছে',
+                                AppLocalizations.of(context)!.errorLoadingRooms,
                                 style: AppTypography.bodyMedium.copyWith(
                                   color: AppColors.textSecondary,
                                 ),
@@ -568,7 +584,7 @@ class _HotelDetailsScreenState extends ConsumerState<HotelDetailsScreen> {
                         Padding(
                           padding: const EdgeInsets.all(20),
                           child: Text(
-                            'কোনো রুম পাওয়া যায়নি',
+                            AppLocalizations.of(context)!.noRoomsFound,
                             style: AppTypography.bodyMedium.copyWith(
                               color: AppColors.textSecondary,
                             ),
@@ -664,9 +680,11 @@ class _HotelDetailsScreenState extends ConsumerState<HotelDetailsScreen> {
                       onTap: () {
                         // Scroll up to show rooms - user should select a specific room
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('উপরে স্ক্রল করে রুম নির্বাচন করুন'),
-                            duration: Duration(seconds: 2),
+                          SnackBar(
+                            content: Text(
+                              AppLocalizations.of(context)!.selectRoomSnackbar,
+                            ),
+                            duration: const Duration(seconds: 2),
                           ),
                         );
                       },
@@ -679,7 +697,7 @@ class _HotelDetailsScreenState extends ConsumerState<HotelDetailsScreen> {
                         ),
                         child: Center(
                           child: Text(
-                            'বুকিং করুন',
+                            AppLocalizations.of(context)!.bookNow,
                             style: AppTypography.button,
                           ),
                         ),
@@ -718,7 +736,7 @@ class _HotelDetailsScreenState extends ConsumerState<HotelDetailsScreen> {
 
                 // Title
                 Text(
-                  'হোটেল বিস্তারিত',
+                  AppLocalizations.of(context)!.hotelDetailsTitle,
                   style: AppTypography.labelLarge.copyWith(
                     color: Colors.white,
                     fontWeight: FontWeight.w600,

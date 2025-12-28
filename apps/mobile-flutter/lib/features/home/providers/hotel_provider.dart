@@ -41,6 +41,9 @@ class Hotel {
   final List<String> amenities;
   final bool isFeatured;
   final String? description;
+  final double latitude;
+  final double longitude;
+  final double? distanceFromUser;
 
   Hotel({
     required this.id,
@@ -55,7 +58,46 @@ class Hotel {
     required this.amenities,
     this.isFeatured = false,
     this.description,
+    this.latitude = 0.0,
+    this.longitude = 0.0,
+    this.distanceFromUser,
   });
+
+  Hotel copyWith({
+    String? id,
+    String? name,
+    String? city,
+    String? address,
+    String? imageUrl,
+    List<String>? images,
+    double? rating,
+    int? reviewCount,
+    int? pricePerNight,
+    List<String>? amenities,
+    bool? isFeatured,
+    String? description,
+    double? latitude,
+    double? longitude,
+    double? distanceFromUser,
+  }) {
+    return Hotel(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      city: city ?? this.city,
+      address: address ?? this.address,
+      imageUrl: imageUrl ?? this.imageUrl,
+      images: images ?? this.images,
+      rating: rating ?? this.rating,
+      reviewCount: reviewCount ?? this.reviewCount,
+      pricePerNight: pricePerNight ?? this.pricePerNight,
+      amenities: amenities ?? this.amenities,
+      isFeatured: isFeatured ?? this.isFeatured,
+      description: description ?? this.description,
+      latitude: latitude ?? this.latitude,
+      longitude: longitude ?? this.longitude,
+      distanceFromUser: distanceFromUser ?? this.distanceFromUser,
+    );
+  }
 
   factory Hotel.fromJson(Map<String, dynamic> json) {
     List<String> imagesList = [];
@@ -107,6 +149,9 @@ class Hotel {
           [],
       isFeatured: json['isFeatured'] as bool? ?? false,
       description: json['description'] as String?,
+      latitude: parseDouble(json['latitude']),
+      longitude: parseDouble(json['longitude']),
+      distanceFromUser: parseDouble(json['distance']),
     );
   }
 }
@@ -289,33 +334,29 @@ final searchHotelsProvider = FutureProvider.family<List<Hotel>, String>((
         final userLat = double.tryParse(coords[0]) ?? 0;
         final userLng = double.tryParse(coords[1]) ?? 0;
 
-        hotels.sort((a, b) {
-          final cityDistances = {
-            "Cox's Bazar": _calculateDistance(
-              userLat,
-              userLng,
-              21.4272,
-              92.0058,
-            ),
-            'Dhaka': _calculateDistance(userLat, userLng, 23.8103, 90.4125),
-            'Chittagong': _calculateDistance(
-              userLat,
-              userLng,
-              22.3569,
-              91.7832,
-            ),
-            'Sylhet': _calculateDistance(userLat, userLng, 24.8949, 91.8687),
-            'Rajshahi': _calculateDistance(userLat, userLng, 24.3745, 88.6042),
-            'Khulna': _calculateDistance(userLat, userLng, 22.8456, 89.5403),
-            'Barguna': _calculateDistance(userLat, userLng, 22.1509, 90.1266),
-          };
+        // Calculate distance for all hotels and update their distanceFromUser property
+        final hotelsWithDistance = hotels.map((hotel) {
+          final distance = _calculateDistance(
+            userLat,
+            userLng,
+            hotel.latitude != 0.0
+                ? hotel.latitude
+                : 23.8103, // Default to Dhaka if missing
+            hotel.longitude != 0.0 ? hotel.longitude : 90.4125,
+          );
+          return hotel.copyWith(distanceFromUser: distance);
+        }).toList();
 
-          final distA = cityDistances[a.city] ?? 9999.0;
-          final distB = cityDistances[b.city] ?? 9999.0;
-          return distA.compareTo(distB);
+        // Sort by distance
+        hotelsWithDistance.sort((a, b) {
+          return (a.distanceFromUser ?? 99999).compareTo(
+            b.distanceFromUser ?? 99999,
+          );
         });
 
-        return hotels.take(10).toList();
+        // Filter out hotels that are too far away (e.g., > 50km) if desired,
+        // or just return the closest ones. Here we return top 20 closest.
+        return hotelsWithDistance.take(20).toList();
       }
     } else if (isBudgetFilter) {
       hotels = hotels.where((h) => h.pricePerNight <= 3000).toList();

@@ -6,6 +6,8 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../bookings/providers/booking_provider.dart';
 import '../../hotel/providers/room_provider.dart';
+import '../../../l10n/generated/app_localizations.dart';
+import '../../auth/providers/auth_provider.dart';
 
 class BookingFlowScreen extends ConsumerStatefulWidget {
   final String roomId;
@@ -41,6 +43,19 @@ class _BookingFlowScreenState extends ConsumerState<BookingFlowScreen> {
     super.initState();
     _checkIn = DateTime.now().add(const Duration(days: 1));
     _checkOut = DateTime.now().add(const Duration(days: 2));
+
+    // Pre-fill user info
+    // Using Future.microtask to access ref safely
+    Future.microtask(() {
+      final user = ref.read(authProvider).user;
+      if (user != null) {
+        setState(() {
+          _guestNameController.text = user.name;
+          if (user.phone != null) _guestPhoneController.text = user.phone!;
+          _guestEmailController.text = user.email;
+        });
+      }
+    });
   }
 
   @override
@@ -100,10 +115,13 @@ class _BookingFlowScreenState extends ConsumerState<BookingFlowScreen> {
       }
     });
 
+    // Localizations
+    final loc = AppLocalizations.of(context)!;
+
     return Scaffold(
       backgroundColor: AppColors.adaptiveBackground(context),
       appBar: AppBar(
-        title: Text('বুকিং', style: AppTypography.h4),
+        title: Text(loc.bookings, style: AppTypography.h4),
         backgroundColor: Colors.transparent,
         elevation: 0,
       ),
@@ -130,7 +148,7 @@ class _BookingFlowScreenState extends ConsumerState<BookingFlowScreen> {
                         padding: const EdgeInsets.symmetric(vertical: 14),
                       ),
                       child: Text(
-                        _currentStep == 2 ? 'বুকিং নিশ্চিত করুন' : 'পরবর্তী',
+                        _currentStep == 2 ? loc.bookNow : loc.next,
                         style: const TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.w600,
@@ -142,7 +160,7 @@ class _BookingFlowScreenState extends ConsumerState<BookingFlowScreen> {
                     const SizedBox(width: 12),
                     OutlinedButton(
                       onPressed: details.onStepCancel,
-                      child: const Text('পূর্ববর্তী'),
+                      child: Text(loc.previous),
                     ),
                   ],
                 ],
@@ -151,7 +169,7 @@ class _BookingFlowScreenState extends ConsumerState<BookingFlowScreen> {
           },
           steps: [
             Step(
-              title: Text('তারিখ নির্বাচন', style: AppTypography.labelLarge),
+              title: Text(loc.stepDate, style: AppTypography.labelLarge),
               subtitle: Text(
                 _checkIn != null && _checkOut != null
                     ? '${_formatDate(_checkIn!)} - ${_formatDate(_checkOut!)} ($_nights রাত)'
@@ -163,11 +181,11 @@ class _BookingFlowScreenState extends ConsumerState<BookingFlowScreen> {
               content: _buildDateStep(),
             ),
             Step(
-              title: Text('অতিথি তথ্য', style: AppTypography.labelLarge),
+              title: Text(loc.stepGuest, style: AppTypography.labelLarge),
               subtitle: Text(
                 _guestNameController.text.isNotEmpty
                     ? _guestNameController.text
-                    : '$_guests জন অতিথি',
+                    : '$_guests ${loc.guests}',
                 style: AppTypography.bodySmall,
               ),
               isActive: _currentStep >= 1,
@@ -175,9 +193,9 @@ class _BookingFlowScreenState extends ConsumerState<BookingFlowScreen> {
               content: _buildGuestStep(),
             ),
             Step(
-              title: Text('পেমেন্ট', style: AppTypography.labelLarge),
+              title: Text(loc.stepPayment, style: AppTypography.labelLarge),
               subtitle: Text(
-                '৳${_formatPrice(_grandTotal)} - $_paymentMethodLabel',
+                '৳${_formatPrice(_grandTotal)} - ${_getPaymentMethodLabel(context)}',
                 style: AppTypography.bodySmall,
               ),
               isActive: _currentStep >= 2,
@@ -194,14 +212,18 @@ class _BookingFlowScreenState extends ConsumerState<BookingFlowScreen> {
     if (_currentStep == 0) {
       // Validate dates
       if (_checkIn == null || _checkOut == null) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('তারিখ নির্বাচন করুন')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.selectDateMessage),
+          ),
+        );
         return;
       }
       if (!_checkOut!.isAfter(_checkIn!)) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('চেক-আউট তারিখ চেক-ইনের পরে হতে হবে')),
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.checkoutDateMessage),
+          ),
         );
         return;
       }
@@ -209,15 +231,19 @@ class _BookingFlowScreenState extends ConsumerState<BookingFlowScreen> {
     } else if (_currentStep == 1) {
       // Validate guest details
       if (_guestNameController.text.isEmpty) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('অতিথির নাম লিখুন')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.enterGuestNameMessage),
+          ),
+        ); // Fallback or add key
         return;
       }
       if (_guestPhoneController.text.isEmpty) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('ফোন নম্বর লিখুন')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.enterPhoneMessage),
+          ),
+        );
         return;
       }
       setState(() => _currentStep++);
@@ -227,10 +253,11 @@ class _BookingFlowScreenState extends ConsumerState<BookingFlowScreen> {
   }
 
   Widget _buildDateStep() {
+    final loc = AppLocalizations.of(context)!;
     return Column(
       children: [
         _DateSelector(
-          label: 'চেক-ইন',
+          label: loc.checkIn,
           date: _checkIn,
           onSelect: (date) {
             setState(() {
@@ -244,7 +271,7 @@ class _BookingFlowScreenState extends ConsumerState<BookingFlowScreen> {
         ),
         const SizedBox(height: 16),
         _DateSelector(
-          label: 'চেক-আউট',
+          label: loc.checkOut,
           date: _checkOut,
           firstDate: _checkIn?.add(const Duration(days: 1)),
           onSelect: (date) => setState(() => _checkOut = date),
@@ -265,7 +292,7 @@ class _BookingFlowScreenState extends ConsumerState<BookingFlowScreen> {
                   child: Text(_roomName, style: AppTypography.labelMedium),
                 ),
                 Text(
-                  '৳${_formatPrice(_roomPrice)}/রাত',
+                  '৳${_formatPrice(_roomPrice)}/${loc.night}',
                   style: AppTypography.priceSmall,
                 ),
               ],
@@ -276,13 +303,14 @@ class _BookingFlowScreenState extends ConsumerState<BookingFlowScreen> {
   }
 
   Widget _buildGuestStep() {
+    final loc = AppLocalizations.of(context)!;
     return Column(
       children: [
         // Guest Name
         _InputField(
           controller: _guestNameController,
-          label: 'অতিথির নাম *',
-          hint: 'পুরো নাম লিখুন',
+          label: '${loc.guestNameLabel} *',
+          hint: loc.guestNameHint,
           icon: Icons.person_outline,
         ),
         const SizedBox(height: 16),
@@ -290,8 +318,8 @@ class _BookingFlowScreenState extends ConsumerState<BookingFlowScreen> {
         // Phone Number
         _InputField(
           controller: _guestPhoneController,
-          label: 'ফোন নম্বর *',
-          hint: '01XXXXXXXXX',
+          label: '${loc.guestPhoneLabel} *',
+          hint: loc.guestPhoneHint,
           icon: Icons.phone_outlined,
           keyboardType: TextInputType.phone,
         ),
@@ -300,8 +328,8 @@ class _BookingFlowScreenState extends ConsumerState<BookingFlowScreen> {
         // Email (optional)
         _InputField(
           controller: _guestEmailController,
-          label: 'ইমেইল (ঐচ্ছিক)',
-          hint: 'example@email.com',
+          label: loc.guestEmailLabel,
+          hint: loc.guestEmailHint,
           icon: Icons.email_outlined,
           keyboardType: TextInputType.emailAddress,
         ),
@@ -322,8 +350,8 @@ class _BookingFlowScreenState extends ConsumerState<BookingFlowScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('অতিথি সংখ্যা', style: AppTypography.labelMedium),
-                    Text('সর্বোচ্চ ৪ জন', style: AppTypography.bodySmall),
+                    Text(loc.guestCountLabel, style: AppTypography.labelMedium),
+                    Text(loc.maxGuestsLabel, style: AppTypography.bodySmall),
                   ],
                 ),
               ),
@@ -354,6 +382,7 @@ class _BookingFlowScreenState extends ConsumerState<BookingFlowScreen> {
   }
 
   Widget _buildPaymentStep() {
+    final loc = AppLocalizations.of(context)!;
     return Column(
       children: [
         // Price Summary
@@ -366,16 +395,16 @@ class _BookingFlowScreenState extends ConsumerState<BookingFlowScreen> {
           child: Column(
             children: [
               _PriceRow(
-                label: 'রুম ভাড়া ($_nights রাত)',
+                label: '${loc.roomRent} ($_nights ${loc.night})',
                 value: '৳${_formatPrice(_roomTotal)}',
               ),
               _PriceRow(
-                label: 'ট্যাক্স (১০%)',
+                label: '${loc.tax} (10%)',
                 value: '৳${_formatPrice(_tax)}',
               ),
               const Divider(),
               _PriceRow(
-                label: 'মোট',
+                label: loc.total,
                 value: '৳${_formatPrice(_grandTotal)}',
                 isTotal: true,
               ),
@@ -397,7 +426,7 @@ class _BookingFlowScreenState extends ConsumerState<BookingFlowScreen> {
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
-                          'এখন শুধু ২০% অগ্রিম: ৳${_formatPrice(_bookingFee)}',
+                          loc.advancePaymentMessage(_formatPrice(_bookingFee)),
                           style: AppTypography.bodySmall.copyWith(
                             color: AppColors.success,
                           ),
@@ -416,32 +445,32 @@ class _BookingFlowScreenState extends ConsumerState<BookingFlowScreen> {
         _PaymentOption(
           value: 'PAY_AT_HOTEL',
           groupValue: _paymentMethod,
-          title: 'হোটেলে পেমেন্ট',
-          subtitle: 'শুধু ২০% অগ্রিম, বাকি হোটেলে',
+          title: loc.payAtHotel,
+          subtitle: loc.payAtHotelSubtitle,
           icon: Icons.hotel,
           onChanged: (v) => setState(() => _paymentMethod = v!),
         ),
         _PaymentOption(
           value: 'BKASH',
           groupValue: _paymentMethod,
-          title: 'বিকাশ',
-          subtitle: 'সম্পূর্ণ পেমেন্ট এখনই',
+          title: loc.bkash,
+          subtitle: loc.bkashSubtitle,
           icon: Icons.phone_android,
           onChanged: (v) => setState(() => _paymentMethod = v!),
         ),
         _PaymentOption(
           value: 'NAGAD',
           groupValue: _paymentMethod,
-          title: 'নগদ',
-          subtitle: 'সম্পূর্ণ পেমেন্ট এখনই',
+          title: loc.nagad,
+          subtitle: loc.nagadSubtitle,
           icon: Icons.phone_android,
           onChanged: (v) => setState(() => _paymentMethod = v!),
         ),
         _PaymentOption(
           value: 'CARD',
           groupValue: _paymentMethod,
-          title: 'কার্ড',
-          subtitle: 'ক্রেডিট/ডেবিট কার্ড',
+          title: loc.card,
+          subtitle: loc.cardSubtitle,
           icon: Icons.credit_card,
           onChanged: (v) => setState(() => _paymentMethod = v!),
         ),
@@ -449,16 +478,17 @@ class _BookingFlowScreenState extends ConsumerState<BookingFlowScreen> {
     );
   }
 
-  String get _paymentMethodLabel {
+  String _getPaymentMethodLabel(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
     switch (_paymentMethod) {
       case 'BKASH':
-        return 'বিকাশ';
+        return loc.bkash;
       case 'NAGAD':
-        return 'নগদ';
+        return loc.nagad;
       case 'CARD':
-        return 'কার্ড';
+        return loc.card;
       case 'PAY_AT_HOTEL':
-        return 'হোটেলে পেমেন্ট';
+        return loc.payAtHotel;
       default:
         return '';
     }
@@ -469,6 +499,7 @@ class _BookingFlowScreenState extends ConsumerState<BookingFlowScreen> {
   }
 
   void _completeBooking() async {
+    final loc = AppLocalizations.of(context)!;
     // Show loading
     showDialog(
       context: context,
@@ -506,7 +537,7 @@ class _BookingFlowScreenState extends ConsumerState<BookingFlowScreen> {
               children: [
                 const Icon(Icons.check_circle, color: AppColors.success),
                 const SizedBox(width: 8),
-                Text('বুকিং সম্পন্ন!', style: AppTypography.h3),
+                Text(loc.bookingSuccessTitle, style: AppTypography.h3),
               ],
             ),
             content: Column(
@@ -514,7 +545,7 @@ class _BookingFlowScreenState extends ConsumerState<BookingFlowScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'আপনার বুকিং সফলভাবে সম্পন্ন হয়েছে।',
+                  loc.bookingSuccessMessage,
                   style: AppTypography.bodyMedium,
                 ),
                 const SizedBox(height: 16),
@@ -550,7 +581,7 @@ class _BookingFlowScreenState extends ConsumerState<BookingFlowScreen> {
                   Navigator.of(context).pop();
                   context.go('/bookings');
                 },
-                child: const Text('আমার বুকিং দেখুন'),
+                child: Text(loc.viewMyBookings),
               ),
             ],
           ),
@@ -560,8 +591,8 @@ class _BookingFlowScreenState extends ConsumerState<BookingFlowScreen> {
       // Show error
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('বুকিং করতে সমস্যা হয়েছে। পুনরায় চেষ্টা করুন।'),
+          SnackBar(
+            content: Text(loc.bookingError),
             backgroundColor: AppColors.error,
           ),
         );
@@ -674,7 +705,7 @@ class _DateSelector extends StatelessWidget {
                 Text(
                   date != null
                       ? '${date!.day}/${date!.month}/${date!.year}'
-                      : 'তারিখ নির্বাচন করুন',
+                      : AppLocalizations.of(context)!.selectDateMessage,
                   style: AppTypography.bodyMedium,
                 ),
               ],

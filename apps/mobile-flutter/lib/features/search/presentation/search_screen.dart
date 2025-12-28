@@ -11,6 +11,8 @@ import '../../../shared/widgets/search_bar_widget.dart';
 import '../../../shared/widgets/quick_filter_button.dart';
 import '../../../shared/widgets/hotel_card.dart';
 import '../../home/providers/hotel_provider.dart';
+import '../../home/providers/saved_hotels_provider.dart';
+import '../../../l10n/generated/app_localizations.dart';
 
 // City images
 const Map<String, String> cityImages = {
@@ -27,7 +29,8 @@ const Map<String, String> cityImages = {
 };
 
 // Quick filter options
-const List<Map<String, dynamic>> quickFilters = [
+final List<Map<String, dynamic>> quickFilters = [
+  {'id': 'saved', 'emoji': '❤️', 'label': 'Saved', 'color': AppColors.primary},
   {
     'id': 'nearby',
     'emoji': '📍',
@@ -113,7 +116,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
   final _focusNode = FocusNode();
   String? activeFilter;
   String? selectedCity;
-  Set<String> savedHotels = {};
+  // Set<String> savedHotels = {}; // Managed by provider
   bool _showSuggestions = false;
   String _typingQuery = '';
 
@@ -176,6 +179,10 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
       case 'couple':
         // Couple friendly hotels
         ref.read(searchQueryProvider.notifier).update('Couple Friendly');
+        break;
+      case 'saved':
+        ref.read(searchQueryProvider.notifier).clear();
+        _searchController.clear();
         break;
     }
   }
@@ -333,13 +340,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
   }
 
   void _handleSaveToggle(String hotelId) {
-    setState(() {
-      if (savedHotels.contains(hotelId)) {
-        savedHotels.remove(hotelId);
-      } else {
-        savedHotels.add(hotelId);
-      }
-    });
+    ref.read(savedHotelsProvider.notifier).toggleSaved(hotelId);
   }
 
   @override
@@ -348,7 +349,8 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
     final screenWidth = MediaQuery.of(context).size.width;
     final gridItemWidth = (screenWidth - 52) / 2;
     final searchQuery = ref.watch(searchQueryProvider);
-    final isSearching = searchQuery.isNotEmpty;
+    final savedHotels = ref.watch(savedHotelsProvider);
+    final isSearching = searchQuery.isNotEmpty || activeFilter == 'saved';
 
     return Scaffold(
       backgroundColor: AppColors.adaptiveBackground(context),
@@ -374,7 +376,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'সার্চ করুন',
+                    AppLocalizations.of(context)!.searchHeaderTitle,
                     style: AppTypography.h2.copyWith(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
@@ -382,7 +384,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'আপনার পছন্দের হোটেল খুঁজুন',
+                    AppLocalizations.of(context)!.searchHeaderSubtitle,
                     style: AppTypography.bodyMedium.copyWith(
                       color: Colors.white.withValues(alpha: 0.8),
                     ),
@@ -391,7 +393,9 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
 
                   // Search Bar
                   SearchBarWidget(
-                    placeholder: 'হোটেল বা শহর খুঁজুন...',
+                    placeholder: AppLocalizations.of(
+                      context,
+                    )!.searchPlaceholder,
                     controller: _searchController,
                     focusNode: _focusNode,
                     onChanged: _handleSearch,
@@ -454,7 +458,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                                     ),
                                     const SizedBox(width: 4),
                                     Text(
-                                      'মুছুন',
+                                      AppLocalizations.of(context)!.searchClear,
                                       style: AppTypography.labelLarge.copyWith(
                                         color: AppColors.textSecondary,
                                         fontWeight: FontWeight.w600,
@@ -507,7 +511,9 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                                   Text(
                                     _locationError != null
                                         ? _locationError!
-                                        : 'লোকেশন পাওয়া গেছে',
+                                        : AppLocalizations.of(
+                                            context,
+                                          )!.searchLocationFound,
                                     style: AppTypography.labelMedium.copyWith(
                                       color: _locationError != null
                                           ? AppColors.error
@@ -536,7 +542,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                                   minimumSize: Size.zero,
                                 ),
                                 child: Text(
-                                  'আবার চেষ্টা',
+                                  AppLocalizations.of(context)!.searchTryAgain,
                                   style: AppTypography.labelSmall.copyWith(
                                     color: AppColors.primary,
                                     fontWeight: FontWeight.w600,
@@ -571,7 +577,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                             Padding(
                               padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
                               child: Text(
-                                'সাজেশন',
+                                AppLocalizations.of(context)!.searchSuggestions,
                                 style: AppTypography.labelMedium.copyWith(
                                   color: AppColors.textTertiary,
                                   fontWeight: FontWeight.w600,
@@ -631,7 +637,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                                     const SizedBox(width: 12),
                                     Expanded(
                                       child: Text(
-                                        '"$_typingQuery" সার্চ করুন',
+                                        '"$_typingQuery" ${AppLocalizations.of(context)!.navSearch}',
                                         style: AppTypography.bodyMedium
                                             .copyWith(
                                               color: AppColors.primary,
@@ -656,7 +662,10 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                     // Popular Cities Grid
                     Padding(
                       padding: const EdgeInsets.fromLTRB(20, 24, 20, 12),
-                      child: Text('জনপ্রিয় গন্তব্য', style: AppTypography.h4),
+                      child: Text(
+                        AppLocalizations.of(context)!.searchPopularDestinations,
+                        style: AppTypography.h4,
+                      ),
                     ),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -676,9 +685,14 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                             name: city['name'] as String,
                             imageUrl: cityImages[city['name']],
                             hotelCount: city['hotels'] as int,
-                            onTap: () => context.push(
-                              '/search-results?city=${city['name']}',
-                            ),
+                            onTap: () {
+                              final cityName = city['name'] as String;
+                              _searchController.text = cityName;
+                              ref
+                                  .read(searchQueryProvider.notifier)
+                                  .update(cityName);
+                              _focusNode.unfocus();
+                            },
                           );
                         },
                       ),
@@ -698,7 +712,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                           ),
                           child: Center(
                             child: Text(
-                              'সব হোটেল দেখুন →',
+                              '${AppLocalizations.of(context)!.searchAllHotels} →',
                               style: AppTypography.labelLarge.copyWith(
                                 color: AppColors.primary,
                                 fontWeight: FontWeight.w600,
@@ -715,7 +729,10 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('সার্চ টিপস', style: AppTypography.h4),
+                          Text(
+                            AppLocalizations.of(context)!.searchTipsTitle,
+                            style: AppTypography.h4,
+                          ),
                           const SizedBox(height: 12),
                           Container(
                             padding: const EdgeInsets.all(16),
@@ -727,13 +744,16 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                               children: [
                                 _TipItem(
                                   icon: Icons.lightbulb_outline,
-                                  text: '"Near Me" দিয়ে কাছের হোটেল খুঁজুন',
+                                  text: AppLocalizations.of(
+                                    context,
+                                  )!.searchTipNearMe,
                                 ),
                                 const SizedBox(height: 12),
                                 _TipItem(
                                   icon: Icons.filter_list,
-                                  text:
-                                      'Budget (≤৳3,000) বা Premium (≥৳8,000) দিয়ে ফিল্টার করুন',
+                                  text: AppLocalizations.of(
+                                    context,
+                                  )!.searchTipBudget,
                                 ),
                               ],
                             ),
@@ -745,6 +765,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                     // Search Results
                     _SearchResults(
                       query: searchQuery,
+                      activeFilter: activeFilter,
                       savedHotels: savedHotels,
                       onSaveToggle: _handleSaveToggle,
                     ),
@@ -764,18 +785,25 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
 // Search results widget with API integration
 class _SearchResults extends ConsumerWidget {
   final String query;
+  final String? activeFilter;
   final Set<String> savedHotels;
   final Function(String) onSaveToggle;
 
   const _SearchResults({
     required this.query,
+    this.activeFilter,
     required this.savedHotels,
     required this.onSaveToggle,
   });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final searchResults = ref.watch(searchHotelsProvider(query));
+    final AsyncValue<List<Hotel>> searchResults;
+    if (activeFilter == 'saved') {
+      searchResults = ref.watch(savedHotelsListProvider);
+    } else {
+      searchResults = ref.watch(searchHotelsProvider(query));
+    }
 
     return searchResults.when(
       loading: () => Padding(
@@ -791,7 +819,7 @@ class _SearchResults extends ConsumerWidget {
             const Icon(Icons.error_outline, size: 48, color: AppColors.error),
             const SizedBox(height: 12),
             Text(
-              'সার্চ করতে সমস্যা হয়েছে',
+              AppLocalizations.of(context)!.searchResultsError,
               style: AppTypography.bodyMedium.copyWith(
                 color: AppColors.textSecondary,
               ),
@@ -855,6 +883,7 @@ class _SearchResults extends ConsumerWidget {
                   reviewCount: hotel.reviewCount,
                   price: hotel.pricePerNight.toDouble(),
                   imageUrl: hotel.imageUrl,
+                  distance: hotel.distanceFromUser,
                   isSaved: savedHotels.contains(hotel.id),
                   onSaveToggle: () => onSaveToggle(hotel.id),
                 ),

@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_typography.dart';
+
 import '../../features/home/providers/hotel_provider.dart';
+import '../../l10n/generated/app_localizations.dart';
 
 class HotelFiltersSheet extends ConsumerStatefulWidget {
   const HotelFiltersSheet({super.key});
@@ -73,7 +75,7 @@ class _HotelFiltersSheetState extends ConsumerState<HotelFiltersSheet> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'ফিল্টার',
+                AppLocalizations.of(context)!.filterTitle,
                 style: AppTypography.h3.copyWith(fontWeight: FontWeight.bold),
               ),
               Row(
@@ -81,7 +83,7 @@ class _HotelFiltersSheetState extends ConsumerState<HotelFiltersSheet> {
                   TextButton(
                     onPressed: _clearAllFilters,
                     child: Text(
-                      'সব মুছুন',
+                      AppLocalizations.of(context)!.filterClearAll,
                       style: TextStyle(color: AppColors.primary),
                     ),
                   ),
@@ -104,7 +106,9 @@ class _HotelFiltersSheetState extends ConsumerState<HotelFiltersSheet> {
                   const SizedBox(height: 16),
 
                   // Price Range Section
-                  _buildSectionTitle('মূল্য সীমা'),
+                  _buildSectionTitle(
+                    AppLocalizations.of(context)!.filterPriceRange,
+                  ),
                   const SizedBox(height: 8),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -142,7 +146,9 @@ class _HotelFiltersSheetState extends ConsumerState<HotelFiltersSheet> {
                   const SizedBox(height: 24),
 
                   // Rating Section
-                  _buildSectionTitle('ন্যূনতম রেটিং'),
+                  _buildSectionTitle(
+                    AppLocalizations.of(context)!.filterMinRating,
+                  ),
                   const SizedBox(height: 12),
                   Wrap(
                     spacing: 10,
@@ -202,7 +208,9 @@ class _HotelFiltersSheetState extends ConsumerState<HotelFiltersSheet> {
                   const SizedBox(height: 24),
 
                   // Amenities Section
-                  _buildSectionTitle('সুবিধাসমূহ'),
+                  _buildSectionTitle(
+                    AppLocalizations.of(context)!.filterAmenities,
+                  ),
                   const SizedBox(height: 12),
                   Wrap(
                     spacing: 10,
@@ -249,7 +257,7 @@ class _HotelFiltersSheetState extends ConsumerState<HotelFiltersSheet> {
                                   ),
                                 ),
                               Text(
-                                _getAmenityBengali(amenity),
+                                _getAmenityLabel(context, amenity),
                                 style: AppTypography.labelMedium.copyWith(
                                   color: isSelected
                                       ? AppColors.primary
@@ -269,7 +277,7 @@ class _HotelFiltersSheetState extends ConsumerState<HotelFiltersSheet> {
                   const SizedBox(height: 24),
 
                   // City Section
-                  _buildSectionTitle('শহর'),
+                  _buildSectionTitle(AppLocalizations.of(context)!.filterCity),
                   const SizedBox(height: 12),
                   Wrap(
                     spacing: 10,
@@ -300,7 +308,7 @@ class _HotelFiltersSheetState extends ConsumerState<HotelFiltersSheet> {
                             ),
                           ),
                           child: Text(
-                            city,
+                            _getCityName(context, city),
                             style: AppTypography.labelMedium.copyWith(
                               color: isSelected
                                   ? Colors.white
@@ -337,7 +345,7 @@ class _HotelFiltersSheetState extends ConsumerState<HotelFiltersSheet> {
                   elevation: 0,
                 ),
                 child: Text(
-                  'ফিল্টার প্রয়োগ করুন',
+                  AppLocalizations.of(context)!.filterApply,
                   style: AppTypography.labelLarge.copyWith(
                     color: Colors.white,
                     fontWeight: FontWeight.bold,
@@ -361,18 +369,48 @@ class _HotelFiltersSheetState extends ConsumerState<HotelFiltersSheet> {
     );
   }
 
-  String _getAmenityBengali(String amenity) {
-    final Map<String, String> translations = {
-      'WiFi': 'ওয়াইফাই',
-      'AC': 'এসি',
-      'TV': 'টিভি',
-      'Parking': 'পার্কিং',
-      'Pool': 'পুল',
-      'Restaurant': 'রেস্তোরাঁ',
-      'Gym': 'জিম',
-      'Room Service': 'রুম সার্ভিস',
-    };
-    return translations[amenity] ?? amenity;
+  String _getAmenityLabel(BuildContext context, String amenity) {
+    final loc = AppLocalizations.of(context)!;
+    switch (amenity) {
+      case 'WiFi':
+        return loc.amenityWifi;
+      case 'AC':
+        return loc.amenityAC;
+      case 'TV':
+        return loc.amenityTV;
+      case 'Parking':
+        return loc.amenityParking;
+      case 'Pool':
+        return loc.amenityPool;
+      case 'Restaurant':
+        return loc.amenityRestaurant;
+      case 'Gym':
+        return loc.amenityGym;
+      case 'Room Service':
+        return loc.amenityRoomService;
+      default:
+        return amenity;
+    }
+  }
+
+  String _getCityName(BuildContext context, String cityId) {
+    final loc = AppLocalizations.of(context)!;
+    switch (cityId) {
+      case 'Dhaka':
+        return loc.cityDhaka;
+      case 'Chittagong':
+        return loc.cityChittagong;
+      case 'Cox\'s Bazar':
+        return loc.cityCoxsBazar;
+      case 'Sylhet':
+        return loc.citySylhet;
+      case 'Rajshahi':
+        return loc.cityRajshahi;
+      case 'Khulna':
+        return loc.cityKhulna;
+      default:
+        return cityId;
+    }
   }
 }
 

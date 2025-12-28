@@ -3,6 +3,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_typography.dart';
+import '../../l10n/generated/app_localizations.dart';
 
 class CityCard extends StatelessWidget {
   final String name;
@@ -91,7 +92,7 @@ class CityCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      '$hotelCount হোটেল',
+                      '$hotelCount ${AppLocalizations.of(context)!.hotelCountSuffix}',
                       style: AppTypography.labelSmall.copyWith(
                         color: Colors.white.withValues(alpha: 0.8),
                       ),
@@ -190,7 +191,7 @@ class CityCardGrid extends StatelessWidget {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      '$hotelCount hotels',
+                      '$hotelCount ${AppLocalizations.of(context)!.hotelCountSuffix}',
                       style: AppTypography.labelSmall.copyWith(
                         color: Colors.white.withValues(alpha: 0.8),
                       ),
