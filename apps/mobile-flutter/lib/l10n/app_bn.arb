@@ -223,5 +223,10 @@
   "errorLoadingRooms": "রুম লোড করতে সমস্যা হয়েছে",
   "noRoomsFound": "কোনো রুম পাওয়া যায়নি",
   "selectRoomSnackbar": "উপরে স্ক্রল করে রুম নির্বাচন করুন",
-  "errorLoadingHotel": "হোটেল লোড করতে সমস্যা হয়েছে"
+  "errorLoadingHotel": "হোটেল লোড করতে সমস্যা হয়েছে",
+  "capacityText": "{count} জন",
+  "bedDouble": "১ ডাবল বেড",
+  "bedTwin": "২ সিঙ্গেল বেড",
+  "bedSingle": "১ সিঙ্গেল বেড",
+  "bedDefault": "১ বেড"
 }

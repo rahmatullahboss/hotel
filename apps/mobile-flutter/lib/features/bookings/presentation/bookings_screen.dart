@@ -43,6 +43,7 @@ class _BookingsScreenState extends ConsumerState<BookingsScreen>
   BookingStatus _mapStatus(String status) {
     switch (status) {
       case 'upcoming':
+      case 'confirmed':
         return BookingStatus.confirmed;
       case 'completed':
         return BookingStatus.completed;
@@ -146,6 +147,7 @@ class _BookingsScreenState extends ConsumerState<BookingsScreen>
                         fontWeight: FontWeight.w600,
                       ),
                       dividerColor: Colors.transparent,
+                      indicatorSize: TabBarIndicatorSize.tab,
                       tabs: [
                         Tab(
                           child: Row(
@@ -175,8 +177,18 @@ class _BookingsScreenState extends ConsumerState<BookingsScreen>
                             ],
                           ),
                         ),
-                        Tab(text: AppLocalizations.of(context)!.tabCompleted),
-                        Tab(text: AppLocalizations.of(context)!.tabCancelled),
+                        Tab(
+                          child: Text(
+                            AppLocalizations.of(context)!.tabCompleted,
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                        Tab(
+                          child: Text(
+                            AppLocalizations.of(context)!.tabCancelled,
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
                       ],
                     ),
                   ),

@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../features/auth/presentation/login_screen.dart';
+import '../../features/auth/presentation/signup_screen.dart';
 import '../../features/home/presentation/home_screen.dart';
 import '../../features/search/presentation/search_screen.dart';
 import '../../features/bookings/presentation/bookings_screen.dart';
@@ -21,12 +22,15 @@ import '../../features/booking_flow/presentation/qr_scanner_screen.dart';
 import '../../shared/widgets/main_shell.dart';
 import '../../features/profile/presentation/edit_profile_screen.dart';
 import '../../features/profile/presentation/notifications_screen.dart';
+import '../../features/onboarding/presentation/onboarding_screen.dart';
+import '../../features/splash/presentation/splash_screen.dart';
 import '../storage/secure_storage.dart';
 
 // Route names
 class AppRoutes {
   static const String splash = '/';
   static const String login = '/login';
+  static const String signup = '/signup';
   static const String home = '/home';
   static const String search = '/search';
   static const String bookings = '/bookings';
@@ -44,12 +48,13 @@ class AppRoutes {
   static const String editProfile = '/edit-profile';
   static const String notifications = '/notifications';
   static const String saved = '/saved';
+  static const String onboarding = '/onboarding';
 }
 
 // Router provider
 final routerProvider = Provider<GoRouter>((ref) {
   return GoRouter(
-    initialLocation: AppRoutes.home,
+    initialLocation: AppRoutes.splash,
     debugLogDiagnostics: true,
     redirect: (context, state) async {
       final storage = ref.read(secureStorageProvider);
@@ -74,6 +79,12 @@ final routerProvider = Provider<GoRouter>((ref) {
       return null;
     },
     routes: [
+      // Splash Screen
+      GoRoute(
+        path: AppRoutes.splash,
+        builder: (context, state) => const SplashScreen(),
+      ),
+
       // Main shell with bottom navigation
       ShellRoute(
         builder: (context, state, child) => MainShell(child: child),
@@ -110,11 +121,24 @@ final routerProvider = Provider<GoRouter>((ref) {
         ],
       ),
 
+      // Onboarding
+      GoRoute(
+        path: AppRoutes.onboarding,
+        name: 'onboarding',
+        builder: (context, state) => const OnboardingScreen(),
+      ),
+
       // Auth routes
       GoRoute(
         path: AppRoutes.login,
         name: 'login',
         builder: (context, state) => const LoginScreen(),
+      ),
+
+      GoRoute(
+        path: AppRoutes.signup,
+        name: 'signup',
+        builder: (context, state) => const SignupScreen(),
       ),
 
       // All hotels

@@ -40,25 +40,25 @@ class Booking {
 
   factory Booking.fromJson(Map<String, dynamic> json) {
     return Booking(
-      id: json['id'] as String,
-      hotelId: json['hotelId'] as String,
-      hotelName: json['hotelName'] as String,
-      roomId: json['roomId'] as String,
-      roomName: json['roomName'] as String,
-      hotelImageUrl: json['hotelImageUrl'] as String?,
-      checkIn: DateTime.parse(json['checkIn'] as String),
-      checkOut: DateTime.parse(json['checkOut'] as String),
-      guests: json['guests'] as int,
-      totalAmount: json['totalAmount'] as int,
-      status: json['status'] as String,
-      paymentMethod: json['paymentMethod'] as String,
-      qrCode: json['qrCode'] as String?,
-      createdAt: DateTime.parse(json['createdAt'] as String),
+      id: json['id']?.toString() ?? '',
+      hotelId: json['hotelId']?.toString() ?? '',
+      hotelName: json['hotelName']?.toString() ?? 'Unknown Hotel',
+      roomId: json['roomId']?.toString() ?? '',
+      roomName: json['roomName']?.toString() ?? 'Room',
+      hotelImageUrl: json['hotelImage']?.toString() ?? json['hotelImageUrl']?.toString(),
+      checkIn: json['checkIn'] != null ? DateTime.parse(json['checkIn'].toString()) : DateTime.now(),
+      checkOut: json['checkOut'] != null ? DateTime.parse(json['checkOut'].toString()) : DateTime.now().add(const Duration(days: 1)),
+      guests: int.tryParse(json['guests']?.toString() ?? '1') ?? 1,
+      totalAmount: double.tryParse(json['totalAmount']?.toString() ?? '0')?.toInt() ?? 0,
+      status: json['status']?.toString().toLowerCase() ?? 'pending',
+      paymentMethod: json['paymentMethod']?.toString() ?? 'PAY_AT_HOTEL',
+      qrCode: json['qrCode']?.toString(),
+      createdAt: json['createdAt'] != null ? DateTime.parse(json['createdAt'].toString()) : DateTime.now(),
     );
   }
 
   int get nights => checkOut.difference(checkIn).inDays;
-  bool get isUpcoming => status == 'upcoming';
+  bool get isUpcoming => ['upcoming', 'pending', 'confirmed'].contains(status.toLowerCase());
   bool get isCompleted => status == 'completed';
   bool get isCancelled => status == 'cancelled';
 }
@@ -108,7 +108,15 @@ class BookingsNotifier extends Notifier<BookingsState> {
 
     try {
       final response = await _dio.get('/bookings');
-      final List<dynamic> data = response.data['bookings'] ?? [];
+      final dynamic responseData = response.data;
+      List<dynamic> data = [];
+
+      if (responseData is List) {
+        data = responseData;
+      } else if (responseData is Map && responseData['bookings'] is List) {
+        data = responseData['bookings'];
+      }
+
       final bookings = data.map((json) => Booking.fromJson(json)).toList();
 
       state = state.copyWith(

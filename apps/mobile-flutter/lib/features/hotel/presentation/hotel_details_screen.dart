@@ -8,6 +8,7 @@ import 'package:shimmer/shimmer.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../home/providers/hotel_provider.dart';
+import '../../home/providers/saved_hotels_provider.dart';
 import '../providers/room_provider.dart';
 
 import '../../../l10n/generated/app_localizations.dart';
@@ -104,8 +105,7 @@ class _HotelDetailsScreenState extends ConsumerState<HotelDetailsScreen> {
   }
 
   void _handleSave() {
-    setState(() => _isSaved = !_isSaved);
-    // TODO: Save to backend
+    ref.read(savedHotelsProvider.notifier).toggleSaved(widget.hotelId);
   }
 
   IconData _getAmenityIcon(String iconName) {
@@ -137,6 +137,8 @@ class _HotelDetailsScreenState extends ConsumerState<HotelDetailsScreen> {
   @override
   Widget build(BuildContext context) {
     final hotelAsync = ref.watch(hotelProvider(widget.hotelId));
+    final savedHotels = ref.watch(savedHotelsProvider);
+    final _isSaved = savedHotels.contains(widget.hotelId);
 
     // Fetch rooms with dynamic pricing
     final roomsParams = RoomsParams(
@@ -172,13 +174,25 @@ class _HotelDetailsScreenState extends ConsumerState<HotelDetailsScreen> {
         final images = hotel.images.isNotEmpty
             ? hotel.images
             : (hotel.imageUrl != null
-                  ? [hotel.imageUrl!]
-                  : [
-                      'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800',
-                    ]);
+                ? [hotel.imageUrl!]
+                : [
+                    'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800',
+                  ]);
 
-        final amenities =
-            dummyHotelData['amenities'] as List<Map<String, String>>;
+        final loc = AppLocalizations.of(context)!;
+        
+        // Map amenities keys to localized labels
+        final amenitiesList = [
+          {'icon': 'wifi', 'label': loc.amenityWifi},
+          {'icon': 'ac', 'label': loc.amenityAC},
+          {'icon': 'parking', 'label': loc.amenityParking},
+          {'icon': 'restaurant', 'label': loc.amenityRestaurant},
+          {'icon': 'pool', 'label': loc.amenityPool},
+          {'icon': 'gym', 'label': loc.amenityGym},
+        ];
+
+        // Use API description or localized fallback
+        final description = hotel.description ?? loc.detailsDescription;
 
         // Get rooms from API (with dynamic prices)
         final apiRooms = roomsAsync.hasValue ? roomsAsync.value! : <Room>[];
@@ -192,10 +206,12 @@ class _HotelDetailsScreenState extends ConsumerState<HotelDetailsScreen> {
           hotelReviewCount: hotelReviewCount,
           price: price,
           images: images,
-          amenities: amenities,
+          amenities: amenitiesList,
+          description: description,
           apiRooms: apiRooms,
           isLoadingRooms: roomsAsync.isLoading,
           hasRoomsError: hasRoomsError,
+          isSaved: _isSaved,
         );
       },
     );
@@ -279,9 +295,11 @@ class _HotelDetailsScreenState extends ConsumerState<HotelDetailsScreen> {
     required int price,
     required List<String> images,
     required List<Map<String, String>> amenities,
+    required String description,
     required List<Room> apiRooms,
     required bool isLoadingRooms,
     bool hasRoomsError = false,
+    required bool isSaved,
   }) {
     final topPadding = MediaQuery.of(context).padding.top;
     final screenWidth = MediaQuery.of(context).size.width;
@@ -523,8 +541,7 @@ class _HotelDetailsScreenState extends ConsumerState<HotelDetailsScreen> {
                       ),
                       const SizedBox(height: 12),
                       Text(
-                        dummyHotelData['description'] as String? ??
-                            'এই হোটেলটি আপনার থাকার জন্য একটি চমৎকার জায়গা।',
+                        description,
                         style: AppTypography.bodyMedium.copyWith(
                           color: AppColors.textSecondary,
                           height: 1.6,
@@ -592,13 +609,27 @@ class _HotelDetailsScreenState extends ConsumerState<HotelDetailsScreen> {
                         )
                       else
                         ...apiRooms.map(
-                          (room) => Padding(
-                            padding: const EdgeInsets.only(bottom: 16),
-                            child: _RoomCard(
-                              name: room.name,
-                              capacity: room.capacityText,
-                              beds: room.bedsText,
-                              features: room.amenities.take(2).join(' • '),
+                          (room) {
+                            final loc = AppLocalizations.of(context)!;
+                            String bedsText;
+                            final type = room.type.toLowerCase();
+                            if (type.contains('double')) {
+                              bedsText = loc.bedDouble;
+                            } else if (type.contains('twin')) {
+                              bedsText = loc.bedTwin;
+                            } else if (type.contains('single')) {
+                              bedsText = loc.bedSingle;
+                            } else {
+                              bedsText = loc.bedDefault;
+                            }
+
+                            return Padding(
+                              padding: const EdgeInsets.only(bottom: 16),
+                              child: _RoomCard(
+                                name: room.name,
+                                capacity: loc.capacityText(room.maxGuests),
+                                beds: bedsText,
+                                features: room.amenities.take(2).join(' • '),
                               price: room.dynamicPrice, // Use dynamic price!
                               imageUrl: room.photos.isNotEmpty
                                   ? room.photos.first
@@ -611,8 +642,9 @@ class _HotelDetailsScreenState extends ConsumerState<HotelDetailsScreen> {
                                 );
                               },
                             ),
-                          ),
-                        ),
+                          );
+                        },
+                      ),
 
                       const SizedBox(height: 100),
                     ],
@@ -653,19 +685,19 @@ class _HotelDetailsScreenState extends ConsumerState<HotelDetailsScreen> {
                       width: 52,
                       height: 52,
                       decoration: BoxDecoration(
-                        color: _isSaved
+                        color: isSaved
                             ? AppColors.error.withValues(alpha: 0.1)
                             : AppColors.surfaceVariant,
                         borderRadius: BorderRadius.circular(14),
                         border: Border.all(
-                          color: _isSaved
+                          color: isSaved
                               ? AppColors.error.withValues(alpha: 0.3)
                               : AppColors.divider,
                         ),
                       ),
                       child: Icon(
-                        _isSaved ? Icons.favorite : Icons.favorite_border,
-                        color: _isSaved
+                        isSaved ? Icons.favorite : Icons.favorite_border,
+                        color: isSaved
                             ? AppColors.error
                             : AppColors.textSecondary,
                         size: 24,
@@ -844,97 +876,125 @@ class _RoomCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: AppColors.softShadow,
       ),
-      child: Column(
-        children: [
-          // Room Image
-          ClipRRect(
-            borderRadius: const BorderRadius.only(
-              topLeft: Radius.circular(16),
-              topRight: Radius.circular(16),
-            ),
-            child: SizedBox(
-              height: 140,
-              width: double.infinity,
-              child: CachedNetworkImage(
-                imageUrl: imageUrl,
-                fit: BoxFit.cover,
-                placeholder: (context, url) =>
-                    Container(color: AppColors.shimmerBase),
-                errorWidget: (context, url, error) => Container(
-                  color: AppColors.surfaceVariant,
-                  child: const Icon(
-                    Icons.bed,
-                    size: 48,
-                    color: AppColors.textTertiary,
+      child: IntrinsicHeight(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // Room Image (Left)
+            ClipRRect(
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(16),
+                bottomLeft: Radius.circular(16),
+              ),
+              child: SizedBox(
+                width: 120,
+                child: CachedNetworkImage(
+                  imageUrl: imageUrl,
+                  fit: BoxFit.cover,
+                  placeholder: (context, url) =>
+                      Container(color: AppColors.shimmerBase),
+                  errorWidget: (context, url, error) => Container(
+                    color: AppColors.surfaceVariant,
+                    child: const Icon(
+                      Icons.bed,
+                      size: 32,
+                      color: AppColors.textTertiary,
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
 
-          // Room Info
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(name, style: AppTypography.h4),
-                      const SizedBox(height: 4),
-                      Text(
-                        '$capacity • $beds • $features',
-                        style: AppTypography.bodySmall.copyWith(
-                          color: AppColors.textSecondary,
+            // Room Info (Right)
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.all(12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          name,
+                          style: AppTypography.h4.copyWith(fontSize: 16),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
                         ),
-                      ),
-                      const SizedBox(height: 8),
-                      RichText(
-                        text: TextSpan(
-                          children: [
-                            TextSpan(
-                              text: '৳${_formatPrice(price)}',
-                              style: AppTypography.priceSmall,
+                        const SizedBox(height: 4),
+                        Text(
+                          '$capacity • $beds',
+                          style: AppTypography.bodySmall.copyWith(
+                            color: AppColors.textSecondary,
+                            fontSize: 10,
+                          ),
+                        ),
+                        if (features.isNotEmpty) ...[
+                          const SizedBox(height: 2),
+                          Text(
+                            features,
+                            style: AppTypography.bodySmall.copyWith(
+                              color: AppColors.textSecondary,
+                              fontSize: 10,
                             ),
-                            TextSpan(
-                              text: '/রাত',
-                              style: AppTypography.bodySmall.copyWith(
-                                color: AppColors.textSecondary,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        RichText(
+                          text: TextSpan(
+                            children: [
+                              TextSpan(
+                                text: '৳${_formatPrice(price)}',
+                                style: AppTypography.priceSmall,
+                              ),
+                              TextSpan(
+                                text: '/${AppLocalizations.of(context)!.night}',
+                                style: AppTypography.bodySmall.copyWith(
+                                  color: AppColors.textSecondary,
+                                  fontSize: 10,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        GestureDetector(
+                          onTap: onSelect,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 8,
+                            ),
+                            decoration: BoxDecoration(
+                              color: AppColors.primary,
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Text(
+                              AppLocalizations.of(context)!.selectRoom,
+                              style: AppTypography.labelLarge.copyWith(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 12,
                               ),
                             ),
-                          ],
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
+                      ],
+                    ),
+                  ],
                 ),
-
-                // Select Button
-                GestureDetector(
-                  onTap: onSelect,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 12,
-                    ),
-                    decoration: BoxDecoration(
-                      color: AppColors.primary,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Text(
-                      'নির্বাচন',
-                      style: AppTypography.labelLarge.copyWith(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

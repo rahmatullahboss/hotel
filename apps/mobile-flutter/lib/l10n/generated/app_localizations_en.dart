@@ -565,4 +565,21 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get errorLoadingHotel => 'Error loading hotel';
+
+  @override
+  String capacityText(Object count) {
+    return '$count Guests';
+  }
+
+  @override
+  String get bedDouble => '1 Double Bed';
+
+  @override
+  String get bedTwin => '2 Single Beds';
+
+  @override
+  String get bedSingle => '1 Single Bed';
+
+  @override
+  String get bedDefault => '1 Bed';
 }

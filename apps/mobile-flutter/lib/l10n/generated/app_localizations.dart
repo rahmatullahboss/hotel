@@ -1195,6 +1195,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Error loading hotel'**
   String get errorLoadingHotel;
+
+  /// No description provided for @capacityText.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} Guests'**
+  String capacityText(Object count);
+
+  /// No description provided for @bedDouble.
+  ///
+  /// In en, this message translates to:
+  /// **'1 Double Bed'**
+  String get bedDouble;
+
+  /// No description provided for @bedTwin.
+  ///
+  /// In en, this message translates to:
+  /// **'2 Single Beds'**
+  String get bedTwin;
+
+  /// No description provided for @bedSingle.
+  ///
+  /// In en, this message translates to:
+  /// **'1 Single Bed'**
+  String get bedSingle;
+
+  /// No description provided for @bedDefault.
+  ///
+  /// In en, this message translates to:
+  /// **'1 Bed'**
+  String get bedDefault;
 }
 
 class _AppLocalizationsDelegate

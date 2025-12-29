@@ -227,5 +227,11 @@
   "errorLoadingRooms": "Error loading rooms",
   "noRoomsFound": "No rooms found",
   "selectRoomSnackbar": "Please scroll up to select a room",
-  "errorLoadingHotel": "Error loading hotel"
+  "errorLoadingHotel": "Error loading hotel",
+  "capacityText": "{count} Guests",
+  "@capacityText": { "placeholders": { "count": {} } },
+  "bedDouble": "1 Double Bed",
+  "bedTwin": "2 Single Beds",
+  "bedSingle": "1 Single Bed",
+  "bedDefault": "1 Bed"
 }

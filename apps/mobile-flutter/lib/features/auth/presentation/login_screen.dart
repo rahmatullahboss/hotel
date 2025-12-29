@@ -115,7 +115,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.close),
-          onPressed: () => context.pop(),
+          onPressed: () {
+            if (context.canPop()) {
+              context.pop();
+            } else {
+              context.go('/home');
+            }
+          },
         ),
       ),
       body: SafeArea(
@@ -231,7 +237,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 children: [
                   Text(loc.noAccount, style: AppTypography.bodyMedium),
                   TextButton(
-                    onPressed: isLoading ? null : () {},
+                    onPressed: isLoading ? null : () => context.push('/signup'),
                     child: Text(
                       loc.registerLink,
                       style: AppTypography.labelLarge.copyWith(

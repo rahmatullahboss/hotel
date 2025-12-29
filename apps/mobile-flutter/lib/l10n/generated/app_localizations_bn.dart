@@ -563,4 +563,21 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get errorLoadingHotel => 'হোটেল লোড করতে সমস্যা হয়েছে';
+
+  @override
+  String capacityText(Object count) {
+    return '$count জন';
+  }
+
+  @override
+  String get bedDouble => '১ ডাবল বেড';
+
+  @override
+  String get bedTwin => '২ সিঙ্গেল বেড';
+
+  @override
+  String get bedSingle => '১ সিঙ্গেল বেড';
+
+  @override
+  String get bedDefault => '১ বেড';
 }

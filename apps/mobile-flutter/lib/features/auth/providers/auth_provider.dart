@@ -136,6 +136,40 @@ class AuthNotifier extends Notifier<AuthState> {
     }
   }
 
+  // Register with email, phone, and password
+  Future<bool> registerWithCredentials({
+    required String name,
+    required String email,
+    required String phone,
+    required String password,
+  }) async {
+    state = state.copyWith(isLoading: true, error: null);
+
+    try {
+      final response = await _dio.post(
+        '/auth/mobile-register',
+        data: {
+          'name': name,
+          'email': email,
+          'phone': phone,
+          'password': password,
+        },
+      );
+
+      final token = response.data['token'] as String;
+      await _storage.setToken(token);
+
+      await _fetchCurrentUser();
+      return true;
+    } on DioException catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        error: e.response?.data?['error'] ?? 'নিবন্ধন ব্যর্থ হয়েছে',
+      );
+      return false;
+    }
+  }
+
   // Login with Google (v7 API)
   Future<bool> loginWithGoogle() async {
     state = state.copyWith(isLoading: true, error: null);

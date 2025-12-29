@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../../core/api/api_client.dart';
 import 'hotel_provider.dart';
 
 class SavedHotelsNotifier extends Notifier<Set<String>> {
@@ -40,30 +41,25 @@ final savedHotelsListProvider = FutureProvider<List<Hotel>>((ref) async {
   final savedIds = ref.watch(savedHotelsProvider);
   if (savedIds.isEmpty) return [];
 
-  // Get all hotels from the hotelsProvider if available
-  // Or force fetch them?
-  // Ideally we should have an endpoint for fetching by IDs or we iterate
-  // access existing cache first
-
-  // For now, let's assume valid hotels are in the main list or we need to fetch them singular
-  // fetching strictly from ID might be slow if we do N requests.
-  // Faster approach: fetch all hotels (since list is small probably) and filter
-  // or rely on what we have.
-
-  // Let's try to search empty to get "all" hotels or popular ones.
-  // Actually, let's just reuse hotelsProvider which fetches default list.
-
-  // Strategy:
-  // 1. Check if hotelsProvider has data.
-  // 2. If valid hotels found there, use them.
-  // 3. For others, maybe fetch individual? (Too slow)
-  // 4. Ideally, backend has GET /hotels?ids=...
-
-  // Optimization: Just filter from what we can get via 'fetchHotels' (all)
-  // We can call ref.read(hotelsProvider.notifier).fetchHotels()
-
-  // Using searchHotelsProvider('') returns "all" (or filtered default).
-  final allHotels = await ref.watch(searchHotelsProvider('').future);
-
-  return allHotels.where((h) => savedIds.contains(h.id)).toList();
+  final dio = ref.watch(dioProvider);
+  try {
+    final response = await dio.get('/hotels');
+    
+    final dynamic responseData = response.data;
+    final List<dynamic> data;
+    if (responseData is Map<String, dynamic> &&
+        responseData.containsKey('hotels')) {
+      data = responseData['hotels'];
+    } else if (responseData is List) {
+      data = responseData;
+    } else {
+      data = [];
+    }
+    
+    final hotels = data.map((json) => Hotel.fromJson(json)).toList();
+    return hotels.where((h) => savedIds.contains(h.id)).toList();
+  } catch (e) {
+    // If fetch fails, return empty list or maybe cached hotels if available
+    return [];
+  }
 });
