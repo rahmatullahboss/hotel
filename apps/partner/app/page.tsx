@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import { getPartnerHotel, getDashboardStats, getUpcomingBookings, getTodaysCheckIns, getCurrentlyStaying, getTodaysCheckOuts, getAllPartnerHotels, getOccupancyHistory, getBookingSources, getMaintenanceIssues, getGuestReviewsSummary, getTodaysPricing, getActivePromotion, getPlatformPromotion } from "./actions/dashboard";
 import { getPartnerRole } from "./actions/getPartnerRole";
 import {
@@ -32,6 +33,11 @@ export default async function DashboardPage() {
   if (!session?.user) {
     redirect("/auth/signin");
   }
+
+  // Get translations
+  const t = await getTranslations("dashboard");
+  const _tCommon = await getTranslations("common");
+  const _tBookings = await getTranslations("bookings");
 
   const hotel = await getPartnerHotel();
 
@@ -484,7 +490,7 @@ export default async function DashboardPage() {
           {/* Guest Self Check-in QR */}
           <section className="oyo-card">
             <div className="oyo-card-header">
-              <h2 className="oyo-card-title">📱 Guest Self-Service</h2>
+              <h2 className="oyo-card-title">📱 {t("guestSelfService")}</h2>
             </div>
             <div className="oyo-card-body">
               <HotelCheckInQR hotelId={hotel.id} hotelName={hotel.name} />
@@ -497,15 +503,15 @@ export default async function DashboardPage() {
           {/* Rewards Card */}
           <div className="oyo-card">
             <div className="oyo-card-header">
-              <span style={{ color: "#e63946", fontWeight: 600 }}>Incentive</span>
-              <Link href="/incentives" className="oyo-card-link">Details</Link>
+              <span style={{ color: "#e63946", fontWeight: 600 }}>{t("incentive")}</span>
+              <Link href="/incentives" className="oyo-card-link">{t("details")}</Link>
             </div>
             <div className="oyo-reward-card">
               <div>
-                <div className="oyo-reward-label">Total Earned</div>
+                <div className="oyo-reward-label">{t("totalEarned")}</div>
                 <div className="oyo-reward-value">৳{incentiveStats?.totalEarned?.toLocaleString() || 0}</div>
                 <div style={{ fontSize: "0.625rem", color: "#92400e" }}>
-                  {incentiveStats?.active || 0} active • {incentiveStats?.completed || 0} completed
+                  {incentiveStats?.active || 0} {t("active")} • {incentiveStats?.completed || 0} {t("completed")}
                 </div>
               </div>
               <div className="oyo-reward-icon">🏆</div>
@@ -515,8 +521,8 @@ export default async function DashboardPage() {
           {/* Staff Training - Coming Soon */}
           <div className="oyo-card">
             <div className="oyo-card-header">
-              <span className="oyo-card-title">🎓 Training</span>
-              <span style={{ fontSize: "0.75rem", color: "#9ca3af" }}>Coming Soon</span>
+              <span className="oyo-card-title">🎓 {t("training")}</span>
+              <span style={{ fontSize: "0.75rem", color: "#9ca3af" }}>{t("comingSoon")}</span>
             </div>
             <div className="oyo-card-body">
               <div style={{
@@ -527,10 +533,10 @@ export default async function DashboardPage() {
               }}>
                 <span style={{ fontSize: "2.5rem", display: "block", marginBottom: "0.75rem" }}>👨‍🏫</span>
                 <div style={{ fontSize: "0.875rem", fontWeight: 600, color: "#374151", marginBottom: "0.25rem" }}>
-                  Staff Training Modules
+                  {t("staffTrainingModules")}
                 </div>
                 <div style={{ fontSize: "0.75rem", color: "#6b7280" }}>
-                  Training courses will be available soon
+                  {t("trainingComingSoon")}
                 </div>
               </div>
             </div>
@@ -539,13 +545,13 @@ export default async function DashboardPage() {
           {/* Upcoming Bookings */}
           <div className="oyo-card">
             <div className="oyo-card-header">
-              <span className="oyo-card-title">📅 Upcoming</span>
-              <Link href="/bookings" className="oyo-card-link">View All</Link>
+              <span className="oyo-card-title">📅 {t("upcoming")}</span>
+              <Link href="/bookings" className="oyo-card-link">{t("viewAll")}</Link>
             </div>
             <div className="oyo-card-body" style={{ padding: "0" }}>
               {upcomingBookings.length === 0 ? (
                 <div style={{ padding: "1.5rem", textAlign: "center", color: "#9ca3af" }}>
-                  No upcoming bookings
+                  {t("noUpcomingBookings")}
                 </div>
               ) : (
                 upcomingBookings.slice(0, 3).map((booking) => {
