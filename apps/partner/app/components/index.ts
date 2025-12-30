@@ -35,3 +35,8 @@ export { NotificationBell } from "./NotificationBell";
 export { RoomTimeline } from "./RoomTimeline";
 export { ViewToggle } from "./ViewToggle";
 export { FloorPlanView } from "./FloorPlanView";
+
+// Revenue Management Components
+export { RateCalendar } from "./RateCalendar";
+export { PricingSuggestions } from "./PricingSuggestions";
+export { RevenueMetrics } from "./RevenueMetrics";
