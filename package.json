@@ -32,9 +32,7 @@
     "packages/*"
   ],
   "overrides": {
-    "esbuild": "^0.25.0"
-  },
-  "optionalDependencies": {
-    "@parcel/watcher-linux-x64-glibc": "^2.5.1"
+    "esbuild": "^0.25.0",
+    "@parcel/watcher": "npm:@aspect-build/parcelwatcher-empty"
   }
 }
