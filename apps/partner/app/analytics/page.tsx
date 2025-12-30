@@ -1,10 +1,13 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { MdSmartphone, MdDirectionsWalk } from "react-icons/md";
 import { getPartnerHotel } from "../actions/dashboard";
 import { getAnalyticsData } from "../actions/analytics";
-import { BottomNav } from "../components";
+import { BottomNav, AnimatedStatCard } from "../components";
 import { AnalyticsExportClient } from "../components/AnalyticsExportClient";
+import { RevenueChart } from "../components/charts/RevenueChart";
+import { OccupancyGauge } from "../components/charts/OccupancyGauge";
+import { BookingSourcesPie } from "../components/charts/BookingSourcesPie";
+import { RevPARTrend } from "../components/charts/RevPARTrend";
 
 export const dynamic = 'force-dynamic';
 
@@ -29,16 +32,19 @@ export default async function AnalyticsPage({ searchParams }: PageProps) {
         year: "Last 12 Months",
     };
 
-    // Calculate max for chart scaling
-    const maxRevenue = Math.max(...analytics.dailyRevenue.map((d) => d.revenue), 1);
+    // Prepare booking sources data for pie chart
+    const bookingSources = [
+        { source: "Platform", count: analytics.platformBookings, revenue: analytics.platformRevenue },
+        { source: "Walk-in", count: analytics.walkInBookings, revenue: analytics.walkInRevenue },
+    ].filter(s => s.count > 0);
 
     return (
         <>
             {/* Header */}
-            <header className="page-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+            <header className="page-header glass" style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
                 <div>
                     <Link
-                        href="/settings"
+                        href="/"
                         style={{
                             background: "none",
                             border: "none",
@@ -51,9 +57,11 @@ export default async function AnalyticsPage({ searchParams }: PageProps) {
                     >
                         ←
                     </Link>
-                    <h1 className="page-title">Analytics</h1>
+                    <h1 className="page-title gradient-text" style={{ fontSize: "1.75rem", fontWeight: 700 }}>
+                        Analytics Dashboard
+                    </h1>
                     <p style={{ color: "var(--color-text-secondary)", fontSize: "0.875rem" }}>
-                        Performance insights
+                        Performance insights • {periodLabels[period]}
                     </p>
                 </div>
                 <AnalyticsExportClient
@@ -70,7 +78,7 @@ export default async function AnalyticsPage({ searchParams }: PageProps) {
                 />
             </header>
 
-            <main>
+            <main className="animate-fade-in">
                 {/* Period Filter */}
                 <div
                     style={{
@@ -83,12 +91,13 @@ export default async function AnalyticsPage({ searchParams }: PageProps) {
                         <Link
                             key={p}
                             href={`/analytics?period=${p}`}
+                            className={period === p ? "btn-gradient" : ""}
                             style={{
                                 flex: 1,
                                 padding: "0.75rem",
-                                borderRadius: "0.5rem",
+                                borderRadius: "0.75rem",
                                 background: period === p
-                                    ? "var(--color-primary)"
+                                    ? undefined
                                     : "var(--color-bg-secondary)",
                                 color: period === p
                                     ? "white"
@@ -97,6 +106,7 @@ export default async function AnalyticsPage({ searchParams }: PageProps) {
                                 fontSize: "0.875rem",
                                 textDecoration: "none",
                                 fontWeight: period === p ? 600 : 400,
+                                border: period === p ? "none" : "1px solid var(--color-border)",
                             }}
                         >
                             {p === "week" ? "Week" : p === "month" ? "Month" : "Year"}
@@ -104,7 +114,7 @@ export default async function AnalyticsPage({ searchParams }: PageProps) {
                     ))}
                 </div>
 
-                {/* Summary Cards */}
+                {/* KPI Cards - Premium Animated */}
                 <div
                     style={{
                         display: "grid",
@@ -113,116 +123,90 @@ export default async function AnalyticsPage({ searchParams }: PageProps) {
                         marginBottom: "1.5rem",
                     }}
                 >
-                    <div className="card stat-card">
-                        <div className="stat-value">৳{analytics.totalRevenue.toLocaleString()}</div>
-                        <div className="stat-label">Total Revenue</div>
-                    </div>
-                    <div className="card stat-card">
-                        <div className="stat-value">{analytics.totalBookings}</div>
-                        <div className="stat-label">Total Bookings</div>
-                    </div>
-                    <div className="card stat-card">
-                        <div className="stat-value">৳{analytics.avgBookingValue.toLocaleString()}</div>
-                        <div className="stat-label">Avg. Booking</div>
-                    </div>
-                    <div className="card stat-card">
-                        <div className="stat-value">{analytics.occupancyRate}%</div>
-                        <div className="stat-label">Occupancy Rate</div>
-                    </div>
+                    <AnimatedStatCard
+                        value={analytics.totalRevenue}
+                        label="Total Revenue"
+                        icon="💰"
+                        prefix="৳"
+                        iconBgClass="gradient-success"
+                        delay={0}
+                    />
+                    <AnimatedStatCard
+                        value={analytics.totalBookings}
+                        label="Total Bookings"
+                        icon="📋"
+                        iconBgClass="gradient-primary"
+                        delay={0.1}
+                    />
+                    <AnimatedStatCard
+                        value={analytics.revpar}
+                        label="RevPAR"
+                        icon="📊"
+                        prefix="৳"
+                        iconBgClass="gradient-accent"
+                        delay={0.2}
+                    />
+                    <AnimatedStatCard
+                        value={analytics.adr}
+                        label="ADR"
+                        icon="🏷️"
+                        prefix="৳"
+                        iconBgClass="gradient-warning"
+                        delay={0.3}
+                    />
                 </div>
 
-                {/* Revenue Chart (Simple CSS bars) */}
-                <section className="card" style={{ padding: "1.25rem", marginBottom: "1.5rem" }}>
-                    <h2 style={{ fontSize: "1rem", fontWeight: 600, marginBottom: "1rem" }}>
-                        Revenue Trend
+                {/* Occupancy Gauge */}
+                <section className="glass-card animate-slide-up" style={{ padding: "1.5rem", marginBottom: "1.5rem" }}>
+                    <h2 style={{ fontSize: "1rem", fontWeight: 600, marginBottom: "1rem", display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                        <span>📈</span> Occupancy Rate
                     </h2>
-                    <div
-                        style={{
-                            display: "flex",
-                            alignItems: "flex-end",
-                            height: "120px",
-                            gap: "2px",
-                        }}
-                    >
-                        {analytics.dailyRevenue.slice(-14).map((day, i) => (
-                            <div
-                                key={day.date}
-                                style={{
-                                    flex: 1,
-                                    display: "flex",
-                                    flexDirection: "column",
-                                    alignItems: "center",
-                                    height: "100%",
-                                }}
-                            >
-                                <div
-                                    style={{
-                                        width: "100%",
-                                        background: day.revenue > 0
-                                            ? "var(--color-primary)"
-                                            : "var(--color-bg-secondary)",
-                                        borderRadius: "2px 2px 0 0",
-                                        flex: 1,
-                                        display: "flex",
-                                        alignItems: "flex-end",
-                                    }}
-                                >
-                                    <div
-                                        style={{
-                                            width: "100%",
-                                            height: `${Math.max((day.revenue / maxRevenue) * 100, 2)}%`,
-                                            background: "var(--color-primary)",
-                                            borderRadius: "2px 2px 0 0",
-                                        }}
-                                    />
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                    <div style={{ fontSize: "0.75rem", color: "var(--color-text-muted)", marginTop: "0.5rem", textAlign: "center" }}>
-                        {periodLabels[period]}
-                    </div>
+                    <OccupancyGauge occupancyRate={analytics.occupancyRate} targetRate={80} size={200} />
                 </section>
 
-                {/* Booking Source Breakdown */}
-                <section className="card" style={{ padding: "1.25rem", marginBottom: "1.5rem" }}>
-                    <h2 style={{ fontSize: "1rem", fontWeight: 600, marginBottom: "1rem" }}>
-                        Booking Sources
+                {/* Revenue Trend Chart */}
+                <section className="glass-card animate-slide-up" style={{ padding: "1.5rem", marginBottom: "1.5rem" }}>
+                    <h2 style={{ fontSize: "1rem", fontWeight: 600, marginBottom: "1rem", display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                        <span>💹</span> Revenue Trend
                     </h2>
-                    <div style={{ display: "flex", gap: "1rem" }}>
-                        <div style={{ flex: 1, textAlign: "center" }}>
-                            <div style={{ fontSize: "1.5rem", marginBottom: "0.25rem" }}><MdSmartphone /></div>
-                            <div style={{ fontWeight: 700, fontSize: "1.25rem" }}>
-                                {analytics.platformBookings}
-                            </div>
-                            <div style={{ fontSize: "0.875rem", color: "var(--color-text-secondary)" }}>
-                                Platform
-                            </div>
-                            <div style={{ fontSize: "0.75rem", color: "var(--color-success)" }}>
-                                ৳{analytics.platformRevenue.toLocaleString()}
-                            </div>
+                    {analytics.dailyRevenue.length > 0 ? (
+                        <RevenueChart data={analytics.dailyRevenue} height={220} />
+                    ) : (
+                        <div style={{ textAlign: "center", color: "var(--color-text-muted)", padding: "2rem" }}>
+                            No revenue data for this period
                         </div>
-                        <div style={{ width: "1px", background: "var(--color-border)" }} />
-                        <div style={{ flex: 1, textAlign: "center" }}>
-                            <div style={{ fontSize: "1.5rem", marginBottom: "0.25rem" }}><MdDirectionsWalk /></div>
-                            <div style={{ fontWeight: 700, fontSize: "1.25rem" }}>
-                                {analytics.walkInBookings}
-                            </div>
-                            <div style={{ fontSize: "0.875rem", color: "var(--color-text-secondary)" }}>
-                                Walk-in
-                            </div>
-                            <div style={{ fontSize: "0.75rem", color: "var(--color-success)" }}>
-                                ৳{analytics.walkInRevenue.toLocaleString()}
-                            </div>
+                    )}
+                </section>
+
+                {/* RevPAR & ADR Trend */}
+                {analytics.revparTrend.length > 0 && (
+                    <section className="glass-card animate-slide-up" style={{ padding: "1.5rem", marginBottom: "1.5rem" }}>
+                        <h2 style={{ fontSize: "1rem", fontWeight: 600, marginBottom: "1rem", display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                            <span>📉</span> RevPAR & ADR Trend
+                        </h2>
+                        <RevPARTrend data={analytics.revparTrend} height={200} />
+                    </section>
+                )}
+
+                {/* Booking Sources */}
+                <section className="glass-card animate-slide-up" style={{ padding: "1.5rem", marginBottom: "1.5rem" }}>
+                    <h2 style={{ fontSize: "1rem", fontWeight: 600, marginBottom: "1rem", display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                        <span>📱</span> Booking Sources
+                    </h2>
+                    {bookingSources.length > 0 ? (
+                        <BookingSourcesPie sources={bookingSources} size={160} />
+                    ) : (
+                        <div style={{ textAlign: "center", color: "var(--color-text-muted)", padding: "2rem" }}>
+                            No booking data for this period
                         </div>
-                    </div>
+                    )}
                 </section>
 
                 {/* Top Performing Rooms */}
                 {analytics.topRooms.length > 0 && (
-                    <section className="card" style={{ padding: "1.25rem" }}>
-                        <h2 style={{ fontSize: "1rem", fontWeight: 600, marginBottom: "1rem" }}>
-                            Top Performing Rooms
+                    <section className="glass-card animate-slide-up" style={{ padding: "1.5rem" }}>
+                        <h2 style={{ fontSize: "1rem", fontWeight: 600, marginBottom: "1rem", display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                            <span>🏆</span> Top Performing Rooms
                         </h2>
                         <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
                             {analytics.topRooms.map((room, index) => (
@@ -232,21 +216,25 @@ export default async function AnalyticsPage({ searchParams }: PageProps) {
                                         display: "flex",
                                         alignItems: "center",
                                         gap: "0.75rem",
+                                        padding: "0.75rem",
+                                        background: index === 0 ? "rgba(139, 92, 246, 0.1)" : "var(--color-bg-secondary)",
+                                        borderRadius: "0.75rem",
+                                        borderLeft: index === 0 ? "4px solid #8B5CF6" : "4px solid transparent",
                                     }}
                                 >
                                     <div
                                         style={{
-                                            width: "28px",
-                                            height: "28px",
+                                            width: "32px",
+                                            height: "32px",
                                             borderRadius: "50%",
                                             background: index === 0
-                                                ? "var(--color-accent)"
-                                                : "var(--color-bg-secondary)",
+                                                ? "linear-gradient(135deg, #8B5CF6, #EC4899)"
+                                                : "var(--color-border)",
                                             display: "flex",
                                             alignItems: "center",
                                             justifyContent: "center",
                                             fontSize: "0.875rem",
-                                            fontWeight: 600,
+                                            fontWeight: 700,
                                             color: index === 0 ? "white" : "var(--color-text-secondary)",
                                         }}
                                     >
