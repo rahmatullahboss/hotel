@@ -1201,13 +1201,14 @@ export async function getOccupancyHistory(hotelId: string) {
         }
 
         // Return 5 sample points
-        return [
+        const samples = [
             dailyOccupancy[0],
             dailyOccupancy[7],
             dailyOccupancy[14],
             dailyOccupancy[21],
             dailyOccupancy[29]
-        ].filter(Boolean);
+        ];
+        return samples.filter((item): item is { date: string; value: number; cityAvg: number } => item !== undefined);
     } catch (error) {
         console.error("Error fetching occupancy history:", error);
         return [];

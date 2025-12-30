@@ -1,52 +1,61 @@
-export { BottomNav } from "./BottomNav";
-export { ScannerFAB } from "./ScannerFAB";
-export { StatCard } from "./StatCard";
-export { LogoutButton } from "./LogoutButton";
-export { RoomGrid } from "./RoomGrid";
-export { QRScanner } from "./QRScanner";
-export { HotelCheckInQR } from "./HotelCheckInQR";
-export { CollectPaymentButton } from "./CollectPaymentButton";
-export { CheckOutButton } from "./CheckOutButton";
-export { ExtendStayButton } from "./ExtendStayButton";
-export { PayoutSection } from "./PayoutSection";
-export { LocationPicker } from "./LocationPicker";
-export { LanguageSwitcher } from "./LanguageSwitcher";
-export { NoShowButton } from "./NoShowButton";
-export { ExportButton } from "./ExportButton";
-export { HighRiskBookings } from "./HighRiskBookings";
-export { QuickActions } from "./QuickActions";
+// Core components
+export * from "./ScannerFAB";
+export * from "./LogoutButton";
+export * from "./HotelCheckInQR";
+export * from "./CollectPaymentButton";
+export * from "./CheckOutButton";
+export * from "./ExtendStayButton";
+export * from "./NoShowButton";
+export * from "./HighRiskBookings";
+export * from "./TodayStatus";
+export * from "./PriceCard";
+export * from "./PromoBanner";
+export * from "./PerformanceCharts"; // Also exports RankingCard, GuestExpCard
+export * from "./ImprovementAreas";
+export * from "./RealtimeStatus";
 
-// OYO OS Professional Dashboard Components
-export { OyoSidebar } from "./OyoSidebar";
-export { TodayStatus } from "./TodayStatus";
-export { PriceCard } from "./PriceCard";
-export { PromoBanner } from "./PromoBanner";
-export { PerformanceCharts, RankingCard, GuestExpCard } from "./PerformanceCharts";
-export { ImprovementAreas } from "./ImprovementAreas";
-export { RealtimeStatus } from "./RealtimeStatus";
+// Layout components
+export * from "./OyoSidebar";
+export * from "./PartnerHeader";
+export * from "./BottomNav";
+export * from "./ThemeProvider";
 
-// Premium UI Components
-export { ThemeProvider, useTheme } from "./ThemeProvider";
-export { ThemeToggle } from "./ThemeToggle";
-export { AnimatedStatCard } from "./AnimatedStatCard";
-export { NotificationBell } from "./NotificationBell";
+// Dashboard components
+export * from "./RecentBookingsTable";
+export * from "./QuickActionsGrid";
+export * from "./charts/BookingSourcesPie";
+export * from "./charts/RevPARTrend";
 
-// Room Management Components
-export { RoomTimeline } from "./RoomTimeline";
-export { ViewToggle } from "./ViewToggle";
-export { FloorPlanView } from "./FloorPlanView";
+// Inventory components
+export * from "./RoomGrid";
+export * from "./ViewToggle";
+export * from "./FloorPlanView";
+export * from "./RoomTimeline";
 
-// Revenue Management Components
-export { RateCalendar } from "./RateCalendar";
-export { PricingSuggestions } from "./PricingSuggestions";
-export { RevenueMetrics } from "./RevenueMetrics";
+// Other components
+export * from "./StatCard";
+export * from "./AnimatedStatCard";
+export * from "./QuickActions";
+export * from "./QRScanner";
+export * from "./HotelSwitcher";
+export * from "./LanguageSwitcher";
+export * from "./NotificationBell";
+export * from "./NotificationSettings";
+export * from "./ThemeToggle";
+export * from "./GuestProfile";
+export * from "./FeedbackDashboard";
+export * from "./StaffDashboard";
+export * from "./LocationPicker";
+export * from "./PayoutSection";
+export * from "./ReportBuilder";
+export * from "./ExportButton";
 
-// Guest Experience Components
-export { GuestProfileCard, GuestList } from "./GuestProfile";
-export { FeedbackCard, FeedbackDashboard } from "./FeedbackDashboard";
+// Revenue management
+export * from "./RateCalendar";
+export * from "./PricingSuggestions";
+export * from "./RevenueMetrics";
 
-// Staff Operations Components
-export { StaffCard, StaffDashboard } from "./StaffDashboard";
-
-// Report Builder
-export { ReportBuilder } from "./ReportBuilder";
+// Export clients
+export * from "./AnalyticsExportClient";
+export * from "./BookingsExportClient";
+export * from "./EarningsExportClient";
