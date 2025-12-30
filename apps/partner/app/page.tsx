@@ -18,6 +18,7 @@ import {
   RankingCard,
   GuestExpCard,
   ImprovementAreas,
+  RealtimeStatus,
 } from "./components";
 import { auth } from "../auth";
 import { getHighRiskBookings } from "./actions/prediction";
@@ -589,6 +590,9 @@ export default async function DashboardPage() {
 
       {/* Scanner FAB */}
       <ScannerFAB />
+
+      {/* Real-time Connection Status */}
+      <RealtimeStatus hotelId={hotel.id} />
     </>
   );
 }
