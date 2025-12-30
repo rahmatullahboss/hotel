@@ -39,9 +39,10 @@ class ThemeNotifier extends Notifier<ThemeState> {
   ThemeState build() {
     // Start loading asynchronously
     _initializeTheme();
+    // Default to light mode for white label theme
     return ThemeState(
-      mode: AppThemeMode.system,
-      themeMode: ThemeMode.system,
+      mode: AppThemeMode.light,
+      themeMode: ThemeMode.light,
       isLoaded: false,
     );
   }
@@ -49,10 +50,10 @@ class ThemeNotifier extends Notifier<ThemeState> {
   Future<void> _initializeTheme() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      final modeString = prefs.getString(_key) ?? 'system';
+      final modeString = prefs.getString(_key) ?? 'light'; // Default to light
       final mode = AppThemeMode.values.firstWhere(
         (e) => e.name == modeString,
-        orElse: () => AppThemeMode.system,
+        orElse: () => AppThemeMode.light,
       );
       // Update state after loading - this will trigger rebuild
       state = ThemeState(
@@ -61,10 +62,10 @@ class ThemeNotifier extends Notifier<ThemeState> {
         isLoaded: true,
       );
     } catch (e) {
-      // On error, mark as loaded with default
+      // On error, mark as loaded with light mode default
       state = ThemeState(
-        mode: AppThemeMode.system,
-        themeMode: ThemeMode.system,
+        mode: AppThemeMode.light,
+        themeMode: ThemeMode.light,
         isLoaded: true,
       );
     }
