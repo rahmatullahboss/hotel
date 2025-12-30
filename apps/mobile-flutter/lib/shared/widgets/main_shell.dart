@@ -55,33 +55,43 @@ class _FloatingBottomNav extends StatelessWidget {
   Widget build(BuildContext context) {
     final selectedIndex = _calculateSelectedIndex(context);
     final bottomPadding = MediaQuery.of(context).padding.bottom;
+    final isDark = AppColors.isDarkMode(context);
+
+    // For devices with home indicator (iPhone X+), use smaller margin
+    // For devices without home indicator, add more bottom padding
+    final safeAreaBottom = bottomPadding > 0 ? 8.0 : 16.0;
 
     return Container(
-      margin: EdgeInsets.only(left: 16, right: 16, bottom: bottomPadding + 12),
+      margin: EdgeInsets.only(left: 20, right: 20, bottom: safeAreaBottom),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(28),
+        borderRadius: BorderRadius.circular(32),
         child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+          filter: ImageFilter.blur(sigmaX: 25, sigmaY: 25),
           child: Container(
-            height: 72,
+            height: 70,
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.95),
-              borderRadius: BorderRadius.circular(28),
+              color: isDark
+                  ? AppColors.surfaceDark.withValues(alpha: 0.85)
+                  : Colors.white.withValues(alpha: 0.92),
+              borderRadius: BorderRadius.circular(32),
               border: Border.all(
-                color: Colors.white.withValues(alpha: 0.3),
+                color: isDark
+                    ? Colors.white.withValues(alpha: 0.1)
+                    : Colors.white.withValues(alpha: 0.5),
                 width: 1,
               ),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.08),
-                  blurRadius: 24,
-                  offset: const Offset(0, 8),
+                  color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.12),
+                  blurRadius: 30,
+                  offset: const Offset(0, 10),
                 ),
-                BoxShadow(
-                  color: AppColors.primary.withValues(alpha: 0.05),
-                  blurRadius: 40,
-                  spreadRadius: -10,
-                ),
+                if (!isDark)
+                  BoxShadow(
+                    color: AppColors.primary.withValues(alpha: 0.08),
+                    blurRadius: 50,
+                    spreadRadius: -15,
+                  ),
               ],
             ),
             child: Row(
@@ -93,6 +103,7 @@ class _FloatingBottomNav extends StatelessWidget {
                   label: AppLocalizations.of(context)!.navHome,
                   isSelected: selectedIndex == 0,
                   onTap: () => _onItemTapped(context, 0),
+                  isDark: isDark,
                 ),
                 _NavItem(
                   icon: Icons.search_outlined,
@@ -100,6 +111,7 @@ class _FloatingBottomNav extends StatelessWidget {
                   label: AppLocalizations.of(context)!.navSearch,
                   isSelected: selectedIndex == 1,
                   onTap: () => _onItemTapped(context, 1),
+                  isDark: isDark,
                 ),
                 _NavItem(
                   icon: Icons.calendar_today_outlined,
@@ -107,6 +119,7 @@ class _FloatingBottomNav extends StatelessWidget {
                   label: AppLocalizations.of(context)!.navBookings,
                   isSelected: selectedIndex == 2,
                   onTap: () => _onItemTapped(context, 2),
+                  isDark: isDark,
                 ),
                 _NavItem(
                   icon: Icons.person_outline_rounded,
@@ -114,6 +127,7 @@ class _FloatingBottomNav extends StatelessWidget {
                   label: AppLocalizations.of(context)!.navProfile,
                   isSelected: selectedIndex == 3,
                   onTap: () => _onItemTapped(context, 3),
+                  isDark: isDark,
                 ),
               ],
             ),
@@ -130,6 +144,7 @@ class _NavItem extends StatelessWidget {
   final String label;
   final bool isSelected;
   final VoidCallback onTap;
+  final bool isDark;
 
   const _NavItem({
     required this.icon,
@@ -137,6 +152,7 @@ class _NavItem extends StatelessWidget {
     required this.label,
     required this.isSelected,
     required this.onTap,
+    required this.isDark,
   });
 
   @override
@@ -157,7 +173,7 @@ class _NavItem extends StatelessWidget {
               height: 32,
               decoration: BoxDecoration(
                 color: isSelected
-                    ? AppColors.primary.withValues(alpha: 0.15)
+                    ? AppColors.primary.withValues(alpha: isDark ? 0.25 : 0.15)
                     : Colors.transparent,
                 borderRadius: BorderRadius.circular(16),
               ),
@@ -169,6 +185,8 @@ class _NavItem extends StatelessWidget {
                     key: ValueKey(isSelected),
                     color: isSelected
                         ? AppColors.primary
+                        : isDark
+                        ? Colors.white54
                         : AppColors.textTertiary,
                     size: isSelected ? 26 : 24,
                   ),
@@ -182,7 +200,11 @@ class _NavItem extends StatelessWidget {
               style: GoogleFonts.notoSans(
                 fontSize: isSelected ? 11 : 10,
                 fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                color: isSelected ? AppColors.primary : AppColors.textTertiary,
+                color: isSelected
+                    ? AppColors.primary
+                    : isDark
+                    ? Colors.white54
+                    : AppColors.textTertiary,
               ),
               child: Text(label, maxLines: 1, overflow: TextOverflow.ellipsis),
             ),
