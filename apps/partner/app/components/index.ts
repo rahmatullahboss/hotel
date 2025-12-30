@@ -26,6 +26,9 @@ export * from "./QuickActionsGrid";
 export * from "./charts/BookingSourcesPie";
 export * from "./charts/RevPARTrend";
 
+// Loading states
+export * from "./Skeleton";
+
 // Inventory components
 export * from "./RoomGrid";
 export * from "./ViewToggle";
