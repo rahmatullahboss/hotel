@@ -6,6 +6,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../../core/router/app_router.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/storage/secure_storage.dart';
 
 class OnboardingPageData {
   final String title;
@@ -96,8 +97,14 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     }
   }
 
-  void _finishOnboarding() {
-    context.go(AppRoutes.home);
+  void _finishOnboarding() async {
+    // Save onboarding state
+    final storage = ref.read(secureStorageProvider);
+    await storage.setOnboardingSeen();
+
+    if (mounted) {
+      context.go(AppRoutes.home);
+    }
   }
 
   @override

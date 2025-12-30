@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
+import '../../../core/storage/secure_storage.dart';
 
 class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({super.key});
@@ -25,14 +26,22 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
       duration: const Duration(seconds: 3),
     );
 
-    _progressAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
-    );
+    _progressAnimation = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
 
-    _controller.forward().whenComplete(() {
+    _controller.forward().whenComplete(() async {
       if (mounted) {
-        // TODO: Check if first time user, otherwise go to home
-        context.go('/onboarding');
+        // Check if user has already seen onboarding
+        final storage = ref.read(secureStorageProvider);
+        final hasSeenOnboarding = await storage.hasSeenOnboarding();
+
+        if (hasSeenOnboarding) {
+          context.go('/home');
+        } else {
+          context.go('/onboarding');
+        }
       }
     });
   }
@@ -83,7 +92,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const Spacer(),
-              
+
               // Logo
               Container(
                 width: 96,
@@ -161,7 +170,11 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
                         color: Colors.white.withValues(alpha: 0.2),
                         child: FractionallySizedBox(
                           alignment: Alignment.centerLeft,
-                          widthFactor: 0.3 + (0.7 * _progressAnimation.value), // Start at ~30% and fill
+                          widthFactor:
+                              0.3 +
+                              (0.7 *
+                                  _progressAnimation
+                                      .value), // Start at ~30% and fill
                           child: Container(
                             decoration: BoxDecoration(
                               color: Colors.white,

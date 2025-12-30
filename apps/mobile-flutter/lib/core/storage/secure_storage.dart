@@ -6,6 +6,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 const String _tokenKey = 'auth_token';
 const String _userIdKey = 'user_id';
 const String _refreshTokenKey = 'refresh_token';
+const String _onboardingKey = 'has_seen_onboarding';
 
 // Secure Storage Provider
 final secureStorageProvider = Provider<SecureStorageService>((ref) {
@@ -73,5 +74,15 @@ class SecureStorageService {
   Future<bool> isLoggedIn() async {
     final token = await getToken();
     return token != null && token.isNotEmpty;
+  }
+
+  // Onboarding state
+  Future<bool> hasSeenOnboarding() async {
+    final value = await _storage.read(key: _onboardingKey);
+    return value == 'true';
+  }
+
+  Future<void> setOnboardingSeen() async {
+    await _storage.write(key: _onboardingKey, value: 'true');
   }
 }

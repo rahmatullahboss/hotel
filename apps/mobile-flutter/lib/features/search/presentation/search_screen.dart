@@ -397,7 +397,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                           if (context.canPop()) {
                             context.pop();
                           } else {
-                            context.go('/');
+                            context.go('/home');
                           }
                         },
                         child: Container(
