@@ -2,10 +2,10 @@
 import 'package:flutter/material.dart';
 
 class AppColors {
-  // Primary Colors
-  static const Color primary = Color(0xFFE63946); // Vibe Red
-  static const Color primaryDark = Color(0xFFC62828);
-  static const Color primaryLight = Color(0xFFFF6B6B);
+  // Primary Colors - Sky Blue Theme
+  static const Color primary = Color(0xFF0EA5E9); // Sky Blue
+  static const Color primaryDark = Color(0xFF0284C7); // Darker Sky Blue
+  static const Color primaryLight = Color(0xFF38BDF8); // Lighter Sky Blue
   static const Color secondary = Color(0xFF1D3557); // Deep Navy
   static const Color secondaryLight = Color(0xFF457B9D);
 
