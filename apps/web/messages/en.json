@@ -120,7 +120,12 @@
         "guest": "Guest",
         "minPrice": "Min Price (৳)",
         "maxPrice": "Max Price (৳)",
-        "searchButton": "Search Hotels"
+        "searchButton": "Search Hotels",
+        "nearMe": "Near Me",
+        "detecting": "Detecting...",
+        "locationNotSupported": "Location is not supported by your browser",
+        "locationDenied": "Location access denied. Please allow location access.",
+        "locationFailed": "Failed to get your location. Please try again."
     },
     "hotels": {
         "allHotels": "All Hotels",
