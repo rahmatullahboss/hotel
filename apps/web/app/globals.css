@@ -545,6 +545,7 @@ body {
   padding: 1rem;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
   border: 1px solid rgba(0, 0, 0, 0.06);
+  overflow: hidden;
 }
 
 /* Compact Search Form */
@@ -731,6 +732,7 @@ body {
     flex-direction: row;
     align-items: center;
     gap: 0;
+    flex-wrap: nowrap;
   }
 
   .search-field {
@@ -746,9 +748,10 @@ body {
   }
 
   .search-field-location {
-    flex: 1.5;
-    padding-left: 2rem;
+    flex: 1;
+    padding-left: 1rem;
     position: relative;
+    min-width: 0;
   }
 
   /* Near Me Button - OYO Style */
@@ -828,7 +831,8 @@ body {
     height: 60px;
     border-radius: 9999px;
     margin-left: 0.5rem;
-    min-width: 140px;
+    flex-shrink: 0;
+    min-width: fit-content;
   }
 
   .search-btn-text {

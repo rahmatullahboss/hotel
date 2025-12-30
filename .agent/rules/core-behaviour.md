@@ -1,5 +1,5 @@
 ---
-description: Core behaviour
+trigger: always_on
 ---
 
 # Core Behavior Rules for AI Assistant

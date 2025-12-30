@@ -1,4 +1,5 @@
 // Hotel Details Screen - World-Class Premium Design with API Integration
+import 'dart:ui';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -10,56 +11,11 @@ import '../../../core/theme/app_typography.dart';
 import '../../home/providers/hotel_provider.dart';
 import '../../home/providers/saved_hotels_provider.dart';
 import '../providers/room_provider.dart';
+import 'widgets/full_screen_gallery.dart';
+import 'widgets/date_selector_sheet.dart';
+import 'widgets/premium_room_card.dart';
 
 import '../../../l10n/generated/app_localizations.dart';
-
-// Dummy hotel data
-const dummyHotelData = {
-  'id': '1',
-  'name': 'Pan Pacific Sonargaon',
-  'city': 'ঢাকা, বাংলাদেশ',
-  'rating': 4.8,
-  'reviewCount': 320,
-  'price': 8500,
-  'description':
-      'এটি একটি চমৎকার হোটেল যেখানে আপনি আরামদায়ক থাকার ব্যবস্থা পাবেন। আধুনিক সুযোগ-সুবিধা সহ এই হোটেল আপনার ভ্রমণকে আরও আনন্দদায়ক করে তুলবে। শহরের কেন্দ্রে অবস্থিত এই হোটেলে সব ধরনের সুযোগ-সুবিধা রয়েছে।',
-  'images': [
-    'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800',
-    'https://images.unsplash.com/photo-1582719508461-905c673771fd?w=800',
-    'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=800',
-    'https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=800',
-  ],
-  'amenities': [
-    {'icon': 'wifi', 'label': 'ফ্রি ওয়াইফাই'},
-    {'icon': 'ac', 'label': 'এসি'},
-    {'icon': 'parking', 'label': 'পার্কিং'},
-    {'icon': 'restaurant', 'label': 'রেস্টুরেন্ট'},
-    {'icon': 'pool', 'label': 'সুইমিং পুল'},
-    {'icon': 'gym', 'label': 'জিম'},
-  ],
-  'rooms': [
-    {
-      'id': 'r1',
-      'name': 'ডিলাক্স রুম',
-      'capacity': '২ জন',
-      'beds': '১ বেড',
-      'features': 'এসি',
-      'price': 8500,
-      'image':
-          'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=400',
-    },
-    {
-      'id': 'r2',
-      'name': 'প্রিমিয়াম স্যুট',
-      'capacity': '৪ জন',
-      'beds': '২ বেড',
-      'features': 'এসি • সি ভিউ',
-      'price': 12500,
-      'image':
-          'https://images.unsplash.com/photo-1618773928121-c32242e63f39?w=400',
-    },
-  ],
-};
 
 class HotelDetailsScreen extends ConsumerStatefulWidget {
   final String hotelId;
@@ -70,33 +26,69 @@ class HotelDetailsScreen extends ConsumerStatefulWidget {
   ConsumerState<HotelDetailsScreen> createState() => _HotelDetailsScreenState();
 }
 
-class _HotelDetailsScreenState extends ConsumerState<HotelDetailsScreen> {
+class _HotelDetailsScreenState extends ConsumerState<HotelDetailsScreen>
+    with SingleTickerProviderStateMixin {
   int _currentImageIndex = 0;
   final PageController _pageController = PageController();
+  final ScrollController _scrollController = ScrollController();
 
   // Date state for room availability
   late DateTime _checkIn;
   late DateTime _checkOut;
+
+  // Animation controller for bottom bar
+  late AnimationController _bottomBarController;
+  late Animation<double> _bottomBarOpacity;
+
+  // Scroll opacity for app bar
+  double _appBarOpacity = 0.0;
 
   @override
   void initState() {
     super.initState();
     _checkIn = DateTime.now().add(const Duration(days: 1));
     _checkOut = DateTime.now().add(const Duration(days: 2));
+
+    _bottomBarController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 400),
+    );
+    _bottomBarOpacity = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _bottomBarController, curve: Curves.easeOut),
+    );
+
+    _scrollController.addListener(_onScroll);
+
+    // Animate bottom bar in after a delay
+    Future.delayed(const Duration(milliseconds: 500), () {
+      if (mounted) _bottomBarController.forward();
+    });
+  }
+
+  void _onScroll() {
+    final offset = _scrollController.offset;
+    final maxOffset = 200.0;
+    setState(() {
+      _appBarOpacity = (offset / maxOffset).clamp(0.0, 1.0);
+    });
   }
 
   @override
   void dispose() {
     _pageController.dispose();
+    _scrollController.dispose();
+    _bottomBarController.dispose();
     super.dispose();
   }
 
-  void _handleShare() {
+  int get _nights => _checkOut.difference(_checkIn).inDays;
+
+  void _handleShare(String hotelName) {
     final loc = AppLocalizations.of(context)!;
     SharePlus.instance.share(
       ShareParams(
         text: loc.shareHotelText(
-          dummyHotelData['name'] as String,
+          hotelName,
           'https://zinurooms.com/hotel/${widget.hotelId}',
         ),
       ),
@@ -107,8 +99,27 @@ class _HotelDetailsScreenState extends ConsumerState<HotelDetailsScreen> {
     ref.read(savedHotelsProvider.notifier).toggleSaved(widget.hotelId);
   }
 
+  void _openDateSelector() {
+    DateSelectorSheet.show(
+      context,
+      initialCheckIn: _checkIn,
+      initialCheckOut: _checkOut,
+      onDatesSelected: (checkIn, checkOut) {
+        setState(() {
+          _checkIn = checkIn;
+          _checkOut = checkOut;
+        });
+        // This will trigger a refetch of rooms with new dates
+      },
+    );
+  }
+
+  void _openGallery(List<String> images, int index) {
+    FullScreenGallery.open(context, images: images, initialIndex: index);
+  }
+
   IconData _getAmenityIcon(String iconName) {
-    switch (iconName) {
+    switch (iconName.toLowerCase()) {
       case 'wifi':
         return Icons.wifi;
       case 'ac':
@@ -121,16 +132,14 @@ class _HotelDetailsScreenState extends ConsumerState<HotelDetailsScreen> {
         return Icons.pool;
       case 'gym':
         return Icons.fitness_center;
+      case 'tv':
+        return Icons.tv;
+      case 'roomservice':
+      case 'room_service':
+        return Icons.room_service;
       default:
         return Icons.check_circle_outline;
     }
-  }
-
-  String _formatPrice(num price) {
-    return price.toString().replaceAllMapped(
-      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-      (Match m) => '${m[1]},',
-    );
   }
 
   @override
@@ -138,6 +147,7 @@ class _HotelDetailsScreenState extends ConsumerState<HotelDetailsScreen> {
     final hotelAsync = ref.watch(hotelProvider(widget.hotelId));
     final savedHotels = ref.watch(savedHotelsProvider);
     final isSaved = savedHotels.contains(widget.hotelId);
+    final isDark = AppColors.isDarkMode(context);
 
     // Fetch rooms with dynamic pricing
     final roomsParams = RoomsParams(
@@ -147,20 +157,10 @@ class _HotelDetailsScreenState extends ConsumerState<HotelDetailsScreen> {
     );
     final roomsAsync = ref.watch(roomsProvider(roomsParams));
 
-    // Debug logging
-    debugPrint('Rooms loading: ${roomsAsync.isLoading}');
-    debugPrint(
-      'Rooms error: ${roomsAsync.hasError ? roomsAsync.error : "none"}',
-    );
-    debugPrint(
-      'Rooms count: ${roomsAsync.hasValue ? roomsAsync.value!.length : 0}',
-    );
-
     return hotelAsync.when(
       loading: () => _buildLoadingState(),
-      error: (_, _) => _buildErrorState(),
+      error: (error, stackTrace) => _buildErrorState(),
       data: (hotel) {
-        // Use API data - hotel should never be null at this point
         if (hotel == null) return _buildErrorState();
 
         final hotelName = hotel.name;
@@ -169,7 +169,6 @@ class _HotelDetailsScreenState extends ConsumerState<HotelDetailsScreen> {
         final hotelReviewCount = hotel.reviewCount;
         final price = hotel.pricePerNight;
 
-        // Use images array from API for carousel
         final images = hotel.images.isNotEmpty
             ? hotel.images
             : (hotel.imageUrl != null
@@ -180,7 +179,6 @@ class _HotelDetailsScreenState extends ConsumerState<HotelDetailsScreen> {
 
         final loc = AppLocalizations.of(context)!;
 
-        // Map amenities keys to localized labels
         final amenitiesList = [
           {'icon': 'wifi', 'label': loc.amenityWifi},
           {'icon': 'ac', 'label': loc.amenityAC},
@@ -190,10 +188,7 @@ class _HotelDetailsScreenState extends ConsumerState<HotelDetailsScreen> {
           {'icon': 'gym', 'label': loc.amenityGym},
         ];
 
-        // Use API description or localized fallback
         final description = hotel.description ?? loc.detailsDescription;
-
-        // Get rooms from API (with dynamic prices)
         final apiRooms = roomsAsync.hasValue ? roomsAsync.value! : <Room>[];
         final hasRoomsError = roomsAsync.hasError;
 
@@ -211,6 +206,7 @@ class _HotelDetailsScreenState extends ConsumerState<HotelDetailsScreen> {
           isLoadingRooms: roomsAsync.isLoading,
           hasRoomsError: hasRoomsError,
           isSaved: isSaved,
+          isDark: isDark,
         );
       },
     );
@@ -225,7 +221,7 @@ class _HotelDetailsScreenState extends ConsumerState<HotelDetailsScreen> {
             Shimmer.fromColors(
               baseColor: AppColors.shimmerBase,
               highlightColor: AppColors.shimmerHighlight,
-              child: Container(height: 300, color: Colors.white),
+              child: Container(height: 350, color: Colors.white),
             ),
             Padding(
               padding: const EdgeInsets.all(20),
@@ -236,9 +232,12 @@ class _HotelDetailsScreenState extends ConsumerState<HotelDetailsScreen> {
                     baseColor: AppColors.shimmerBase,
                     highlightColor: AppColors.shimmerHighlight,
                     child: Container(
-                      height: 24,
-                      width: 200,
-                      color: Colors.white,
+                      height: 28,
+                      width: 220,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
                     ),
                   ),
                   const SizedBox(height: 12),
@@ -246,9 +245,24 @@ class _HotelDetailsScreenState extends ConsumerState<HotelDetailsScreen> {
                     baseColor: AppColors.shimmerBase,
                     highlightColor: AppColors.shimmerHighlight,
                     child: Container(
-                      height: 16,
-                      width: 150,
-                      color: Colors.white,
+                      height: 18,
+                      width: 160,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  Shimmer.fromColors(
+                    baseColor: AppColors.shimmerBase,
+                    highlightColor: AppColors.shimmerHighlight,
+                    child: Container(
+                      height: 80,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                      ),
                     ),
                   ),
                 ],
@@ -268,16 +282,48 @@ class _HotelDetailsScreenState extends ConsumerState<HotelDetailsScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.error_outline, size: 64, color: AppColors.error),
-            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: AppColors.error.withValues(alpha: 0.1),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.error_outline,
+                size: 64,
+                color: AppColors.error,
+              ),
+            ),
+            const SizedBox(height: 24),
             Text(
               AppLocalizations.of(context)!.errorLoadingHotel,
-              style: AppTypography.bodyMedium,
+              style: AppTypography.h4.copyWith(
+                color: AppColors.adaptiveTextPrimary(context),
+              ),
             ),
-            const SizedBox(height: 16),
-            ElevatedButton(
+            const SizedBox(height: 8),
+            Text(
+              'Please check your connection and try again',
+              style: AppTypography.bodyMedium.copyWith(
+                color: AppColors.textSecondary,
+              ),
+            ),
+            const SizedBox(height: 24),
+            ElevatedButton.icon(
               onPressed: () => ref.refresh(hotelProvider(widget.hotelId)),
-              child: Text(AppLocalizations.of(context)!.retry),
+              icon: const Icon(Icons.refresh),
+              label: Text(AppLocalizations.of(context)!.retry),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 12,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
             ),
           ],
         ),
@@ -297,18 +343,21 @@ class _HotelDetailsScreenState extends ConsumerState<HotelDetailsScreen> {
     required String description,
     required List<Room> apiRooms,
     required bool isLoadingRooms,
-    bool hasRoomsError = false,
+    required bool hasRoomsError,
     required bool isSaved,
+    required bool isDark,
   }) {
-    final topPadding = MediaQuery.of(context).padding.top;
     final screenWidth = MediaQuery.of(context).size.width;
-    final heroHeight = screenWidth * 0.85;
+    final heroHeight = screenWidth * 0.9;
+    final loc = AppLocalizations.of(context)!;
 
     return Scaffold(
       backgroundColor: AppColors.adaptiveBackground(context),
+      extendBodyBehindAppBar: true,
       body: Stack(
         children: [
           CustomScrollView(
+            controller: _scrollController,
             slivers: [
               // Hero Image Gallery
               SliverToBoxAdapter(
@@ -316,36 +365,46 @@ class _HotelDetailsScreenState extends ConsumerState<HotelDetailsScreen> {
                   height: heroHeight,
                   child: Stack(
                     children: [
-                      // Image PageView
-                      PageView.builder(
-                        controller: _pageController,
-                        onPageChanged: (index) {
-                          setState(() => _currentImageIndex = index);
-                        },
-                        itemCount: images.length,
-                        itemBuilder: (context, index) {
-                          return CachedNetworkImage(
-                            imageUrl: images[index],
-                            fit: BoxFit.cover,
-                            placeholder: (context, url) => Container(
-                              color: AppColors.secondary,
-                              child: const Center(
-                                child: CircularProgressIndicator(
-                                  color: Colors.white,
-                                  strokeWidth: 2,
+                      // Image PageView with gesture to open gallery
+                      GestureDetector(
+                        onTap: () => _openGallery(images, _currentImageIndex),
+                        child: PageView.builder(
+                          controller: _pageController,
+                          onPageChanged: (index) {
+                            setState(() => _currentImageIndex = index);
+                          },
+                          itemCount: images.length,
+                          itemBuilder: (context, index) {
+                            return Hero(
+                              tag: 'gallery_image_$index',
+                              child: CachedNetworkImage(
+                                imageUrl: images[index],
+                                fit: BoxFit.cover,
+                                placeholder: (context, url) => Container(
+                                  color: isDark
+                                      ? AppColors.surfaceDark
+                                      : AppColors.secondary,
+                                  child: const Center(
+                                    child: CircularProgressIndicator(
+                                      color: Colors.white,
+                                      strokeWidth: 2,
+                                    ),
+                                  ),
+                                ),
+                                errorWidget: (context, url, error) => Container(
+                                  color: isDark
+                                      ? AppColors.surfaceDark
+                                      : AppColors.secondary,
+                                  child: const Icon(
+                                    Icons.hotel,
+                                    size: 80,
+                                    color: Colors.white54,
+                                  ),
                                 ),
                               ),
-                            ),
-                            errorWidget: (context, url, error) => Container(
-                              color: AppColors.secondary,
-                              child: const Icon(
-                                Icons.hotel,
-                                size: 80,
-                                color: Colors.white54,
-                              ),
-                            ),
-                          );
-                        },
+                            );
+                          },
+                        ),
                       ),
 
                       // Gradient Overlay
@@ -355,9 +414,11 @@ class _HotelDetailsScreenState extends ConsumerState<HotelDetailsScreen> {
                             gradient: LinearGradient(
                               colors: [
                                 Colors.transparent,
-                                Colors.black.withValues(alpha: 0.7),
+                                Colors.transparent,
+                                Colors.black.withValues(alpha: 0.8),
                               ],
-                              begin: const Alignment(0, 0.3),
+                              stops: const [0.0, 0.5, 1.0],
+                              begin: Alignment.topCenter,
                               end: Alignment.bottomCenter,
                             ),
                           ),
@@ -366,7 +427,7 @@ class _HotelDetailsScreenState extends ConsumerState<HotelDetailsScreen> {
 
                       // Page Indicators
                       Positioned(
-                        bottom: 80,
+                        bottom: 100,
                         left: 0,
                         right: 0,
                         child: Row(
@@ -374,14 +435,14 @@ class _HotelDetailsScreenState extends ConsumerState<HotelDetailsScreen> {
                           children: List.generate(
                             images.length,
                             (index) => AnimatedContainer(
-                              duration: const Duration(milliseconds: 200),
-                              width: index == _currentImageIndex ? 24 : 8,
+                              duration: const Duration(milliseconds: 250),
+                              width: index == _currentImageIndex ? 28 : 8,
                               height: 8,
-                              margin: const EdgeInsets.symmetric(horizontal: 4),
+                              margin: const EdgeInsets.symmetric(horizontal: 3),
                               decoration: BoxDecoration(
                                 color: index == _currentImageIndex
                                     ? Colors.white
-                                    : Colors.white.withValues(alpha: 0.5),
+                                    : Colors.white.withValues(alpha: 0.4),
                                 borderRadius: BorderRadius.circular(4),
                               ),
                             ),
@@ -389,33 +450,174 @@ class _HotelDetailsScreenState extends ConsumerState<HotelDetailsScreen> {
                         ),
                       ),
 
-                      // Price Badge
+                      // View All Photos Button
                       Positioned(
-                        bottom: 20,
-                        right: 20,
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 10,
-                          ),
-                          decoration: BoxDecoration(
-                            color: AppColors.primary,
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text(
-                                '৳${_formatPrice(price)}',
-                                style: AppTypography.h4.copyWith(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
+                        bottom: 100,
+                        right: 16,
+                        child: GestureDetector(
+                          onTap: () => _openGallery(images, 0),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(8),
+                            child: BackdropFilter(
+                              filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 8,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: Colors.black.withValues(alpha: 0.4),
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(
+                                    color: Colors.white.withValues(alpha: 0.2),
+                                  ),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    const Icon(
+                                      Icons.photo_library_outlined,
+                                      color: Colors.white,
+                                      size: 16,
+                                    ),
+                                    const SizedBox(width: 6),
+                                    Text(
+                                      '${images.length} Photos',
+                                      style: AppTypography.labelSmall.copyWith(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
-                              Text(
-                                '/${AppLocalizations.of(context)!.night}',
-                                style: AppTypography.labelSmall.copyWith(
-                                  color: Colors.white.withValues(alpha: 0.7),
+                            ),
+                          ),
+                        ),
+                      ),
+
+                      // Bottom Info Card (overlapping hero)
+                      Positioned(
+                        bottom: 0,
+                        left: 0,
+                        right: 0,
+                        child: Container(
+                          margin: const EdgeInsets.symmetric(horizontal: 16),
+                          padding: const EdgeInsets.all(20),
+                          decoration: BoxDecoration(
+                            color: isDark
+                                ? AppColors.surfaceDark
+                                : Colors.white,
+                            borderRadius: const BorderRadius.vertical(
+                              top: Radius.circular(24),
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.15),
+                                blurRadius: 20,
+                                offset: const Offset(0, -5),
+                              ),
+                            ],
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          hotelName,
+                                          style: AppTypography.h2.copyWith(
+                                            color: isDark
+                                                ? Colors.white
+                                                : AppColors.textPrimary,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 6),
+                                        Row(
+                                          children: [
+                                            Icon(
+                                              Icons.location_on,
+                                              size: 16,
+                                              color: AppColors.primary,
+                                            ),
+                                            const SizedBox(width: 4),
+                                            Expanded(
+                                              child: Text(
+                                                hotelCity,
+                                                style: AppTypography.bodyMedium
+                                                    .copyWith(
+                                                      color: AppColors
+                                                          .textSecondary,
+                                                    ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+
+                                  // Rating Badge
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 14,
+                                      vertical: 10,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      gradient: LinearGradient(
+                                        colors: [
+                                          AppColors.starFilled,
+                                          AppColors.starFilled.withValues(
+                                            alpha: 0.8,
+                                          ),
+                                        ],
+                                      ),
+                                      borderRadius: BorderRadius.circular(14),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: AppColors.starFilled
+                                              .withValues(alpha: 0.3),
+                                          blurRadius: 10,
+                                          offset: const Offset(0, 4),
+                                        ),
+                                      ],
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        const Icon(
+                                          Icons.star_rounded,
+                                          size: 20,
+                                          color: Colors.white,
+                                        ),
+                                        const SizedBox(width: 4),
+                                        Text(
+                                          hotelRating.toStringAsFixed(1),
+                                          style: AppTypography.labelLarge
+                                              .copyWith(
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+
+                              // Review Count
+                              Padding(
+                                padding: const EdgeInsets.only(top: 8),
+                                child: Text(
+                                  '$hotelReviewCount ${loc.reviews}',
+                                  style: AppTypography.bodySmall.copyWith(
+                                    color: AppColors.textTertiary,
+                                  ),
                                 ),
                               ),
                             ],
@@ -429,367 +631,314 @@ class _HotelDetailsScreenState extends ConsumerState<HotelDetailsScreen> {
 
               // Content
               SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.all(20),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Name and Rating
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(hotelName, style: AppTypography.h2),
-                                const SizedBox(height: 6),
-                                Row(
-                                  children: [
-                                    Icon(
-                                      Icons.location_on,
-                                      size: 16,
-                                      color: AppColors.textSecondary,
-                                    ),
-                                    const SizedBox(width: 4),
-                                    Expanded(
-                                      child: Text(
-                                        hotelCity,
-                                        style: AppTypography.bodyMedium
-                                            .copyWith(
-                                              color: AppColors.textSecondary,
-                                            ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
+                child: Container(
+                  color: isDark ? AppColors.surfaceDark : Colors.white,
+                  margin: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const SizedBox(height: 20),
 
-                          // Rating Badge
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 14,
-                              vertical: 10,
-                            ),
-                            decoration: BoxDecoration(
-                              color: AppColors.starFilled,
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Row(
-                              children: [
-                                const Icon(
-                                  Icons.star,
-                                  size: 18,
-                                  color: Colors.white,
-                                ),
-                                const SizedBox(width: 4),
-                                Text(
-                                  hotelRating.toStringAsFixed(1),
-                                  style: AppTypography.labelLarge.copyWith(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
+                        // Date Selection Card
+                        _DateSelectionCard(
+                          checkIn: _checkIn,
+                          checkOut: _checkOut,
+                          nights: _nights,
+                          onTap: _openDateSelector,
+                          isDark: isDark,
+                        ),
 
-                      // Review Count
-                      Padding(
-                        padding: const EdgeInsets.only(top: 8),
-                        child: Text(
-                          '$hotelReviewCount ${AppLocalizations.of(context)!.reviews}',
-                          style: AppTypography.bodySmall.copyWith(
-                            color: AppColors.textTertiary,
+                        const SizedBox(height: 28),
+
+                        // Amenities Section
+                        Text(
+                          loc.detailsAmenities,
+                          style: AppTypography.h4.copyWith(
+                            color: isDark
+                                ? Colors.white
+                                : AppColors.textPrimary,
                           ),
                         ),
-                      ),
-                      const SizedBox(height: 24),
+                        const SizedBox(height: 16),
+                        _AmenitiesGrid(
+                          amenities: amenities,
+                          getIcon: _getAmenityIcon,
+                          isDark: isDark,
+                        ),
 
-                      // Amenities
-                      Text(
-                        AppLocalizations.of(context)!.detailsAmenities,
-                        style: AppTypography.h4,
-                      ),
-                      const SizedBox(height: 16),
-                      SizedBox(
-                        height: 80,
-                        child: ListView.separated(
-                          scrollDirection: Axis.horizontal,
-                          itemCount: amenities.length,
-                          separatorBuilder: (_, _) => const SizedBox(width: 12),
-                          itemBuilder: (context, index) {
-                            final amenity = amenities[index];
-                            return _AmenityCard(
-                              icon: _getAmenityIcon(amenity['icon']!),
-                              label: amenity['label']!,
+                        const SizedBox(height: 28),
+
+                        // Description Section
+                        Text(
+                          loc.detailsDescription,
+                          style: AppTypography.h4.copyWith(
+                            color: isDark
+                                ? Colors.white
+                                : AppColors.textPrimary,
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        Text(
+                          description,
+                          style: AppTypography.bodyMedium.copyWith(
+                            color: AppColors.textSecondary,
+                            height: 1.7,
+                          ),
+                        ),
+
+                        const SizedBox(height: 28),
+
+                        // Reviews Summary Section
+                        _ReviewsSummary(
+                          rating: hotelRating,
+                          reviewCount: hotelReviewCount,
+                          isDark: isDark,
+                        ),
+
+                        const SizedBox(height: 28),
+
+                        // Rooms Section
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              loc.detailsRooms,
+                              style: AppTypography.h4.copyWith(
+                                color: isDark
+                                    ? Colors.white
+                                    : AppColors.textPrimary,
+                              ),
+                            ),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 6,
+                              ),
+                              decoration: BoxDecoration(
+                                color: AppColors.primary.withValues(alpha: 0.1),
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: Text(
+                                loc.roomsCount(apiRooms.length),
+                                style: AppTypography.labelSmall.copyWith(
+                                  color: AppColors.primary,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 16),
+
+                        // Room Cards
+                        if (isLoadingRooms)
+                          _buildRoomsLoading()
+                        else if (hasRoomsError)
+                          _buildRoomsError()
+                        else if (apiRooms.isEmpty)
+                          _buildNoRooms()
+                        else
+                          ...apiRooms.map((room) {
+                            String bedsText;
+                            final type = room.type.toLowerCase();
+                            if (type.contains('double')) {
+                              bedsText = loc.bedDouble;
+                            } else if (type.contains('twin')) {
+                              bedsText = loc.bedTwin;
+                            } else if (type.contains('single')) {
+                              bedsText = loc.bedSingle;
+                            } else {
+                              bedsText = loc.bedDefault;
+                            }
+
+                            return Padding(
+                              padding: const EdgeInsets.only(bottom: 20),
+                              child: PremiumRoomCard(
+                                name: room.name,
+                                capacity: loc.capacityText(room.maxGuests),
+                                beds: bedsText,
+                                features: room.amenities.take(4).toList(),
+                                price: room.dynamicPrice,
+                                imageUrl: room.photos.isNotEmpty
+                                    ? room.photos.first
+                                    : 'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=400',
+                                isAvailable: room.isAvailable,
+                                availableCount: room.availableCount,
+                                onSelect: () {
+                                  context.push(
+                                    '/book/${room.id}?hotel=${widget.hotelId}',
+                                  );
+                                },
+                              ),
                             );
-                          },
-                        ),
-                      ),
-                      const SizedBox(height: 24),
+                          }),
 
-                      // Description
-                      Text(
-                        AppLocalizations.of(context)!.detailsDescription,
-                        style: AppTypography.h4,
-                      ),
-                      const SizedBox(height: 12),
-                      Text(
-                        description,
-                        style: AppTypography.bodyMedium.copyWith(
-                          color: AppColors.textSecondary,
-                          height: 1.6,
-                        ),
-                      ),
-                      const SizedBox(height: 24),
-
-                      // Rooms Section
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            AppLocalizations.of(context)!.detailsRooms,
-                            style: AppTypography.h4,
-                          ),
-                          Text(
-                            AppLocalizations.of(
-                              context,
-                            )!.roomsCount(apiRooms.length),
-                            style: AppTypography.labelMedium.copyWith(
-                              color: AppColors.textSecondary,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-
-                      // Room Cards - Show loading, error, or actual rooms with dynamic prices
-                      if (isLoadingRooms)
-                        const Center(
-                          child: Padding(
-                            padding: EdgeInsets.all(20),
-                            child: CircularProgressIndicator(),
-                          ),
-                        )
-                      else if (hasRoomsError)
-                        Padding(
-                          padding: const EdgeInsets.all(20),
-                          child: Column(
-                            children: [
-                              const Icon(
-                                Icons.error_outline,
-                                color: AppColors.error,
-                                size: 40,
-                              ),
-                              const SizedBox(height: 8),
-                              Text(
-                                AppLocalizations.of(context)!.errorLoadingRooms,
-                                style: AppTypography.bodyMedium.copyWith(
-                                  color: AppColors.textSecondary,
-                                ),
-                              ),
-                            ],
-                          ),
-                        )
-                      else if (apiRooms.isEmpty)
-                        Padding(
-                          padding: const EdgeInsets.all(20),
-                          child: Text(
-                            AppLocalizations.of(context)!.noRoomsFound,
-                            style: AppTypography.bodyMedium.copyWith(
-                              color: AppColors.textSecondary,
-                            ),
-                          ),
-                        )
-                      else
-                        ...apiRooms.map((room) {
-                          final loc = AppLocalizations.of(context)!;
-                          String bedsText;
-                          final type = room.type.toLowerCase();
-                          if (type.contains('double')) {
-                            bedsText = loc.bedDouble;
-                          } else if (type.contains('twin')) {
-                            bedsText = loc.bedTwin;
-                          } else if (type.contains('single')) {
-                            bedsText = loc.bedSingle;
-                          } else {
-                            bedsText = loc.bedDefault;
-                          }
-
-                          return Padding(
-                            padding: const EdgeInsets.only(bottom: 16),
-                            child: _RoomCard(
-                              name: room.name,
-                              capacity: loc.capacityText(room.maxGuests),
-                              beds: bedsText,
-                              features: room.amenities.take(2).join(' • '),
-                              price: room.dynamicPrice, // Use dynamic price!
-                              imageUrl: room.photos.isNotEmpty
-                                  ? room.photos.first
-                                  : 'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=400',
-                              isAvailable: room.isAvailable,
-                              availableCount: room.availableCount,
-                              onSelect: () {
-                                context.push(
-                                  '/book/${room.id}?hotel=${widget.hotelId}',
-                                );
-                              },
-                            ),
-                          );
-                        }),
-
-                      const SizedBox(height: 100),
-                    ],
+                        const SizedBox(height: 100),
+                      ],
+                    ),
                   ),
                 ),
               ),
             ],
           ),
 
-          // Bottom Bar
+          // Fixed Top App Bar
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              color: (isDark ? AppColors.surfaceDark : Colors.white).withValues(
+                alpha: _appBarOpacity,
+              ),
+              child: SafeArea(
+                bottom: false,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      // Back Button
+                      _CircleButton(
+                        icon: Icons.arrow_back_ios_new,
+                        onTap: () => context.pop(),
+                        isDark: isDark,
+                        hasBackground: _appBarOpacity < 0.5,
+                      ),
+
+                      // Title (fades in on scroll)
+                      AnimatedOpacity(
+                        duration: const Duration(milliseconds: 200),
+                        opacity: _appBarOpacity,
+                        child: Text(
+                          hotelName,
+                          style: AppTypography.labelLarge.copyWith(
+                            color: isDark
+                                ? Colors.white
+                                : AppColors.textPrimary,
+                            fontWeight: FontWeight.w600,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+
+                      // Share Button
+                      _CircleButton(
+                        icon: Icons.share_outlined,
+                        onTap: () => _handleShare(hotelName),
+                        isDark: isDark,
+                        hasBackground: _appBarOpacity < 0.5,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+
+          // Bottom Booking Bar
           Positioned(
             bottom: 0,
             left: 0,
             right: 0,
-            child: Container(
-              padding: EdgeInsets.only(
-                left: 20,
-                right: 20,
-                top: 16,
-                bottom: MediaQuery.of(context).padding.bottom + 16,
-              ),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.08),
-                    blurRadius: 16,
-                    offset: const Offset(0, -4),
-                  ),
-                ],
-              ),
-              child: Row(
-                children: [
-                  // Save Button
-                  GestureDetector(
-                    onTap: _handleSave,
-                    child: Container(
-                      width: 52,
-                      height: 52,
-                      decoration: BoxDecoration(
-                        color: isSaved
-                            ? AppColors.error.withValues(alpha: 0.1)
-                            : AppColors.surfaceVariant,
-                        borderRadius: BorderRadius.circular(14),
-                        border: Border.all(
-                          color: isSaved
-                              ? AppColors.error.withValues(alpha: 0.3)
-                              : AppColors.divider,
+            child: FadeTransition(
+              opacity: _bottomBarOpacity,
+              child: _BottomBookingBar(
+                price: price,
+                nights: _nights,
+                isSaved: isSaved,
+                onSave: _handleSave,
+                onBook: () {
+                  if (apiRooms.isNotEmpty) {
+                    // Scroll to rooms section
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(loc.selectRoomSnackbar),
+                        behavior: SnackBarBehavior.floating,
+                        margin: const EdgeInsets.all(16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
                         ),
+                        duration: const Duration(seconds: 2),
                       ),
-                      child: Icon(
-                        isSaved ? Icons.favorite : Icons.favorite_border,
-                        color: isSaved
-                            ? AppColors.error
-                            : AppColors.textSecondary,
-                        size: 24,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-
-                  // Book Now Button
-                  Expanded(
-                    child: GestureDetector(
-                      onTap: () {
-                        // Scroll up to show rooms - user should select a specific room
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(
-                              AppLocalizations.of(context)!.selectRoomSnackbar,
-                            ),
-                            duration: const Duration(seconds: 2),
-                          ),
-                        );
-                      },
-                      child: Container(
-                        height: 52,
-                        decoration: BoxDecoration(
-                          color: AppColors.primary,
-                          borderRadius: BorderRadius.circular(14),
-                          boxShadow: AppColors.buttonShadow,
-                        ),
-                        child: Center(
-                          child: Text(
-                            AppLocalizations.of(context)!.bookNow,
-                            style: AppTypography.button,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
+                    );
+                  }
+                },
+                isDark: isDark,
               ),
             ),
           ),
-          // Top Bar (Fixed)
-          Positioned(
-            top: topPadding + 8,
-            left: 16,
-            right: 16,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                // Back Button
-                GestureDetector(
-                  onTap: () => context.pop(),
-                  child: Container(
-                    width: 44,
-                    height: 44,
-                    decoration: BoxDecoration(
-                      color: Colors.black.withValues(alpha: 0.4),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(
-                      Icons.arrow_back,
-                      color: Colors.white,
-                      size: 20,
-                    ),
-                  ),
-                ),
+        ],
+      ),
+    );
+  }
 
-                // Title
-                Text(
-                  AppLocalizations.of(context)!.hotelDetailsTitle,
-                  style: AppTypography.labelLarge.copyWith(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
+  Widget _buildRoomsLoading() {
+    return Column(
+      children: List.generate(
+        2,
+        (index) => Padding(
+          padding: const EdgeInsets.only(bottom: 16),
+          child: Shimmer.fromColors(
+            baseColor: AppColors.shimmerBase,
+            highlightColor: AppColors.shimmerHighlight,
+            child: Container(
+              height: 200,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(20),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 
-                // Share Button
-                GestureDetector(
-                  onTap: _handleShare,
-                  child: Container(
-                    width: 44,
-                    height: 44,
-                    decoration: BoxDecoration(
-                      color: Colors.black.withValues(alpha: 0.4),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(
-                      Icons.share,
-                      color: Colors.white,
-                      size: 20,
-                    ),
-                  ),
-                ),
-              ],
+  Widget _buildRoomsError() {
+    return Container(
+      padding: const EdgeInsets.all(32),
+      decoration: BoxDecoration(
+        color: AppColors.error.withValues(alpha: 0.05),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Column(
+        children: [
+          Icon(Icons.error_outline, color: AppColors.error, size: 48),
+          const SizedBox(height: 12),
+          Text(
+            AppLocalizations.of(context)!.errorLoadingRooms,
+            style: AppTypography.bodyMedium.copyWith(
+              color: AppColors.textSecondary,
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildNoRooms() {
+    return Container(
+      padding: const EdgeInsets.all(32),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceVariant,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Column(
+        children: [
+          Icon(Icons.bed_outlined, color: AppColors.textTertiary, size: 48),
+          const SizedBox(height: 12),
+          Text(
+            AppLocalizations.of(context)!.noRoomsFound,
+            style: AppTypography.bodyMedium.copyWith(
+              color: AppColors.textSecondary,
             ),
           ),
         ],
@@ -798,64 +947,440 @@ class _HotelDetailsScreenState extends ConsumerState<HotelDetailsScreen> {
   }
 }
 
-class _AmenityCard extends StatelessWidget {
-  final IconData icon;
-  final String label;
+// ============== PRIVATE WIDGETS ==============
 
-  const _AmenityCard({required this.icon, required this.label});
+class _CircleButton extends StatelessWidget {
+  final IconData icon;
+  final VoidCallback onTap;
+  final bool isDark;
+  final bool hasBackground;
+
+  const _CircleButton({
+    required this.icon,
+    required this.onTap,
+    required this.isDark,
+    this.hasBackground = true,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 44,
+        height: 44,
+        decoration: BoxDecoration(
+          color: hasBackground
+              ? Colors.black.withValues(alpha: 0.4)
+              : (isDark ? AppColors.surfaceDark : Colors.white).withValues(
+                  alpha: 0.9,
+                ),
+          shape: BoxShape.circle,
+          boxShadow: hasBackground
+              ? null
+              : [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.1),
+                    blurRadius: 8,
+                  ),
+                ],
+        ),
+        child: Icon(
+          icon,
+          color: hasBackground
+              ? Colors.white
+              : (isDark ? Colors.white : AppColors.textPrimary),
+          size: 20,
+        ),
+      ),
+    );
+  }
+}
+
+class _DateSelectionCard extends StatelessWidget {
+  final DateTime checkIn;
+  final DateTime checkOut;
+  final int nights;
+  final VoidCallback onTap;
+  final bool isDark;
+
+  const _DateSelectionCard({
+    required this.checkIn,
+    required this.checkOut,
+    required this.nights,
+    required this.onTap,
+    required this.isDark,
+  });
+
+  String _formatDate(DateTime date) {
+    final months = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ];
+    final weekdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+    return '${weekdays[date.weekday - 1]}, ${date.day} ${months[date.month - 1]}';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
+
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              AppColors.primary.withValues(alpha: 0.08),
+              AppColors.primary.withValues(alpha: 0.03),
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: AppColors.primary.withValues(alpha: 0.2)),
+        ),
+        child: Row(
+          children: [
+            // Check-in
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    loc.checkIn,
+                    style: AppTypography.labelSmall.copyWith(
+                      color: AppColors.primary,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    _formatDate(checkIn),
+                    style: AppTypography.labelLarge.copyWith(
+                      color: isDark ? Colors.white : AppColors.textPrimary,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            // Nights Badge
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              decoration: BoxDecoration(
+                color: AppColors.primary,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Column(
+                children: [
+                  Text(
+                    nights.toString(),
+                    style: AppTypography.h4.copyWith(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  Text(
+                    nights == 1 ? 'Night' : 'Nights',
+                    style: AppTypography.labelSmall.copyWith(
+                      color: Colors.white.withValues(alpha: 0.8),
+                      fontSize: 9,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            // Check-out
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(
+                    loc.checkOut,
+                    style: AppTypography.labelSmall.copyWith(
+                      color: AppColors.primary,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    _formatDate(checkOut),
+                    style: AppTypography.labelLarge.copyWith(
+                      color: isDark ? Colors.white : AppColors.textPrimary,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _AmenitiesGrid extends StatelessWidget {
+  final List<Map<String, String>> amenities;
+  final IconData Function(String) getIcon;
+  final bool isDark;
+
+  const _AmenitiesGrid({
+    required this.amenities,
+    required this.getIcon,
+    required this.isDark,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Wrap(
+      spacing: 12,
+      runSpacing: 12,
+      children: amenities.map((amenity) {
+        return Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          decoration: BoxDecoration(
+            color: isDark
+                ? Colors.white.withValues(alpha: 0.08)
+                : AppColors.surfaceVariant,
+            borderRadius: BorderRadius.circular(14),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                getIcon(amenity['icon']!),
+                size: 20,
+                color: AppColors.primary,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                amenity['label']!,
+                style: AppTypography.labelMedium.copyWith(
+                  color: isDark ? Colors.white : AppColors.textPrimary,
+                ),
+              ),
+            ],
+          ),
+        );
+      }).toList(),
+    );
+  }
+}
+
+class _ReviewsSummary extends StatelessWidget {
+  final double rating;
+  final int reviewCount;
+  final bool isDark;
+
+  const _ReviewsSummary({
+    required this.rating,
+    required this.reviewCount,
+    required this.isDark,
+  });
+
+  String _getRatingText(double rating) {
+    if (rating >= 4.5) return 'Excellent';
+    if (rating >= 4.0) return 'Very Good';
+    if (rating >= 3.5) return 'Good';
+    if (rating >= 3.0) return 'Average';
+    return 'Below Average';
+  }
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 80,
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: AppColors.softShadow,
+        color: isDark
+            ? Colors.white.withValues(alpha: 0.05)
+            : AppColors.surfaceVariant,
+        borderRadius: BorderRadius.circular(20),
       ),
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, size: 24, color: AppColors.primary),
-          const SizedBox(height: 8),
-          Text(
+          Row(
+            children: [
+              Text(
+                'Guest Reviews',
+                style: AppTypography.h4.copyWith(
+                  color: isDark ? Colors.white : AppColors.textPrimary,
+                ),
+              ),
+              const Spacer(),
+              TextButton(
+                onPressed: () {
+                  // TODO: Navigate to all reviews
+                },
+                child: Text(
+                  'See All',
+                  style: AppTypography.labelMedium.copyWith(
+                    color: AppColors.primary,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+
+          Row(
+            children: [
+              // Big Rating
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: AppColors.primary.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Column(
+                  children: [
+                    Text(
+                      rating.toStringAsFixed(1),
+                      style: AppTypography.h1.copyWith(
+                        color: AppColors.primary,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    Row(
+                      children: List.generate(5, (index) {
+                        return Icon(
+                          index < rating.floor()
+                              ? Icons.star_rounded
+                              : (index < rating
+                                    ? Icons.star_half_rounded
+                                    : Icons.star_outline_rounded),
+                          color: AppColors.starFilled,
+                          size: 14,
+                        );
+                      }),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 16),
+
+              // Rating breakdown
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      _getRatingText(rating),
+                      style: AppTypography.h4.copyWith(
+                        color: isDark ? Colors.white : AppColors.textPrimary,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'Based on $reviewCount reviews',
+                      style: AppTypography.bodySmall.copyWith(
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    // Rating bars
+                    _RatingBar(
+                      label: 'Cleanliness',
+                      value: 0.9,
+                      isDark: isDark,
+                    ),
+                    const SizedBox(height: 4),
+                    _RatingBar(label: 'Location', value: 0.85, isDark: isDark),
+                    const SizedBox(height: 4),
+                    _RatingBar(label: 'Service', value: 0.88, isDark: isDark),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _RatingBar extends StatelessWidget {
+  final String label;
+  final double value;
+  final bool isDark;
+
+  const _RatingBar({
+    required this.label,
+    required this.value,
+    required this.isDark,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        SizedBox(
+          width: 70,
+          child: Text(
             label,
             style: AppTypography.labelSmall.copyWith(
               color: AppColors.textSecondary,
               fontSize: 10,
             ),
-            textAlign: TextAlign.center,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
           ),
-        ],
-      ),
+        ),
+        Expanded(
+          child: Container(
+            height: 4,
+            decoration: BoxDecoration(
+              color: isDark
+                  ? Colors.white.withValues(alpha: 0.1)
+                  : AppColors.divider,
+              borderRadius: BorderRadius.circular(2),
+            ),
+            child: FractionallySizedBox(
+              alignment: Alignment.centerLeft,
+              widthFactor: value,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: AppColors.primary,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
 
-class _RoomCard extends StatelessWidget {
-  final String name;
-  final String capacity;
-  final String beds;
-  final String features;
+class _BottomBookingBar extends StatelessWidget {
   final int price;
-  final String imageUrl;
-  final VoidCallback onSelect;
-  final bool isAvailable;
-  final int availableCount;
+  final int nights;
+  final bool isSaved;
+  final VoidCallback onSave;
+  final VoidCallback onBook;
+  final bool isDark;
 
-  const _RoomCard({
-    required this.name,
-    required this.capacity,
-    required this.beds,
-    required this.features,
+  const _BottomBookingBar({
     required this.price,
-    required this.imageUrl,
-    required this.onSelect,
-    this.isAvailable = true,
-    this.availableCount = 1,
+    required this.nights,
+    required this.isSaved,
+    required this.onSave,
+    required this.onBook,
+    required this.isDark,
   });
 
   String _formatPrice(int price) {
@@ -867,130 +1392,121 @@ class _RoomCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: AppColors.softShadow,
-      ),
-      child: IntrinsicHeight(
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // Room Image (Left)
-            ClipRRect(
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(16),
-                bottomLeft: Radius.circular(16),
-              ),
-              child: SizedBox(
-                width: 120,
-                child: CachedNetworkImage(
-                  imageUrl: imageUrl,
-                  fit: BoxFit.cover,
-                  placeholder: (context, url) =>
-                      Container(color: AppColors.shimmerBase),
-                  errorWidget: (context, url, error) => Container(
-                    color: AppColors.surfaceVariant,
-                    child: const Icon(
-                      Icons.bed,
-                      size: 32,
-                      color: AppColors.textTertiary,
-                    ),
-                  ),
-                ),
+    final loc = AppLocalizations.of(context)!;
+    final totalPrice = price * nights;
+
+    return ClipRRect(
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+        child: Container(
+          padding: EdgeInsets.only(
+            left: 20,
+            right: 20,
+            top: 16,
+            bottom: MediaQuery.of(context).padding.bottom + 16,
+          ),
+          decoration: BoxDecoration(
+            color: (isDark ? AppColors.surfaceDark : Colors.white).withValues(
+              alpha: 0.9,
+            ),
+            border: Border(
+              top: BorderSide(
+                color: isDark ? Colors.white12 : AppColors.divider,
               ),
             ),
-
-            // Room Info (Right)
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.all(12),
+          ),
+          child: Row(
+            children: [
+              // Price Info
+              Expanded(
                 child: Column(
+                  mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          name,
-                          style: AppTypography.h4.copyWith(fontSize: 16),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          '$capacity • $beds',
-                          style: AppTypography.bodySmall.copyWith(
-                            color: AppColors.textSecondary,
-                            fontSize: 10,
-                          ),
-                        ),
-                        if (features.isNotEmpty) ...[
-                          const SizedBox(height: 2),
-                          Text(
-                            features,
-                            style: AppTypography.bodySmall.copyWith(
-                              color: AppColors.textSecondary,
-                              fontSize: 10,
+                    RichText(
+                      text: TextSpan(
+                        children: [
+                          TextSpan(
+                            text: '৳${_formatPrice(totalPrice)}',
+                            style: AppTypography.h3.copyWith(
+                              color: AppColors.primary,
+                              fontWeight: FontWeight.bold,
                             ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
                           ),
                         ],
-                      ],
+                      ),
                     ),
-                    const SizedBox(height: 8),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        RichText(
-                          text: TextSpan(
-                            children: [
-                              TextSpan(
-                                text: '৳${_formatPrice(price)}',
-                                style: AppTypography.priceSmall,
-                              ),
-                              TextSpan(
-                                text: '/${AppLocalizations.of(context)!.night}',
-                                style: AppTypography.bodySmall.copyWith(
-                                  color: AppColors.textSecondary,
-                                  fontSize: 10,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        GestureDetector(
-                          onTap: onSelect,
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 8,
-                            ),
-                            decoration: BoxDecoration(
-                              color: AppColors.primary,
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Text(
-                              AppLocalizations.of(context)!.selectRoom,
-                              style: AppTypography.labelLarge.copyWith(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 12,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
+                    Text(
+                      '$nights ${nights == 1 ? 'night' : 'nights'} • ৳${_formatPrice(price)}/night',
+                      style: AppTypography.labelSmall.copyWith(
+                        color: AppColors.textSecondary,
+                      ),
                     ),
                   ],
                 ),
               ),
-            ),
-          ],
+
+              // Save Button
+              GestureDetector(
+                onTap: onSave,
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  width: 52,
+                  height: 52,
+                  margin: const EdgeInsets.only(right: 12),
+                  decoration: BoxDecoration(
+                    color: isSaved
+                        ? AppColors.error.withValues(alpha: 0.1)
+                        : (isDark
+                              ? Colors.white.withValues(alpha: 0.08)
+                              : AppColors.surfaceVariant),
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(
+                      color: isSaved
+                          ? AppColors.error.withValues(alpha: 0.3)
+                          : (isDark ? Colors.white12 : AppColors.divider),
+                    ),
+                  ),
+                  child: Icon(
+                    isSaved ? Icons.favorite : Icons.favorite_border,
+                    color: isSaved
+                        ? AppColors.error
+                        : (isDark ? Colors.white70 : AppColors.textSecondary),
+                    size: 24,
+                  ),
+                ),
+              ),
+
+              // Book Button
+              Expanded(
+                child: GestureDetector(
+                  onTap: onBook,
+                  child: Container(
+                    height: 52,
+                    decoration: BoxDecoration(
+                      gradient: AppColors.primaryGradient,
+                      borderRadius: BorderRadius.circular(14),
+                      boxShadow: AppColors.buttonShadow,
+                    ),
+                    child: Center(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(loc.bookNow, style: AppTypography.button),
+                          const SizedBox(width: 4),
+                          const Icon(
+                            Icons.arrow_forward,
+                            color: Colors.white,
+                            size: 18,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
