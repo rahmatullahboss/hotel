@@ -67,19 +67,21 @@ class _BookingsScreenState extends ConsumerState<BookingsScreen>
       backgroundColor: AppColors.adaptiveBackground(context),
       body: Column(
         children: [
-          // Premium White Header
+          // Premium Header with Dark Mode
           Container(
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: AppColors.isDarkMode(context)
+                  ? AppColors.surfaceDark
+                  : Colors.white,
               borderRadius: const BorderRadius.only(
-                bottomLeft: Radius.circular(24),
-                bottomRight: Radius.circular(24),
+                bottomLeft: Radius.circular(28),
+                bottomRight: Radius.circular(28),
               ),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
-                  blurRadius: 10,
-                  offset: const Offset(0, 2),
+                  color: Colors.black.withOpacity(0.08),
+                  blurRadius: 16,
+                  offset: const Offset(0, 4),
                 ),
               ],
             ),
@@ -103,7 +105,9 @@ class _BookingsScreenState extends ConsumerState<BookingsScreen>
                             style: GoogleFonts.plusJakartaSans(
                               fontSize: 24,
                               fontWeight: FontWeight.bold,
-                              color: AppColors.textPrimary,
+                              color: AppColors.isDarkMode(context)
+                                  ? Colors.white
+                                  : AppColors.textPrimary,
                             ),
                           ),
                           const SizedBox(height: 4),
@@ -111,7 +115,9 @@ class _BookingsScreenState extends ConsumerState<BookingsScreen>
                             '$totalBookings ${AppLocalizations.of(context)!.bookingsSubtitleSuffix}',
                             style: GoogleFonts.notoSans(
                               fontSize: 14,
-                              color: AppColors.textSecondary,
+                              color: AppColors.isDarkMode(context)
+                                  ? Colors.white60
+                                  : AppColors.textSecondary,
                             ),
                           ),
                         ],
@@ -121,15 +127,19 @@ class _BookingsScreenState extends ConsumerState<BookingsScreen>
                       GestureDetector(
                         onTap: () => context.push('/qr-scanner'),
                         child: Container(
-                          width: 44,
-                          height: 44,
+                          width: 46,
+                          height: 46,
                           decoration: BoxDecoration(
-                            color: AppColors.surfaceVariant,
-                            borderRadius: BorderRadius.circular(12),
+                            color: AppColors.isDarkMode(context)
+                                ? Colors.white.withOpacity(0.1)
+                                : AppColors.surfaceVariant,
+                            borderRadius: BorderRadius.circular(14),
                           ),
-                          child: const Icon(
+                          child: Icon(
                             Icons.qr_code_scanner_rounded,
-                            color: AppColors.textPrimary,
+                            color: AppColors.isDarkMode(context)
+                                ? Colors.white
+                                : AppColors.textPrimary,
                             size: 22,
                           ),
                         ),
@@ -141,8 +151,10 @@ class _BookingsScreenState extends ConsumerState<BookingsScreen>
                   // Tab Bar with improved styling
                   Container(
                     decoration: BoxDecoration(
-                      color: AppColors.surfaceVariant,
-                      borderRadius: BorderRadius.circular(12),
+                      color: AppColors.isDarkMode(context)
+                          ? Colors.white.withOpacity(0.08)
+                          : AppColors.surfaceVariant,
+                      borderRadius: BorderRadius.circular(14),
                     ),
                     child: TabBar(
                       controller: _tabController,
