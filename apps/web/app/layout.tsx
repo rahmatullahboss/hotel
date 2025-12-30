@@ -8,6 +8,7 @@ import { ServiceWorkerUnregister } from "./components/ServiceWorkerUnregister";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages } from "next-intl/server";
 import { ScrollToTop } from "./components/ScrollToTop";
+import { CookieConsent } from "./components/CookieConsent";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -88,6 +89,7 @@ export default async function RootLayout({
             <TopNav />
             {children}
             <ScrollToTop />
+            <CookieConsent />
           </NextIntlClientProvider>
         </Providers>
       </body>
