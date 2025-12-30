@@ -66,7 +66,7 @@ export default async function DashboardPage() {
                                     )}
                                 </div>
                             </div>
-                            <Link href="/hotels" className="btn btn-sm btn-primary">
+                            <Link href="/hotels#pending" className="btn btn-sm btn-primary">
                                 View
                             </Link>
                         </div>

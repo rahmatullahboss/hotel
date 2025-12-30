@@ -1,13 +1,12 @@
 import { getAdminHotels, getPendingHotels, approveHotelRegistration, rejectHotelRegistration, toggleHotelVerification } from "@/actions/hotels";
 
+export const dynamic = 'force-dynamic';
+
 export default async function HotelsPage() {
     const [hotels, pendingHotels] = await Promise.all([
         getAdminHotels(),
         getPendingHotels(),
     ]);
-
-    // Separate active/suspended hotels from pending
-    const activeHotels = hotels.filter((h: any) => h.status !== "PENDING");
 
     return (
         <div>
@@ -18,39 +17,40 @@ export default async function HotelsPage() {
                 </p>
             </div>
 
-            {/* Pending Applications Section */}
-            {pendingHotels.length > 0 && (
-                <div style={{ padding: "0 1.5rem", marginBottom: "2rem" }}>
-                    <h2 style={{
-                        fontSize: "1.125rem",
-                        fontWeight: 600,
-                        marginBottom: "1rem",
-                        display: "flex",
+            {/* Pending Applications Section - Always shown with anchor */}
+            <div id="pending" style={{ padding: "0 1.5rem", marginBottom: "2rem", scrollMarginTop: "80px" }}>
+                <h2 style={{
+                    fontSize: "1.125rem",
+                    fontWeight: 600,
+                    marginBottom: "1rem",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "0.5rem"
+                }}>
+                    <span style={{
+                        display: "inline-flex",
                         alignItems: "center",
-                        gap: "0.5rem"
+                        justifyContent: "center",
+                        width: "24px",
+                        height: "24px",
+                        borderRadius: "50%",
+                        background: pendingHotels.length > 0 ? "var(--color-warning)" : "var(--color-success)",
+                        color: "white",
+                        fontSize: "0.75rem",
+                        fontWeight: 700
                     }}>
-                        <span style={{
-                            display: "inline-flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            width: "24px",
-                            height: "24px",
-                            borderRadius: "50%",
-                            background: "var(--color-warning)",
-                            color: "white",
-                            fontSize: "0.75rem",
-                            fontWeight: 700
-                        }}>
-                            {pendingHotels.length}
-                        </span>
-                        Pending Applications
-                    </h2>
+                        {pendingHotels.length}
+                    </span>
+                    Pending Applications
+                </h2>
 
+                {pendingHotels.length > 0 ? (
                     <div style={{ display: "grid", gap: "1rem", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))" }}>
                         {pendingHotels.map((hotel: any) => (
                             <div key={hotel.id} className="card" style={{
                                 border: "2px solid var(--color-warning)",
-                                background: "rgba(233, 196, 106, 0.05)"
+                                background: "rgba(233, 196, 106, 0.05)",
+                                padding: "1.25rem"
                             }}>
                                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "1rem" }}>
                                     <div>
@@ -73,7 +73,6 @@ export default async function HotelsPage() {
                                 }}>
                                     <div style={{ fontWeight: 500, marginBottom: "0.25rem" }}>Owner</div>
                                     <div style={{ color: "var(--color-text-primary)" }}>
-                                        {/* @ts-ignore */}
                                         {hotel.owner?.name || "Unknown"} • {hotel.owner?.email}
                                     </div>
                                 </div>
@@ -128,8 +127,20 @@ export default async function HotelsPage() {
                             </div>
                         ))}
                     </div>
-                </div>
-            )}
+                ) : (
+                    <div className="card" style={{
+                        padding: "2rem",
+                        textAlign: "center",
+                        borderStyle: "dashed",
+                        background: "var(--color-bg-secondary)"
+                    }}>
+                        <span style={{ fontSize: "2rem", display: "block", marginBottom: "0.5rem" }}>✅</span>
+                        <p style={{ color: "var(--color-text-secondary)", margin: 0 }}>
+                            No pending hotel applications at this time
+                        </p>
+                    </div>
+                )}
+            </div>
 
             {/* All Hotels Table */}
             <div style={{ padding: "0 1.5rem" }}>
@@ -182,7 +193,6 @@ export default async function HotelsPage() {
                                                 <div className="table-cell-secondary">{hotel.address}</div>
                                             </td>
                                             <td>
-                                                {/* @ts-ignore - owner relation might be optional/null */}
                                                 <span className="table-cell-primary">
                                                     {hotel.owner?.name || hotel.owner?.email || "Unknown"}
                                                 </span>
