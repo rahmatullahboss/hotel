@@ -29,6 +29,10 @@ export * from "./charts/RevPARTrend";
 // Loading states
 export * from "./Skeleton";
 
+// Interactive components
+export * from "./DateRangePicker";
+export * from "./ExportDropdown";
+
 // Inventory components
 export * from "./RoomGrid";
 export * from "./ViewToggle";
@@ -51,7 +55,7 @@ export * from "./StaffDashboard";
 export * from "./LocationPicker";
 export * from "./PayoutSection";
 export * from "./ReportBuilder";
-export * from "./ExportButton";
+// ExportButton is now in ExportDropdown.tsx
 
 // Revenue management
 export * from "./RateCalendar";
