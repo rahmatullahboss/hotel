@@ -24,6 +24,8 @@ import {
   HiOutlineBriefcase,
 } from "react-icons/hi2";
 import { useSession, signOut } from "next-auth/react";
+import { useTheme } from "./ThemeProvider";
+import { HiOutlineMoon, HiOutlineSun } from "react-icons/hi2";
 
 interface NavItem {
   href: string;
@@ -251,10 +253,13 @@ export function OyoSidebar({ hotelName = "Zinu Hotel", className = "" }: OyoSide
             </p>
           </div>
 
+          {/* Theme Toggle */}
+          <ThemeToggleButton />
+
           {/* Logout */}
           <button
             onClick={() => signOut({ callbackUrl: "/auth/signin" })}
-            className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+            className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
             title="Logout"
           >
             <HiOutlineArrowRightOnRectangle className="w-5 h-5" />
@@ -262,5 +267,28 @@ export function OyoSidebar({ hotelName = "Zinu Hotel", className = "" }: OyoSide
         </div>
       </div>
     </aside>
+  );
+}
+
+// Theme toggle button component
+function ThemeToggleButton() {
+  const { resolvedTheme, setTheme } = useTheme();
+  
+  const toggleTheme = () => {
+    setTheme(resolvedTheme === "dark" ? "light" : "dark");
+  };
+
+  return (
+    <button
+      onClick={toggleTheme}
+      className="p-2 text-gray-400 hover:text-yellow-500 hover:bg-yellow-50 dark:hover:bg-yellow-900/20 rounded-lg transition-colors"
+      title={`Switch to ${resolvedTheme === "dark" ? "light" : "dark"} mode`}
+    >
+      {resolvedTheme === "dark" ? (
+        <HiOutlineSun className="w-5 h-5" />
+      ) : (
+        <HiOutlineMoon className="w-5 h-5" />
+      )}
+    </button>
   );
 }
