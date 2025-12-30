@@ -1,7 +1,7 @@
 // User Notifications Provider - In-App Notification Management
 import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../core/storage/secure_storage.dart';
+import '../../../core/storage/secure_storage.dart';
 
 // Notification model
 class UserNotification {
