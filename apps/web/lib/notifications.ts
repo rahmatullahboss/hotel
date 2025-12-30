@@ -47,8 +47,8 @@ export async function getUserPushTokens(userId: string): Promise<string[]> {
     });
 
     return subscriptions
-        .filter((sub) => sub.fcmToken && sub.fcmToken.length > 0)
-        .map((sub) => sub.fcmToken as string);
+        .filter((sub: { fcmToken: string | null; isActive: boolean }) => sub.fcmToken && sub.fcmToken.length > 0)
+        .map((sub: { fcmToken: string | null }) => sub.fcmToken as string);
 }
 
 /**
