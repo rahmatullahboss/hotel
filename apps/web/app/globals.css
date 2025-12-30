@@ -633,6 +633,7 @@ body {
   cursor: pointer;
   transition: all 0.2s ease;
   box-shadow: 0 4px 12px rgba(230, 57, 70, 0.25);
+  white-space: nowrap;
 }
 
 .search-btn:hover {
@@ -749,11 +750,11 @@ body {
 
   .search-btn {
     width: auto;
-    padding: 0 2.5rem;
+    padding: 0 1.5rem;
     height: 60px;
     border-radius: 9999px;
     margin-left: 0.5rem;
-    min-width: 160px;
+    min-width: 140px;
   }
 
   .search-btn-text {

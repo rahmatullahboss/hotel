@@ -1,0 +1,99 @@
+ ⚠ `eslint` configuration in next.config.js is no longer supported. See more info here: https://nextjs.org/docs/app/api-reference/cli/next#next-lint-options
+ ⚠ Invalid next.config.js options detected: 
+ ⚠     Unrecognized key(s) in object: 'eslint'
+ ⚠ See more info here: https://nextjs.org/docs/messages/invalid-next-config
+ ⚠ Warning: Next.js inferred your workspace root, but it may not be correct.
+ We detected multiple lockfiles and selected the directory of C:\Users\rahma\Desktop\package-lock.json as the root directory.
+ To silence this warning, set `turbopack.root` in your Next.js config, or consider removing one of the lockfiles if it's not needed.
+   See https://nextjs.org/docs/app/api-reference/config/next-config-js/turbopack#root-directory for more information.
+ Detected additional lockfiles: 
+   * C:\Users\rahma\Desktop\dev\hotel\package-lock.json
+
+   ▲ Next.js 16.0.10 (Turbopack)
+   - Environments: .env
+   - Experiments (use with caution):
+     · clientTraceMetadata
+
+   Creating an optimized production build ...
+
+> Build error occurred
+Error: Turbopack build failed with 3 errors:
+./dev/hotel/apps/web/app/api/auth/mobile-login/route.ts:5:1
+Module not found: Can't resolve 'bcryptjs'
+[0m [90m 3 |[39m [36mimport[39m { users } [36mfrom[39m [32m"@repo/db/schema"[39m[33m;[39m
+ [90m 4 |[39m [36mimport[39m { eq } [36mfrom[39m [32m"drizzle-orm"[39m[33m;[39m
+[31m[1m>[22m[39m[90m 5 |[39m [36mimport[39m [33m*[39m [36mas[39m bcrypt [36mfrom[39m [32m"bcryptjs"[39m[33m;[39m
+ [90m   |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+ [90m 6 |[39m [36mimport[39m [33m*[39m [36mas[39m jwt [36mfrom[39m [32m"jsonwebtoken"[39m[33m;[39m
+ [90m 7 |[39m
+ [90m 8 |[39m [36mconst[39m [33mJWT_SECRET[39m [33m=[39m process[33m.[39menv[33m.[39m[33mAUTH_SECRET[39m [33m||[39m [32m"your-secret-key"[39m[33m;[39m[0m
+
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+./dev/hotel/apps/web/app/api/auth/mobile-register/route.ts:5:1
+Module not found: Can't resolve 'bcryptjs'
+[0m [90m 3 |[39m [36mimport[39m { users } [36mfrom[39m [32m"@repo/db/schema"[39m[33m;[39m
+ [90m 4 |[39m [36mimport[39m { eq } [36mfrom[39m [32m"drizzle-orm"[39m[33m;[39m
+[31m[1m>[22m[39m[90m 5 |[39m [36mimport[39m [33m*[39m [36mas[39m bcrypt [36mfrom[39m [32m"bcryptjs"[39m[33m;[39m
+ [90m   |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+ [90m 6 |[39m [36mimport[39m [33m*[39m [36mas[39m jwt [36mfrom[39m [32m"jsonwebtoken"[39m[33m;[39m
+ [90m 7 |[39m
+ [90m 8 |[39m [36mconst[39m [33mJWT_SECRET[39m [33m=[39m process[33m.[39menv[33m.[39m[33mAUTH_SECRET[39m [33m||[39m [32m"your-secret-key"[39m[33m;[39m[0m
+
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+./dev/hotel/packages/config/dist/auth.js:92:38
+Module not found: Can't resolve 'bcryptjs'
+[0m [90m 90 |[39m                 [90m// Verify password using bcrypt[39m
+ [90m 91 |[39m                 [90m// We use dynamic import to avoid issues with edge runtime[39m
+[31m[1m>[22m[39m[90m 92 |[39m                 [36mconst[39m bcrypt [33m=[39m [36mawait[39m [36mimport[39m([32m"bcryptjs"[39m)[33m;[39m
+ [90m    |[39m                                      [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+ [90m 93 |[39m                 [36mconst[39m isValid [33m=[39m [36mawait[39m bcrypt[33m.[39mcompare(password[33m,[39m existingUser[33m.[39mpasswordHash)[33m;[39m
+ [90m 94 |[39m                 [36mif[39m ([33m![39misValid) {
+ [90m 95 |[39m                     [36mreturn[39m [36mnull[39m[33m;[39m[0m
+
+
+
+Import traces:
+  App Route:
+    ./dev/hotel/packages/config/dist/auth.js
+    ./dev/hotel/apps/web/auth.ts
+    ./dev/hotel/apps/web/app/api/auth/[...nextauth]/route.ts
+
+  Server Component:
+    ./dev/hotel/packages/config/dist/auth.js
+    ./dev/hotel/apps/web/auth.ts
+    ./dev/hotel/apps/web/app/components/FirstBookingBannerWrapper.tsx
+    ./dev/hotel/apps/web/app/page.tsx
+
+  Client Component Browser:
+    ./dev/hotel/packages/config/dist/auth.js [Client Component Browser]
+    ./dev/hotel/apps/web/auth.ts [Client Component Browser]
+    ./dev/hotel/apps/web/app/components/FirstBookingBannerWrapper.tsx [Client Component Browser]
+    ./dev/hotel/apps/web/app/components/index.ts [Client Component Browser]
+    ./dev/hotel/apps/web/app/auth/register/page.tsx [Client Component Browser]
+    ./dev/hotel/apps/web/app/auth/register/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./dev/hotel/packages/config/dist/auth.js [Client Component SSR]
+    ./dev/hotel/apps/web/auth.ts [Client Component SSR]
+    ./dev/hotel/apps/web/app/components/FirstBookingBannerWrapper.tsx [Client Component SSR]
+    ./dev/hotel/apps/web/app/components/index.ts [Client Component SSR]
+    ./dev/hotel/apps/web/app/auth/register/page.tsx [Client Component SSR]
+    ./dev/hotel/apps/web/app/auth/register/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+    at <unknown> (./dev/hotel/apps/web/app/api/auth/mobile-login/route.ts:5:1)
+    at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+    at <unknown> (./dev/hotel/apps/web/app/api/auth/mobile-register/route.ts:5:1)
+    at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+    at <unknown> (./dev/hotel/packages/config/dist/auth.js:92:38)
+    at <unknown> (https://nextjs.org/docs/messages/module-not-found)

@@ -30,5 +30,8 @@
     "apps/partner",
     "apps/admin",
     "packages/*"
-  ]
+  ],
+  "overrides": {
+    "esbuild": "^0.25.0"
+  }
 }

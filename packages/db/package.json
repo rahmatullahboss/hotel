@@ -39,13 +39,14 @@
         "bcryptjs": "^3.0.3",
         "dotenv": "^16.0.3",
         "drizzle-orm": "^0.45.0",
+        "jspdf": "3.0.4",
         "ws": "^8.18.3"
     },
     "devDependencies": {
         "@repo/eslint-config": "*",
         "@repo/typescript-config": "*",
         "@types/node": "^22.15.3",
-        "drizzle-kit": "^0.30.5",
+        "drizzle-kit": "^0.31.8",
         "eslint": "^9.39.1",
         "typescript": "5.9.2"
     }
