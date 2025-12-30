@@ -45,20 +45,29 @@ class Booking {
       hotelName: json['hotelName']?.toString() ?? 'Unknown Hotel',
       roomId: json['roomId']?.toString() ?? '',
       roomName: json['roomName']?.toString() ?? 'Room',
-      hotelImageUrl: json['hotelImage']?.toString() ?? json['hotelImageUrl']?.toString(),
-      checkIn: json['checkIn'] != null ? DateTime.parse(json['checkIn'].toString()) : DateTime.now(),
-      checkOut: json['checkOut'] != null ? DateTime.parse(json['checkOut'].toString()) : DateTime.now().add(const Duration(days: 1)),
+      hotelImageUrl:
+          json['hotelImage']?.toString() ?? json['hotelImageUrl']?.toString(),
+      checkIn: json['checkIn'] != null
+          ? DateTime.parse(json['checkIn'].toString())
+          : DateTime.now(),
+      checkOut: json['checkOut'] != null
+          ? DateTime.parse(json['checkOut'].toString())
+          : DateTime.now().add(const Duration(days: 1)),
       guests: int.tryParse(json['guests']?.toString() ?? '1') ?? 1,
-      totalAmount: double.tryParse(json['totalAmount']?.toString() ?? '0')?.toInt() ?? 0,
+      totalAmount:
+          double.tryParse(json['totalAmount']?.toString() ?? '0')?.toInt() ?? 0,
       status: json['status']?.toString().toLowerCase() ?? 'pending',
       paymentMethod: json['paymentMethod']?.toString() ?? 'PAY_AT_HOTEL',
       qrCode: json['qrCode']?.toString(),
-      createdAt: json['createdAt'] != null ? DateTime.parse(json['createdAt'].toString()) : DateTime.now(),
+      createdAt: json['createdAt'] != null
+          ? DateTime.parse(json['createdAt'].toString())
+          : DateTime.now(),
     );
   }
 
   int get nights => checkOut.difference(checkIn).inDays;
-  bool get isUpcoming => ['upcoming', 'pending', 'confirmed'].contains(status.toLowerCase());
+  bool get isUpcoming =>
+      ['upcoming', 'pending', 'confirmed'].contains(status.toLowerCase());
   bool get isCompleted => status == 'completed';
   bool get isCancelled => status == 'cancelled';
 }
@@ -208,6 +217,49 @@ class BookingsNotifier extends Notifier<BookingsState> {
       return true;
     } on DioException catch (_) {
       return false;
+    }
+  }
+
+  /// Creates a booking and returns the booking ID for payment processing
+  Future<String?> createBookingAndReturnId({
+    required String hotelId,
+    required String roomId,
+    required DateTime checkIn,
+    required DateTime checkOut,
+    required int guests,
+    required String paymentMethod,
+    required int totalAmount,
+    String? guestName,
+    String? guestPhone,
+    String? guestEmail,
+  }) async {
+    try {
+      final response = await _dio.post(
+        '/bookings',
+        data: {
+          'hotelId': hotelId,
+          'roomId': roomId,
+          'checkIn': checkIn.toIso8601String().split('T')[0],
+          'checkOut': checkOut.toIso8601String().split('T')[0],
+          'guests': guests,
+          'paymentMethod': paymentMethod,
+          'totalAmount': totalAmount,
+          if (guestName != null) 'guestName': guestName,
+          if (guestPhone != null) 'guestPhone': guestPhone,
+          if (guestEmail != null) 'guestEmail': guestEmail,
+        },
+      );
+
+      if (response.data['success'] == true) {
+        final bookingId =
+            response.data['bookingId']?.toString() ??
+            response.data['booking']?['id']?.toString();
+        return bookingId;
+      }
+      return null;
+    } on DioException catch (e) {
+      debugPrint('Booking error: ${e.response?.data}');
+      return null;
     }
   }
 }
