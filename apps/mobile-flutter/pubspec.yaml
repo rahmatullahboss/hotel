@@ -49,6 +49,9 @@ dependencies:
   qr_code_scanner_plus: ^2.0.8
   qr_flutter: ^4.1.0
 
+  # Real-time WebSocket
+  web_socket_channel: ^3.0.1
+
   # Firebase
   firebase_core: ^4.3.0
   firebase_messaging: ^16.1.0

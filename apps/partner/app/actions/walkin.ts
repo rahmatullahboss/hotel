@@ -5,6 +5,7 @@ import { bookings, rooms, roomInventory, hotels } from "@repo/db/schema";
 import { eq, and, gte, lte, or, ne } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { getPartnerHotel } from "./dashboard";
+import { pushRealtimeEvent } from "../lib/realtime";
 
 export interface WalkInInput {
     roomId: string;
@@ -149,6 +150,21 @@ export async function recordWalkIn(
 
         revalidatePath("/");
         revalidatePath("/walkin");
+
+        // Push realtime event for walk-in
+        pushRealtimeEvent({
+            type: "NEW_BOOKING",
+            hotelId: hotel.id,
+            data: {
+                bookingId: newBooking?.id,
+                guestName: input.guestName,
+                checkIn: input.checkIn,
+                checkOut: input.checkOut,
+                totalAmount: input.totalAmount,
+                isWalkIn: true,
+            },
+        }).catch((err) => console.error("Failed to push realtime event:", err));
+
         return { success: true, bookingId: newBooking?.id };
     } catch (error) {
         console.error("Error recording walk-in:", error);
