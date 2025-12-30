@@ -1,6 +1,8 @@
-// Main Shell - Bottom Navigation
+// Main Shell - Premium Floating Bottom Navigation
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/router/app_router.dart';
 import '../../l10n/generated/app_localizations.dart';
@@ -12,12 +14,16 @@ class MainShell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(body: child, bottomNavigationBar: const _BottomNavBar());
+    return Scaffold(
+      body: child,
+      extendBody: true,
+      bottomNavigationBar: const _FloatingBottomNav(),
+    );
   }
 }
 
-class _BottomNavBar extends StatelessWidget {
-  const _BottomNavBar();
+class _FloatingBottomNav extends StatelessWidget {
+  const _FloatingBottomNav();
 
   int _calculateSelectedIndex(BuildContext context) {
     final location = GoRouterState.of(context).matchedLocation;
@@ -48,53 +54,69 @@ class _BottomNavBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final selectedIndex = _calculateSelectedIndex(context);
+    final bottomPadding = MediaQuery.of(context).padding.bottom;
 
     return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.08),
-            blurRadius: 20,
-            offset: const Offset(0, -5),
-          ),
-        ],
-      ),
-      child: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              _NavItem(
-                icon: Icons.home_outlined,
-                selectedIcon: Icons.home,
-                label: AppLocalizations.of(context)!.navHome,
-                isSelected: selectedIndex == 0,
-                onTap: () => _onItemTapped(context, 0),
+      margin: EdgeInsets.only(left: 16, right: 16, bottom: bottomPadding + 12),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(28),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+          child: Container(
+            height: 72,
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.95),
+              borderRadius: BorderRadius.circular(28),
+              border: Border.all(
+                color: Colors.white.withValues(alpha: 0.3),
+                width: 1,
               ),
-              _NavItem(
-                icon: Icons.search_outlined,
-                selectedIcon: Icons.search,
-                label: AppLocalizations.of(context)!.navSearch,
-                isSelected: selectedIndex == 1,
-                onTap: () => _onItemTapped(context, 1),
-              ),
-              _NavItem(
-                icon: Icons.calendar_today_outlined,
-                selectedIcon: Icons.calendar_today,
-                label: AppLocalizations.of(context)!.navBookings,
-                isSelected: selectedIndex == 2,
-                onTap: () => _onItemTapped(context, 2),
-              ),
-              _NavItem(
-                icon: Icons.person_outline,
-                selectedIcon: Icons.person,
-                label: AppLocalizations.of(context)!.navProfile,
-                isSelected: selectedIndex == 3,
-                onTap: () => _onItemTapped(context, 3),
-              ),
-            ],
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.08),
+                  blurRadius: 24,
+                  offset: const Offset(0, 8),
+                ),
+                BoxShadow(
+                  color: AppColors.primary.withValues(alpha: 0.05),
+                  blurRadius: 40,
+                  spreadRadius: -10,
+                ),
+              ],
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                _NavItem(
+                  icon: Icons.home_outlined,
+                  selectedIcon: Icons.home_rounded,
+                  label: AppLocalizations.of(context)!.navHome,
+                  isSelected: selectedIndex == 0,
+                  onTap: () => _onItemTapped(context, 0),
+                ),
+                _NavItem(
+                  icon: Icons.search_outlined,
+                  selectedIcon: Icons.search_rounded,
+                  label: AppLocalizations.of(context)!.navSearch,
+                  isSelected: selectedIndex == 1,
+                  onTap: () => _onItemTapped(context, 1),
+                ),
+                _NavItem(
+                  icon: Icons.calendar_today_outlined,
+                  selectedIcon: Icons.calendar_today_rounded,
+                  label: AppLocalizations.of(context)!.navBookings,
+                  isSelected: selectedIndex == 2,
+                  onTap: () => _onItemTapped(context, 2),
+                ),
+                _NavItem(
+                  icon: Icons.person_outline_rounded,
+                  selectedIcon: Icons.person_rounded,
+                  label: AppLocalizations.of(context)!.navProfile,
+                  isSelected: selectedIndex == 3,
+                  onTap: () => _onItemTapped(context, 3),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -122,35 +144,48 @@ class _NavItem extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       behavior: HitTestBehavior.opaque,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        decoration: BoxDecoration(
-          color: isSelected
-              ? AppColors.primary.withValues(alpha: 0.1)
-              : Colors.transparent,
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
+      child: SizedBox(
+        width: 72,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              isSelected ? selectedIcon : icon,
-              color: isSelected ? AppColors.primary : AppColors.textTertiary,
-              size: 24,
-            ),
-            if (isSelected) ...[
-              const SizedBox(width: 8),
-              Text(
-                label,
-                style: TextStyle(
-                  color: AppColors.primary,
-                  fontWeight: FontWeight.w600,
-                  fontSize: 14,
-                  fontFamily: 'NotoSansBengali',
+            // Icon with animated background
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 250),
+              curve: Curves.easeOutCubic,
+              width: isSelected ? 52 : 40,
+              height: 32,
+              decoration: BoxDecoration(
+                color: isSelected
+                    ? AppColors.primary.withValues(alpha: 0.15)
+                    : Colors.transparent,
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Center(
+                child: AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 200),
+                  child: Icon(
+                    isSelected ? selectedIcon : icon,
+                    key: ValueKey(isSelected),
+                    color: isSelected
+                        ? AppColors.primary
+                        : AppColors.textTertiary,
+                    size: isSelected ? 26 : 24,
+                  ),
                 ),
               ),
-            ],
+            ),
+            const SizedBox(height: 4),
+            // Label
+            AnimatedDefaultTextStyle(
+              duration: const Duration(milliseconds: 200),
+              style: GoogleFonts.notoSans(
+                fontSize: isSelected ? 11 : 10,
+                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                color: isSelected ? AppColors.primary : AppColors.textTertiary,
+              ),
+              child: Text(label, maxLines: 1, overflow: TextOverflow.ellipsis),
+            ),
           ],
         ),
       ),

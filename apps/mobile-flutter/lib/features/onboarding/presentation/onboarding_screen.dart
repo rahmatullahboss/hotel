@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../../core/router/app_router.dart';
+import '../../../core/theme/app_colors.dart';
 
 class OnboardingPageData {
   final String title;
@@ -101,10 +102,6 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Project Brand Color (Zinu Red)
-    const primaryColor = Color(0xFFE63946);
-    // const primaryColor = Color(0xFFA3B12D); // The lime color from screenshot if requested specifically, but sticking to brand.
-
     return Scaffold(
       backgroundColor: Colors.black, // Dark background for gaps
       body: Stack(
@@ -274,7 +271,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                         child: ElevatedButton(
                           onPressed: _onNext,
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: primaryColor,
+                            backgroundColor: AppColors.primary,
                             foregroundColor: Colors.white,
                             elevation: 0,
                             shape: RoundedRectangleBorder(
