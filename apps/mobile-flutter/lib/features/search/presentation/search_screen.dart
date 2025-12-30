@@ -361,19 +361,21 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
       backgroundColor: AppColors.adaptiveBackground(context),
       body: Column(
         children: [
-          // Header with White Background
+          // Header with Premium Design and Dark Mode
           Container(
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: AppColors.isDarkMode(context)
+                  ? AppColors.surfaceDark
+                  : Colors.white,
               borderRadius: const BorderRadius.only(
-                bottomLeft: Radius.circular(24),
-                bottomRight: Radius.circular(24),
+                bottomLeft: Radius.circular(28),
+                bottomRight: Radius.circular(28),
               ),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.05),
-                  blurRadius: 10,
-                  offset: const Offset(0, 2),
+                  color: Colors.black.withValues(alpha: 0.08),
+                  blurRadius: 16,
+                  offset: const Offset(0, 4),
                 ),
               ],
             ),
@@ -393,20 +395,24 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                       GestureDetector(
                         onTap: () => context.pop(),
                         child: Container(
-                          width: 40,
-                          height: 40,
+                          width: 44,
+                          height: 44,
                           decoration: BoxDecoration(
-                            color: AppColors.surfaceVariant,
-                            borderRadius: BorderRadius.circular(12),
+                            color: AppColors.isDarkMode(context)
+                                ? Colors.white.withValues(alpha: 0.1)
+                                : AppColors.surfaceVariant,
+                            borderRadius: BorderRadius.circular(14),
                           ),
-                          child: const Icon(
-                            Icons.arrow_back,
-                            size: 20,
-                            color: AppColors.textPrimary,
+                          child: Icon(
+                            Icons.arrow_back_ios_new,
+                            size: 18,
+                            color: AppColors.isDarkMode(context)
+                                ? Colors.white
+                                : AppColors.textPrimary,
                           ),
                         ),
                       ),
-                      const SizedBox(width: 12),
+                      const SizedBox(width: 14),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -414,18 +420,23 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                             Text(
                               AppLocalizations.of(context)!.searchHeaderTitle,
                               style: GoogleFonts.plusJakartaSans(
-                                fontSize: 20,
+                                fontSize: 22,
                                 fontWeight: FontWeight.bold,
-                                color: AppColors.textPrimary,
+                                color: AppColors.isDarkMode(context)
+                                    ? Colors.white
+                                    : AppColors.textPrimary,
                               ),
                             ),
+                            const SizedBox(height: 2),
                             Text(
                               AppLocalizations.of(
                                 context,
                               )!.searchHeaderSubtitle,
                               style: GoogleFonts.notoSans(
                                 fontSize: 13,
-                                color: AppColors.textSecondary,
+                                color: AppColors.isDarkMode(context)
+                                    ? Colors.white60
+                                    : AppColors.textSecondary,
                               ),
                             ),
                           ],
@@ -433,7 +444,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 20),
 
                   // Search Bar
                   SearchBarWidget(
@@ -608,13 +619,15 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                       padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
                       child: Container(
                         decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(16),
+                          color: AppColors.isDarkMode(context)
+                              ? AppColors.surfaceDark
+                              : Colors.white,
+                          borderRadius: BorderRadius.circular(20),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.08),
-                              blurRadius: 16,
-                              offset: const Offset(0, 4),
+                              color: Colors.black.withValues(alpha: 0.12),
+                              blurRadius: 20,
+                              offset: const Offset(0, 6),
                             ),
                           ],
                         ),
@@ -1089,7 +1102,11 @@ class _SearchFilterChip extends StatelessWidget {
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         decoration: BoxDecoration(
-          color: isActive ? color : Colors.white,
+          color: isActive
+              ? color
+              : AppColors.isDarkMode(context)
+              ? AppColors.surfaceDark
+              : Colors.white,
           borderRadius: BorderRadius.circular(24),
           border: isActive
               ? null
