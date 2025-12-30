@@ -1,56 +1,12 @@
-// Notifications Screen - Premium White Label Design
+// Notifications Screen - Premium White Label Design with Real Provider
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shimmer/shimmer.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import 'package:intl/intl.dart';
-
-// Notification model
-class NotificationItem {
-  final String id;
-  final String title;
-  final String message;
-  final String type; // 'booking', 'promo', 'system'
-  final DateTime createdAt;
-  final bool isRead;
-
-  NotificationItem({
-    required this.id,
-    required this.title,
-    required this.message,
-    required this.type,
-    required this.createdAt,
-    this.isRead = false,
-  });
-}
-
-// Dummy notifications
-final List<NotificationItem> dummyNotifications = [
-  NotificationItem(
-    id: '1',
-    title: 'বুকিং নিশ্চিত!',
-    message: 'আপনার Pan Pacific Sonargaon হোটেলে বুকিং সফলভাবে সম্পন্ন হয়েছে।',
-    type: 'booking',
-    createdAt: DateTime.now().subtract(const Duration(hours: 2)),
-  ),
-  NotificationItem(
-    id: '2',
-    title: '🎉 বিশেষ অফার!',
-    message: 'প্রথম বুকিংয়ে ২০% ছাড় পান। কোড: ZINU20',
-    type: 'promo',
-    createdAt: DateTime.now().subtract(const Duration(days: 1)),
-    isRead: true,
-  ),
-  NotificationItem(
-    id: '3',
-    title: 'চেক-ইন রিমাইন্ডার',
-    message: 'আগামীকাল আপনার চেক-ইন। সময়মতো পৌঁছান।',
-    type: 'booking',
-    createdAt: DateTime.now().subtract(const Duration(days: 2)),
-    isRead: true,
-  ),
-];
+import '../providers/user_notifications_provider.dart';
 
 class NotificationsScreen extends ConsumerWidget {
   const NotificationsScreen({super.key});
@@ -58,6 +14,8 @@ class NotificationsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final topPadding = MediaQuery.of(context).padding.top;
+    final notificationsState = ref.watch(userNotificationsProvider);
+    final notifications = notificationsState.notifications;
 
     return Scaffold(
       backgroundColor: AppColors.adaptiveBackground(context),
@@ -121,63 +79,157 @@ class NotificationsScreen extends ConsumerWidget {
                   ),
                 ),
                 const Spacer(),
-                TextButton(
-                  onPressed: () {
-                    // Mark all as read
-                  },
-                  child: Text(
-                    'সব পড়া হয়েছে',
-                    style: GoogleFonts.notoSans(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w500,
-                      color: AppColors.primary,
+                if (notifications.isNotEmpty)
+                  TextButton(
+                    onPressed: () {
+                      ref
+                          .read(userNotificationsProvider.notifier)
+                          .markAllAsRead();
+                    },
+                    child: Text(
+                      'সব পড়া হয়েছে',
+                      style: GoogleFonts.notoSans(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w500,
+                        color: AppColors.primary,
+                      ),
                     ),
                   ),
-                ),
               ],
             ),
           ),
 
           // Notifications List
           Expanded(
-            child: dummyNotifications.isEmpty
-                ? Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.notifications_off_outlined,
-                          size: 64,
-                          color: AppColors.textTertiary,
-                        ),
-                        const SizedBox(height: 16),
-                        Text(
-                          'কোনো নোটিফিকেশন নেই',
-                          style: AppTypography.bodyMedium.copyWith(
-                            color: AppColors.textSecondary,
-                          ),
-                        ),
-                      ],
-                    ),
-                  )
-                : ListView.separated(
-                    padding: const EdgeInsets.all(20),
-                    itemCount: dummyNotifications.length,
-                    separatorBuilder: (_, _) => const SizedBox(height: 12),
-                    itemBuilder: (context, index) {
-                      final notification = dummyNotifications[index];
-                      return _NotificationCard(notification: notification);
-                    },
-                  ),
+            child: _buildContent(
+              context,
+              ref,
+              notificationsState,
+              notifications,
+            ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildContent(
+    BuildContext context,
+    WidgetRef ref,
+    UserNotificationsState state,
+    List<UserNotification> notifications,
+  ) {
+    // Loading state
+    if (state.isLoading) {
+      return ListView.builder(
+        padding: const EdgeInsets.all(20),
+        itemCount: 3,
+        itemBuilder: (_, __) => _NotificationShimmer(),
+      );
+    }
+
+    // Empty state
+    if (notifications.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              width: 80,
+              height: 80,
+              decoration: BoxDecoration(
+                color: AppColors.primary.withValues(alpha: 0.1),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                Icons.notifications_off_outlined,
+                size: 40,
+                color: AppColors.primary,
+              ),
+            ),
+            const SizedBox(height: 24),
+            Text(
+              'কোনো নোটিফিকেশন নেই',
+              style: AppTypography.h4.copyWith(color: AppColors.textSecondary),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'নতুন বুকিং বা অফার পেলে জানাব',
+              style: AppTypography.bodyMedium.copyWith(
+                color: AppColors.textTertiary,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    // Data state
+    return RefreshIndicator(
+      onRefresh: () => ref.read(userNotificationsProvider.notifier).refresh(),
+      color: AppColors.primary,
+      child: ListView.separated(
+        padding: const EdgeInsets.all(20),
+        itemCount: notifications.length,
+        separatorBuilder: (_, __) => const SizedBox(height: 12),
+        itemBuilder: (context, index) {
+          final notification = notifications[index];
+          return Dismissible(
+            key: Key(notification.id),
+            direction: DismissDirection.endToStart,
+            background: Container(
+              alignment: Alignment.centerRight,
+              padding: const EdgeInsets.only(right: 20),
+              decoration: BoxDecoration(
+                color: AppColors.error,
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: const Icon(Icons.delete, color: Colors.white),
+            ),
+            onDismissed: (_) {
+              ref
+                  .read(userNotificationsProvider.notifier)
+                  .deleteNotification(notification.id);
+            },
+            child: GestureDetector(
+              onTap: () {
+                if (!notification.isRead) {
+                  ref
+                      .read(userNotificationsProvider.notifier)
+                      .markAsRead(notification.id);
+                }
+              },
+              child: _NotificationCard(notification: notification),
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+
+class _NotificationShimmer extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Shimmer.fromColors(
+        baseColor: AppColors.shimmerBase,
+        highlightColor: AppColors.shimmerHighlight,
+        child: Container(
+          height: 100,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+          ),
+        ),
       ),
     );
   }
 }
 
 class _NotificationCard extends StatelessWidget {
-  final NotificationItem notification;
+  final UserNotification notification;
 
   const _NotificationCard({required this.notification});
 
@@ -245,6 +297,7 @@ class _NotificationCard extends StatelessWidget {
                           fontWeight: notification.isRead
                               ? FontWeight.w500
                               : FontWeight.w600,
+                          color: isDark ? Colors.white : AppColors.textPrimary,
                         ),
                       ),
                     ),
@@ -263,14 +316,14 @@ class _NotificationCard extends StatelessWidget {
                 Text(
                   notification.message,
                   style: AppTypography.bodySmall.copyWith(
-                    color: AppColors.textSecondary,
+                    color: isDark ? Colors.white70 : AppColors.textSecondary,
                   ),
                 ),
                 const SizedBox(height: 8),
                 Text(
                   _formatTime(notification.createdAt),
                   style: AppTypography.labelSmall.copyWith(
-                    color: AppColors.textTertiary,
+                    color: isDark ? Colors.white54 : AppColors.textTertiary,
                   ),
                 ),
               ],
