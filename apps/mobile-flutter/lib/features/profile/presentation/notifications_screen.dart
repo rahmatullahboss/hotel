@@ -1,6 +1,7 @@
-// Notifications Screen - Premium Design
+// Notifications Screen - Premium White Label Design
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import 'package:intl/intl.dart';
@@ -62,20 +63,27 @@ class NotificationsScreen extends ConsumerWidget {
       backgroundColor: AppColors.adaptiveBackground(context),
       body: Column(
         children: [
-          // Header
+          // Premium White Header
           Container(
             padding: EdgeInsets.only(
-              top: topPadding + 16,
+              top: topPadding + 12,
               left: 20,
               right: 20,
-              bottom: 20,
+              bottom: 16,
             ),
-            decoration: const BoxDecoration(
-              color: AppColors.primary,
-              borderRadius: BorderRadius.only(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: const BorderRadius.only(
                 bottomLeft: Radius.circular(24),
                 bottomRight: Radius.circular(24),
               ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.05),
+                  blurRadius: 10,
+                  offset: const Offset(0, 2),
+                ),
+              ],
             ),
             child: Row(
               children: [
@@ -85,12 +93,12 @@ class NotificationsScreen extends ConsumerWidget {
                     width: 40,
                     height: 40,
                     decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.2),
-                      shape: BoxShape.circle,
+                      color: AppColors.surfaceVariant,
+                      borderRadius: BorderRadius.circular(12),
                     ),
                     child: const Icon(
                       Icons.arrow_back,
-                      color: Colors.white,
+                      color: AppColors.textPrimary,
                       size: 20,
                     ),
                   ),
@@ -98,9 +106,10 @@ class NotificationsScreen extends ConsumerWidget {
                 const SizedBox(width: 16),
                 Text(
                   'নোটিফিকেশন',
-                  style: AppTypography.h3.copyWith(
-                    color: Colors.white,
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 20,
                     fontWeight: FontWeight.bold,
+                    color: AppColors.textPrimary,
                   ),
                 ),
                 const Spacer(),
@@ -110,8 +119,10 @@ class NotificationsScreen extends ConsumerWidget {
                   },
                   child: Text(
                     'সব পড়া হয়েছে',
-                    style: AppTypography.labelMedium.copyWith(
-                      color: Colors.white.withValues(alpha: 0.9),
+                    style: GoogleFonts.notoSans(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                      color: AppColors.primary,
                     ),
                   ),
                 ),
