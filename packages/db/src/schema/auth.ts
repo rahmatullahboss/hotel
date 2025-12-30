@@ -97,7 +97,9 @@ export const pushSubscriptions = pgTable("pushSubscriptions", {
         .references(() => users.id, { onDelete: "cascade" }),
     // Platform discriminator: 'web', 'ios', 'android'
     platform: text("platform", { enum: ["web", "ios", "android"] }).notNull().default("web"),
-    // Expo push token (for mobile apps)
+    // FCM token for mobile apps (Flutter)
+    fcmToken: text("fcmToken"),
+    // Legacy: Expo push token (for React Native apps - deprecated)
     expoPushToken: text("expoPushToken"),
     // Web Push API fields (for web apps) - nullable for mobile tokens
     endpoint: text("endpoint"),

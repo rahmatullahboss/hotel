@@ -3,7 +3,7 @@ import { db, pushSubscriptions } from "@repo/db";
 import { eq, and } from "drizzle-orm";
 import { getUserIdFromRequest } from "@/lib/mobile-auth";
 
-// POST - Register Expo push token
+// POST - Register FCM push token
 export async function POST(request: NextRequest) {
     try {
         const userId = await getUserIdFromRequest(request);
@@ -12,11 +12,13 @@ export async function POST(request: NextRequest) {
         }
 
         const body = await request.json();
-        const { expoPushToken, platform } = body;
+        // Support both fcmToken (new) and expoPushToken (legacy) for backward compatibility
+        const fcmToken = body.fcmToken || body.expoPushToken;
+        const { platform } = body;
 
-        if (!expoPushToken) {
+        if (!fcmToken) {
             return NextResponse.json(
-                { error: "Expo push token is required" },
+                { error: "FCM token is required" },
                 { status: 400 }
             );
         }
@@ -32,7 +34,7 @@ export async function POST(request: NextRequest) {
         const existing = await db.query.pushSubscriptions.findFirst({
             where: and(
                 eq(pushSubscriptions.userId, userId),
-                eq(pushSubscriptions.expoPushToken, expoPushToken)
+                eq(pushSubscriptions.fcmToken, fcmToken)
             ),
         });
 
@@ -49,12 +51,14 @@ export async function POST(request: NextRequest) {
             });
         }
 
-        // Create new subscription
+        // Create new subscription with FCM token
         await db.insert(pushSubscriptions).values({
             userId,
-            expoPushToken,
+            fcmToken,
             platform,
         });
+
+        console.log(`[FCM] Registered token for user ${userId} on ${platform}`);
 
         return NextResponse.json({
             success: true,
@@ -69,7 +73,7 @@ export async function POST(request: NextRequest) {
     }
 }
 
-// DELETE - Unregister Expo push token
+// DELETE - Unregister FCM push token
 export async function DELETE(request: NextRequest) {
     try {
         const userId = await getUserIdFromRequest(request);
@@ -78,11 +82,12 @@ export async function DELETE(request: NextRequest) {
         }
 
         const body = await request.json();
-        const { expoPushToken } = body;
+        // Support both fcmToken (new) and expoPushToken (legacy)
+        const fcmToken = body.fcmToken || body.expoPushToken;
 
-        if (!expoPushToken) {
+        if (!fcmToken) {
             return NextResponse.json(
-                { error: "Expo push token is required" },
+                { error: "FCM token is required" },
                 { status: 400 }
             );
         }
@@ -94,7 +99,7 @@ export async function DELETE(request: NextRequest) {
             .where(
                 and(
                     eq(pushSubscriptions.userId, userId),
-                    eq(pushSubscriptions.expoPushToken, expoPushToken)
+                    eq(pushSubscriptions.fcmToken, fcmToken)
                 )
             );
 

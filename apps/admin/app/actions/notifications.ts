@@ -1,8 +1,37 @@
 "use server";
 
-import { db, pushSubscriptions, users, hotels, type PushSubscription, type Hotel } from "@repo/db";
-import { eq, and, desc, inArray } from "drizzle-orm";
+import { db, pushSubscriptions, type PushSubscription, type Hotel } from "@repo/db";
+import { eq, and, inArray, isNotNull } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
+import admin from "firebase-admin";
+
+// ==================
+// Firebase Admin Initialization
+// ==================
+
+// Initialize Firebase Admin if not already initialized
+function getFirebaseAdmin() {
+    if (admin.apps.length === 0) {
+        // Check for required environment variables
+        const projectId = process.env.FIREBASE_PROJECT_ID;
+        const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
+        const privateKey = process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n');
+
+        if (!projectId || !clientEmail || !privateKey) {
+            console.warn("Firebase Admin credentials not configured");
+            return null;
+        }
+
+        admin.initializeApp({
+            credential: admin.credential.cert({
+                projectId,
+                clientEmail,
+                privateKey,
+            }),
+        });
+    }
+    return admin;
+}
 
 // ==================
 // Types
@@ -33,6 +62,7 @@ interface BroadcastResult {
 export async function getNotificationStats() {
     const subscriptions = await db.query.pushSubscriptions.findMany();
     const activeSubscriptions = subscriptions.filter((s: PushSubscription) => s.isActive).length;
+    const mobileSubscriptions = subscriptions.filter((s: PushSubscription) => s.fcmToken && s.isActive).length;
 
     // Get unique users with subscriptions
     const uniqueUserIds = [...new Set(subscriptions.map((s: PushSubscription) => s.userId))];
@@ -40,6 +70,7 @@ export async function getNotificationStats() {
     return {
         totalSubscriptions: subscriptions.length,
         activeSubscriptions,
+        mobileSubscriptions,
         uniqueUsers: uniqueUserIds.length,
     };
 }
@@ -71,7 +102,7 @@ export async function getHotelOwnersWithSubscriptions() {
 /**
  * Get recent broadcasts (from activity log)
  */
-export async function getRecentBroadcasts(limit: number = 10) {
+export async function getRecentBroadcasts(_limit: number = 10) {
     // For now, we'll return a placeholder since we don't have a broadcasts table
     // In a production app, you'd create a broadcasts table to track these
     return [];
@@ -82,7 +113,7 @@ export async function getRecentBroadcasts(limit: number = 10) {
 // ==================
 
 /**
- * Send a push notification to a specific subscription
+ * Send a push notification to a specific subscription (Web Push)
  */
 async function sendPushToSubscription(
     subscription: {
@@ -127,7 +158,7 @@ async function sendPushToSubscription(
 }
 
 /**
- * Broadcast notification to all hotel owners
+ * Broadcast notification to all hotel owners (Web Push)
  */
 export async function broadcastToAllPartners(
     payload: NotificationPayload
@@ -236,65 +267,139 @@ export async function sendTestNotification(): Promise<BroadcastResult> {
 }
 
 // ==================
-// Expo Push Notifications (Mobile App)
+// Firebase Cloud Messaging (FCM) - For Flutter Mobile App
 // ==================
 
-import { Expo, ExpoPushMessage, ExpoPushTicket } from "expo-server-sdk";
-
-const expo = new Expo();
-
 /**
- * Broadcast notification to ALL mobile app users
+ * Broadcast notification to ALL mobile app users via FCM
  */
 export async function broadcastToAllMobileUsers(
-    payload: { title: string; body: string; data?: Record<string, unknown> }
+    payload: { title: string; body: string; data?: Record<string, string> }
 ): Promise<BroadcastResult> {
     try {
-        // Get all active Expo push tokens
+        const firebaseAdmin = getFirebaseAdmin();
+        if (!firebaseAdmin) {
+            return { success: false, sent: 0, failed: 0, error: "Firebase not configured" };
+        }
+
+        // Get all active FCM tokens
         const subscriptions = await db.query.pushSubscriptions.findMany({
-            where: eq(pushSubscriptions.isActive, true),
+            where: and(
+                eq(pushSubscriptions.isActive, true),
+                isNotNull(pushSubscriptions.fcmToken)
+            ),
         });
 
-        // Filter only valid Expo tokens
+        // Filter only valid FCM tokens
         const validTokens = subscriptions
-            .filter((sub: PushSubscription) => sub.expoPushToken && Expo.isExpoPushToken(sub.expoPushToken))
-            .map((sub: PushSubscription) => sub.expoPushToken);
+            .filter((sub: PushSubscription) => sub.fcmToken && sub.fcmToken.length > 0)
+            .map((sub: PushSubscription) => sub.fcmToken as string);
 
         if (validTokens.length === 0) {
             return { success: false, sent: 0, failed: 0, error: "No mobile devices registered" };
         }
 
-        // Create messages
-        const messages: ExpoPushMessage[] = validTokens.map((token: string) => ({
-            to: token,
-            sound: "default" as const,
-            title: payload.title,
-            body: payload.body,
-            data: payload.data,
-        }));
+        console.log(`Sending FCM to ${validTokens.length} devices...`);
 
-        // Send in chunks
-        const chunks = expo.chunkPushNotifications(messages);
-        let sent = 0;
-        let failed = 0;
+        // Send to all devices using sendEachForMulticast
+        const message = {
+            notification: {
+                title: payload.title,
+                body: payload.body,
+            },
+            data: payload.data || {},
+            tokens: validTokens,
+        };
 
-        for (const chunk of chunks) {
-            const tickets = await expo.sendPushNotificationsAsync(chunk);
-            tickets.forEach((ticket: ExpoPushTicket) => {
-                if (ticket.status === "ok") {
-                    sent++;
-                } else {
-                    failed++;
+        const response = await firebaseAdmin.messaging().sendEachForMulticast(message);
+
+        const sent = response.successCount;
+        const failed = response.failureCount;
+
+        // Handle failed tokens - mark them as inactive
+        if (response.failureCount > 0) {
+            const tokensToDeactivate: string[] = [];
+            response.responses.forEach((resp, idx) => {
+                if (!resp.success) {
+                    const errorCode = resp.error?.code;
+                    // Deactivate invalid/unregistered tokens
+                    if (errorCode === 'messaging/invalid-registration-token' ||
+                        errorCode === 'messaging/registration-token-not-registered') {
+                        tokensToDeactivate.push(validTokens[idx]);
+                    }
                 }
             });
+
+            // Deactivate invalid tokens
+            if (tokensToDeactivate.length > 0) {
+                for (const token of tokensToDeactivate) {
+                    await db
+                        .update(pushSubscriptions)
+                        .set({ isActive: false })
+                        .where(eq(pushSubscriptions.fcmToken, token));
+                }
+                console.log(`Deactivated ${tokensToDeactivate.length} invalid tokens`);
+            }
         }
 
-        console.log(`Broadcast sent: ${sent} success, ${failed} failed`);
+        console.log(`FCM Broadcast: ${sent} success, ${failed} failed`);
         revalidatePath("/notifications");
         return { success: true, sent, failed };
     } catch (error) {
-        console.error("Mobile broadcast error:", error);
+        console.error("FCM broadcast error:", error);
         return { success: false, sent: 0, failed: 0, error: "Failed to send mobile notifications" };
+    }
+}
+
+/**
+ * Send notification to a specific user via FCM
+ */
+export async function sendToUserMobile(
+    userId: string,
+    payload: { title: string; body: string; data?: Record<string, string> }
+): Promise<BroadcastResult> {
+    try {
+        const firebaseAdmin = getFirebaseAdmin();
+        if (!firebaseAdmin) {
+            return { success: false, sent: 0, failed: 0, error: "Firebase not configured" };
+        }
+
+        // Get user's FCM tokens
+        const subscriptions = await db.query.pushSubscriptions.findMany({
+            where: and(
+                eq(pushSubscriptions.userId, userId),
+                eq(pushSubscriptions.isActive, true),
+                isNotNull(pushSubscriptions.fcmToken)
+            ),
+        });
+
+        const tokens = subscriptions
+            .filter((sub: PushSubscription) => sub.fcmToken)
+            .map((sub: PushSubscription) => sub.fcmToken as string);
+
+        if (tokens.length === 0) {
+            return { success: false, sent: 0, failed: 0, error: "User has no registered devices" };
+        }
+
+        const message = {
+            notification: {
+                title: payload.title,
+                body: payload.body,
+            },
+            data: payload.data || {},
+            tokens,
+        };
+
+        const response = await firebaseAdmin.messaging().sendEachForMulticast(message);
+
+        return {
+            success: true,
+            sent: response.successCount,
+            failed: response.failureCount,
+        };
+    } catch (error) {
+        console.error("FCM send error:", error);
+        return { success: false, sent: 0, failed: 0, error: "Failed to send notification" };
     }
 }
 
@@ -311,7 +416,7 @@ export async function sendOfferNotification(
         body,
         data: {
             type: "OFFER",
-            url: offerUrl,
+            url: offerUrl || "",
         },
     });
 }

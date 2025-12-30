@@ -5,6 +5,7 @@ import 'package:dio/dio.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import '../../../core/api/api_client.dart';
 import '../../../core/storage/secure_storage.dart';
+import '../../../core/notifications/notification_provider.dart';
 
 // Server Client ID from Firebase
 const _serverClientId =
@@ -126,6 +127,8 @@ class AuthNotifier extends Notifier<AuthState> {
       await _storage.setToken(token);
 
       await _fetchCurrentUser();
+      // Register FCM token after successful login
+      await _registerFcmToken();
       return true;
     } on DioException catch (e) {
       state = state.copyWith(
@@ -160,6 +163,8 @@ class AuthNotifier extends Notifier<AuthState> {
       await _storage.setToken(token);
 
       await _fetchCurrentUser();
+      // Register FCM token after successful registration
+      await _registerFcmToken();
       return true;
     } on DioException catch (e) {
       state = state.copyWith(
@@ -202,6 +207,8 @@ class AuthNotifier extends Notifier<AuthState> {
       await _storage.setToken(token);
 
       await _fetchCurrentUser();
+      // Register FCM token after successful Google login
+      await _registerFcmToken();
       return true;
     } on DioException catch (e) {
       state = state.copyWith(
@@ -227,6 +234,8 @@ class AuthNotifier extends Notifier<AuthState> {
 
   // Logout
   Future<void> logout() async {
+    // Unregister FCM token before logout
+    await _unregisterFcmToken();
     await _storage.deleteToken();
     try {
       await GoogleSignIn.instance.signOut();
@@ -234,6 +243,26 @@ class AuthNotifier extends Notifier<AuthState> {
       debugPrint('Google sign out error: $e');
     }
     state = AuthState();
+  }
+
+  // Register FCM token with server
+  Future<void> _registerFcmToken() async {
+    try {
+      final notifier = ref.read(notificationProvider.notifier);
+      await notifier.registerTokenWithServer();
+    } catch (e) {
+      debugPrint('FCM registration error: $e');
+    }
+  }
+
+  // Unregister FCM token from server
+  Future<void> _unregisterFcmToken() async {
+    try {
+      final notifier = ref.read(notificationProvider.notifier);
+      await notifier.unregisterTokenFromServer();
+    } catch (e) {
+      debugPrint('FCM unregistration error: $e');
+    }
   }
 
   // Fetch current user
