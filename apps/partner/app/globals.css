@@ -2664,3 +2664,31 @@ main {
 }
 
 /* End @layer components */
+
+/* ================================================
+   REALTIME STATUS ANIMATIONS
+   ================================================ */
+
+.realtime-dot.pulse {
+  animation: realtimePulse 2s infinite;
+}
+
+.realtime-toast {
+  animation: realtimeSlideIn 0.3s ease-out;
+}
+
+@keyframes realtimePulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+@keyframes realtimeSlideIn {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}

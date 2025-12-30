@@ -23,3 +23,4 @@ export { PriceCard } from "./PriceCard";
 export { PromoBanner } from "./PromoBanner";
 export { PerformanceCharts, RankingCard, GuestExpCard } from "./PerformanceCharts";
 export { ImprovementAreas } from "./ImprovementAreas";
+export { RealtimeStatus } from "./RealtimeStatus";
