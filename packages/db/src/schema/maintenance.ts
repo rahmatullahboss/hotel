@@ -1,7 +1,8 @@
 // Maintenance and work order management schema
 import { pgTable, text, timestamp, integer, boolean, jsonb, pgEnum } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
-import { hotels, users } from "./business";
+import { hotels } from "./business";
+import { users } from "./auth";
 
 // Enums for maintenance
 export const maintenanceTypeEnum = pgEnum("maintenance_type", [
@@ -43,6 +44,24 @@ export const preventiveScopeEnum = pgEnum("preventive_scope", [
     "COMMON_AREAS",
 ]);
 
+// Vendors Table (defined first as it's referenced by maintenanceRequests)
+export const vendors = pgTable("vendors", {
+    id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+    hotelId: text("hotel_id").notNull().references(() => hotels.id, { onDelete: "cascade" }),
+    name: text("name").notNull(),
+    categories: jsonb("categories").$type<string[]>().notNull(),
+    contactName: text("contact_name").notNull(),
+    phone: text("phone").notNull(),
+    email: text("email"),
+    address: text("address"),
+    rating: integer("rating").default(0), // 0-5 stars * 10 for decimals (e.g., 45 = 4.5 stars)
+    totalJobs: integer("total_jobs").default(0),
+    isPreferred: boolean("is_preferred").default(false),
+    notes: text("notes"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
 // Maintenance Requests Table
 export const maintenanceRequests = pgTable("maintenance_requests", {
     id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
@@ -62,24 +81,6 @@ export const maintenanceRequests = pgTable("maintenance_requests", {
     photos: jsonb("photos").$type<string[]>(),
     notes: text("notes"),
     completedAt: timestamp("completed_at"),
-    createdAt: timestamp("created_at").defaultNow().notNull(),
-    updatedAt: timestamp("updated_at").defaultNow().notNull(),
-});
-
-// Vendors Table
-export const vendors = pgTable("vendors", {
-    id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
-    hotelId: text("hotel_id").notNull().references(() => hotels.id, { onDelete: "cascade" }),
-    name: text("name").notNull(),
-    categories: jsonb("categories").$type<string[]>().notNull(),
-    contactName: text("contact_name").notNull(),
-    phone: text("phone").notNull(),
-    email: text("email"),
-    address: text("address"),
-    rating: integer("rating").default(0), // 0-5 stars * 10 for decimals (e.g., 45 = 4.5 stars)
-    totalJobs: integer("total_jobs").default(0),
-    isPreferred: boolean("is_preferred").default(false),
-    notes: text("notes"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
