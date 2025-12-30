@@ -1,0 +1,17 @@
+{
+  "name": "@repo/realtime",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Cloudflare Worker for real-time WebSocket connections",
+  "main": "src/index.ts",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "tail": "wrangler tail"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20241230.0",
+    "wrangler": "^3.99.0",
+    "typescript": "^5.0.0"
+  }
+}

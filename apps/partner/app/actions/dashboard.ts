@@ -6,6 +6,7 @@ import { eq, and, desc, sql, gte, lte, ne } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import { auth } from "../../auth";
+import { pushRealtimeEvent } from "../lib/realtime";
 
 export interface PartnerHotel {
     id: string;
@@ -715,6 +716,17 @@ export async function checkInGuest(
             },
         });
 
+        // Push realtime event
+        pushRealtimeEvent({
+            type: "GUEST_CHECKED_IN",
+            hotelId,
+            data: {
+                bookingId,
+                guestName: booking.guestName,
+                roomId: booking.roomId,
+            },
+        }).catch((err) => console.error("Failed to push realtime event:", err));
+
         revalidatePath("/");
         revalidatePath("/scanner");
         revalidatePath("/inventory");
@@ -837,6 +849,18 @@ export async function checkOutGuest(
                 pointsAwarded,
             },
         });
+
+        // Push realtime event
+        pushRealtimeEvent({
+            type: "GUEST_CHECKED_OUT",
+            hotelId,
+            data: {
+                bookingId,
+                guestName: booking.guestName,
+                roomId: booking.roomId,
+                pointsAwarded,
+            },
+        }).catch((err) => console.error("Failed to push realtime event:", err));
 
         revalidatePath("/");
         revalidatePath("/inventory");
@@ -1027,6 +1051,18 @@ export async function collectRemainingPayment(
                 advancePaid: advancePaid,
             },
         });
+
+        // Push realtime event
+        pushRealtimeEvent({
+            type: "PAYMENT_RECEIVED",
+            hotelId,
+            data: {
+                bookingId,
+                guestName: booking.guestName,
+                amountCollected: remainingAmount,
+                totalAmount,
+            },
+        }).catch((err) => console.error("Failed to push realtime event:", err));
 
         revalidatePath("/");
         revalidatePath("/scanner");

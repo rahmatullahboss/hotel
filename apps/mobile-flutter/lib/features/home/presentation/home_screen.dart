@@ -1,16 +1,16 @@
-// Home Screen - World-Class Premium Design with API Integration
+// Home Screen - Premium White Label Design with API Integration
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../shared/widgets/hotel_card.dart';
 import '../../../shared/widgets/city_card.dart';
 import '../../../shared/widgets/search_bar_widget.dart';
 import '../../../shared/widgets/date_selection_bar.dart';
-import '../../../shared/widgets/quick_filter_button.dart';
 import '../../../shared/widgets/promo_banner.dart';
 
 import '../../../l10n/generated/app_localizations.dart';
@@ -33,12 +33,12 @@ const Map<String, String> cityImages = {
       'https://images.unsplash.com/photo-1468746587034-766ade47c1ac?q=80&w=800',
 };
 
-// Quick filter data
-const List<Map<String, String>> quickFilters = [
-  {'id': 'nearby', 'emoji': '📍'},
-  {'id': 'budget', 'emoji': '💰'},
-  {'id': 'luxury', 'emoji': '⭐'},
-  {'id': 'couple', 'emoji': '💕'},
+// Quick filter data with icons
+const List<Map<String, dynamic>> quickFilters = [
+  {'id': 'nearby', 'icon': Icons.location_on_outlined},
+  {'id': 'budget', 'icon': Icons.savings_outlined},
+  {'id': 'luxury', 'icon': Icons.star_outline},
+  {'id': 'couple', 'icon': Icons.favorite_outline},
 ];
 
 // Popular cities
@@ -188,16 +188,25 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         color: AppColors.primary,
         child: CustomScrollView(
           slivers: [
-            // Premium Header
+            // Premium White Header
             SliverToBoxAdapter(
               child: Container(
-                decoration: const BoxDecoration(color: AppColors.primary),
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Color(0x08000000),
+                      blurRadius: 10,
+                      offset: Offset(0, 2),
+                    ),
+                  ],
+                ),
                 child: Padding(
                   padding: EdgeInsets.only(
-                    top: topPadding + 16,
+                    top: topPadding + 12,
                     left: 20,
                     right: 20,
-                    bottom: 20,
+                    bottom: 16,
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -212,16 +221,18 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                               children: [
                                 Text(
                                   AppLocalizations.of(context)!.homeGreeting,
-                                  style: AppTypography.h2.copyWith(
-                                    color: Colors.white,
+                                  style: GoogleFonts.plusJakartaSans(
+                                    fontSize: 24,
                                     fontWeight: FontWeight.bold,
+                                    color: AppColors.textPrimary,
                                   ),
                                 ),
-                                const SizedBox(height: 4),
+                                const SizedBox(height: 2),
                                 Text(
                                   AppLocalizations.of(context)!.whereToStay,
-                                  style: AppTypography.bodyMedium.copyWith(
-                                    color: Colors.white.withValues(alpha: 0.8),
+                                  style: GoogleFonts.notoSans(
+                                    fontSize: 14,
+                                    color: AppColors.textSecondary,
                                   ),
                                 ),
                               ],
@@ -237,12 +248,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                   width: 44,
                                   height: 44,
                                   decoration: BoxDecoration(
-                                    color: Colors.white.withValues(alpha: 0.15),
+                                    color: AppColors.surfaceVariant,
                                     shape: BoxShape.circle,
                                   ),
                                   child: const Icon(
                                     Icons.notifications_outlined,
-                                    color: Colors.white,
+                                    color: AppColors.textPrimary,
                                     size: 22,
                                   ),
                                 ),
@@ -250,11 +261,15 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                   right: 8,
                                   top: 8,
                                   child: Container(
-                                    width: 8,
-                                    height: 8,
-                                    decoration: const BoxDecoration(
-                                      color: Color(0xFFFBBF24),
+                                    width: 10,
+                                    height: 10,
+                                    decoration: BoxDecoration(
+                                      color: AppColors.primary,
                                       shape: BoxShape.circle,
+                                      border: Border.all(
+                                        color: Colors.white,
+                                        width: 2,
+                                      ),
                                     ),
                                   ),
                                 ),
@@ -263,12 +278,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                           ),
                         ],
                       ),
-                      const SizedBox(height: 20),
+                      const SizedBox(height: 16),
 
                       // Search Bar
-                      SearchBarWidgetLight(
-                        onTap: () => context.push('/search'),
-                      ),
+                      SearchBarWidget(onTap: () => context.push('/search')),
                       const SizedBox(height: 12),
 
                       // Date Selection Bar
@@ -294,7 +307,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                             });
                           }
                         },
-                        light: true,
+                        light: false,
                       ),
                     ],
                   ),
@@ -315,12 +328,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     separatorBuilder: (_, _) => const SizedBox(width: 10),
                     itemBuilder: (context, index) {
                       final filter = quickFilters[index];
-                      return QuickFilterButton(
-                        id: filter['id']!,
-                        label: _getFilterLabel(context, filter['id']!),
-                        emoji: filter['emoji']!,
-                        isActive: activeFilter == filter['id'],
-                        onPressed: () => _handleFilterTap(filter['id']!),
+                      final filterId = filter['id'] as String;
+                      final icon = filter['icon'] as IconData;
+                      return _QuickFilterChip(
+                        id: filterId,
+                        label: _getFilterLabel(context, filterId),
+                        icon: icon,
+                        isActive: activeFilter == filterId,
+                        onPressed: () => _handleFilterTap(filterId),
                       );
                     },
                   ),
@@ -524,6 +539,75 @@ class _HotelCardShimmer extends StatelessWidget {
             color: Colors.white,
             borderRadius: BorderRadius.circular(20),
           ),
+        ),
+      ),
+    );
+  }
+}
+
+// Quick Filter Chip with Icon
+class _QuickFilterChip extends StatelessWidget {
+  final String id;
+  final String label;
+  final IconData icon;
+  final bool isActive;
+  final VoidCallback onPressed;
+
+  const _QuickFilterChip({
+    required this.id,
+    required this.label,
+    required this.icon,
+    this.isActive = false,
+    required this.onPressed,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onPressed,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        decoration: BoxDecoration(
+          color: isActive ? AppColors.primary : Colors.white,
+          borderRadius: BorderRadius.circular(24),
+          border: isActive
+              ? null
+              : Border.all(color: AppColors.divider, width: 1),
+          boxShadow: isActive
+              ? [
+                  BoxShadow(
+                    color: AppColors.primary.withValues(alpha: 0.3),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ]
+              : [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.04),
+                    blurRadius: 4,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              icon,
+              size: 18,
+              color: isActive ? Colors.white : AppColors.primary,
+            ),
+            const SizedBox(width: 8),
+            Text(
+              label,
+              style: GoogleFonts.notoSans(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: isActive ? Colors.white : AppColors.textPrimary,
+              ),
+            ),
+          ],
         ),
       ),
     );

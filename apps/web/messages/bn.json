@@ -120,7 +120,12 @@
     "guest": "অতিথি",
     "minPrice": "সর্বনিম্ন মূল্য (৳)",
     "maxPrice": "সর্বোচ্চ মূল্য (৳)",
-    "searchButton": "হোটেল খুঁজুন"
+    "searchButton": "হোটেল খুঁজুন",
+    "nearMe": "কাছাকাছি",
+    "detecting": "খুঁজছি...",
+    "locationNotSupported": "আপনার ব্রাউজারে লোকেশন সাপোর্ট নেই",
+    "locationDenied": "লোকেশন অনুমতি নেই। অনুগ্রহ করে লোকেশন অ্যাক্সেস দিন।",
+    "locationFailed": "লোকেশন পেতে ব্যর্থ। আবার চেষ্টা করুন।"
   },
   "hotels": {
     "allHotels": "সব হোটেল",

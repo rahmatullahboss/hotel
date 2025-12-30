@@ -1,14 +1,14 @@
-// Search Screen - Premium Design with Real API Search
+// Search Screen - Premium White Label Design with Real API Search
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../shared/widgets/city_card.dart';
 import '../../../shared/widgets/search_bar_widget.dart';
-import '../../../shared/widgets/quick_filter_button.dart';
 import '../../../shared/widgets/hotel_card.dart';
 import '../../home/providers/hotel_provider.dart';
 import '../../home/providers/saved_hotels_provider.dart';
@@ -28,30 +28,35 @@ const Map<String, String> cityImages = {
   'Khulna': 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=400',
 };
 
-// Quick filter options
+// Quick filter options with icons
 final List<Map<String, dynamic>> quickFilters = [
-  {'id': 'saved', 'emoji': '❤️', 'label': 'Saved', 'color': AppColors.primary},
+  {
+    'id': 'saved',
+    'icon': Icons.favorite_outline,
+    'label': 'Saved',
+    'color': AppColors.primary,
+  },
   {
     'id': 'nearby',
-    'emoji': '📍',
+    'icon': Icons.location_on_outlined,
     'label': 'Near Me',
     'color': Color(0xFF10B981),
   },
   {
     'id': 'budget',
-    'emoji': '💰',
+    'icon': Icons.savings_outlined,
     'label': 'Budget',
     'color': Color(0xFF3B82F6),
   },
   {
     'id': 'luxury',
-    'emoji': '⭐',
+    'icon': Icons.star_outline,
     'label': 'Premium',
     'color': Color(0xFFF59E0B),
   },
   {
     'id': 'couple',
-    'emoji': '💕',
+    'icon': Icons.favorite_border,
     'label': 'Couple',
     'color': Color(0xFFEC4899),
   },
@@ -356,40 +361,79 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
       backgroundColor: AppColors.adaptiveBackground(context),
       body: Column(
         children: [
-          // Header with Rounded Bottom
+          // Header with White Background
           Container(
-            decoration: const BoxDecoration(
-              color: AppColors.primary,
-              borderRadius: BorderRadius.only(
-                bottomLeft: Radius.circular(32),
-                bottomRight: Radius.circular(32),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: const BorderRadius.only(
+                bottomLeft: Radius.circular(24),
+                bottomRight: Radius.circular(24),
               ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.05),
+                  blurRadius: 10,
+                  offset: const Offset(0, 2),
+                ),
+              ],
             ),
             child: Padding(
               padding: EdgeInsets.only(
                 top: topPadding + 10,
                 left: 20,
                 right: 20,
-                bottom: 32,
+                bottom: 24,
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    AppLocalizations.of(context)!.searchHeaderTitle,
-                    style: AppTypography.h2.copyWith(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
+                  // Back button and title row
+                  Row(
+                    children: [
+                      GestureDetector(
+                        onTap: () => context.pop(),
+                        child: Container(
+                          width: 40,
+                          height: 40,
+                          decoration: BoxDecoration(
+                            color: AppColors.surfaceVariant,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: const Icon(
+                            Icons.arrow_back,
+                            size: 20,
+                            color: AppColors.textPrimary,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              AppLocalizations.of(context)!.searchHeaderTitle,
+                              style: GoogleFonts.plusJakartaSans(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                                color: AppColors.textPrimary,
+                              ),
+                            ),
+                            Text(
+                              AppLocalizations.of(
+                                context,
+                              )!.searchHeaderSubtitle,
+                              style: GoogleFonts.notoSans(
+                                fontSize: 13,
+                                color: AppColors.textSecondary,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 4),
-                  Text(
-                    AppLocalizations.of(context)!.searchHeaderSubtitle,
-                    style: AppTypography.bodyMedium.copyWith(
-                      color: Colors.white.withValues(alpha: 0.8),
-                    ),
-                  ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 16),
 
                   // Search Bar
                   SearchBarWidget(
@@ -426,10 +470,13 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                           if (index < quickFilters.length) {
                             final filter = quickFilters[index];
                             final filterId = filter['id'] as String;
-                            return QuickFilterButton(
+                            final icon = filter['icon'] as IconData;
+                            final color = filter['color'] as Color;
+                            return _SearchFilterChip(
                               id: filterId,
                               label: filter['label'] as String,
-                              emoji: filter['emoji'] as String,
+                              icon: icon,
+                              color: color,
                               isActive: activeFilter == filterId,
                               isLoading:
                                   filterId == 'nearby' && _isLoadingLocation,
@@ -1007,6 +1054,85 @@ class _SuggestionItem extends StatelessWidget {
               ),
             ),
             Icon(Icons.north_west, size: 16, color: AppColors.textTertiary),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// Search Filter Chip with Icon and Color
+class _SearchFilterChip extends StatelessWidget {
+  final String id;
+  final String label;
+  final IconData icon;
+  final Color color;
+  final bool isActive;
+  final bool isLoading;
+  final VoidCallback onPressed;
+
+  const _SearchFilterChip({
+    required this.id,
+    required this.label,
+    required this.icon,
+    required this.color,
+    this.isActive = false,
+    this.isLoading = false,
+    required this.onPressed,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: isLoading ? null : onPressed,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        decoration: BoxDecoration(
+          color: isActive ? color : Colors.white,
+          borderRadius: BorderRadius.circular(24),
+          border: isActive
+              ? null
+              : Border.all(color: AppColors.divider, width: 1),
+          boxShadow: isActive
+              ? [
+                  BoxShadow(
+                    color: color.withValues(alpha: 0.3),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ]
+              : [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.04),
+                    blurRadius: 4,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (isLoading)
+              SizedBox(
+                width: 16,
+                height: 16,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: isActive ? Colors.white : color,
+                ),
+              )
+            else
+              Icon(icon, size: 18, color: isActive ? Colors.white : color),
+            const SizedBox(width: 8),
+            Text(
+              label,
+              style: GoogleFonts.notoSans(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: isActive ? Colors.white : AppColors.textPrimary,
+              ),
+            ),
           ],
         ),
       ),

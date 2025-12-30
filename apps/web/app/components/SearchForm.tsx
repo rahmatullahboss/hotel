@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { FiMapPin, FiCalendar, FiUser } from "react-icons/fi";
+import { FiMapPin, FiCalendar, FiUser, FiCrosshair } from "react-icons/fi";
 
 interface SearchFormProps {
     compact?: boolean;
@@ -24,6 +24,44 @@ export function SearchForm({ compact = false }: SearchFormProps) {
     const [showAdvanced, setShowAdvanced] = useState(false);
     const [priceMin, setPriceMin] = useState("");
     const [priceMax, setPriceMax] = useState("");
+
+    // Near Me state
+    const [nearMeLoading, setNearMeLoading] = useState(false);
+
+    // Near Me handler - gets user location and redirects to hotels page
+    const handleNearMe = () => {
+        if (!navigator.geolocation) {
+            alert(t("locationNotSupported") || "Location not supported");
+            return;
+        }
+
+        setNearMeLoading(true);
+
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                const { latitude, longitude } = position.coords;
+                const params = new URLSearchParams({
+                    lat: latitude.toString(),
+                    lng: longitude.toString(),
+                    sort: "distance",
+                    checkIn: checkIn || today,
+                    checkOut: checkOut || tomorrow,
+                    guests: guests.toString(),
+                });
+                router.push(`/hotels?${params.toString()}`);
+                setNearMeLoading(false);
+            },
+            (error) => {
+                setNearMeLoading(false);
+                if (error.code === 1) {
+                    alert(t("locationDenied") || "Location access denied");
+                } else {
+                    alert(t("locationFailed") || "Failed to get location");
+                }
+            },
+            { enableHighAccuracy: true, timeout: 10000 }
+        );
+    };
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -117,6 +155,16 @@ export function SearchForm({ compact = false }: SearchFormProps) {
                                 onChange={(e) => setCity(e.target.value)}
                             />
                         </div>
+                        {/* Near Me Button */}
+                        <button
+                            type="button"
+                            onClick={handleNearMe}
+                            disabled={nearMeLoading}
+                            className="near-me-btn"
+                        >
+                            <FiCrosshair size={14} />
+                            <span>{nearMeLoading ? t("detecting") || "Detecting..." : t("nearMe") || "Near Me"}</span>
+                        </button>
                     </div>
 
                     <div className="search-divider" />

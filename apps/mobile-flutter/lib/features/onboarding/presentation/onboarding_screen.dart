@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../../core/router/app_router.dart';
+import '../../../core/theme/app_colors.dart';
 
 class OnboardingPageData {
   final String title;
@@ -34,25 +35,32 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
       title: "Discover Amazing Hotels",
       description: "Find the perfect stay for your next vacation in seconds.",
       // Luxury Pool View
-      imageUrl: "https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?q=80&w=1920&auto=format&fit=crop",
+      imageUrl:
+          "https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?q=80&w=1920&auto=format&fit=crop",
     ),
     OnboardingPageData(
       title: "Best Deals & Prices",
-      description: "Unlock exclusive offers and save up to 40% on top-rated hotels around the world.",
+      description:
+          "Unlock exclusive offers and save up to 40% on top-rated hotels around the world.",
       // Relaxing Resort
-      imageUrl: "https://images.unsplash.com/photo-1540541338287-41700207dee6?q=80&w=1920&auto=format&fit=crop",
+      imageUrl:
+          "https://images.unsplash.com/photo-1540541338287-41700207dee6?q=80&w=1920&auto=format&fit=crop",
     ),
     OnboardingPageData(
       title: "Easy Booking",
-      description: "Quickly browse, select, and secure your perfect stay without the hassle. Your next trip is just a tap away.",
+      description:
+          "Quickly browse, select, and secure your perfect stay without the hassle. Your next trip is just a tap away.",
       // Scenic Traveler
-      imageUrl: "https://images.unsplash.com/photo-1501785888041-af3ef285b470?q=80&w=1920&auto=format&fit=crop",
+      imageUrl:
+          "https://images.unsplash.com/photo-1501785888041-af3ef285b470?q=80&w=1920&auto=format&fit=crop",
     ),
     OnboardingPageData(
       title: "24/7 Support",
-      description: "Our dedicated team is here to help you anytime, anywhere. Peace of mind for every stay.",
+      description:
+          "Our dedicated team is here to help you anytime, anywhere. Peace of mind for every stay.",
       // Hospitality Staff
-      imageUrl: "https://images.unsplash.com/photo-1556910103-1c02745a30bf?q=80&w=1920&auto=format&fit=crop",
+      imageUrl:
+          "https://images.unsplash.com/photo-1556910103-1c02745a30bf?q=80&w=1920&auto=format&fit=crop",
     ),
   ];
 
@@ -94,10 +102,6 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Project Brand Color (Zinu Red)
-    const primaryColor = Color(0xFFE63946); 
-    // const primaryColor = Color(0xFFA3B12D); // The lime color from screenshot if requested specifically, but sticking to brand.
-
     return Scaffold(
       backgroundColor: Colors.black, // Dark background for gaps
       body: Stack(
@@ -139,9 +143,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                         end: Alignment.bottomCenter,
                         colors: [
                           Colors.transparent,
-                          Colors.black.withOpacity(0.0),
-                          Colors.black.withOpacity(0.5),
-                          Colors.black.withOpacity(0.8),
+                          Colors.black.withValues(alpha: 0.0),
+                          Colors.black.withValues(alpha: 0.5),
+                          Colors.black.withValues(alpha: 0.8),
                           Colors.black,
                         ],
                         stops: const [0.0, 0.4, 0.6, 0.8, 1.0],
@@ -157,14 +161,20 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           const Spacer(), // Push content to bottom
-                          
                           // Page Indicator Pill (e.g., 1/4)
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 6,
+                            ),
                             decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.2), // Glass effect
+                              color: Colors.white.withValues(
+                                alpha: 0.2,
+                              ), // Glass effect
                               borderRadius: BorderRadius.circular(20),
-                              border: Border.all(color: Colors.white.withOpacity(0.1)),
+                              border: Border.all(
+                                color: Colors.white.withValues(alpha: 0.1),
+                              ),
                             ),
                             child: Text(
                               '${index + 1}/${_pages.length}',
@@ -175,7 +185,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                               ),
                             ),
                           ),
-                          
+
                           const SizedBox(height: 20),
 
                           // Title
@@ -196,13 +206,15 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                           Text(
                             page.description,
                             style: GoogleFonts.notoSans(
-                              color: Colors.white.withOpacity(0.8),
+                              color: Colors.white.withValues(alpha: 0.8),
                               fontSize: 16,
                               height: 1.5,
                             ),
                           ),
 
-                          const SizedBox(height: 140), // Space for bottom buttons
+                          const SizedBox(
+                            height: 140,
+                          ), // Space for bottom buttons
                         ],
                       ),
                     ),
@@ -235,13 +247,19 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                             height: 56,
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
-                              border: Border.all(color: Colors.white.withOpacity(0.3), width: 1),
+                              border: Border.all(
+                                color: Colors.white.withValues(alpha: 0.3),
+                                width: 1,
+                              ),
                             ),
-                            child: const Icon(Icons.arrow_back, color: Colors.white),
+                            child: const Icon(
+                              Icons.arrow_back,
+                              color: Colors.white,
+                            ),
                           ),
                         ),
                       )
-                    else 
+                    else
                       // Placeholder to keep layout if we want, or just nothing.
                       // Design implies spacing. If hidden, content moves. Let's just hide it.
                       const SizedBox.shrink(),
@@ -253,7 +271,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                         child: ElevatedButton(
                           onPressed: _onNext,
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: primaryColor,
+                            backgroundColor: AppColors.primary,
                             foregroundColor: Colors.white,
                             elevation: 0,
                             shape: RoundedRectangleBorder(
@@ -261,7 +279,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                             ),
                           ),
                           child: Text(
-                            _currentPage == _pages.length - 1 ? "Get Started" : "Next",
+                            _currentPage == _pages.length - 1
+                                ? "Get Started"
+                                : "Next",
                             style: GoogleFonts.plusJakartaSans(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
@@ -276,8 +296,8 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
               ),
             ),
           ),
-          
-          // Top Status Bar Area handling is automatic by system overlay, 
+
+          // Top Status Bar Area handling is automatic by system overlay,
           // but we might want a 'Skip' button at top right if requested?
           // Design didn't explicitly show 'Skip' in the screenshot, but it's good UX.
           // The previous code had it. I will keep it for UX safety, but make it subtle.
@@ -290,7 +310,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                 child: TextButton(
                   onPressed: _finishOnboarding,
                   style: TextButton.styleFrom(
-                    foregroundColor: Colors.white.withOpacity(0.7),
+                    foregroundColor: Colors.white.withValues(alpha: 0.7),
                   ),
                   child: Text(
                     'Skip',

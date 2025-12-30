@@ -1,0 +1,23 @@
+name = "zinurooms-realtime"
+main = "src/index.ts"
+compatibility_date = "2024-12-30"
+account_id = "474078d5f990169d7dadf4e1df83214a"
+
+# Custom domain
+routes = [
+  { pattern = "realtime.digitalcare.site", custom_domain = true }
+]
+
+# Enable Durable Objects for persistent WebSocket connections
+# Using new_sqlite_classes for free plan compatibility
+[durable_objects]
+bindings = [
+  { name = "HOTEL_ROOM", class_name = "HotelRoom" }
+]
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["HotelRoom"]
+
+# Environment variables (set via wrangler secret)
+# AUTH_SECRET - For validating push requests

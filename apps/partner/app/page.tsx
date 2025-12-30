@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import { getPartnerHotel, getDashboardStats, getUpcomingBookings, getTodaysCheckIns, getCurrentlyStaying, getTodaysCheckOuts, getAllPartnerHotels, getOccupancyHistory, getBookingSources, getMaintenanceIssues, getGuestReviewsSummary, getTodaysPricing, getActivePromotion, getPlatformPromotion } from "./actions/dashboard";
 import { getPartnerRole } from "./actions/getPartnerRole";
 import {
@@ -17,6 +18,7 @@ import {
   RankingCard,
   GuestExpCard,
   ImprovementAreas,
+  RealtimeStatus,
 } from "./components";
 import { auth } from "../auth";
 import { getHighRiskBookings } from "./actions/prediction";
@@ -33,8 +35,12 @@ export default async function DashboardPage() {
     redirect("/auth/signin");
   }
 
+  // Get translations
+  const t = await getTranslations("dashboard");
+  const _tCommon = await getTranslations("common");
+  const _tBookings = await getTranslations("bookings");
+
   const hotel = await getPartnerHotel();
-  const userRole = (session.user as { role?: string }).role;
 
   // State 1: User has no hotel - prompt to register
   if (!hotel) {
@@ -170,12 +176,12 @@ export default async function DashboardPage() {
     );
   }
 
-  // Get partner role for RBAC
+  // Get partner role for RBAC (reserved for future feature gating)
   const roleInfo = await getPartnerRole();
-  const currentRole = roleInfo?.role ?? "RECEPTIONIST";
+  const _currentRole = roleInfo?.role ?? "RECEPTIONIST";
 
   // State 4: Hotel is ACTIVE - Show full dashboard
-  const [stats, upcomingBookings, todaysCheckIns, currentlyStaying, todaysCheckOuts, allPartnerHotels, highRiskBookings, occupancyHistory, bookingSourcesData, maintenanceIssues, reviewsSummary, todaysPricing, activePromotion, platformPromotion, incentiveStats] = await Promise.all([
+  const [stats, upcomingBookings, todaysCheckIns, currentlyStaying, todaysCheckOuts, _allPartnerHotels, highRiskBookings, occupancyHistory, bookingSourcesData, maintenanceIssues, reviewsSummary, todaysPricing, activePromotion, platformPromotion, incentiveStats] = await Promise.all([
     getDashboardStats(hotel.id),
     getUpcomingBookings(hotel.id, 5),
     getTodaysCheckIns(hotel.id),
@@ -468,10 +474,9 @@ export default async function DashboardPage() {
           {/* Bottom Row: Rankings */}
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
             <RankingCard
-              occupancyRank={1}
-              occupancyChange="up"
-              arrRank="⏳"
-              guestExpRank="⏳"
+              occupancyRank={null}
+              arrRank={null}
+              guestExpRank={null}
             />
             <GuestExpCard
               happyPercent={reviewsSummary.happyPercent}
@@ -486,7 +491,7 @@ export default async function DashboardPage() {
           {/* Guest Self Check-in QR */}
           <section className="oyo-card">
             <div className="oyo-card-header">
-              <h2 className="oyo-card-title">📱 Guest Self-Service</h2>
+              <h2 className="oyo-card-title">📱 {t("guestSelfService")}</h2>
             </div>
             <div className="oyo-card-body">
               <HotelCheckInQR hotelId={hotel.id} hotelName={hotel.name} />
@@ -499,61 +504,40 @@ export default async function DashboardPage() {
           {/* Rewards Card */}
           <div className="oyo-card">
             <div className="oyo-card-header">
-              <span style={{ color: "#e63946", fontWeight: 600 }}>Incentive</span>
-              <Link href="/incentives" className="oyo-card-link">Details</Link>
+              <span style={{ color: "#e63946", fontWeight: 600 }}>{t("incentive")}</span>
+              <Link href="/incentives" className="oyo-card-link">{t("details")}</Link>
             </div>
             <div className="oyo-reward-card">
               <div>
-                <div className="oyo-reward-label">Total Earned</div>
+                <div className="oyo-reward-label">{t("totalEarned")}</div>
                 <div className="oyo-reward-value">৳{incentiveStats?.totalEarned?.toLocaleString() || 0}</div>
                 <div style={{ fontSize: "0.625rem", color: "#92400e" }}>
-                  {incentiveStats?.active || 0} active • {incentiveStats?.completed || 0} completed
+                  {incentiveStats?.active || 0} {t("active")} • {incentiveStats?.completed || 0} {t("completed")}
                 </div>
               </div>
               <div className="oyo-reward-icon">🏆</div>
             </div>
           </div>
 
-          {/* Staff Training */}
+          {/* Staff Training - Coming Soon */}
           <div className="oyo-card">
             <div className="oyo-card-header">
-              <span className="oyo-card-title">Staff Training</span>
-              <Link href="/staff-performance" className="oyo-card-link">Apply</Link>
-            </div>
-            <div className="oyo-card-body">
-              <div style={{ padding: "1rem", background: "#f9fafb", borderRadius: "8px", fontSize: "0.8125rem", color: "#6b7280" }}>
-                <span style={{ fontSize: "1.5rem", marginRight: "0.5rem" }}>👨‍🏫</span>
-                Staff training sessions for all partners starts on 20th July
-              </div>
-            </div>
-          </div>
-
-          {/* Training Modules */}
-          <div className="oyo-card">
-            <div className="oyo-card-header">
-              <span className="oyo-card-title">Your Training Modules</span>
-              <span style={{ fontSize: "0.75rem", color: "#9ca3af" }}>4/8 done</span>
+              <span className="oyo-card-title">🎓 {t("training")}</span>
+              <span style={{ fontSize: "0.75rem", color: "#9ca3af" }}>{t("comingSoon")}</span>
             </div>
             <div className="oyo-card-body">
               <div style={{
-                height: "120px",
-                background: "linear-gradient(135deg, #1e3a5f 0%, #2563eb 100%)",
+                padding: "2rem 1rem",
+                background: "linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)",
                 borderRadius: "8px",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                color: "white",
-                fontSize: "0.875rem",
-                fontWeight: 600,
+                textAlign: "center",
               }}>
-                🎓 Jump In
-              </div>
-              <div style={{ marginTop: "1rem" }}>
-                <div style={{ fontSize: "0.8125rem", fontWeight: 600, marginBottom: "0.5rem" }}>
-                  Managing in-house cafeteria
+                <span style={{ fontSize: "2.5rem", display: "block", marginBottom: "0.75rem" }}>👨‍🏫</span>
+                <div style={{ fontSize: "0.875rem", fontWeight: 600, color: "#374151", marginBottom: "0.25rem" }}>
+                  {t("staffTrainingModules")}
                 </div>
-                <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.75rem", color: "#3b82f6" }}>
-                  📄 40 slides
+                <div style={{ fontSize: "0.75rem", color: "#6b7280" }}>
+                  {t("trainingComingSoon")}
                 </div>
               </div>
             </div>
@@ -562,13 +546,13 @@ export default async function DashboardPage() {
           {/* Upcoming Bookings */}
           <div className="oyo-card">
             <div className="oyo-card-header">
-              <span className="oyo-card-title">📅 Upcoming</span>
-              <Link href="/bookings" className="oyo-card-link">View All</Link>
+              <span className="oyo-card-title">📅 {t("upcoming")}</span>
+              <Link href="/bookings" className="oyo-card-link">{t("viewAll")}</Link>
             </div>
             <div className="oyo-card-body" style={{ padding: "0" }}>
               {upcomingBookings.length === 0 ? (
                 <div style={{ padding: "1.5rem", textAlign: "center", color: "#9ca3af" }}>
-                  No upcoming bookings
+                  {t("noUpcomingBookings")}
                 </div>
               ) : (
                 upcomingBookings.slice(0, 3).map((booking) => {
@@ -606,6 +590,9 @@ export default async function DashboardPage() {
 
       {/* Scanner FAB */}
       <ScannerFAB />
+
+      {/* Real-time Connection Status */}
+      <RealtimeStatus hotelId={hotel.id} />
     </>
   );
 }

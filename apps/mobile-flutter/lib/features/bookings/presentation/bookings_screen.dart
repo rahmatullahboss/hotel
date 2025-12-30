@@ -1,8 +1,9 @@
-// Bookings Screen - World-Class Premium Design with API Integration
+// Bookings Screen - Premium White Label Design with API Integration
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../l10n/generated/app_localizations.dart';
@@ -66,21 +67,28 @@ class _BookingsScreenState extends ConsumerState<BookingsScreen>
       backgroundColor: AppColors.adaptiveBackground(context),
       body: Column(
         children: [
-          // Premium Header
+          // Premium White Header
           Container(
-            decoration: const BoxDecoration(
-              color: AppColors.primary,
-              borderRadius: BorderRadius.only(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: const BorderRadius.only(
                 bottomLeft: Radius.circular(24),
                 bottomRight: Radius.circular(24),
               ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.05),
+                  blurRadius: 10,
+                  offset: const Offset(0, 2),
+                ),
+              ],
             ),
             child: Padding(
               padding: EdgeInsets.only(
-                top: topPadding + 16,
+                top: topPadding + 12,
                 left: 20,
                 right: 20,
-                bottom: 12,
+                bottom: 16,
               ),
               child: Column(
                 children: [
@@ -92,16 +100,18 @@ class _BookingsScreenState extends ConsumerState<BookingsScreen>
                         children: [
                           Text(
                             AppLocalizations.of(context)!.bookingsTitle,
-                            style: AppTypography.h2.copyWith(
-                              color: Colors.white,
+                            style: GoogleFonts.plusJakartaSans(
+                              fontSize: 24,
                               fontWeight: FontWeight.bold,
+                              color: AppColors.textPrimary,
                             ),
                           ),
-                          const SizedBox(height: 6),
+                          const SizedBox(height: 4),
                           Text(
                             '$totalBookings ${AppLocalizations.of(context)!.bookingsSubtitleSuffix}',
-                            style: AppTypography.bodyMedium.copyWith(
-                              color: Colors.white.withValues(alpha: 0.85),
+                            style: GoogleFonts.notoSans(
+                              fontSize: 14,
+                              color: AppColors.textSecondary,
                             ),
                           ),
                         ],
@@ -111,16 +121,16 @@ class _BookingsScreenState extends ConsumerState<BookingsScreen>
                       GestureDetector(
                         onTap: () => context.push('/qr-scanner'),
                         child: Container(
-                          width: 48,
-                          height: 48,
+                          width: 44,
+                          height: 44,
                           decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha: 0.2),
-                            shape: BoxShape.circle,
+                            color: AppColors.surfaceVariant,
+                            borderRadius: BorderRadius.circular(12),
                           ),
                           child: const Icon(
-                            Icons.qr_code_scanner,
-                            color: Colors.white,
-                            size: 24,
+                            Icons.qr_code_scanner_rounded,
+                            color: AppColors.textPrimary,
+                            size: 22,
                           ),
                         ),
                       ),
@@ -128,22 +138,30 @@ class _BookingsScreenState extends ConsumerState<BookingsScreen>
                   ),
                   const SizedBox(height: 16),
 
-                  // Tab Bar
+                  // Tab Bar with improved styling
                   Container(
                     decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.15),
+                      color: AppColors.surfaceVariant,
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: TabBar(
                       controller: _tabController,
                       indicator: BoxDecoration(
-                        color: Colors.white,
+                        color: AppColors.primary,
                         borderRadius: BorderRadius.circular(10),
+                        boxShadow: [
+                          BoxShadow(
+                            color: AppColors.primary.withOpacity(0.3),
+                            blurRadius: 8,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
                       ),
                       indicatorPadding: const EdgeInsets.all(4),
-                      labelColor: AppColors.primary,
-                      unselectedLabelColor: Colors.white.withValues(alpha: 0.8),
-                      labelStyle: AppTypography.labelLarge.copyWith(
+                      labelColor: Colors.white,
+                      unselectedLabelColor: AppColors.textSecondary,
+                      labelStyle: GoogleFonts.notoSans(
+                        fontSize: 13,
                         fontWeight: FontWeight.w600,
                       ),
                       dividerColor: Colors.transparent,
@@ -162,15 +180,15 @@ class _BookingsScreenState extends ConsumerState<BookingsScreen>
                                     vertical: 2,
                                   ),
                                   decoration: BoxDecoration(
-                                    color: Colors.amber,
+                                    color: Colors.white,
                                     borderRadius: BorderRadius.circular(8),
                                   ),
                                   child: Text(
                                     '${bookingsState.upcomingBookings.length}',
-                                    style: const TextStyle(
+                                    style: GoogleFonts.notoSans(
                                       fontSize: 10,
                                       fontWeight: FontWeight.bold,
-                                      color: Colors.black87,
+                                      color: AppColors.primary,
                                     ),
                                   ),
                                 ),
