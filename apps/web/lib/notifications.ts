@@ -101,7 +101,10 @@ export async function sendPushNotification(
                     const errorCode = resp.error?.code;
                     if (errorCode === 'messaging/invalid-registration-token' ||
                         errorCode === 'messaging/registration-token-not-registered') {
-                        tokensToDeactivate.push(tokens[idx]);
+                        const token = tokens[idx];
+                        if (token) {
+                            tokensToDeactivate.push(token);
+                        }
                     }
                     console.error(`❌ FCM error for token:`, resp.error?.message);
                 }

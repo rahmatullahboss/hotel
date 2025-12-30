@@ -7,6 +7,7 @@ import { Providers } from "./providers";
 import { ServiceWorkerUnregister } from "./components/ServiceWorkerUnregister";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages } from "next-intl/server";
+import { ScrollToTop } from "./components/ScrollToTop";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -86,6 +87,7 @@ export default async function RootLayout({
             <DesktopHeader />
             <TopNav />
             {children}
+            <ScrollToTop />
           </NextIntlClientProvider>
         </Providers>
       </body>
