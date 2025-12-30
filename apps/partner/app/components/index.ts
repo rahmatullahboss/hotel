@@ -32,6 +32,7 @@ export * from "./Skeleton";
 // Interactive components
 export * from "./DateRangePicker";
 export * from "./ExportDropdown";
+export * from "./AnimatedCounter";
 
 // Inventory components
 export * from "./RoomGrid";
