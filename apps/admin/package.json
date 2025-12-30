@@ -11,6 +11,7 @@
     "check-types": "next typegen && tsc --noEmit"
   },
   "dependencies": {
+    "@number-flow/react": "^0.5.10",
     "@repo/api": "*",
     "@repo/config": "^0.1.0",
     "@repo/db": "^0.1.0",
@@ -18,7 +19,8 @@
     "next": "16.1.0",
     "next-auth": "^5.0.0-beta.30",
     "react": "^19.2.0",
-    "react-dom": "^19.2.0"
+    "react-dom": "^19.2.0",
+    "react-icons": "^5.5.0"
   },
   "devDependencies": {
     "@repo/eslint-config": "*",

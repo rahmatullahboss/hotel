@@ -15,6 +15,7 @@ import {
     FiMessageSquare,
     FiLink,
     FiBarChart2,
+    FiDollarSign,
 } from "react-icons/fi";
 
 
@@ -32,6 +33,7 @@ const navItems = [
     { href: "/walkin", label: "ওয়াক-ইন", icon: FiUsers },
     { href: "/messaging", label: "মেসেজ", icon: FiMessageSquare },
     { href: "/channels", label: "চ্যানেল", icon: FiLink },
+    { href: "/revenue-management", label: "রেভেনিউ", icon: FiDollarSign },
     { href: "/reports", label: "রিপোর্ট", icon: FiBarChart2 },
     { href: "/reviews", label: "রিভিউ", icon: FiStar },
     { href: "/portfolio", label: "পোর্টফোলিও", icon: FiTrendingUp },
