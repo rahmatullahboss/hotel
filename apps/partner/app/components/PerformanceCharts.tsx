@@ -238,13 +238,18 @@ export function PerformanceCharts({
 
 // Ranking Card
 interface RankingCardProps {
-    occupancyRank: number;
-    occupancyChange: "up" | "down" | "same";
-    arrRank: string;
-    guestExpRank: string;
+    occupancyRank?: number | null;
+    occupancyChange?: "up" | "down" | "same";
+    arrRank?: string | number | null;
+    guestExpRank?: string | number | null;
 }
 
 export function RankingCard({ occupancyRank, occupancyChange, arrRank, guestExpRank }: RankingCardProps) {
+    const formatRank = (value: string | number | null | undefined) => {
+        if (value === null || value === undefined) return "—";
+        return value;
+    };
+
     return (
         <div className="oyo-card">
             <div className="oyo-card-header">
@@ -259,20 +264,20 @@ export function RankingCard({ occupancyRank, occupancyChange, arrRank, guestExpR
                     <span className={`oyo-rank-value ${occupancyChange === "up" ? "oyo-rank-up" : ""}`}>
                         {occupancyChange === "up" && "↑"}
                         {occupancyChange === "down" && "↓"}
-                        {occupancyRank}
+                        {formatRank(occupancyRank)}
                     </span>
                 </div>
                 <div className="oyo-rank-item">
                     <span className="oyo-rank-label">
                         ARR Rank <span style={{ color: "#9ca3af" }}>ⓘ</span>
                     </span>
-                    <span className="oyo-rank-value oyo-rank-badge">{arrRank}</span>
+                    <span className="oyo-rank-value oyo-rank-badge">{formatRank(arrRank)}</span>
                 </div>
                 <div className="oyo-rank-item">
                     <span className="oyo-rank-label">
                         Guest Exp. Rank
                     </span>
-                    <span className="oyo-rank-value oyo-rank-badge">{guestExpRank}</span>
+                    <span className="oyo-rank-value oyo-rank-badge">{formatRank(guestExpRank)}</span>
                 </div>
             </div>
         </div>
