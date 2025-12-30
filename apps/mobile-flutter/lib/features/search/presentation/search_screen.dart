@@ -9,7 +9,6 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../shared/widgets/city_card.dart';
 import '../../../shared/widgets/search_bar_widget.dart';
-import '../../../shared/widgets/quick_filter_button.dart';
 import '../../../shared/widgets/hotel_card.dart';
 import '../../home/providers/hotel_provider.dart';
 import '../../home/providers/saved_hotels_provider.dart';
@@ -29,30 +28,35 @@ const Map<String, String> cityImages = {
   'Khulna': 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=400',
 };
 
-// Quick filter options
+// Quick filter options with icons
 final List<Map<String, dynamic>> quickFilters = [
-  {'id': 'saved', 'emoji': '❤️', 'label': 'Saved', 'color': AppColors.primary},
+  {
+    'id': 'saved',
+    'icon': Icons.favorite_outline,
+    'label': 'Saved',
+    'color': AppColors.primary,
+  },
   {
     'id': 'nearby',
-    'emoji': '📍',
+    'icon': Icons.location_on_outlined,
     'label': 'Near Me',
     'color': Color(0xFF10B981),
   },
   {
     'id': 'budget',
-    'emoji': '💰',
+    'icon': Icons.savings_outlined,
     'label': 'Budget',
     'color': Color(0xFF3B82F6),
   },
   {
     'id': 'luxury',
-    'emoji': '⭐',
+    'icon': Icons.star_outline,
     'label': 'Premium',
     'color': Color(0xFFF59E0B),
   },
   {
     'id': 'couple',
-    'emoji': '💕',
+    'icon': Icons.favorite_border,
     'label': 'Couple',
     'color': Color(0xFFEC4899),
   },
@@ -466,10 +470,13 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                           if (index < quickFilters.length) {
                             final filter = quickFilters[index];
                             final filterId = filter['id'] as String;
-                            return QuickFilterButton(
+                            final icon = filter['icon'] as IconData;
+                            final color = filter['color'] as Color;
+                            return _SearchFilterChip(
                               id: filterId,
                               label: filter['label'] as String,
-                              emoji: filter['emoji'] as String,
+                              icon: icon,
+                              color: color,
                               isActive: activeFilter == filterId,
                               isLoading:
                                   filterId == 'nearby' && _isLoadingLocation,
@@ -1047,6 +1054,85 @@ class _SuggestionItem extends StatelessWidget {
               ),
             ),
             Icon(Icons.north_west, size: 16, color: AppColors.textTertiary),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// Search Filter Chip with Icon and Color
+class _SearchFilterChip extends StatelessWidget {
+  final String id;
+  final String label;
+  final IconData icon;
+  final Color color;
+  final bool isActive;
+  final bool isLoading;
+  final VoidCallback onPressed;
+
+  const _SearchFilterChip({
+    required this.id,
+    required this.label,
+    required this.icon,
+    required this.color,
+    this.isActive = false,
+    this.isLoading = false,
+    required this.onPressed,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: isLoading ? null : onPressed,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        decoration: BoxDecoration(
+          color: isActive ? color : Colors.white,
+          borderRadius: BorderRadius.circular(24),
+          border: isActive
+              ? null
+              : Border.all(color: AppColors.divider, width: 1),
+          boxShadow: isActive
+              ? [
+                  BoxShadow(
+                    color: color.withValues(alpha: 0.3),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ]
+              : [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.04),
+                    blurRadius: 4,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (isLoading)
+              SizedBox(
+                width: 16,
+                height: 16,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: isActive ? Colors.white : color,
+                ),
+              )
+            else
+              Icon(icon, size: 18, color: isActive ? Colors.white : color),
+            const SizedBox(width: 8),
+            Text(
+              label,
+              style: GoogleFonts.notoSans(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: isActive ? Colors.white : AppColors.textPrimary,
+              ),
+            ),
           ],
         ),
       ),

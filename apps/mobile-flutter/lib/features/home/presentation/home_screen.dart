@@ -11,7 +11,6 @@ import '../../../shared/widgets/hotel_card.dart';
 import '../../../shared/widgets/city_card.dart';
 import '../../../shared/widgets/search_bar_widget.dart';
 import '../../../shared/widgets/date_selection_bar.dart';
-import '../../../shared/widgets/quick_filter_button.dart';
 import '../../../shared/widgets/promo_banner.dart';
 
 import '../../../l10n/generated/app_localizations.dart';
@@ -34,12 +33,12 @@ const Map<String, String> cityImages = {
       'https://images.unsplash.com/photo-1468746587034-766ade47c1ac?q=80&w=800',
 };
 
-// Quick filter data
-const List<Map<String, String>> quickFilters = [
-  {'id': 'nearby', 'emoji': '📍'},
-  {'id': 'budget', 'emoji': '💰'},
-  {'id': 'luxury', 'emoji': '⭐'},
-  {'id': 'couple', 'emoji': '💕'},
+// Quick filter data with icons
+const List<Map<String, dynamic>> quickFilters = [
+  {'id': 'nearby', 'icon': Icons.location_on_outlined},
+  {'id': 'budget', 'icon': Icons.savings_outlined},
+  {'id': 'luxury', 'icon': Icons.star_outline},
+  {'id': 'couple', 'icon': Icons.favorite_outline},
 ];
 
 // Popular cities
@@ -329,12 +328,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     separatorBuilder: (_, _) => const SizedBox(width: 10),
                     itemBuilder: (context, index) {
                       final filter = quickFilters[index];
-                      return QuickFilterButton(
-                        id: filter['id']!,
-                        label: _getFilterLabel(context, filter['id']!),
-                        emoji: filter['emoji']!,
-                        isActive: activeFilter == filter['id'],
-                        onPressed: () => _handleFilterTap(filter['id']!),
+                      final filterId = filter['id'] as String;
+                      final icon = filter['icon'] as IconData;
+                      return _QuickFilterChip(
+                        id: filterId,
+                        label: _getFilterLabel(context, filterId),
+                        icon: icon,
+                        isActive: activeFilter == filterId,
+                        onPressed: () => _handleFilterTap(filterId),
                       );
                     },
                   ),
@@ -538,6 +539,75 @@ class _HotelCardShimmer extends StatelessWidget {
             color: Colors.white,
             borderRadius: BorderRadius.circular(20),
           ),
+        ),
+      ),
+    );
+  }
+}
+
+// Quick Filter Chip with Icon
+class _QuickFilterChip extends StatelessWidget {
+  final String id;
+  final String label;
+  final IconData icon;
+  final bool isActive;
+  final VoidCallback onPressed;
+
+  const _QuickFilterChip({
+    required this.id,
+    required this.label,
+    required this.icon,
+    this.isActive = false,
+    required this.onPressed,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onPressed,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        decoration: BoxDecoration(
+          color: isActive ? AppColors.primary : Colors.white,
+          borderRadius: BorderRadius.circular(24),
+          border: isActive
+              ? null
+              : Border.all(color: AppColors.divider, width: 1),
+          boxShadow: isActive
+              ? [
+                  BoxShadow(
+                    color: AppColors.primary.withValues(alpha: 0.3),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ]
+              : [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.04),
+                    blurRadius: 4,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              icon,
+              size: 18,
+              color: isActive ? Colors.white : AppColors.primary,
+            ),
+            const SizedBox(width: 8),
+            Text(
+              label,
+              style: GoogleFonts.notoSans(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: isActive ? Colors.white : AppColors.textPrimary,
+              ),
+            ),
+          ],
         ),
       ),
     );
