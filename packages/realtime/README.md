@@ -104,3 +104,4 @@ This starts the Worker locally at `http://localhost:8787`.
 │  (Bookings API) │
 └─────────────────┘
 ```
+# Auto-deploy via GitHub Actions
