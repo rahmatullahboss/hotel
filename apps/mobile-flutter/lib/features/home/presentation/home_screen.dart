@@ -18,6 +18,7 @@ import '../../../shared/widgets/special_deals_section.dart';
 import '../../../l10n/generated/app_localizations.dart';
 import '../providers/hotel_provider.dart';
 import '../providers/saved_hotels_provider.dart';
+import '../../profile/providers/user_notifications_provider.dart';
 
 // City images - Real photos of Bangladeshi landmarks
 const Map<String, String> cityImages = {
@@ -531,24 +532,25 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                           size: 24,
                         ),
                       ),
-                      Positioned(
-                        right: 10,
-                        top: 10,
-                        child: Container(
-                          width: 12,
-                          height: 12,
-                          decoration: BoxDecoration(
-                            gradient: AppColors.primaryGradient,
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                              color: isDark
-                                  ? AppColors.surfaceDark
-                                  : Colors.white,
-                              width: 2,
+                      if (ref.watch(unreadNotificationCountProvider) > 0)
+                        Positioned(
+                          right: 10,
+                          top: 10,
+                          child: Container(
+                            width: 12,
+                            height: 12,
+                            decoration: BoxDecoration(
+                              gradient: AppColors.primaryGradient,
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: isDark
+                                    ? AppColors.surfaceDark
+                                    : Colors.white,
+                                width: 2,
+                              ),
                             ),
                           ),
                         ),
-                      ),
                     ],
                   ),
                 ),
