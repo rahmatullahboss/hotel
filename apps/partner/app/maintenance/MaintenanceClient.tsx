@@ -13,8 +13,8 @@ import {
 import {
     createMaintenanceRequest,
     updateMaintenanceStatus,
-    MAINTENANCE_TYPES,
 } from "../actions/maintenance";
+import { MAINTENANCE_TYPES } from "../lib/constants";
 import type { MaintenanceRequest, Vendor, PreventiveMaintenance } from "../actions/maintenance";
 
 interface MaintenanceClientProps {

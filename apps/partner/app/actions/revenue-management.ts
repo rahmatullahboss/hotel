@@ -1,8 +1,8 @@
 "use server";
 
 import { db } from "@repo/db";
-import { bookings, rooms, roomInventory } from "@repo/db/schema";
-import { eq, and, gte, lte, count, sql } from "drizzle-orm";
+import { bookings, rooms } from "@repo/db/schema";
+import { eq, and, gte, count } from "drizzle-orm";
 import { auth } from "../../auth";
 
 // Types
@@ -91,7 +91,7 @@ export async function getDemandForecast(
 
     // Calculate average daily bookings
     const avgBookings = historicalBookings.length > 0
-        ? historicalBookings.reduce((sum, b) => sum + Number(b.count), 0) / historicalBookings.length
+        ? historicalBookings.reduce((sum: number, b: { count: number }) => sum + Number(b.count), 0) / historicalBookings.length
         : totalRooms * 0.5;
 
     for (let i = 0; i < days; i++) {
@@ -164,7 +164,7 @@ export async function getDemandForecast(
 /**
  * Get yield management rules
  */
-export async function getYieldRules(hotelId: string): Promise<YieldRule[]> {
+export async function getYieldRules(_hotelId: string): Promise<YieldRule[]> {
     const session = await auth();
     if (!session?.user?.email) {
         return [];

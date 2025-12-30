@@ -5,17 +5,10 @@ import { bookings } from "@repo/db/schema";
 import { eq, and, gte, lte, desc } from "drizzle-orm";
 import { auth } from "../../auth";
 import { revalidatePath } from "next/cache";
+import { DEFAULT_TEMPLATES, type MessageTemplate } from "../lib/constants";
 
-// Types for Guest Communication
-export interface MessageTemplate {
-    id: string;
-    name: string;
-    type: "PRE_ARRIVAL" | "WELCOME" | "POST_STAY" | "CUSTOM";
-    subject: string;
-    body: string;
-    isActive: boolean;
-    sendTiming: number; // hours before/after event
-}
+// Re-export types for backward compatibility
+export type { MessageTemplate } from "../lib/constants";
 
 export interface AutomationSettings {
     preArrivalEnabled: boolean;
@@ -37,69 +30,6 @@ export interface GuestMessage {
     sentAt: Date | null;
     createdAt: Date;
 }
-
-// Default message templates
-export const DEFAULT_TEMPLATES: MessageTemplate[] = [
-    {
-        id: "pre-arrival",
-        name: "Pre-Arrival Message",
-        type: "PRE_ARRIVAL",
-        subject: "Your stay at {hotelName} is coming up!",
-        body: `Dear {guestName},
-
-We're excited to welcome you to {hotelName} on {checkInDate}! 
-
-Here are some details about your upcoming stay:
-- Check-in: {checkInDate} from 2:00 PM
-- Check-out: {checkOutDate} by 12:00 PM
-- Room: {roomType}
-
-If you have any special requests or need early check-in, please let us know.
-
-See you soon!
-{hotelName} Team`,
-        isActive: true,
-        sendTiming: 24, // 24 hours before check-in
-    },
-    {
-        id: "welcome",
-        name: "Welcome Message",
-        type: "WELCOME",
-        subject: "Welcome to {hotelName}!",
-        body: `Dear {guestName},
-
-Welcome to {hotelName}! We hope you have a wonderful stay.
-
-Wi-Fi: {wifiNetwork}
-Password: {wifiPassword}
-
-Need anything? Contact us at the front desk or call {frontDeskPhone}.
-
-Enjoy your stay!`,
-        isActive: true,
-        sendTiming: 0, // On check-in
-    },
-    {
-        id: "post-stay",
-        name: "Post-Stay Feedback",
-        type: "POST_STAY",
-        subject: "Thank you for staying at {hotelName}!",
-        body: `Dear {guestName},
-
-Thank you for choosing {hotelName}! We hope you had a wonderful stay.
-
-We'd love to hear your feedback. Please take a moment to rate your experience:
-
-[Rate Your Stay]
-
-Your feedback helps us improve and serve you better.
-
-We hope to see you again soon!
-{hotelName} Team`,
-        isActive: true,
-        sendTiming: 2, // 2 hours after check-out
-    },
-];
 
 /**
  * Get automation settings for a hotel
@@ -193,7 +123,15 @@ export async function getRecentMessages(limit: number = 20): Promise<GuestMessag
         .orderBy(desc(bookings.createdAt))
         .limit(limit);
 
-    return recentBookings.map((booking) => ({
+    return recentBookings.map((booking: {
+        id: string;
+        guestName: string;
+        guestEmail: string | null;
+        guestPhone: string | null;
+        status: string;
+        updatedAt: Date;
+        createdAt: Date;
+    }) => ({
         id: `msg-${booking.id}`,
         bookingId: booking.id,
         guestName: booking.guestName,
@@ -275,7 +213,12 @@ export async function getUpcomingCheckInsForMessaging(): Promise<{
             )
         );
 
-    return upcoming.map((booking) => {
+    return upcoming.map((booking: {
+        id: string;
+        guestName: string;
+        guestEmail: string | null;
+        checkIn: string;
+    }) => {
         const checkInDate = new Date(booking.checkIn);
         const hoursUntil = Math.max(0, (checkInDate.getTime() - now.getTime()) / (1000 * 60 * 60));
         

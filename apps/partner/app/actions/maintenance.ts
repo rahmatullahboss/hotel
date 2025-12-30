@@ -2,7 +2,7 @@
 
 import { db } from "@repo/db";
 import { rooms } from "@repo/db/schema";
-import { eq, count } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { auth } from "../../auth";
 import { revalidatePath } from "next/cache";
 
@@ -58,17 +58,6 @@ export interface MaintenanceStats {
     avgResolutionTime: number; // in hours
     totalCostThisMonth: number;
 }
-
-// Maintenance type configs with Bengali labels
-export const MAINTENANCE_TYPES = [
-    { value: "PLUMBING", label: "প্লাম্বিং", icon: "🔧" },
-    { value: "ELECTRICAL", label: "ইলেক্ট্রিক্যাল", icon: "⚡" },
-    { value: "HVAC", label: "এসি/হিটিং", icon: "❄️" },
-    { value: "FURNITURE", label: "ফার্নিচার", icon: "🪑" },
-    { value: "CLEANING", label: "ক্লিনিং", icon: "🧹" },
-    { value: "APPLIANCE", label: "এপ্লায়েন্স", icon: "📺" },
-    { value: "OTHER", label: "অন্যান্য", icon: "🛠️" },
-] as const;
 
 /**
  * Get all maintenance requests
@@ -151,7 +140,7 @@ export async function getMaintenanceRequests(
 /**
  * Get maintenance statistics
  */
-export async function getMaintenanceStats(hotelId: string): Promise<MaintenanceStats> {
+export async function getMaintenanceStats(_hotelId: string): Promise<MaintenanceStats> {
     const session = await auth();
     if (!session?.user?.email) {
         return {
@@ -238,7 +227,7 @@ export async function assignMaintenanceRequest(
 /**
  * Get vendors list
  */
-export async function getVendors(hotelId: string): Promise<Vendor[]> {
+export async function getVendors(_hotelId: string): Promise<Vendor[]> {
     const session = await auth();
     if (!session?.user?.email) {
         return [];
@@ -305,7 +294,7 @@ export async function saveVendor(
  * Get preventive maintenance schedules
  */
 export async function getPreventiveMaintenance(
-    hotelId: string
+    _hotelId: string
 ): Promise<PreventiveMaintenance[]> {
     const session = await auth();
     if (!session?.user?.email) {
@@ -394,12 +383,12 @@ export async function getRoomsForMaintenance(hotelId: string): Promise<{ roomNum
     }
 
     const roomList = await db
-        .select({ roomNumber: rooms.roomNumber, floor: rooms.floor })
+        .select({ roomNumber: rooms.roomNumber })
         .from(rooms)
         .where(eq(rooms.hotelId, hotelId));
 
-    return roomList.map((r) => ({
+    return roomList.map((r: { roomNumber: string }) => ({
         roomNumber: r.roomNumber,
-        floor: r.floor || "1",
+        floor: "1", // Default floor since column doesn't exist
     }));
 }
