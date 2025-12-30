@@ -1,12 +1,21 @@
 "use client";
 
 import { signOut, useSession } from "next-auth/react";
+import Link from "next/link";
+import {
+    HiOutlineBars3,
+    HiOutlineMagnifyingGlass,
+    HiOutlineBell,
+    HiOutlinePlus,
+    HiOutlineArrowRightOnRectangle
+} from "react-icons/hi2";
 
 interface AdminHeaderProps {
     onMenuClick?: () => void;
+    notificationCount?: number;
 }
 
-export function AdminHeader({ onMenuClick }: AdminHeaderProps) {
+export function AdminHeader({ onMenuClick, notificationCount = 0 }: AdminHeaderProps) {
     const { data: session } = useSession();
 
     return (
@@ -17,25 +26,39 @@ export function AdminHeader({ onMenuClick }: AdminHeaderProps) {
                     onClick={onMenuClick}
                     aria-label="Toggle menu"
                 >
-                    <svg
-                        width="24"
-                        height="24"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                    >
-                        <line x1="3" y1="12" x2="21" y2="12" />
-                        <line x1="3" y1="6" x2="21" y2="6" />
-                        <line x1="3" y1="18" x2="21" y2="18" />
-                    </svg>
+                    <HiOutlineBars3 size={24} />
                 </button>
-                <span className="header-title">Zinu Rooms Admin</span>
+
+                {/* Global Search */}
+                <div className="header-search">
+                    <HiOutlineMagnifyingGlass size={18} className="header-search-icon" />
+                    <input
+                        type="text"
+                        placeholder="Search hotels, bookings..."
+                        aria-label="Search"
+                    />
+                    <span className="header-search-shortcut">⌘K</span>
+                </div>
             </div>
 
             <div className="header-right">
+                {/* Quick Action Button */}
+                <Link href="/hotels#pending" className="btn-quick-action" style={{ display: 'none' }}>
+                    <HiOutlinePlus size={18} />
+                    <span style={{ display: 'none' }}>New Hotel</span>
+                </Link>
+
+                {/* Notifications */}
+                <button className="header-notifications" aria-label="Notifications">
+                    <HiOutlineBell size={22} />
+                    {notificationCount > 0 && (
+                        <span className="notification-badge">
+                            {notificationCount > 99 ? "99+" : notificationCount}
+                        </span>
+                    )}
+                </button>
+
+                {/* User Dropdown */}
                 <div className="header-user">
                     {session?.user?.image ? (
                         <img
@@ -48,15 +71,28 @@ export function AdminHeader({ onMenuClick }: AdminHeaderProps) {
                             {(session?.user?.name || "A")?.[0]?.toUpperCase()}
                         </div>
                     )}
-                    <span className="header-username">
-                        {session?.user?.name || "Admin"}
-                    </span>
+                    <div style={{ display: 'flex', flexDirection: 'column' }}>
+                        <span className="header-username">
+                            {session?.user?.name || "Admin"}
+                        </span>
+                        <span style={{
+                            fontSize: '0.625rem',
+                            color: 'var(--color-text-muted)',
+                            textTransform: 'uppercase',
+                            letterSpacing: '0.05em',
+                            display: 'none'
+                        }}>
+                            Super Admin
+                        </span>
+                    </div>
                 </div>
+                
                 <button
                     onClick={() => signOut({ callbackUrl: "/auth/signin" })}
                     className="header-signout"
+                    title="Sign Out"
                 >
-                    Sign Out
+                    <HiOutlineArrowRightOnRectangle size={20} />
                 </button>
             </div>
         </header>

@@ -1,5 +1,6 @@
 import { getAdminStats, getRecentActivity, getQualityAlerts, getPendingPaymentBookings } from "@/actions/dashboard";
 import Link from "next/link";
+import { QuickActions } from "../components/QuickActions";
 
 export const dynamic = 'force-dynamic';
 
@@ -46,12 +47,25 @@ export default async function DashboardPage() {
                     <div
                         className="card"
                         style={{
-                            background: "rgba(233, 196, 106, 0.1)",
+                            background: "linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, rgba(217, 119, 6, 0.05) 100%)",
                             borderColor: "var(--color-warning)",
+                            padding: "1rem 1.25rem"
                         }}
                     >
                         <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-                            <span style={{ fontSize: "2rem" }}>⚠️</span>
+                            <div style={{
+                                width: "40px",
+                                height: "40px",
+                                borderRadius: "0.75rem",
+                                background: "linear-gradient(135deg, #F59E0B 0%, #D97706 100%)",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                fontSize: "1.25rem",
+                                flexShrink: 0
+                            }}>
+                                ⚠️
+                            </div>
                             <div style={{ flex: 1 }}>
                                 <div style={{ fontWeight: 600, marginBottom: "0.25rem" }}>
                                     Action Required
@@ -73,6 +87,9 @@ export default async function DashboardPage() {
                     </div>
                 </div>
             )}
+
+            {/* Quick Actions Grid */}
+            <QuickActions />
 
             {/* Today's Stats */}
             <div style={{ padding: "0 1.5rem", marginBottom: "1.5rem" }}>

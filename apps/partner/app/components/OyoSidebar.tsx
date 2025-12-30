@@ -16,6 +16,7 @@ import {
     FiLink,
     FiBarChart2,
     FiDollarSign,
+    FiTool,
 } from "react-icons/fi";
 
 
@@ -34,6 +35,7 @@ const navItems = [
     { href: "/messaging", label: "মেসেজ", icon: FiMessageSquare },
     { href: "/channels", label: "চ্যানেল", icon: FiLink },
     { href: "/revenue-management", label: "রেভেনিউ", icon: FiDollarSign },
+    { href: "/maintenance", label: "রক্ষণাবেক্ষণ", icon: FiTool },
     { href: "/reports", label: "রিপোর্ট", icon: FiBarChart2 },
     { href: "/reviews", label: "রিভিউ", icon: FiStar },
     { href: "/portfolio", label: "পোর্টফোলিও", icon: FiTrendingUp },
