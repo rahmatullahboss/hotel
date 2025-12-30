@@ -1225,6 +1225,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'1 Bed'**
   String get bedDefault;
+
+  /// No description provided for @goodMorning.
+  ///
+  /// In en, this message translates to:
+  /// **'Good Morning'**
+  String get goodMorning;
+
+  /// No description provided for @goodAfternoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Good Afternoon'**
+  String get goodAfternoon;
+
+  /// No description provided for @goodEvening.
+  ///
+  /// In en, this message translates to:
+  /// **'Good Evening'**
+  String get goodEvening;
+
+  /// No description provided for @goodNight.
+  ///
+  /// In en, this message translates to:
+  /// **'Good Night'**
+  String get goodNight;
+
+  /// No description provided for @flashDeals.
+  ///
+  /// In en, this message translates to:
+  /// **'Flash Deals'**
+  String get flashDeals;
 }
 
 class _AppLocalizationsDelegate

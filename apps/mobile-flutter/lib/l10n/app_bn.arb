@@ -228,5 +228,11 @@
   "bedDouble": "১ ডাবল বেড",
   "bedTwin": "২ সিঙ্গেল বেড",
   "bedSingle": "১ সিঙ্গেল বেড",
-  "bedDefault": "১ বেড"
+  "bedDefault": "১ বেড",
+  
+  "goodMorning": "সুপ্রভাত",
+  "goodAfternoon": "শুভ দুপুর",
+  "goodEvening": "শুভ সন্ধ্যা",
+  "goodNight": "শুভ রাত্রি",
+  "flashDeals": "ফ্ল্যাশ ডিল"
 }

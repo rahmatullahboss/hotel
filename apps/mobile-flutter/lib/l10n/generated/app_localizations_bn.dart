@@ -580,4 +580,19 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get bedDefault => '১ বেড';
+
+  @override
+  String get goodMorning => 'সুপ্রভাত';
+
+  @override
+  String get goodAfternoon => 'শুভ দুপুর';
+
+  @override
+  String get goodEvening => 'শুভ সন্ধ্যা';
+
+  @override
+  String get goodNight => 'শুভ রাত্রি';
+
+  @override
+  String get flashDeals => 'ফ্ল্যাশ ডিল';
 }

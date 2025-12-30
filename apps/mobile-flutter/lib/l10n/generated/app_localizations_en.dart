@@ -582,4 +582,19 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get bedDefault => '1 Bed';
+
+  @override
+  String get goodMorning => 'Good Morning';
+
+  @override
+  String get goodAfternoon => 'Good Afternoon';
+
+  @override
+  String get goodEvening => 'Good Evening';
+
+  @override
+  String get goodNight => 'Good Night';
+
+  @override
+  String get flashDeals => 'Flash Deals';
 }

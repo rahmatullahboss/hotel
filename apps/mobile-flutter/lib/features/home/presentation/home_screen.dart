@@ -12,6 +12,8 @@ import '../../../shared/widgets/city_card.dart';
 import '../../../shared/widgets/search_bar_widget.dart';
 import '../../../shared/widgets/date_selection_bar.dart';
 import '../../../shared/widgets/promo_banner.dart';
+import '../../../shared/widgets/featured_hotel_carousel.dart';
+import '../../../shared/widgets/special_deals_section.dart';
 
 import '../../../l10n/generated/app_localizations.dart';
 import '../providers/hotel_provider.dart';
@@ -60,7 +62,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   String? activeFilter;
   DateTime checkIn = DateTime.now().add(const Duration(days: 1));
   DateTime checkOut = DateTime.now().add(const Duration(days: 2));
-  // Set<String> savedHotels = {}; // Managed by provider
 
   String _getFilterLabel(BuildContext context, String filterId) {
     final loc = AppLocalizations.of(context)!;
@@ -95,6 +96,21 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         return loc.cityKhulna;
       default:
         return cityId;
+    }
+  }
+
+  String _getTimeBasedGreeting(BuildContext context) {
+    final hour = DateTime.now().hour;
+    final loc = AppLocalizations.of(context)!;
+
+    if (hour >= 5 && hour < 12) {
+      return loc.goodMorning;
+    } else if (hour >= 12 && hour < 17) {
+      return loc.goodAfternoon;
+    } else if (hour >= 17 && hour < 21) {
+      return loc.goodEvening;
+    } else {
+      return loc.goodNight;
     }
   }
 
@@ -180,6 +196,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final topPadding = MediaQuery.of(context).padding.top;
     final hotelsState = ref.watch(hotelsProvider);
     final savedHotels = ref.watch(savedHotelsProvider);
+    final isDark = AppColors.isDarkMode(context);
 
     return Scaffold(
       backgroundColor: AppColors.adaptiveBackground(context),
@@ -188,131 +205,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         color: AppColors.primary,
         child: CustomScrollView(
           slivers: [
-            // Premium White Header
+            // Premium White Header with Time-based Greeting
             SliverToBoxAdapter(
-              child: Container(
-                decoration: const BoxDecoration(
-                  color: Colors.white,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Color(0x08000000),
-                      blurRadius: 10,
-                      offset: Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: Padding(
-                  padding: EdgeInsets.only(
-                    top: topPadding + 12,
-                    left: 20,
-                    right: 20,
-                    bottom: 16,
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Greeting Row
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  AppLocalizations.of(context)!.homeGreeting,
-                                  style: GoogleFonts.plusJakartaSans(
-                                    fontSize: 24,
-                                    fontWeight: FontWeight.bold,
-                                    color: AppColors.textPrimary,
-                                  ),
-                                ),
-                                const SizedBox(height: 2),
-                                Text(
-                                  AppLocalizations.of(context)!.whereToStay,
-                                  style: GoogleFonts.notoSans(
-                                    fontSize: 14,
-                                    color: AppColors.textSecondary,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-
-                          // Notification Button
-                          GestureDetector(
-                            onTap: () => context.push('/notifications'),
-                            child: Stack(
-                              children: [
-                                Container(
-                                  width: 44,
-                                  height: 44,
-                                  decoration: BoxDecoration(
-                                    color: AppColors.surfaceVariant,
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: const Icon(
-                                    Icons.notifications_outlined,
-                                    color: AppColors.textPrimary,
-                                    size: 22,
-                                  ),
-                                ),
-                                Positioned(
-                                  right: 8,
-                                  top: 8,
-                                  child: Container(
-                                    width: 10,
-                                    height: 10,
-                                    decoration: BoxDecoration(
-                                      color: AppColors.primary,
-                                      shape: BoxShape.circle,
-                                      border: Border.all(
-                                        color: Colors.white,
-                                        width: 2,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-
-                      // Search Bar
-                      SearchBarWidget(onTap: () => context.push('/search')),
-                      const SizedBox(height: 12),
-
-                      // Date Selection Bar
-                      DateSelectionBar(
-                        checkIn: checkIn,
-                        checkOut: checkOut,
-                        onTap: () async {
-                          // Show date picker for check-in
-                          final date = await showDatePicker(
-                            context: context,
-                            initialDate: checkIn,
-                            firstDate: DateTime.now(),
-                            lastDate: DateTime.now().add(
-                              const Duration(days: 365),
-                            ),
-                          );
-                          if (date != null) {
-                            setState(() {
-                              checkIn = date;
-                              if (checkOut.isBefore(date)) {
-                                checkOut = date.add(const Duration(days: 1));
-                              }
-                            });
-                          }
-                        },
-                        light: false,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
+              child: _buildHeader(context, topPadding, isDark),
             ),
 
             // Quick Filters
@@ -320,12 +215,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               child: Padding(
                 padding: const EdgeInsets.only(top: 20, bottom: 8),
                 child: SizedBox(
-                  height: 44,
+                  height: 48,
                   child: ListView.separated(
                     scrollDirection: Axis.horizontal,
                     padding: const EdgeInsets.symmetric(horizontal: 20),
                     itemCount: quickFilters.length,
-                    separatorBuilder: (_, _) => const SizedBox(width: 10),
+                    separatorBuilder: (_, __) => const SizedBox(width: 10),
                     itemBuilder: (context, index) {
                       final filter = quickFilters[index];
                       final filterId = filter['id'] as String;
@@ -343,25 +238,116 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               ),
             ),
 
+            // Featured Hotels Carousel
+            if (hotelsState.featuredHotels.isNotEmpty)
+              SliverToBoxAdapter(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(20, 16, 20, 16),
+                      child: Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              gradient: AppColors.primaryGradient,
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: const Icon(
+                              Icons.auto_awesome,
+                              color: Colors.white,
+                              size: 18,
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          Text(
+                            AppLocalizations.of(context)!.featuredHotels,
+                            style: AppTypography.h4,
+                          ),
+                        ],
+                      ),
+                    ),
+                    FeaturedHotelCarousel(
+                      hotels: hotelsState.featuredHotels
+                          .take(5)
+                          .map(
+                            (h) => FeaturedHotelData(
+                              id: h.id,
+                              name: h.name,
+                              city: h.city,
+                              rating: h.rating,
+                              price: h.pricePerNight,
+                              imageUrl: h.imageUrl,
+                              isFeatured: true,
+                            ),
+                          )
+                          .toList(),
+                    ),
+                  ],
+                ),
+              ),
+
+            // Special Deals Section
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.only(top: 24),
+                child: SpecialDealsSection(
+                  title: AppLocalizations.of(context)!.flashDeals,
+                  deals: hotelsState.hotels.take(3).map((h) {
+                    final originalPrice = h.pricePerNight;
+                    final discountedPrice = (originalPrice * 0.8).round();
+                    return SpecialDealData(
+                      hotelId: h.id,
+                      hotelName: h.name,
+                      title: '20% Off Weekend Stay',
+                      originalPrice: originalPrice,
+                      discountedPrice: discountedPrice,
+                      imageUrl: h.imageUrl,
+                      expiresAt: DateTime.now().add(const Duration(hours: 12)),
+                    );
+                  }).toList(),
+                  onViewAll: () => context.push('/deals'),
+                ),
+              ),
+            ),
+
             // Popular Destinations
             SliverToBoxAdapter(
               child: Padding(
-                padding: const EdgeInsets.only(left: 20, right: 20, bottom: 16),
-                child: Text(
-                  AppLocalizations.of(context)!.popularDestinations,
-                  style: AppTypography.h4,
+                padding: const EdgeInsets.fromLTRB(20, 28, 20, 16),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: AppColors.secondary.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Icon(
+                        Icons.explore_outlined,
+                        color: AppColors.secondary,
+                        size: 18,
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Text(
+                      AppLocalizations.of(context)!.popularDestinations,
+                      style: AppTypography.h4,
+                    ),
+                  ],
                 ),
               ),
             ),
 
             SliverToBoxAdapter(
               child: SizedBox(
-                height: 176,
+                height: 200,
                 child: ListView.separated(
                   scrollDirection: Axis.horizontal,
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   itemCount: popularCities.length,
-                  separatorBuilder: (_, _) => const SizedBox(width: 12),
+                  separatorBuilder: (_, __) => const SizedBox(width: 14),
                   itemBuilder: (context, index) {
                     final city = popularCities[index];
                     final String cityName = city['name'] as String;
@@ -372,7 +358,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     return CityCard(
                       name: _getCityName(context, cityName),
                       imageUrl: cityImages[cityName],
-                      hotelCount: dynamicCount, // Use real count
+                      hotelCount: dynamicCount > 0
+                          ? dynamicCount
+                          : city['count'] as int,
                       onTap: () => context.push('/search?city=$cityName'),
                     );
                   },
@@ -383,7 +371,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             // Promo Banner
             SliverToBoxAdapter(
               child: Padding(
-                padding: const EdgeInsets.only(top: 24),
+                padding: const EdgeInsets.only(top: 28),
                 child: PromoBanner(
                   title: AppLocalizations.of(context)!.firstBookingOffer,
                   subtitle: AppLocalizations.of(context)!.firstBookingDiscount,
@@ -395,24 +383,51 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               ),
             ),
 
-            // Featured Hotels Header
+            // All Hotels Header
             SliverToBoxAdapter(
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(20, 24, 20, 16),
+                padding: const EdgeInsets.fromLTRB(20, 28, 20, 16),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      AppLocalizations.of(context)!.popularHotels,
-                      style: AppTypography.h4,
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: AppColors.info.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: const Icon(
+                            Icons.hotel_outlined,
+                            color: AppColors.info,
+                            size: 18,
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Text(
+                          AppLocalizations.of(context)!.popularHotels,
+                          style: AppTypography.h4,
+                        ),
+                      ],
                     ),
                     GestureDetector(
                       onTap: () => context.push('/hotels'),
-                      child: Text(
-                        AppLocalizations.of(context)!.viewAll,
-                        style: AppTypography.labelLarge.copyWith(
-                          color: AppColors.primary,
-                          fontWeight: FontWeight.w600,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 6,
+                        ),
+                        decoration: BoxDecoration(
+                          color: AppColors.primary.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Text(
+                          AppLocalizations.of(context)!.viewAll,
+                          style: AppTypography.labelMedium.copyWith(
+                            color: AppColors.primary,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
                       ),
                     ),
@@ -430,6 +445,186 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         ),
       ),
     );
+  }
+
+  Widget _buildHeader(BuildContext context, double topPadding, bool isDark) {
+    return Container(
+      decoration: BoxDecoration(
+        color: isDark ? AppColors.surfaceDark : Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Padding(
+        padding: EdgeInsets.only(
+          top: topPadding + 16,
+          left: 20,
+          right: 20,
+          bottom: 20,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Greeting Row with Time-based Message
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Time-based greeting
+                      Row(
+                        children: [
+                          _getGreetingIcon(),
+                          const SizedBox(width: 8),
+                          Text(
+                            _getTimeBasedGreeting(context),
+                            style: AppTypography.labelMedium.copyWith(
+                              color: AppColors.primary,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        AppLocalizations.of(context)!.whereToStay,
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 26,
+                          fontWeight: FontWeight.bold,
+                          color: isDark ? Colors.white : AppColors.textPrimary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                // Notification Button with Animation
+                GestureDetector(
+                  onTap: () => context.push('/notifications'),
+                  child: Stack(
+                    children: [
+                      Container(
+                        width: 48,
+                        height: 48,
+                        decoration: BoxDecoration(
+                          color: isDark
+                              ? Colors.white.withValues(alpha: 0.1)
+                              : AppColors.surfaceVariant,
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.05),
+                              blurRadius: 8,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: Icon(
+                          Icons.notifications_outlined,
+                          color: isDark ? Colors.white : AppColors.textPrimary,
+                          size: 24,
+                        ),
+                      ),
+                      Positioned(
+                        right: 10,
+                        top: 10,
+                        child: Container(
+                          width: 12,
+                          height: 12,
+                          decoration: BoxDecoration(
+                            gradient: AppColors.primaryGradient,
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: isDark
+                                  ? AppColors.surfaceDark
+                                  : Colors.white,
+                              width: 2,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+
+            // Search Bar with Premium Styling
+            SearchBarWidget(
+              onTap: () => context.push('/search'),
+              readOnly: true,
+            ),
+            const SizedBox(height: 14),
+
+            // Date Selection Bar
+            DateSelectionBar(
+              checkIn: checkIn,
+              checkOut: checkOut,
+              onTap: () async {
+                // Show date picker for check-in
+                final date = await showDatePicker(
+                  context: context,
+                  initialDate: checkIn,
+                  firstDate: DateTime.now(),
+                  lastDate: DateTime.now().add(const Duration(days: 365)),
+                  builder: (context, child) {
+                    return Theme(
+                      data: Theme.of(context).copyWith(
+                        colorScheme: ColorScheme.light(
+                          primary: AppColors.primary,
+                          onPrimary: Colors.white,
+                          surface: Colors.white,
+                          onSurface: AppColors.textPrimary,
+                        ),
+                      ),
+                      child: child!,
+                    );
+                  },
+                );
+                if (date != null) {
+                  setState(() {
+                    checkIn = date;
+                    if (checkOut.isBefore(date)) {
+                      checkOut = date.add(const Duration(days: 1));
+                    }
+                  });
+                }
+              },
+              light: false,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _getGreetingIcon() {
+    final hour = DateTime.now().hour;
+
+    if (hour >= 5 && hour < 12) {
+      return const Icon(
+        Icons.wb_sunny_outlined,
+        color: AppColors.starFilled,
+        size: 18,
+      );
+    } else if (hour >= 12 && hour < 17) {
+      return const Icon(Icons.wb_sunny, color: AppColors.starFilled, size: 18);
+    } else if (hour >= 17 && hour < 21) {
+      return const Icon(Icons.wb_twilight, color: AppColors.warning, size: 18);
+    } else {
+      return const Icon(
+        Icons.nightlight_outlined,
+        color: AppColors.secondary,
+        size: 18,
+      );
+    }
   }
 
   Widget _buildHotelsList(HotelsState state, Set<String> savedHotels) {
@@ -453,8 +648,19 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           padding: const EdgeInsets.all(20),
           child: Column(
             children: [
-              const Icon(Icons.error_outline, size: 48, color: AppColors.error),
-              const SizedBox(height: 12),
+              Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: AppColors.error.withValues(alpha: 0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.error_outline,
+                  size: 48,
+                  color: AppColors.error,
+                ),
+              ),
+              const SizedBox(height: 16),
               Text(
                 state.error!,
                 style: AppTypography.bodyMedium.copyWith(
@@ -462,11 +668,22 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 ),
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 20),
               ElevatedButton.icon(
                 onPressed: _onRefresh,
                 icon: const Icon(Icons.refresh),
                 label: Text(AppLocalizations.of(context)!.retry),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primary,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 24,
+                    vertical: 12,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
               ),
             ],
           ),
@@ -481,15 +698,22 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           padding: const EdgeInsets.all(40),
           child: Column(
             children: [
-              Icon(
-                Icons.hotel_outlined,
-                size: 64,
-                color: AppColors.textTertiary,
+              Container(
+                padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  color: AppColors.surfaceVariant,
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.hotel_outlined,
+                  size: 64,
+                  color: AppColors.textTertiary,
+                ),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 20),
               Text(
                 AppLocalizations.of(context)!.noHotelsFound,
-                style: AppTypography.bodyMedium.copyWith(
+                style: AppTypography.h4.copyWith(
                   color: AppColors.textSecondary,
                 ),
               ),
@@ -529,7 +753,7 @@ class _HotelCardShimmer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.only(bottom: 20),
       child: Shimmer.fromColors(
         baseColor: AppColors.shimmerBase,
         highlightColor: AppColors.shimmerHighlight,
@@ -537,7 +761,7 @@ class _HotelCardShimmer extends StatelessWidget {
           height: 280,
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(24),
           ),
         ),
       ),
@@ -545,8 +769,8 @@ class _HotelCardShimmer extends StatelessWidget {
   }
 }
 
-// Quick Filter Chip with Icon
-class _QuickFilterChip extends StatelessWidget {
+// Quick Filter Chip with Animation
+class _QuickFilterChip extends StatefulWidget {
   final String id;
   final String label;
   final IconData icon;
@@ -562,52 +786,93 @@ class _QuickFilterChip extends StatelessWidget {
   });
 
   @override
+  State<_QuickFilterChip> createState() => _QuickFilterChipState();
+}
+
+class _QuickFilterChipState extends State<_QuickFilterChip>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _scaleAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 150),
+      vsync: this,
+    );
+    _scaleAnimation = Tween<double>(
+      begin: 1.0,
+      end: 0.95,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _handleTap() {
+    _controller.forward().then((_) {
+      _controller.reverse();
+      widget.onPressed();
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: onPressed,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-        decoration: BoxDecoration(
-          color: isActive ? AppColors.primary : Colors.white,
-          borderRadius: BorderRadius.circular(24),
-          border: isActive
-              ? null
-              : Border.all(color: AppColors.divider, width: 1),
-          boxShadow: isActive
-              ? [
-                  BoxShadow(
-                    color: AppColors.primary.withValues(alpha: 0.3),
-                    blurRadius: 8,
-                    offset: const Offset(0, 2),
-                  ),
-                ]
-              : [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.04),
-                    blurRadius: 4,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              icon,
-              size: 18,
-              color: isActive ? Colors.white : AppColors.primary,
-            ),
-            const SizedBox(width: 8),
-            Text(
-              label,
-              style: GoogleFonts.notoSans(
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-                color: isActive ? Colors.white : AppColors.textPrimary,
+      onTap: _handleTap,
+      child: AnimatedBuilder(
+        animation: _scaleAnimation,
+        builder: (context, child) {
+          return Transform.scale(scale: _scaleAnimation.value, child: child);
+        },
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+          decoration: BoxDecoration(
+            color: widget.isActive ? AppColors.primary : Colors.white,
+            borderRadius: BorderRadius.circular(24),
+            border: widget.isActive
+                ? null
+                : Border.all(color: AppColors.divider, width: 1),
+            boxShadow: widget.isActive
+                ? [
+                    BoxShadow(
+                      color: AppColors.primary.withValues(alpha: 0.35),
+                      blurRadius: 12,
+                      offset: const Offset(0, 4),
+                    ),
+                  ]
+                : [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.06),
+                      blurRadius: 6,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                widget.icon,
+                size: 18,
+                color: widget.isActive ? Colors.white : AppColors.primary,
               ),
-            ),
-          ],
+              const SizedBox(width: 8),
+              Text(
+                widget.label,
+                style: GoogleFonts.notoSans(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: widget.isActive ? Colors.white : AppColors.textPrimary,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
