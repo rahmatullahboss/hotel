@@ -1,7 +1,8 @@
-// Profile Screen - World-Class Premium Design with API Integration
+// Profile Screen - Premium White Label Design with API Integration
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/theme/theme_provider.dart';
@@ -468,23 +469,17 @@ class _ProfileHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [AppColors.primary, AppColors.primaryDark],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-      ),
+      color: Colors.white,
       child: Padding(
         padding: EdgeInsets.only(
-          top: topPadding + 24,
+          top: topPadding + 16,
           left: 20,
           right: 20,
-          bottom: 32,
+          bottom: 24,
         ),
         child: Column(
           children: [
-            // Avatar
+            // Avatar with primary color ring
             Stack(
               children: [
                 Container(
@@ -492,15 +487,22 @@ class _ProfileHeader extends StatelessWidget {
                   height: 100,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: Colors.white.withValues(alpha: 0.2),
-                    border: Border.all(color: Colors.white, width: 3),
+                    color: AppColors.surfaceVariant,
+                    border: Border.all(color: AppColors.primary, width: 3),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppColors.primary.withValues(alpha: 0.2),
+                        blurRadius: 20,
+                        offset: const Offset(0, 8),
+                      ),
+                    ],
                   ),
                   child: isLoggedIn
-                      ? const Icon(Icons.person, size: 50, color: Colors.white)
-                      : const Icon(
+                      ? Icon(Icons.person, size: 50, color: AppColors.primary)
+                      : Icon(
                           Icons.person_outline,
                           size: 50,
-                          color: Colors.white,
+                          color: AppColors.textTertiary,
                         ),
                 ),
                 if (isLoggedIn)
@@ -513,7 +515,7 @@ class _ProfileHeader extends StatelessWidget {
                         width: 32,
                         height: 32,
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: AppColors.primary,
                           shape: BoxShape.circle,
                           boxShadow: [
                             BoxShadow(
@@ -525,7 +527,7 @@ class _ProfileHeader extends StatelessWidget {
                         child: const Icon(
                           Icons.camera_alt,
                           size: 16,
-                          color: AppColors.primary,
+                          color: Colors.white,
                         ),
                       ),
                     ),
@@ -539,7 +541,11 @@ class _ProfileHeader extends StatelessWidget {
               isLoggedIn
                   ? (userName ?? AppLocalizations.of(context)!.user)
                   : AppLocalizations.of(context)!.guestUser,
-              style: AppTypography.h3.copyWith(color: Colors.white),
+              style: GoogleFonts.plusJakartaSans(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: AppColors.textPrimary,
+              ),
             ),
 
             // Membership Badge (if logged in)
@@ -547,13 +553,16 @@ class _ProfileHeader extends StatelessWidget {
               const SizedBox(height: 8),
               Container(
                 padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 4,
+                  horizontal: 14,
+                  vertical: 6,
                 ),
                 decoration: BoxDecoration(
-                  color: _getTierColor().withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: _getTierColor(), width: 1),
+                  color: _getTierColor().withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    color: _getTierColor().withValues(alpha: 0.5),
+                    width: 1,
+                  ),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
@@ -562,9 +571,10 @@ class _ProfileHeader extends StatelessWidget {
                     const SizedBox(width: 4),
                     Text(
                       membershipTier,
-                      style: AppTypography.labelSmall.copyWith(
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
                         color: _getTierColor(),
-                        fontWeight: FontWeight.bold,
                       ),
                     ),
                   ],
@@ -577,8 +587,9 @@ class _ProfileHeader extends StatelessWidget {
               const SizedBox(height: 8),
               Text(
                 AppLocalizations.of(context)!.loginPrompt,
-                style: AppTypography.bodySmall.copyWith(
-                  color: Colors.white.withValues(alpha: 0.8),
+                style: GoogleFonts.notoSans(
+                  fontSize: 14,
+                  color: AppColors.textSecondary,
                 ),
               ),
               const SizedBox(height: 16),
@@ -587,16 +598,25 @@ class _ProfileHeader extends StatelessWidget {
                 child: Container(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 32,
-                    vertical: 12,
+                    vertical: 14,
                   ),
                   decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(24),
+                    color: AppColors.primary,
+                    borderRadius: BorderRadius.circular(28),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppColors.primary.withValues(alpha: 0.3),
+                        blurRadius: 12,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
                   ),
                   child: Text(
                     AppLocalizations.of(context)!.login,
-                    style: AppTypography.button.copyWith(
-                      color: AppColors.primary,
+                    style: GoogleFonts.notoSans(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white,
                     ),
                   ),
                 ),
