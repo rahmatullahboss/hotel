@@ -2,7 +2,13 @@ name = "zinurooms-realtime"
 main = "src/index.ts"
 compatibility_date = "2024-12-30"
 
+# Custom domain
+routes = [
+  { pattern = "realtime.digitalcare.site", custom_domain = true }
+]
+
 # Enable Durable Objects for persistent WebSocket connections
+# Using new_sqlite_classes for free plan compatibility
 [durable_objects]
 bindings = [
   { name = "HOTEL_ROOM", class_name = "HotelRoom" }
@@ -10,8 +16,7 @@ bindings = [
 
 [[migrations]]
 tag = "v1"
-new_classes = ["HotelRoom"]
+new_sqlite_classes = ["HotelRoom"]
 
 # Environment variables (set via wrangler secret)
-# DATABASE_URL - Neon connection string
-# AUTH_SECRET - For validating requests
+# AUTH_SECRET - For validating push requests
