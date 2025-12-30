@@ -16,6 +16,7 @@
     "db:studio": "turbo run db:studio --filter=@repo/db"
   },
   "devDependencies": {
+    "@parcel/watcher": "^2.5.1",
     "dotenv-cli": "^11.0.0",
     "prettier": "^3.7.4",
     "turbo": "^2.6.3",
@@ -32,7 +33,6 @@
     "packages/*"
   ],
   "overrides": {
-    "esbuild": "^0.25.0",
-    "@parcel/watcher": "npm:@aspect-build/parcelwatcher-empty"
+    "esbuild": "^0.25.0"
   }
 }
