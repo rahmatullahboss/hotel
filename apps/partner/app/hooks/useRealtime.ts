@@ -29,7 +29,7 @@ interface UseRealtimeOptions {
 }
 
 // WebSocket URL - configure this in env
-const WS_URL = process.env.NEXT_PUBLIC_REALTIME_URL || "wss://realtime.zinurooms.com";
+const WS_URL = process.env.NEXT_PUBLIC_REALTIME_URL || "wss://realtime.digitalcare.site";
 
 export function useRealtime({ hotelId, onEvent, autoRefresh = true }: UseRealtimeOptions) {
   const [isConnected, setIsConnected] = useState(false);
