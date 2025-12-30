@@ -1,6 +1,7 @@
 name = "zinurooms-realtime"
 main = "src/index.ts"
 compatibility_date = "2024-12-30"
+account_id = "474078d5f990169d7dadf4e1df83214a"
 
 # Custom domain
 routes = [
