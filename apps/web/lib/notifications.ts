@@ -1,37 +1,70 @@
-import { Expo, ExpoPushMessage, ExpoPushTicket } from "expo-server-sdk";
+import admin from "firebase-admin";
 import { db, pushSubscriptions } from "@repo/db";
-import { eq } from "drizzle-orm";
+import { eq, and, isNotNull } from "drizzle-orm";
 
-// Create a new Expo SDK client
-const expo = new Expo();
+// ==================
+// Firebase Admin Initialization
+// ==================
+
+function getFirebaseAdmin() {
+    if (admin.apps.length === 0) {
+        const projectId = process.env.FIREBASE_PROJECT_ID;
+        const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
+        const privateKey = process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n');
+
+        if (!projectId || !clientEmail || !privateKey) {
+            console.warn("Firebase Admin credentials not configured");
+            return null;
+        }
+
+        admin.initializeApp({
+            credential: admin.credential.cert({
+                projectId,
+                clientEmail,
+                privateKey,
+            }),
+        });
+    }
+    return admin;
+}
 
 interface NotificationPayload {
     title: string;
     body: string;
-    data?: Record<string, unknown>;
+    data?: Record<string, string>;
 }
 
 /**
- * Get all active push tokens for a user
+ * Get all active FCM tokens for a user
  */
 export async function getUserPushTokens(userId: string): Promise<string[]> {
     const subscriptions = await db.query.pushSubscriptions.findMany({
-        where: eq(pushSubscriptions.userId, userId),
+        where: and(
+            eq(pushSubscriptions.userId, userId),
+            eq(pushSubscriptions.isActive, true),
+            isNotNull(pushSubscriptions.fcmToken)
+        ),
     });
 
     return subscriptions
-        .filter((sub: { isActive: boolean; expoPushToken: string }) => sub.isActive && Expo.isExpoPushToken(sub.expoPushToken))
-        .map((sub: { expoPushToken: string }) => sub.expoPushToken);
+        .filter((sub) => sub.fcmToken && sub.fcmToken.length > 0)
+        .map((sub) => sub.fcmToken as string);
 }
 
 /**
- * Send push notification to a specific user
+ * Send push notification to a specific user via FCM
  */
 export async function sendPushNotification(
     userId: string,
     notification: NotificationPayload
 ): Promise<{ success: boolean; error?: string }> {
     try {
+        const firebaseAdmin = getFirebaseAdmin();
+        if (!firebaseAdmin) {
+            console.log("Firebase not configured, skipping push notification");
+            return { success: false, error: "Firebase not configured" };
+        }
+
         const tokens = await getUserPushTokens(userId);
 
         if (tokens.length === 0) {
@@ -39,50 +72,57 @@ export async function sendPushNotification(
             return { success: false, error: "No push tokens registered" };
         }
 
-        console.log(`📱 Sending push to ${tokens.length} token(s):`, tokens);
-        console.log(`📱 Notification payload:`, notification);
+        console.log(`📱 Sending FCM push to ${tokens.length} token(s)`);
 
-        const messages: ExpoPushMessage[] = tokens.map((token) => ({
-            to: token,
-            sound: "default" as const,
-            title: notification.title,
-            body: notification.body,
-            data: notification.data,
-            priority: "high" as const,
-        }));
-
-        console.log(`📱 Messages to send:`, JSON.stringify(messages, null, 2));
-
-        // Send notifications in chunks (Expo recommends this for batch sending)
-        const chunks = expo.chunkPushNotifications(messages);
-        const tickets: ExpoPushTicket[] = [];
-
-        for (const chunk of chunks) {
-            console.log(`📱 Sending chunk of ${chunk.length} message(s)...`);
-            const ticketChunk = await expo.sendPushNotificationsAsync(chunk);
-            console.log(`📱 Received tickets:`, JSON.stringify(ticketChunk, null, 2));
-            tickets.push(...ticketChunk);
+        // Convert data values to strings (FCM requires string values)
+        const stringData: Record<string, string> = {};
+        if (notification.data) {
+            for (const [key, value] of Object.entries(notification.data)) {
+                stringData[key] = String(value);
+            }
         }
 
-        // Log all ticket results
-        let hasError = false;
-        tickets.forEach((ticket, index) => {
-            if (ticket.status === "error") {
-                hasError = true;
-                console.error(
-                    `❌ Push notification error for token ${tokens[index]}:`,
-                    ticket.message,
-                    ticket.details
-                );
-            } else {
-                console.log(`✅ Push notification queued successfully:`, ticket);
-            }
-        });
+        const message = {
+            notification: {
+                title: notification.title,
+                body: notification.body,
+            },
+            data: stringData,
+            tokens,
+        };
 
-        console.log(`📬 Sent ${tickets.length} push notification(s) to user ${userId}`);
-        return { success: !hasError, error: hasError ? "Some notifications failed" : undefined };
+        const response = await firebaseAdmin.messaging().sendEachForMulticast(message);
+
+        // Handle failed tokens
+        if (response.failureCount > 0) {
+            const tokensToDeactivate: string[] = [];
+            response.responses.forEach((resp, idx) => {
+                if (!resp.success) {
+                    const errorCode = resp.error?.code;
+                    if (errorCode === 'messaging/invalid-registration-token' ||
+                        errorCode === 'messaging/registration-token-not-registered') {
+                        tokensToDeactivate.push(tokens[idx]);
+                    }
+                    console.error(`❌ FCM error for token:`, resp.error?.message);
+                }
+            });
+
+            // Deactivate invalid tokens
+            for (const token of tokensToDeactivate) {
+                await db
+                    .update(pushSubscriptions)
+                    .set({ isActive: false })
+                    .where(eq(pushSubscriptions.fcmToken, token));
+            }
+        }
+
+        console.log(`📬 FCM: ${response.successCount} success, ${response.failureCount} failed`);
+        return { 
+            success: response.successCount > 0, 
+            error: response.failureCount > 0 ? "Some notifications failed" : undefined 
+        };
     } catch (error) {
-        console.error("❌ Error sending push notification:", error);
+        console.error("❌ Error sending FCM notification:", error);
         return {
             success: false,
             error: error instanceof Error ? error.message : "Unknown error",

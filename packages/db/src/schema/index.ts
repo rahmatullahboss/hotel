@@ -39,3 +39,12 @@ export * from "./corporate";
 
 // Staff Management (Shifts, Attendance, Handover) exports
 export * from "./staffManagement";
+
+// Maintenance & Work Orders exports
+export * from "./maintenance";
+
+// Guest Messaging exports
+export * from "./messaging";
+
+// Revenue Management exports
+export * from "./revenueManagement";
