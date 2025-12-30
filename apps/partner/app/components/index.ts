@@ -40,3 +40,13 @@ export { FloorPlanView } from "./FloorPlanView";
 export { RateCalendar } from "./RateCalendar";
 export { PricingSuggestions } from "./PricingSuggestions";
 export { RevenueMetrics } from "./RevenueMetrics";
+
+// Guest Experience Components
+export { GuestProfileCard, GuestList } from "./GuestProfile";
+export { FeedbackCard, FeedbackDashboard } from "./FeedbackDashboard";
+
+// Staff Operations Components
+export { StaffCard, StaffDashboard } from "./StaffDashboard";
+
+// Report Builder
+export { ReportBuilder } from "./ReportBuilder";
