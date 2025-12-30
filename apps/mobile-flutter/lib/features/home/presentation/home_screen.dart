@@ -1,9 +1,10 @@
-// Home Screen - World-Class Premium Design with API Integration
+// Home Screen - Premium White Label Design with API Integration
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../shared/widgets/hotel_card.dart';
@@ -188,16 +189,25 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         color: AppColors.primary,
         child: CustomScrollView(
           slivers: [
-            // Premium Header
+            // Premium White Header
             SliverToBoxAdapter(
               child: Container(
-                decoration: const BoxDecoration(color: AppColors.primary),
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Color(0x08000000),
+                      blurRadius: 10,
+                      offset: Offset(0, 2),
+                    ),
+                  ],
+                ),
                 child: Padding(
                   padding: EdgeInsets.only(
-                    top: topPadding + 16,
+                    top: topPadding + 12,
                     left: 20,
                     right: 20,
-                    bottom: 20,
+                    bottom: 16,
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -212,16 +222,18 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                               children: [
                                 Text(
                                   AppLocalizations.of(context)!.homeGreeting,
-                                  style: AppTypography.h2.copyWith(
-                                    color: Colors.white,
+                                  style: GoogleFonts.plusJakartaSans(
+                                    fontSize: 24,
                                     fontWeight: FontWeight.bold,
+                                    color: AppColors.textPrimary,
                                   ),
                                 ),
-                                const SizedBox(height: 4),
+                                const SizedBox(height: 2),
                                 Text(
                                   AppLocalizations.of(context)!.whereToStay,
-                                  style: AppTypography.bodyMedium.copyWith(
-                                    color: Colors.white.withValues(alpha: 0.8),
+                                  style: GoogleFonts.notoSans(
+                                    fontSize: 14,
+                                    color: AppColors.textSecondary,
                                   ),
                                 ),
                               ],
@@ -237,12 +249,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                   width: 44,
                                   height: 44,
                                   decoration: BoxDecoration(
-                                    color: Colors.white.withValues(alpha: 0.15),
+                                    color: AppColors.surfaceVariant,
                                     shape: BoxShape.circle,
                                   ),
                                   child: const Icon(
                                     Icons.notifications_outlined,
-                                    color: Colors.white,
+                                    color: AppColors.textPrimary,
                                     size: 22,
                                   ),
                                 ),
@@ -250,11 +262,15 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                   right: 8,
                                   top: 8,
                                   child: Container(
-                                    width: 8,
-                                    height: 8,
-                                    decoration: const BoxDecoration(
-                                      color: Color(0xFFFBBF24),
+                                    width: 10,
+                                    height: 10,
+                                    decoration: BoxDecoration(
+                                      color: AppColors.primary,
                                       shape: BoxShape.circle,
+                                      border: Border.all(
+                                        color: Colors.white,
+                                        width: 2,
+                                      ),
                                     ),
                                   ),
                                 ),
@@ -263,12 +279,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                           ),
                         ],
                       ),
-                      const SizedBox(height: 20),
+                      const SizedBox(height: 16),
 
                       // Search Bar
-                      SearchBarWidgetLight(
-                        onTap: () => context.push('/search'),
-                      ),
+                      SearchBarWidget(onTap: () => context.push('/search')),
                       const SizedBox(height: 12),
 
                       // Date Selection Bar
@@ -294,7 +308,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                             });
                           }
                         },
-                        light: true,
+                        light: false,
                       ),
                     ],
                   ),
