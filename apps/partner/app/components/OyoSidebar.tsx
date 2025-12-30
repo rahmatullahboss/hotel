@@ -6,18 +6,17 @@ import {
     FiGrid,
     FiCalendar,
     FiHome,
-    FiDollarSign,
-    FiTag,
-    FiPackage,
-    FiTool,
     FiStar,
-    FiDroplet,
     FiTrendingUp,
     FiUsers,
     FiFileText,
     FiSettings,
     FiHelpCircle,
+    FiMessageSquare,
+    FiLink,
 } from "react-icons/fi";
+
+
 
 interface OyoSidebarProps {
     hotelName?: string;
@@ -29,6 +28,8 @@ const navItems = [
     { href: "/bookings", label: "বুকিং", icon: FiCalendar },
     { href: "/inventory", label: "রুম", icon: FiHome },
     { href: "/walkin", label: "ওয়াক-ইন", icon: FiUsers },
+    { href: "/messaging", label: "মেসেজ", icon: FiMessageSquare },
+    { href: "/channels", label: "চ্যানেল", icon: FiLink },
     { href: "/reviews", label: "রিভিউ", icon: FiStar },
     { href: "/portfolio", label: "পোর্টফোলিও", icon: FiTrendingUp },
     { href: "/staff-performance", label: "স্টাফ", icon: FiUsers },
