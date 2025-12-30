@@ -4,8 +4,10 @@ import { signOut } from "next-auth/react";
 
 import Link from "next/link";
 import { useState } from "react";
-import { FiSearch, FiHelpCircle, FiBell, FiChevronDown, FiSettings, FiLogOut, FiUser } from "react-icons/fi";
+import { FiSearch, FiHelpCircle, FiChevronDown, FiSettings, FiLogOut, FiUser } from "react-icons/fi";
 import { HotelSwitcher } from "./HotelSwitcher";
+import { ThemeToggle } from "./ThemeToggle";
+import { NotificationBell } from "./NotificationBell";
 
 interface PartnerHeaderProps {
     user: {
@@ -55,12 +57,11 @@ export function PartnerHeader({ user, hotel, allHotels }: PartnerHeaderProps) {
                 </Link>
 
                 <div className="oyo-header-actions relative">
+                    <ThemeToggle />
+                    <NotificationBell />
                     <Link href="/help" className="oyo-header-icon hidden md:flex">
                         <FiHelpCircle size={18} />
                     </Link>
-                    <button className="oyo-header-icon hidden md:flex">
-                        <FiBell size={18} />
-                    </button>
                     <Link href="/settings" className="oyo-header-icon hidden md:flex">
                         <FiSettings size={18} />
                     </Link>

@@ -24,3 +24,9 @@ export { PromoBanner } from "./PromoBanner";
 export { PerformanceCharts, RankingCard, GuestExpCard } from "./PerformanceCharts";
 export { ImprovementAreas } from "./ImprovementAreas";
 export { RealtimeStatus } from "./RealtimeStatus";
+
+// Premium UI Components
+export { ThemeProvider, useTheme } from "./ThemeProvider";
+export { ThemeToggle } from "./ThemeToggle";
+export { AnimatedStatCard } from "./AnimatedStatCard";
+export { NotificationBell } from "./NotificationBell";

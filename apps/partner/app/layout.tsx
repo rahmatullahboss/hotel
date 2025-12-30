@@ -8,7 +8,7 @@ import { auth } from "../auth";
 import { getPartnerHotel, getAllPartnerHotels } from "./actions/dashboard";
 import { getPartnerRole } from "./actions/getPartnerRole";
 import { PartnerHeader } from "./components/PartnerHeader";
-import { OyoSidebar, BottomNav } from "./components";
+import { OyoSidebar, BottomNav, ThemeProvider } from "./components";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -65,36 +65,38 @@ export default async function RootLayout({
     <html lang={locale}>
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
         <SessionProvider>
-          <NextIntlClientProvider messages={messages}>
-            {/* Global Layout Wrapper */}
-            {hotel && session?.user ? (
-              <div className="oyo-layout">
-                {/* Global Header */}
-                <PartnerHeader
-                  user={session.user}
-                  hotel={hotel}
-                  allHotels={allHotels}
-                />
+          <ThemeProvider>
+            <NextIntlClientProvider messages={messages}>
+              {/* Global Layout Wrapper */}
+              {hotel && session?.user ? (
+                <div className="oyo-layout">
+                  {/* Global Header */}
+                  <PartnerHeader
+                    user={session.user}
+                    hotel={hotel}
+                    allHotels={allHotels}
+                  />
 
-                {/* Body Container (Sidebar + Main) */}
-                <div className="oyo-body">
-                  {/* Desktop Sidebar (Left) */}
-                  <OyoSidebar hotelName={hotel.name} className="hidden lg:block" />
+                  {/* Body Container (Sidebar + Main) */}
+                  <div className="oyo-body">
+                    {/* Desktop Sidebar (Left) */}
+                    <OyoSidebar hotelName={hotel.name} className="hidden lg:block" />
 
-                  {/* Main Content Area */}
-                  <main className="oyo-main">
-                    {children}
-                  </main>
+                    {/* Main Content Area */}
+                    <main className="oyo-main">
+                      {children}
+                    </main>
+                  </div>
+
+                  {/* Mobile Bottom Nav */}
+                  <BottomNav role={currentRole as any} className="hide-on-desktop" />
                 </div>
-
-                {/* Mobile Bottom Nav */}
-                <BottomNav role={currentRole as any} className="hide-on-desktop" />
-              </div>
-            ) : (
-              // Fallback for auth pages or un-onboarded users
-              <>{children}</>
-            )}
-          </NextIntlClientProvider>
+              ) : (
+                // Fallback for auth pages or un-onboarded users
+                <>{children}</>
+              )}
+            </NextIntlClientProvider>
+          </ThemeProvider>
         </SessionProvider>
       </body>
     </html>
