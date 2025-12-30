@@ -63,7 +63,7 @@ class NotificationsScreen extends ConsumerWidget {
       backgroundColor: AppColors.adaptiveBackground(context),
       body: Column(
         children: [
-          // Premium White Header
+          // Premium Header with Dark Mode
           Container(
             padding: EdgeInsets.only(
               top: topPadding + 12,
@@ -72,16 +72,18 @@ class NotificationsScreen extends ConsumerWidget {
               bottom: 16,
             ),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: AppColors.isDarkMode(context)
+                  ? AppColors.surfaceDark
+                  : Colors.white,
               borderRadius: const BorderRadius.only(
-                bottomLeft: Radius.circular(24),
-                bottomRight: Radius.circular(24),
+                bottomLeft: Radius.circular(28),
+                bottomRight: Radius.circular(28),
               ),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.05),
-                  blurRadius: 10,
-                  offset: const Offset(0, 2),
+                  color: Colors.black.withValues(alpha: 0.08),
+                  blurRadius: 16,
+                  offset: const Offset(0, 4),
                 ),
               ],
             ),
@@ -90,16 +92,20 @@ class NotificationsScreen extends ConsumerWidget {
                 GestureDetector(
                   onTap: () => Navigator.pop(context),
                   child: Container(
-                    width: 40,
-                    height: 40,
+                    width: 44,
+                    height: 44,
                     decoration: BoxDecoration(
-                      color: AppColors.surfaceVariant,
-                      borderRadius: BorderRadius.circular(12),
+                      color: AppColors.isDarkMode(context)
+                          ? Colors.white.withValues(alpha: 0.1)
+                          : AppColors.surfaceVariant,
+                      borderRadius: BorderRadius.circular(14),
                     ),
-                    child: const Icon(
-                      Icons.arrow_back,
-                      color: AppColors.textPrimary,
-                      size: 20,
+                    child: Icon(
+                      Icons.arrow_back_ios_new,
+                      color: AppColors.isDarkMode(context)
+                          ? Colors.white
+                          : AppColors.textPrimary,
+                      size: 18,
                     ),
                   ),
                 ),
@@ -107,9 +113,11 @@ class NotificationsScreen extends ConsumerWidget {
                 Text(
                   'নোটিফিকেশন',
                   style: GoogleFonts.plusJakartaSans(
-                    fontSize: 20,
+                    fontSize: 22,
                     fontWeight: FontWeight.bold,
-                    color: AppColors.textPrimary,
+                    color: AppColors.isDarkMode(context)
+                        ? Colors.white
+                        : AppColors.textPrimary,
                   ),
                 ),
                 const Spacer(),
@@ -197,17 +205,19 @@ class _NotificationCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = AppColors.isDarkMode(context);
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: notification.isRead
-            ? Colors.white
-            : AppColors.primary.withValues(alpha: 0.05),
-        borderRadius: BorderRadius.circular(16),
+            ? (isDark ? AppColors.surfaceDark : Colors.white)
+            : AppColors.primary.withValues(alpha: isDark ? 0.15 : 0.05),
+        borderRadius: BorderRadius.circular(20),
         border: notification.isRead
             ? null
-            : Border.all(color: AppColors.primary.withValues(alpha: 0.2)),
-        boxShadow: AppColors.softShadow,
+            : Border.all(color: AppColors.primary.withValues(alpha: 0.3)),
+        boxShadow: isDark ? [] : AppColors.softShadow,
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
