@@ -321,7 +321,7 @@ export async function getHotelById(hotelId: string) {
     if (hotel.lowestDynamicPrice) {
       lowestPrice = parseFloat(hotel.lowestDynamicPrice);
     } else if (hotel.rooms && hotel.rooms.length > 0) {
-      const roomPrices = hotel.rooms.map((r) => parseFloat(r.basePrice));
+      const roomPrices = hotel.rooms.map((r: (typeof hotel.rooms)[number]) => parseFloat(r.basePrice));
       lowestPrice = Math.min(...roomPrices);
     }
 
@@ -524,7 +524,7 @@ export async function getAvailableRooms(
             ),
           });
           isBooked = !!existingBooking;
-        } catch (e) {
+        } catch {
           // Skip if bookings query fails
         }
 
@@ -569,7 +569,7 @@ export async function getAvailableRooms(
     // Convert groups to RoomWithDetails array
     const groupedRooms: RoomWithDetails[] = [];
 
-    for (const [groupKey, group] of roomGroups) {
+    for (const group of roomGroups.values()) {
       // Use the first room as the representative for this group
       const representativeRoom = group.availableRooms[0] ?? group.rooms[0]!;
       const totalCount = group.rooms.length;
