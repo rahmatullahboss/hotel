@@ -467,9 +467,20 @@ class _ProfileHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = AppColors.isDarkMode(context);
+
     return Container(
       width: double.infinity,
-      color: Colors.white,
+      decoration: BoxDecoration(
+        color: isDark ? AppColors.surfaceDark : Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
       child: Padding(
         padding: EdgeInsets.only(
           top: topPadding + 16,
@@ -487,7 +498,9 @@ class _ProfileHeader extends StatelessWidget {
                   height: 100,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: AppColors.surfaceVariant,
+                    color: isDark
+                        ? Colors.white.withValues(alpha: 0.1)
+                        : AppColors.surfaceVariant,
                     border: Border.all(color: AppColors.primary, width: 3),
                     boxShadow: [
                       BoxShadow(
@@ -502,7 +515,9 @@ class _ProfileHeader extends StatelessWidget {
                       : Icon(
                           Icons.person_outline,
                           size: 50,
-                          color: AppColors.textTertiary,
+                          color: isDark
+                              ? Colors.white54
+                              : AppColors.textTertiary,
                         ),
                 ),
                 if (isLoggedIn)
@@ -544,7 +559,7 @@ class _ProfileHeader extends StatelessWidget {
               style: GoogleFonts.plusJakartaSans(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
-                color: AppColors.textPrimary,
+                color: isDark ? Colors.white : AppColors.textPrimary,
               ),
             ),
 
@@ -589,7 +604,7 @@ class _ProfileHeader extends StatelessWidget {
                 AppLocalizations.of(context)!.loginPrompt,
                 style: GoogleFonts.notoSans(
                   fontSize: 14,
-                  color: AppColors.textSecondary,
+                  color: isDark ? Colors.white60 : AppColors.textSecondary,
                 ),
               ),
               const SizedBox(height: 16),
