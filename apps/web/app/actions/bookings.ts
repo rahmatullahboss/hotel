@@ -17,7 +17,7 @@ export interface CreateBookingInput {
     guestEmail?: string;
     checkIn: string;
     checkOut: string;
-    paymentMethod: "BKASH" | "NAGAD" | "CARD" | "PAY_AT_HOTEL" | "WALLET";
+    paymentMethod: "BKASH" | "NAGAD" | "CARD" | "PAY_AT_HOTEL" | "WALLET" | "STRIPE";
     totalAmount: number;
     userId?: string;
     useWalletForFee?: boolean; // Legacy: Use wallet balance for booking fee

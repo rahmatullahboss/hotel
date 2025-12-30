@@ -12,6 +12,7 @@ import 'core/router/app_router.dart';
 import 'core/l10n/locale_provider.dart';
 import 'core/notifications/notification_provider.dart';
 import 'features/auth/providers/auth_provider.dart';
+import 'features/booking_flow/providers/stripe_payment_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -21,6 +22,13 @@ void main() async {
     await Firebase.initializeApp();
   } catch (e) {
     debugPrint('Firebase initialization failed (Check config files): $e');
+  }
+
+  // Initialize Stripe
+  try {
+    await initializeStripe();
+  } catch (e) {
+    debugPrint('Stripe initialization failed: $e');
   }
 
   // Set preferred orientations

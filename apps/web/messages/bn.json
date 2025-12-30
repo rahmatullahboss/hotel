@@ -284,7 +284,11 @@
     "instantPayment": "ওয়ালেট থেকে তাৎক্ষণিক পেমেন্ট",
     "walletPaymentFailed": "ওয়ালেট পেমেন্ট ব্যর্থ। আবার চেষ্টা করুন।",
     "firstBookingDiscount": "প্রথম বুকিং ছাড় (২০%)",
-    "payAtHotelFull": "হোটেল চেক-ইনে সম্পূর্ণ টাকা পরিশোধ করুন"
+    "payAtHotelFull": "হোটেল চেক-ইনে সম্পূর্ণ টাকা পরিশোধ করুন",
+    "cardDetails": "কার্ড তথ্য",
+    "completePayment": "পেমেন্ট সম্পন্ন করুন",
+    "enterCardDetails": "বুকিং সম্পন্ন করতে আপনার কার্ড তথ্য দিন",
+    "securedByStripe": "Stripe দ্বারা সুরক্ষিত - আপনার পেমেন্ট এনক্রিপ্টেড"
   },
   "wallet": {
     "title": "ওয়ালেট",

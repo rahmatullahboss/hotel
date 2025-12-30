@@ -57,6 +57,9 @@ dependencies:
   firebase_messaging: ^16.1.0
   geolocator: ^14.0.2
 
+  # Stripe Payment
+  flutter_stripe: ^11.3.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

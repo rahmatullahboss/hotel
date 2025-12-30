@@ -5,6 +5,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { createBooking } from "../actions/bookings";
 import { getUserProfile } from "../actions/profile";
 import { getWalletBalance } from "../actions/wallet";
@@ -14,22 +15,19 @@ import { BottomNav, BookingQRCode } from "../components";
 import { FiLock, FiClock, FiCreditCard, FiSmartphone, FiCheck } from "react-icons/fi";
 import { FaHotel, FaWallet } from "react-icons/fa";
 
-// TODO: Uncomment when payment gateway is implemented
-// type PaymentMethod = "BKASH" | "NAGAD" | "CARD" | "PAY_AT_HOTEL" | "WALLET";
-type PaymentMethod = "PAY_AT_HOTEL" | "WALLET"; // Only wallet and pay at hotel for now
+// Lazy load Stripe payment form to reduce initial bundle size
+const StripePaymentForm = dynamic(() => import("../components/stripe-payment-form"), {
+    loading: () => <div className="skeleton" style={{ height: 200, borderRadius: "0.75rem" }} />,
+    ssr: false,
+});
 
-// TODO: Uncomment when payment gateway is implemented
-// const paymentMethods: { id: PaymentMethod; nameKey: string; icon: React.ReactNode; advancePercent: number }[] = [
-//     { id: "WALLET", nameKey: "payByWallet", icon: <FaWallet size={24} />, advancePercent: 100 },
-//     { id: "PAY_AT_HOTEL", nameKey: "payAtHotel", icon: <FaHotel size={24} />, advancePercent: 20 },
-//     { id: "BKASH", nameKey: "bKash", icon: <FiSmartphone size={24} />, advancePercent: 100 },
-//     { id: "NAGAD", nameKey: "nagad", icon: <FiSmartphone size={24} />, advancePercent: 100 },
-//     { id: "CARD", nameKey: "creditDebitCard", icon: <FiCreditCard size={24} />, advancePercent: 100 },
-// ];
+// Payment methods including Stripe
+type PaymentMethod = "PAY_AT_HOTEL" | "WALLET" | "STRIPE";
 
-// Current: WALLET (if balance) + PAY_AT_HOTEL (100% pay at hotel, no advance)
+// Payment methods array with Stripe card payment
 const paymentMethods: { id: PaymentMethod; nameKey: string; icon: React.ReactNode; advancePercent: number }[] = [
     { id: "WALLET", nameKey: "payByWallet", icon: <FaWallet size={24} />, advancePercent: 100 },
+    { id: "STRIPE", nameKey: "creditDebitCard", icon: <FiCreditCard size={24} />, advancePercent: 100 },
     { id: "PAY_AT_HOTEL", nameKey: "payAtHotel", icon: <FaHotel size={24} />, advancePercent: 0 },
 ];
 
@@ -70,6 +68,7 @@ function BookingContent() {
     const [useWalletPartial, setUseWalletPartial] = useState(false); // Use wallet for partial payment
     const [error, setError] = useState("");
     const [isFirstBooking, setIsFirstBooking] = useState(false); // First booking discount eligibility
+    const [showStripeForm, setShowStripeForm] = useState(false); // Show Stripe payment form
 
     // Calculate amounts (after isFirstBooking state is declared)
     const subtotalAmount = price * nights;
@@ -201,14 +200,11 @@ function BookingContent() {
                         } else {
                             setError(result.error || t("walletPaymentFailed"));
                         }
+                    } else if (paymentMethod === "STRIPE") {
+                        // Show Stripe payment form
+                        setShowStripeForm(true);
                     }
-                    // TODO: Uncomment when payment gateway is implemented
-                    // } else if (paymentMethod === "BKASH") {
-                    //     // Full payment via bKash
-                    //     try {
-                    //         const paymentResponse = await fetch("/api/payment/initiate", {
-                    //             method: "POST",
-                    //             headers: { "Content-Type": "application/json" },
+                    // Old payment methods commented out
                     //             body: JSON.stringify({ bookingId: result.bookingId }),
                     //         });
                     //         const paymentData = await paymentResponse.json();
@@ -685,6 +681,60 @@ function BookingContent() {
                                 </button>
                             </div>
                         </form>
+                    )}
+
+                    {/* Step 2.5: Stripe Payment Form (shows after booking created with STRIPE method) */}
+                    {showStripeForm && bookingId && (
+                        <div className="card" style={{ padding: "1.5rem" }}>
+                            <div style={{ textAlign: "center", marginBottom: "1.5rem" }}>
+                                <div
+                                    style={{
+                                        width: 60,
+                                        height: 60,
+                                        borderRadius: "50%",
+                                        background: "rgba(99, 102, 241, 0.1)",
+                                        color: "#6366F1",
+                                        display: "flex",
+                                        alignItems: "center",
+                                        justifyContent: "center",
+                                        fontSize: "1.5rem",
+                                        margin: "0 auto 1rem",
+                                    }}
+                                >
+                                    <FiCreditCard size={28} />
+                                </div>
+                                <h3 style={{ fontWeight: 600, marginBottom: "0.5rem" }}>
+                                    {t("completePayment")}
+                                </h3>
+                                <p style={{ color: "var(--color-text-secondary)", fontSize: "0.875rem" }}>
+                                    {t("enterCardDetails")}
+                                </p>
+                            </div>
+
+                            <StripePaymentForm
+                                bookingId={bookingId}
+                                amount={totalAmount}
+                                onSuccess={() => {
+                                    setShowStripeForm(false);
+                                    setStep(3);
+                                }}
+                                onError={(errorMsg) => {
+                                    setError(errorMsg);
+                                }}
+                                t={t}
+                            />
+
+                            <button
+                                className="btn btn-outline btn-block"
+                                style={{ marginTop: "1rem" }}
+                                onClick={() => {
+                                    setShowStripeForm(false);
+                                    setStep(2);
+                                }}
+                            >
+                                {tCommon("back")}
+                            </button>
+                        </div>
                     )}
 
                     {/* Step 4: Advance Payment Method Selection (for Pay at Hotel with insufficient wallet) */}

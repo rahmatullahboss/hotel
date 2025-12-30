@@ -9,6 +9,7 @@ import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages } from "next-intl/server";
 import { ScrollToTop } from "./components/ScrollToTop";
 import { CookieConsent } from "./components/CookieConsent";
+import { PWAInstallPrompt } from "./components/PWAInstallPrompt";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -90,6 +91,7 @@ export default async function RootLayout({
             {children}
             <ScrollToTop />
             <CookieConsent />
+            <PWAInstallPrompt />
           </NextIntlClientProvider>
         </Providers>
       </body>
