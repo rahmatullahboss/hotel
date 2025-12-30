@@ -58,7 +58,7 @@ dependencies:
   geolocator: ^14.0.2
 
   # Stripe Payment
-  flutter_stripe: ^11.3.0
+  flutter_stripe: ^12.1.1
 
 dev_dependencies:
   flutter_test:

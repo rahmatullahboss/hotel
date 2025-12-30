@@ -8,6 +8,7 @@ import '../../bookings/providers/booking_provider.dart';
 import '../../hotel/providers/room_provider.dart';
 import '../../../l10n/generated/app_localizations.dart';
 import '../../auth/providers/auth_provider.dart';
+import '../providers/stripe_payment_provider.dart';
 
 class BookingFlowScreen extends ConsumerStatefulWidget {
   final String roomId;
@@ -467,7 +468,7 @@ class _BookingFlowScreenState extends ConsumerState<BookingFlowScreen> {
           onChanged: (v) => setState(() => _paymentMethod = v!),
         ),
         _PaymentOption(
-          value: 'CARD',
+          value: 'STRIPE',
           groupValue: _paymentMethod,
           title: loc.card,
           subtitle: loc.cardSubtitle,
@@ -507,10 +508,10 @@ class _BookingFlowScreenState extends ConsumerState<BookingFlowScreen> {
       builder: (context) => const Center(child: CircularProgressIndicator()),
     );
 
-    // Call booking API
-    final success = await ref
+    // Call booking API to create pending booking
+    final bookingId = await ref
         .read(bookingsProvider.notifier)
-        .createBooking(
+        .createBookingAndReturnId(
           hotelId: widget.hotelId ?? '',
           roomId: widget.roomId,
           checkIn: _checkIn!,
@@ -523,8 +524,34 @@ class _BookingFlowScreenState extends ConsumerState<BookingFlowScreen> {
           totalAmount: _grandTotal,
         );
 
-    // Hide loading
-    if (mounted) Navigator.of(context).pop();
+    // If booking creation failed, show error
+    if (bookingId == null) {
+      if (mounted) Navigator.of(context).pop();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(loc.bookingError),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
+      return;
+    }
+
+    // For STRIPE payment, process payment before confirming
+    bool success = true;
+    if (_paymentMethod == 'STRIPE') {
+      // Hide loading for Stripe payment sheet
+      if (mounted) Navigator.of(context).pop();
+
+      // Process Stripe payment
+      success = await ref
+          .read(stripePaymentProvider.notifier)
+          .processPayment(bookingId: bookingId, amount: _grandTotal);
+    } else {
+      // For other payment methods, hide loading
+      if (mounted) Navigator.of(context).pop();
+    }
 
     if (success) {
       // Show success dialog
