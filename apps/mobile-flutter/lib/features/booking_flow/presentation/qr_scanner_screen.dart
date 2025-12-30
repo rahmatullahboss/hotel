@@ -115,17 +115,17 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen> {
     controller.scannedDataStream.listen((scanData) {
       // Pause to prevent multiple scans
       controller.pauseCamera();
-      
+
       // Handle the scanned code
-      if (!mounted)return;
-      
+      if (!mounted) return;
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Scanned: ${scanData.code}'),
           backgroundColor: AppColors.success,
         ),
       );
-      
+
       // Logic to parse booking ID or check-in action would go here
       // For now, resume after 2 seconds
       Future.delayed(const Duration(seconds: 2), () {
@@ -138,15 +138,15 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen> {
 
   void _onPermissionSet(BuildContext context, QRViewController ctrl, bool p) {
     if (!p) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('no Permission')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('no Permission')));
     }
   }
 
   @override
   void dispose() {
-    controller?.dispose();
+    // QRViewController self-disposes when QRView is unmounted
     super.dispose();
   }
 }

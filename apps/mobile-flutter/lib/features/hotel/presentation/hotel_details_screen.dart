@@ -72,7 +72,6 @@ class HotelDetailsScreen extends ConsumerStatefulWidget {
 
 class _HotelDetailsScreenState extends ConsumerState<HotelDetailsScreen> {
   int _currentImageIndex = 0;
-  bool _isSaved = false;
   final PageController _pageController = PageController();
 
   // Date state for room availability
@@ -138,7 +137,7 @@ class _HotelDetailsScreenState extends ConsumerState<HotelDetailsScreen> {
   Widget build(BuildContext context) {
     final hotelAsync = ref.watch(hotelProvider(widget.hotelId));
     final savedHotels = ref.watch(savedHotelsProvider);
-    final _isSaved = savedHotels.contains(widget.hotelId);
+    final isSaved = savedHotels.contains(widget.hotelId);
 
     // Fetch rooms with dynamic pricing
     final roomsParams = RoomsParams(
@@ -174,13 +173,13 @@ class _HotelDetailsScreenState extends ConsumerState<HotelDetailsScreen> {
         final images = hotel.images.isNotEmpty
             ? hotel.images
             : (hotel.imageUrl != null
-                ? [hotel.imageUrl!]
-                : [
-                    'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800',
-                  ]);
+                  ? [hotel.imageUrl!]
+                  : [
+                      'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800',
+                    ]);
 
         final loc = AppLocalizations.of(context)!;
-        
+
         // Map amenities keys to localized labels
         final amenitiesList = [
           {'icon': 'wifi', 'label': loc.amenityWifi},
@@ -211,7 +210,7 @@ class _HotelDetailsScreenState extends ConsumerState<HotelDetailsScreen> {
           apiRooms: apiRooms,
           isLoadingRooms: roomsAsync.isLoading,
           hasRoomsError: hasRoomsError,
-          isSaved: _isSaved,
+          isSaved: isSaved,
         );
       },
     );
@@ -608,28 +607,27 @@ class _HotelDetailsScreenState extends ConsumerState<HotelDetailsScreen> {
                           ),
                         )
                       else
-                        ...apiRooms.map(
-                          (room) {
-                            final loc = AppLocalizations.of(context)!;
-                            String bedsText;
-                            final type = room.type.toLowerCase();
-                            if (type.contains('double')) {
-                              bedsText = loc.bedDouble;
-                            } else if (type.contains('twin')) {
-                              bedsText = loc.bedTwin;
-                            } else if (type.contains('single')) {
-                              bedsText = loc.bedSingle;
-                            } else {
-                              bedsText = loc.bedDefault;
-                            }
+                        ...apiRooms.map((room) {
+                          final loc = AppLocalizations.of(context)!;
+                          String bedsText;
+                          final type = room.type.toLowerCase();
+                          if (type.contains('double')) {
+                            bedsText = loc.bedDouble;
+                          } else if (type.contains('twin')) {
+                            bedsText = loc.bedTwin;
+                          } else if (type.contains('single')) {
+                            bedsText = loc.bedSingle;
+                          } else {
+                            bedsText = loc.bedDefault;
+                          }
 
-                            return Padding(
-                              padding: const EdgeInsets.only(bottom: 16),
-                              child: _RoomCard(
-                                name: room.name,
-                                capacity: loc.capacityText(room.maxGuests),
-                                beds: bedsText,
-                                features: room.amenities.take(2).join(' • '),
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 16),
+                            child: _RoomCard(
+                              name: room.name,
+                              capacity: loc.capacityText(room.maxGuests),
+                              beds: bedsText,
+                              features: room.amenities.take(2).join(' • '),
                               price: room.dynamicPrice, // Use dynamic price!
                               imageUrl: room.photos.isNotEmpty
                                   ? room.photos.first
@@ -643,8 +641,7 @@ class _HotelDetailsScreenState extends ConsumerState<HotelDetailsScreen> {
                               },
                             ),
                           );
-                        },
-                      ),
+                        }),
 
                       const SizedBox(height: 100),
                     ],
