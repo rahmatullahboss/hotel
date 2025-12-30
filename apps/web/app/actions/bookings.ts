@@ -5,6 +5,8 @@ import { bookings, rooms, hotels, users, wallets, walletTransactions } from "@re
 import { eq, desc, and, lt, gt, ne } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { sendBookingConfirmation, sendBookingCancellation } from "@/lib/notifications";
+import { pushRealtimeEvent } from "@/lib/realtime";
+
 
 export interface CreateBookingInput {
     hotelId: string;
@@ -345,6 +347,20 @@ export async function createBooking(input: CreateBookingInput): Promise<BookingR
                     },
                 }).catch((err) => console.error("Failed to send booking notification:", err));
             });
+
+            // Push realtime event to partner dashboard
+            pushRealtimeEvent({
+                type: "NEW_BOOKING",
+                hotelId,
+                data: {
+                    bookingId: result.booking.id,
+                    guestName,
+                    checkIn,
+                    checkOut,
+                    totalAmount,
+                    status: result.booking.status,
+                },
+            }).catch((err) => console.error("Failed to push realtime event:", err));
         }
 
         return {
@@ -540,6 +556,17 @@ export async function cancelBooking(
             { id: booking.id, guestName: booking.guestName },
             refundAmount > 0 ? refundAmount : undefined
         ).catch((err) => console.error("Failed to send cancellation notification:", err));
+
+        // Push realtime event to partner dashboard
+        pushRealtimeEvent({
+            type: "BOOKING_CANCELLED",
+            hotelId: booking.hotelId,
+            data: {
+                bookingId: booking.id,
+                guestName: booking.guestName,
+                refundAmount,
+            },
+        }).catch((err) => console.error("Failed to push realtime event:", err));
 
         return {
             success: true,
