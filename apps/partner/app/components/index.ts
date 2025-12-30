@@ -30,3 +30,8 @@ export { ThemeProvider, useTheme } from "./ThemeProvider";
 export { ThemeToggle } from "./ThemeToggle";
 export { AnimatedStatCard } from "./AnimatedStatCard";
 export { NotificationBell } from "./NotificationBell";
+
+// Room Management Components
+export { RoomTimeline } from "./RoomTimeline";
+export { ViewToggle } from "./ViewToggle";
+export { FloorPlanView } from "./FloorPlanView";
