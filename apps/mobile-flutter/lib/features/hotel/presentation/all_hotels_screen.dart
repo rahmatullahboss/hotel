@@ -87,8 +87,8 @@ class _AllHotelsScreenState extends ConsumerState<AllHotelsScreen> {
     return Scaffold(
       backgroundColor: AppColors.adaptiveBackground(context),
       appBar: AppBar(
-        backgroundColor: AppColors.primary,
-        foregroundColor: Colors.white,
+        backgroundColor: Colors.white,
+        foregroundColor: AppColors.textPrimary,
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios),
@@ -97,7 +97,7 @@ class _AllHotelsScreenState extends ConsumerState<AllHotelsScreen> {
         title: Text(
           widget.offer != null ? 'অফার হোটেল' : 'সব হোটেল',
           style: AppTypography.h4.copyWith(
-            color: Colors.white,
+            color: AppColors.textPrimary,
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -117,13 +117,13 @@ class _AllHotelsScreenState extends ConsumerState<AllHotelsScreen> {
                   child: Container(
                     padding: const EdgeInsets.all(4),
                     decoration: const BoxDecoration(
-                      color: Colors.white,
+                      color: AppColors.primary,
                       shape: BoxShape.circle,
                     ),
                     child: Text(
                       '${filters.activeFilterCount}',
                       style: const TextStyle(
-                        color: AppColors.primary,
+                        color: Colors.white,
                         fontSize: 10,
                         fontWeight: FontWeight.bold,
                       ),
