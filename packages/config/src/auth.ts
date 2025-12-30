@@ -65,6 +65,9 @@ export const getAuthConfig = (): NextAuthConfig => ({
         Google({
             clientId: process.env.AUTH_GOOGLE_ID,
             clientSecret: process.env.AUTH_GOOGLE_SECRET,
+            // Allow linking OAuth account to existing user with same email
+            // This is safe because Google verifies email ownership
+            allowDangerousEmailAccountLinking: true,
         }),
 
         // Phone/OTP authentication can be added here
