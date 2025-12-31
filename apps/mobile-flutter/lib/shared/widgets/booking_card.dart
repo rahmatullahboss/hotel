@@ -114,7 +114,7 @@ class BookingCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => context.push('/booking-details/$id'),
+      onTap: () => context.push('/bookings/$id'),
       child: Container(
         margin: const EdgeInsets.only(bottom: 16),
         decoration: BoxDecoration(
