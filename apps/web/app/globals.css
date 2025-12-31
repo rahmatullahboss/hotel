@@ -7600,7 +7600,7 @@ main.page-with-book-bar {
   inset: 0;
   background: rgba(15, 23, 42, 0.4);
   backdrop-filter: blur(4px);
-  z-index: 100;
+  z-index: 9999;
   animation: fadeIn 0.2s ease;
 }
 
@@ -7614,7 +7614,7 @@ main.page-with-book-bar {
   padding: 1.5rem;
   width: 90%;
   max-width: 360px;
-  z-index: 101;
+  z-index: 10000;
   box-shadow: 0 25px 60px rgba(0, 0, 0, 0.3);
   animation: scaleIn 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
