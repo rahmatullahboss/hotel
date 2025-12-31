@@ -252,5 +252,7 @@
   "no": "না",
   "yesCancelBooking": "হ্যাঁ, বাতিল করুন",
   "errorLoadingBooking": "বুকিং লোড করতে সমস্যা হয়েছে",
-  "bookingNotFound": "বুকিং পাওয়া যায়নি"
+  "bookingNotFound": "বুকিং পাওয়া যায়নি",
+  "paymentSuccess": "পেমেন্ট সফল হয়েছে!",
+  "paymentFailed": "পেমেন্ট ব্যর্থ হয়েছে। আবার চেষ্টা করুন।"
 }

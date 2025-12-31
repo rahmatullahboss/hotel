@@ -647,4 +647,10 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get bookingNotFound => 'বুকিং পাওয়া যায়নি';
+
+  @override
+  String get paymentSuccess => 'পেমেন্ট সফল হয়েছে!';
+
+  @override
+  String get paymentFailed => 'পেমেন্ট ব্যর্থ হয়েছে। আবার চেষ্টা করুন।';
 }

@@ -649,4 +649,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get bookingNotFound => 'Booking not found';
+
+  @override
+  String get paymentSuccess => 'Payment successful!';
+
+  @override
+  String get paymentFailed => 'Payment failed. Please try again.';
 }

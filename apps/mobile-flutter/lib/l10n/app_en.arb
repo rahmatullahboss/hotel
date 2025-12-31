@@ -257,5 +257,7 @@
   "no": "No",
   "yesCancelBooking": "Yes, Cancel",
   "errorLoadingBooking": "Error loading booking",
-  "bookingNotFound": "Booking not found"
+  "bookingNotFound": "Booking not found",
+  "paymentSuccess": "Payment successful!",
+  "paymentFailed": "Payment failed. Please try again."
 }

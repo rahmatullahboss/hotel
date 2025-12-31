@@ -1357,6 +1357,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Booking not found'**
   String get bookingNotFound;
+
+  /// No description provided for @paymentSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment successful!'**
+  String get paymentSuccess;
+
+  /// No description provided for @paymentFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment failed. Please try again.'**
+  String get paymentFailed;
 }
 
 class _AppLocalizationsDelegate
