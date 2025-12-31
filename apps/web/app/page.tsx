@@ -4,11 +4,11 @@ import { CitySelectorWrapper } from "./components/CitySelectorWrapper";
 import { FirstBookingBannerWrapper } from "./components/FirstBookingBannerWrapper";
 import { AppDownloadSection } from "./components/AppDownloadSection";
 import { MemberBenefits } from "./components/MemberBenefits";
-import { Newsletter } from "./components/Newsletter";
 import { getPopularCities } from "./actions/cities";
 import { getTranslations } from "next-intl/server";
-import { FiMapPin, FiCheck, FiStar } from "react-icons/fi";
+import { FiCheck, FiStar, FiMapPin, FiHeart, FiArrowRight, FiMail } from "react-icons/fi";
 import Link from "next/link";
+import Image from "next/image";
 
 // Force dynamic to ensure we get fresh data
 export const dynamic = 'force-dynamic';
@@ -16,7 +16,6 @@ export const dynamic = 'force-dynamic';
 export default async function HomePage() {
   // Fetch only cities, no hotels needed for landing page
   const cities = await getPopularCities(8);
-
   const t = await getTranslations("home");
 
   const whyBookItems = [
@@ -24,6 +23,40 @@ export default async function HomePage() {
     { iconType: "prices" as const, titleKey: "bestPrices", descKey: "bestPricesDesc" },
     { iconType: "hotel" as const, titleKey: "payAtHotel", descKey: "payAtHotelDesc" },
     { iconType: "instant" as const, titleKey: "instantBooking", descKey: "instantBookingDesc" },
+  ];
+
+  // Featured Hotels Data
+  const featuredHotels = [
+    {
+      id: 1,
+      name: "The Azure Resort",
+      location: "Cox's Bazar, Bangladesh",
+      image: "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800&auto=format",
+      rating: 4.9,
+      reviews: 1200,
+      price: 4200,
+      originalPrice: 5500,
+    },
+    {
+      id: 2,
+      name: "Grand Plaza Dhaka",
+      location: "Dhaka, Bangladesh",
+      image: "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=800&auto=format",
+      rating: 4.8,
+      reviews: 850,
+      price: 3500,
+      originalPrice: null,
+    },
+    {
+      id: 3,
+      name: "Sylhet Tea Garden Resort",
+      location: "Sylhet, Bangladesh",
+      image: "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=800&auto=format",
+      rating: 4.9,
+      reviews: 2100,
+      price: 6500,
+      originalPrice: 8000,
+    },
   ];
 
   // Popular destinations data
@@ -81,17 +114,62 @@ export default async function HomePage() {
 
         {/* Main Content */}
         <main className="luxstay-content">
-          {/* Trust Signals - Dark Section */}
-          <section className="luxstay-trust-section">
+          {/* Featured Hotels Section */}
+          <section className="luxstay-featured-section">
             <div className="container">
-              <WhyBookGrid items={whyBookItems} />
+              <div className="luxstay-section-header">
+                <div>
+                  <h2 className="luxstay-section-title-left">Featured Hotels</h2>
+                  <p className="luxstay-section-desc">Handpicked properties for your next adventure.</p>
+                </div>
+                <Link href="/hotels" className="luxstay-view-all">
+                  View All Hotels <FiArrowRight size={16} />
+                </Link>
+              </div>
+
+              <div className="luxstay-hotels-grid">
+                {featuredHotels.map((hotel) => (
+                  <Link key={hotel.id} href={`/hotels?city=${hotel.location.split(',')[0]}`} className="luxstay-hotel-card">
+                    <div className="luxstay-hotel-image-wrapper">
+                      <img
+                        src={hotel.image}
+                        alt={hotel.name}
+                        className="luxstay-hotel-image"
+                      />
+                      <button className="luxstay-hotel-favorite">
+                        <FiHeart size={18} />
+                      </button>
+                      <div className="luxstay-hotel-rating">
+                        <FiStar className="luxstay-rating-star" />
+                        <span>{hotel.rating} ({hotel.reviews >= 1000 ? `${(hotel.reviews / 1000).toFixed(1)}k` : hotel.reviews})</span>
+                      </div>
+                    </div>
+                    <div className="luxstay-hotel-info">
+                      <div className="luxstay-hotel-details">
+                        <h3 className="luxstay-hotel-name">{hotel.name}</h3>
+                        <div className="luxstay-hotel-location">
+                          <FiMapPin size={14} />
+                          <span>{hotel.location}</span>
+                        </div>
+                      </div>
+                      <div className="luxstay-hotel-footer">
+                        <div className="luxstay-hotel-pricing">
+                          {hotel.originalPrice && (
+                            <span className="luxstay-hotel-original-price">৳{hotel.originalPrice} night</span>
+                          )}
+                          <div className="luxstay-hotel-price">
+                            <span className="luxstay-price-amount">৳{hotel.price}</span>
+                            <span className="luxstay-price-unit">/ night</span>
+                          </div>
+                        </div>
+                        <span className="luxstay-hotel-cta">View Details</span>
+                      </div>
+                    </div>
+                  </Link>
+                ))}
+              </div>
             </div>
           </section>
-
-          {/* First Booking Banner */}
-          <div className="container" style={{ marginTop: "4rem", marginBottom: "4rem" }}>
-            <FirstBookingBannerWrapper />
-          </div>
 
           {/* Popular Destinations */}
           <section className="luxstay-destinations-section">
@@ -119,6 +197,18 @@ export default async function HomePage() {
               </div>
             </div>
           </section>
+
+          {/* Trust Signals */}
+          <section className="luxstay-trust-section">
+            <div className="container">
+              <WhyBookGrid items={whyBookItems} />
+            </div>
+          </section>
+
+          {/* First Booking Banner */}
+          <div className="container" style={{ marginTop: "4rem", marginBottom: "4rem" }}>
+            <FirstBookingBannerWrapper />
+          </div>
 
           {/* Promotional Banner */}
           <section className="luxstay-promo-section">
@@ -162,7 +252,7 @@ export default async function HomePage() {
             </div>
           </section>
 
-          {/* City Selector - Original Functionality */}
+          {/* City Selector */}
           {cities.length > 0 && (
             <section className="luxstay-cities-section">
               <div className="container" style={{ maxWidth: '1400px' }}>
@@ -185,10 +275,7 @@ export default async function HomePage() {
           <section className="luxstay-newsletter-section">
             <div className="luxstay-newsletter-container">
               <div className="luxstay-newsletter-icon">
-                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
-                  <polyline points="22,6 12,13 2,6" />
-                </svg>
+                <FiMail size={32} />
               </div>
               <h2 className="luxstay-newsletter-title">Unlock Secret Deals</h2>
               <p className="luxstay-newsletter-desc">
@@ -226,7 +313,7 @@ export default async function HomePage() {
       {/* LuxStay Specific Styles */}
       <style>{`
         .luxstay-landing {
-          background-color: #fff;
+          background-color: #f6f6f8;
         }
 
         /* Hero Section */
@@ -256,7 +343,7 @@ export default async function HomePage() {
           position: relative;
           z-index: 10;
           width: 100%;
-          max-width: 1400px;
+          max-width: 1280px;
           margin: 0 auto;
           padding: 2rem 1rem;
         }
@@ -277,43 +364,45 @@ export default async function HomePage() {
 
         /* Search Card */
         .luxstay-search-card {
-          background: rgba(255, 255, 255, 0.97);
+          background: rgba(255, 255, 255, 0.95);
           backdrop-filter: blur(20px);
           border-radius: 1.5rem;
-          padding: 2rem;
+          padding: 1.5rem;
           box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
           border: 1px solid rgba(255, 255, 255, 0.4);
         }
 
         @media (min-width: 768px) {
           .luxstay-search-card {
-            padding: 2.5rem;
+            padding: 2rem;
           }
         }
 
         .luxstay-verified-badge {
           display: inline-flex;
           align-items: center;
-          gap: 0.5rem;
-          padding: 0.5rem 0.75rem;
-          background: rgba(230, 57, 70, 0.08);
+          gap: 0.375rem;
+          padding: 0.25rem 0.75rem;
+          background: rgba(19, 91, 236, 0.08);
           border-radius: 9999px;
-          font-size: 0.7rem;
+          font-size: 0.6875rem;
           font-weight: 700;
           text-transform: uppercase;
           letter-spacing: 0.05em;
-          color: var(--color-primary);
-          border: 1px solid rgba(230, 57, 70, 0.15);
+          color: #135bec;
+          border: 1px solid rgba(19, 91, 236, 0.15);
           margin-bottom: 1.5rem;
         }
 
         .luxstay-verified-icon {
           color: #D4AF37;
+          width: 14px;
+          height: 14px;
         }
 
         .luxstay-search-title {
-          font-family: 'Playfair Display', serif;
-          font-size: 2rem;
+          font-family: 'Plus Jakarta Sans', sans-serif;
+          font-size: 1.875rem;
           font-weight: 900;
           color: #0d121b;
           line-height: 1.2;
@@ -323,19 +412,20 @@ export default async function HomePage() {
 
         @media (min-width: 768px) {
           .luxstay-search-title {
-            font-size: 2.5rem;
+            font-size: 2.25rem;
           }
         }
 
         .luxstay-accent {
-          color: var(--color-primary);
+          color: #135bec;
         }
 
         .luxstay-search-subtitle {
-          font-size: 0.95rem;
+          font-size: 0.9375rem;
           color: #4c669a;
-          margin-bottom: 2rem;
+          margin-bottom: 1.5rem;
           line-height: 1.6;
+          font-weight: 500;
         }
 
         /* Hero Right - Member Card */
@@ -356,7 +446,7 @@ export default async function HomePage() {
           background: rgba(255, 255, 255, 0.1);
           backdrop-filter: blur(16px);
           border: 1px solid rgba(255, 255, 255, 0.2);
-          padding: 1.25rem;
+          padding: 1rem;
           border-radius: 0.75rem;
           color: white;
           max-width: 280px;
@@ -384,15 +474,244 @@ export default async function HomePage() {
           padding-bottom: 0;
         }
 
+        /* Featured Hotels Section */
+        .luxstay-featured-section {
+          padding: 5rem 0;
+          background: #f6f6f8;
+        }
+
+        .luxstay-section-header {
+          display: flex;
+          flex-direction: column;
+          gap: 1rem;
+          margin-bottom: 2.5rem;
+        }
+
+        @media (min-width: 768px) {
+          .luxstay-section-header {
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: flex-end;
+          }
+        }
+
+        .luxstay-section-title-left {
+          font-family: 'Plus Jakarta Sans', sans-serif;
+          font-size: 1.875rem;
+          font-weight: 900;
+          color: #0d121b;
+          margin-bottom: 0.5rem;
+          letter-spacing: -0.02em;
+        }
+
+        .luxstay-section-desc {
+          font-size: 1.125rem;
+          color: #4c669a;
+        }
+
+        .luxstay-view-all {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.25rem;
+          color: #135bec;
+          font-weight: 700;
+          text-decoration: none;
+          transition: gap 0.2s;
+        }
+
+        .luxstay-view-all:hover {
+          gap: 0.5rem;
+        }
+
+        .luxstay-hotels-grid {
+          display: grid;
+          grid-template-columns: 1fr;
+          gap: 2rem;
+        }
+
+        @media (min-width: 768px) {
+          .luxstay-hotels-grid {
+            grid-template-columns: repeat(2, 1fr);
+          }
+        }
+
+        @media (min-width: 1024px) {
+          .luxstay-hotels-grid {
+            grid-template-columns: repeat(3, 1fr);
+          }
+        }
+
+        .luxstay-hotel-card {
+          background: white;
+          border-radius: 1rem;
+          overflow: hidden;
+          border: 1px solid #f1f5f9;
+          text-decoration: none;
+          color: inherit;
+          transition: all 0.3s ease;
+          display: flex;
+          flex-direction: column;
+        }
+
+        .luxstay-hotel-card:hover {
+          box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+          transform: translateY(-4px);
+        }
+
+        .luxstay-hotel-image-wrapper {
+          position: relative;
+          height: 16rem;
+          overflow: hidden;
+        }
+
+        .luxstay-hotel-image {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          transition: transform 0.5s ease;
+        }
+
+        .luxstay-hotel-card:hover .luxstay-hotel-image {
+          transform: scale(1.1);
+        }
+
+        .luxstay-hotel-favorite {
+          position: absolute;
+          top: 1rem;
+          right: 1rem;
+          width: 2.5rem;
+          height: 2.5rem;
+          background: rgba(255, 255, 255, 0.9);
+          backdrop-filter: blur(4px);
+          border-radius: 50%;
+          border: none;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: #9ca3af;
+          cursor: pointer;
+          transition: all 0.2s;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .luxstay-hotel-favorite:hover {
+          color: #ef4444;
+          background: white;
+        }
+
+        .luxstay-hotel-rating {
+          position: absolute;
+          bottom: 1rem;
+          left: 1rem;
+          background: rgba(255, 255, 255, 0.95);
+          backdrop-filter: blur(4px);
+          padding: 0.25rem 0.75rem;
+          border-radius: 0.375rem;
+          display: flex;
+          align-items: center;
+          gap: 0.25rem;
+          font-size: 0.75rem;
+          font-weight: 700;
+          color: #0d121b;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .luxstay-rating-star {
+          color: #D4AF37;
+          fill: #D4AF37;
+          width: 12px;
+          height: 12px;
+        }
+
+        .luxstay-hotel-info {
+          padding: 1.25rem;
+          display: flex;
+          flex-direction: column;
+          flex: 1;
+        }
+
+        .luxstay-hotel-details {
+          margin-bottom: 1rem;
+        }
+
+        .luxstay-hotel-name {
+          font-size: 1.25rem;
+          font-weight: 700;
+          color: #0d121b;
+          margin-bottom: 0.25rem;
+          line-height: 1.3;
+        }
+
+        .luxstay-hotel-location {
+          display: flex;
+          align-items: center;
+          gap: 0.25rem;
+          color: #4c669a;
+          font-size: 0.875rem;
+        }
+
+        .luxstay-hotel-footer {
+          margin-top: auto;
+          padding-top: 1rem;
+          border-top: 1px solid #f1f5f9;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+        }
+
+        .luxstay-hotel-pricing {
+          display: flex;
+          flex-direction: column;
+        }
+
+        .luxstay-hotel-original-price {
+          font-size: 0.75rem;
+          color: #4c669a;
+          text-decoration: line-through;
+        }
+
+        .luxstay-hotel-price {
+          display: flex;
+          align-items: baseline;
+          gap: 0.25rem;
+        }
+
+        .luxstay-price-amount {
+          font-size: 1.25rem;
+          font-weight: 900;
+          color: #135bec;
+        }
+
+        .luxstay-price-unit {
+          font-size: 0.875rem;
+          color: #4c669a;
+        }
+
+        .luxstay-hotel-cta {
+          padding: 0.5rem 1rem;
+          background: rgba(19, 91, 236, 0.1);
+          color: #135bec;
+          border-radius: 0.5rem;
+          font-size: 0.875rem;
+          font-weight: 700;
+          transition: all 0.2s;
+        }
+
+        .luxstay-hotel-card:hover .luxstay-hotel-cta {
+          background: #135bec;
+          color: white;
+        }
+
+        /* Trust Section */
         .luxstay-trust-section {
-          background-color: #0A192F;
-          padding: 6rem 0;
+          background-color: #101622;
+          padding: 5rem 0;
           color: white;
         }
 
         .luxstay-section-title {
-          font-family: 'Playfair Display', serif;
-          font-size: 2rem;
+          font-family: 'Plus Jakarta Sans', sans-serif;
+          font-size: 1.875rem;
           font-weight: 900;
           color: #0d121b;
           margin-bottom: 2.5rem;
@@ -403,9 +722,9 @@ export default async function HomePage() {
         /* Popular Destinations */
         .luxstay-destinations-section {
           padding: 5rem 0;
-          background: #fff;
-          border-top: 1px solid #f1f5f9;
-          border-bottom: 1px solid #f1f5f9;
+          background: white;
+          border-top: 1px solid #e7ebf3;
+          border-bottom: 1px solid #e7ebf3;
         }
 
         .luxstay-destinations-grid {
@@ -417,7 +736,7 @@ export default async function HomePage() {
         @media (min-width: 768px) {
           .luxstay-destinations-grid {
             grid-template-columns: repeat(4, 1fr);
-            gap: 1.5rem;
+            gap: 2rem;
           }
         }
 
@@ -479,7 +798,7 @@ export default async function HomePage() {
         .luxstay-promo-section {
           position: relative;
           padding: 5rem 0;
-          background: var(--color-primary);
+          background: #135bec;
           overflow: hidden;
         }
 
@@ -507,7 +826,7 @@ export default async function HomePage() {
         .luxstay-promo-content {
           position: relative;
           z-index: 10;
-          max-width: 1400px;
+          max-width: 1280px;
           margin: 0 auto;
           padding: 0 1rem;
           display: flex;
@@ -529,10 +848,10 @@ export default async function HomePage() {
 
         .luxstay-promo-badge {
           display: inline-block;
-          padding: 0.5rem 0.75rem;
+          padding: 0.25rem 0.75rem;
           background: rgba(212, 175, 55, 0.2);
           color: #D4AF37;
-          font-size: 0.7rem;
+          font-size: 0.6875rem;
           font-weight: 700;
           text-transform: uppercase;
           letter-spacing: 0.1em;
@@ -542,7 +861,7 @@ export default async function HomePage() {
         }
 
         .luxstay-promo-title {
-          font-family: 'Playfair Display', serif;
+          font-family: 'Plus Jakarta Sans', sans-serif;
           font-size: 2rem;
           font-weight: 900;
           color: white;
@@ -557,7 +876,7 @@ export default async function HomePage() {
         }
 
         .luxstay-promo-desc {
-          font-size: 1.1rem;
+          font-size: 1.125rem;
           color: rgba(255, 255, 255, 0.85);
           line-height: 1.7;
           margin-bottom: 2rem;
@@ -572,7 +891,7 @@ export default async function HomePage() {
         .luxstay-promo-btn-primary {
           padding: 0.875rem 2rem;
           background: white;
-          color: var(--color-primary);
+          color: #135bec;
           font-weight: 700;
           border-radius: 0.5rem;
           text-decoration: none;
@@ -650,7 +969,7 @@ export default async function HomePage() {
         /* Cities Section */
         .luxstay-cities-section {
           padding: 5rem 0;
-          background-color: #FAFAFA;
+          background-color: #f6f6f8;
         }
 
         /* Newsletter Section */
@@ -672,22 +991,22 @@ export default async function HomePage() {
           justify-content: center;
           width: 4rem;
           height: 4rem;
-          background: rgba(230, 57, 70, 0.1);
-          color: var(--color-primary);
+          background: rgba(19, 91, 236, 0.1);
+          color: #135bec;
           border-radius: 50%;
           margin-bottom: 1.5rem;
         }
 
         .luxstay-newsletter-title {
-          font-family: 'Playfair Display', serif;
-          font-size: 2rem;
+          font-family: 'Plus Jakarta Sans', sans-serif;
+          font-size: 1.875rem;
           font-weight: 900;
           color: #0d121b;
           margin-bottom: 1rem;
         }
 
         .luxstay-newsletter-desc {
-          font-size: 1.1rem;
+          font-size: 1.125rem;
           color: #4c669a;
           margin-bottom: 2rem;
         }
@@ -710,16 +1029,17 @@ export default async function HomePage() {
           flex: 1;
           padding: 0.875rem 1.25rem;
           border-radius: 0.5rem;
-          border: 1px solid #e2e8f0;
+          border: 1px solid #e7ebf3;
           background: white;
           font-size: 1rem;
           outline: none;
           transition: border-color 0.2s ease;
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
         }
 
         .luxstay-newsletter-input:focus {
-          border-color: var(--color-primary);
-          box-shadow: 0 0 0 3px rgba(230, 57, 70, 0.1);
+          border-color: #135bec;
+          box-shadow: 0 0 0 3px rgba(19, 91, 236, 0.1);
         }
 
         .luxstay-newsletter-btn {

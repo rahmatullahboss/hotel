@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { FiChevronLeft, FiChevronRight, FiX } from "react-icons/fi";
 
 interface DatePickerModalProps {
@@ -22,14 +23,19 @@ export function DatePickerModal({
 }: DatePickerModalProps) {
     const [currentMonth, setCurrentMonth] = useState(new Date());
     const [animating, setAnimating] = useState(false);
+    const [mounted, setMounted] = useState(false);
 
+    // Handle client-side mounting for portal
+    useEffect(() => {
+        setMounted(true);
+    }, []);
+
+    // Sync month with selectedDate when modal opens
     useEffect(() => {
         if (isOpen && selectedDate) {
             setCurrentMonth(new Date(selectedDate));
         }
     }, [isOpen, selectedDate]);
-
-    if (!isOpen) return null;
 
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -110,7 +116,10 @@ export function DatePickerModal({
         return lastDayOfPrevMonth >= minDateObj;
     };
 
-    return (
+    // Don't render on server or when closed
+    if (!mounted || !isOpen) return null;
+
+    const modalContent = (
         <>
             {/* Backdrop */}
             <div 
@@ -193,4 +202,8 @@ export function DatePickerModal({
             </div>
         </>
     );
+
+    // Use createPortal to render outside of stacking context
+    return createPortal(modalContent, document.body);
 }
+

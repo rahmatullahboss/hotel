@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { FiMapPin, FiCalendar, FiUser, FiCrosshair } from "react-icons/fi";
+import { FiMapPin, FiCalendar, FiUsers, FiSearch, FiCrosshair } from "react-icons/fi";
 
 interface SearchFormProps {
     compact?: boolean;
@@ -21,14 +21,9 @@ export function SearchForm({ compact = false }: SearchFormProps) {
     const [checkIn, setCheckIn] = useState(today);
     const [checkOut, setCheckOut] = useState(tomorrow);
     const [guests, setGuests] = useState(2);
-    const [showAdvanced, setShowAdvanced] = useState(false);
-    const [priceMin, setPriceMin] = useState("");
-    const [priceMax, setPriceMax] = useState("");
-
-    // Near Me state
     const [nearMeLoading, setNearMeLoading] = useState(false);
 
-    // Near Me handler - gets user location and redirects to hotels page
+    // Near Me handler
     const handleNearMe = () => {
         if (!navigator.geolocation) {
             alert(t("locationNotSupported") || "Location not supported");
@@ -67,70 +62,25 @@ export function SearchForm({ compact = false }: SearchFormProps) {
         e.preventDefault();
         const params = new URLSearchParams({
             city: city || "Dhaka",
-            checkIn: checkIn || new Date().toISOString().split("T")[0]!,
-            checkOut: checkOut || new Date(Date.now() + 86400000).toISOString().split("T")[0]!,
+            checkIn: checkIn || today,
+            checkOut: checkOut || tomorrow,
             guests: guests.toString(),
         });
-        if (priceMin) params.set("priceMin", priceMin);
-        if (priceMax) params.set("priceMax", priceMax);
         router.push(`/hotels?${params.toString()}`);
     };
 
     if (compact) {
         return (
-            <form
-                onSubmit={handleSubmit}
-                className="search-form"
-                style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "0.5rem",
-                    width: "100%",
-                    padding: "0.5rem 0.75rem",
-                }}
-            >
-                <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    strokeWidth={1.5}
-                    stroke="currentColor"
-                    style={{ width: "20px", height: "20px", color: "var(--color-primary)", flexShrink: 0 }}
-                >
-                    <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"
-                    />
-                </svg>
+            <form onSubmit={handleSubmit} className="luxstay-search-compact">
+                <FiSearch className="luxstay-search-compact-icon" />
                 <input
                     type="text"
                     placeholder={t("locationPlaceholder")}
                     value={city}
                     onChange={(e) => setCity(e.target.value)}
-                    style={{
-                        flex: 1,
-                        border: "none",
-                        outline: "none",
-                        fontSize: "0.9rem",
-                        background: "transparent",
-                        minWidth: 0,
-                    }}
+                    className="luxstay-search-compact-input"
                 />
-                <button
-                    type="submit"
-                    style={{
-                        background: "var(--color-primary)",
-                        color: "white",
-                        border: "none",
-                        borderRadius: "0.5rem",
-                        padding: "0.5rem 1rem",
-                        fontSize: "0.875rem",
-                        fontWeight: 600,
-                        cursor: "pointer",
-                        flexShrink: 0,
-                    }}
-                >
+                <button type="submit" className="luxstay-search-compact-btn">
                     {t("searchButton")}
                 </button>
             </form>
@@ -138,98 +88,273 @@ export function SearchForm({ compact = false }: SearchFormProps) {
     }
 
     return (
-        <form onSubmit={handleSubmit} className="search-form-wrapper">
-            <div className={`search-form ${compact ? "compact" : ""}`}>
-                {/* Main Search Row */}
-                <div className="search-row">
-                    {/* Location */}
-                    <div className="search-field search-field-location">
-                        <span className="search-field-icon"><FiMapPin size={20} /></span>
-                        <div className="search-field-content">
-                            <label className="search-field-label">{t("city")}</label>
-                            <input
-                                type="text"
-                                className="search-field-input"
-                                placeholder={t("locationPlaceholder")}
-                                value={city}
-                                onChange={(e) => setCity(e.target.value)}
-                            />
-                        </div>
-                        {/* Near Me Button */}
-                        <button
-                            type="button"
-                            onClick={handleNearMe}
-                            disabled={nearMeLoading}
-                            className="near-me-btn"
-                        >
-                            <FiCrosshair size={14} />
-                            <span>{nearMeLoading ? t("detecting") || "Detecting..." : t("nearMe") || "Near Me"}</span>
-                        </button>
+        <form onSubmit={handleSubmit} className="luxstay-search-form">
+            {/* Destination */}
+            <div className="luxstay-search-field">
+                <label className="luxstay-search-label">{t("city") || "Destination"}</label>
+                <div className="luxstay-search-input-group">
+                    <div className="luxstay-search-icon">
+                        <FiMapPin size={20} />
                     </div>
-
-                    <div className="search-divider" />
-
-                    {/* Check-in */}
-                    <div className="search-field">
-                        <span className="search-field-icon"><FiCalendar size={20} /></span>
-                        <div className="search-field-content">
-                            <label className="search-field-label">{t("checkIn")}</label>
-                            <input
-                                type="date"
-                                className="search-field-input"
-                                value={checkIn}
-                                min={today}
-                                onChange={(e) => setCheckIn(e.target.value)}
-                            />
-                        </div>
-                    </div>
-
-                    <div className="search-divider" />
-
-                    {/* Check-out */}
-                    <div className="search-field">
-                        <span className="search-field-icon"><FiCalendar size={20} /></span>
-                        <div className="search-field-content">
-                            <label className="search-field-label">{t("checkOut")}</label>
-                            <input
-                                type="date"
-                                className="search-field-input"
-                                value={checkOut}
-                                min={checkIn || today}
-                                onChange={(e) => setCheckOut(e.target.value)}
-                            />
-                        </div>
-                    </div>
-
-                    <div className="search-divider" />
-
-                    {/* Guests */}
-                    <div className="search-field search-field-guests">
-                        <span className="search-field-icon"><FiUser size={20} /></span>
-                        <div className="search-field-content">
-                            <label className="search-field-label">{t("guests")}</label>
-                            <select
-                                className="search-field-input"
-                                value={guests}
-                                onChange={(e) => setGuests(Number(e.target.value))}
-                            >
-                                {[1, 2, 3, 4, 5, 6].map((n) => (
-                                    <option key={n} value={n}>
-                                        {n} {t("guest")}
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
-                    </div>
-
-                    {/* Search Button */}
-                    <button type="submit" className="search-btn">
-                        <span className="search-btn-text">{t("searchButton")}</span>
-                    </button>
+                    <input
+                        type="text"
+                        className="luxstay-search-input"
+                        placeholder={t("locationPlaceholder") || "Where do you want to stay?"}
+                        value={city}
+                        onChange={(e) => setCity(e.target.value)}
+                    />
                 </div>
             </div>
 
-            {/* Styles are now handled in globals.css under .search-form classes for premium theme */}
+            {/* Check In & Check Out */}
+            <div className="luxstay-search-dates">
+                <div className="luxstay-search-field">
+                    <label className="luxstay-search-label">{t("checkIn") || "Check In"}</label>
+                    <div className="luxstay-search-input-group">
+                        <div className="luxstay-search-icon">
+                            <FiCalendar size={20} />
+                        </div>
+                        <input
+                            type="date"
+                            className="luxstay-search-input"
+                            value={checkIn}
+                            min={today}
+                            onChange={(e) => setCheckIn(e.target.value)}
+                        />
+                    </div>
+                </div>
+
+                <div className="luxstay-search-field">
+                    <label className="luxstay-search-label">{t("checkOut") || "Check Out"}</label>
+                    <div className="luxstay-search-input-group">
+                        <div className="luxstay-search-icon">
+                            <FiCalendar size={20} />
+                        </div>
+                        <input
+                            type="date"
+                            className="luxstay-search-input"
+                            value={checkOut}
+                            min={checkIn || today}
+                            onChange={(e) => setCheckOut(e.target.value)}
+                        />
+                    </div>
+                </div>
+            </div>
+
+            {/* Guests */}
+            <div className="luxstay-search-field">
+                <label className="luxstay-search-label">{t("guests") || "Guests"}</label>
+                <div className="luxstay-search-input-group">
+                    <div className="luxstay-search-icon">
+                        <FiUsers size={20} />
+                    </div>
+                    <select
+                        className="luxstay-search-input luxstay-search-select"
+                        value={guests}
+                        onChange={(e) => setGuests(Number(e.target.value))}
+                    >
+                        {[1, 2, 3, 4, 5, 6].map((n) => (
+                            <option key={n} value={n}>
+                                {n} {t("guest")}
+                            </option>
+                        ))}
+                    </select>
+                </div>
+            </div>
+
+            {/* Search Button */}
+            <button type="submit" className="luxstay-search-btn">
+                <FiSearch size={20} />
+                <span>{t("searchButton") || "Search Availability"}</span>
+            </button>
+
+            {/* Near Me Button - Mobile Only */}
+            <button
+                type="button"
+                onClick={handleNearMe}
+                disabled={nearMeLoading}
+                className="luxstay-nearme-btn"
+            >
+                <FiCrosshair size={16} />
+                <span>{nearMeLoading ? t("detecting") || "Detecting..." : t("nearMe") || "Near Me"}</span>
+            </button>
+
+            <style jsx>{`
+                .luxstay-search-form {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 1rem;
+                }
+
+                .luxstay-search-field {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 0.375rem;
+                }
+
+                .luxstay-search-label {
+                    font-size: 0.6875rem;
+                    font-weight: 700;
+                    color: #4c669a;
+                    text-transform: uppercase;
+                    letter-spacing: 0.05em;
+                    margin-left: 0.25rem;
+                }
+
+                .luxstay-search-input-group {
+                    position: relative;
+                    display: flex;
+                    align-items: center;
+                }
+
+                .luxstay-search-icon {
+                    position: absolute;
+                    left: 1rem;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    color: #135bec;
+                    pointer-events: none;
+                    transition: color 0.2s;
+                }
+
+                .luxstay-search-input-group:focus-within .luxstay-search-icon {
+                    color: #D4AF37;
+                }
+
+                .luxstay-search-input {
+                    width: 100%;
+                    padding: 0.875rem 1rem 0.875rem 3rem;
+                    background: #f8fafc;
+                    border: none;
+                    border-radius: 0.75rem;
+                    font-size: 0.9375rem;
+                    font-weight: 600;
+                    color: #0d121b;
+                    outline: none;
+                    box-shadow: inset 0 0 0 1px #e5e7eb;
+                    transition: all 0.2s;
+                }
+
+                .luxstay-search-input::placeholder {
+                    color: #9ca3af;
+                    font-weight: 400;
+                }
+
+                .luxstay-search-input:focus {
+                    background: white;
+                    box-shadow: inset 0 0 0 2px #135bec;
+                }
+
+                .luxstay-search-select {
+                    cursor: pointer;
+                    appearance: none;
+                    -webkit-appearance: none;
+                }
+
+                .luxstay-search-dates {
+                    display: grid;
+                    grid-template-columns: 1fr 1fr;
+                    gap: 0.75rem;
+                }
+
+                .luxstay-search-btn {
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    gap: 0.5rem;
+                    width: 100%;
+                    padding: 1rem;
+                    background: #135bec;
+                    color: white;
+                    border: none;
+                    border-radius: 0.75rem;
+                    font-size: 0.9375rem;
+                    font-weight: 700;
+                    cursor: pointer;
+                    transition: all 0.2s;
+                    box-shadow: 0 10px 25px rgba(19, 91, 236, 0.3);
+                    margin-top: 0.5rem;
+                }
+
+                .luxstay-search-btn:hover {
+                    background: #0e46b9;
+                    transform: translateY(-2px);
+                    box-shadow: 0 15px 30px rgba(19, 91, 236, 0.4);
+                }
+
+                .luxstay-search-btn:active {
+                    transform: scale(0.98);
+                }
+
+                .luxstay-nearme-btn {
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    gap: 0.5rem;
+                    width: 100%;
+                    padding: 0.75rem;
+                    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+                    color: white;
+                    border: none;
+                    border-radius: 0.75rem;
+                    font-size: 0.875rem;
+                    font-weight: 600;
+                    cursor: pointer;
+                    transition: all 0.2s;
+                }
+
+                .luxstay-nearme-btn:hover {
+                    background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+                }
+
+                .luxstay-nearme-btn:disabled {
+                    background: #94a3b8;
+                    cursor: not-allowed;
+                }
+
+                /* Compact Search */
+                .luxstay-search-compact {
+                    display: flex;
+                    align-items: center;
+                    gap: 0.5rem;
+                    padding: 0.5rem 0.75rem;
+                    background: white;
+                    border-radius: 0.5rem;
+                    border: 1px solid #e5e7eb;
+                }
+
+                .luxstay-search-compact-icon {
+                    color: #135bec;
+                    flex-shrink: 0;
+                }
+
+                .luxstay-search-compact-input {
+                    flex: 1;
+                    border: none;
+                    outline: none;
+                    font-size: 0.875rem;
+                    background: transparent;
+                }
+
+                .luxstay-search-compact-btn {
+                    padding: 0.5rem 1rem;
+                    background: #135bec;
+                    color: white;
+                    border: none;
+                    border-radius: 0.5rem;
+                    font-size: 0.875rem;
+                    font-weight: 600;
+                    cursor: pointer;
+                    white-space: nowrap;
+                }
+
+                @media (min-width: 640px) {
+                    .luxstay-nearme-btn {
+                        display: none;
+                    }
+                }
+            `}</style>
         </form>
     );
 }
