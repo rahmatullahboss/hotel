@@ -26,6 +26,9 @@ import '../../features/onboarding/presentation/onboarding_screen.dart';
 import '../../features/splash/presentation/splash_screen.dart';
 import '../storage/secure_storage.dart';
 
+// Global navigator key for navigation from outside widget tree
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
 // Route names
 class AppRoutes {
   static const String splash = '/';
@@ -54,6 +57,7 @@ class AppRoutes {
 // Router provider
 final routerProvider = Provider<GoRouter>((ref) {
   return GoRouter(
+    navigatorKey: navigatorKey,
     initialLocation: AppRoutes.splash,
     debugLogDiagnostics: true,
     redirect: (context, state) async {

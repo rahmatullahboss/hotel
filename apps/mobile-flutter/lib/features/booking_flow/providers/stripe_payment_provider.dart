@@ -1,4 +1,4 @@
-// Stripe Payment Provider - Zinu Rooms
+// Stripe Payment Provider - Zinu Rooms (Riverpod 3.0)
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
@@ -47,11 +47,12 @@ class StripePaymentState {
   }
 }
 
-// Stripe Payment Notifier
-class StripePaymentNotifier extends StateNotifier<StripePaymentState> {
-  final Dio _dio;
+// Stripe Payment Notifier (Riverpod 3.0)
+class StripePaymentNotifier extends Notifier<StripePaymentState> {
+  Dio get _dio => ref.read(dioProvider);
 
-  StripePaymentNotifier(this._dio) : super(const StripePaymentState());
+  @override
+  StripePaymentState build() => const StripePaymentState();
 
   // Create payment intent and process payment
   Future<bool> processPayment({
@@ -81,9 +82,7 @@ class StripePaymentNotifier extends StateNotifier<StripePaymentState> {
           paymentIntentClientSecret: clientSecret,
           merchantDisplayName: 'Zinu Rooms',
           style: ThemeMode.system,
-          billingDetails: const BillingDetails(
-            // Can be pre-filled with user data
-          ),
+          billingDetails: const BillingDetails(),
         ),
       );
 
@@ -130,9 +129,8 @@ class StripePaymentNotifier extends StateNotifier<StripePaymentState> {
   }
 }
 
-// Provider
+// Provider (Riverpod 3.0)
 final stripePaymentProvider =
-    StateNotifierProvider<StripePaymentNotifier, StripePaymentState>((ref) {
-      final dio = ref.read(dioProvider);
-      return StripePaymentNotifier(dio);
-    });
+    NotifierProvider<StripePaymentNotifier, StripePaymentState>(
+      StripePaymentNotifier.new,
+    );

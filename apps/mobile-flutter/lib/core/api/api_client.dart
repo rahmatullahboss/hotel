@@ -1,7 +1,10 @@
 // API Client with Dio - Zinu Rooms
 import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../storage/secure_storage.dart';
+import '../router/app_router.dart';
 
 // API Configuration
 const String apiBaseUrl = String.fromEnvironment(
@@ -58,10 +61,23 @@ class AuthInterceptor extends Interceptor {
   void onError(DioException err, ErrorInterceptorHandler handler) async {
     // Handle 401 - Token expired
     if (err.response?.statusCode == 401) {
-      // Clear token and redirect to login
+      // Clear all auth data and redirect to login
       final storage = ref.read(secureStorageProvider);
-      await storage.deleteToken();
-      // TODO: Navigate to login screen
+      await storage.clearAll();
+
+      // Navigate to login screen using global navigator key
+      final context = navigatorKey.currentContext;
+      if (context != null && context.mounted) {
+        // Show session expired message
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Session expired. Please login again.'),
+            backgroundColor: Colors.red,
+          ),
+        );
+        // Navigate to login and clear stack
+        context.go(AppRoutes.login);
+      }
     }
 
     handler.next(err);
