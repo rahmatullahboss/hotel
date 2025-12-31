@@ -13,6 +13,7 @@ import {
     OYOReviewCard,
     OYOSectionTabs,
 } from "../../components";
+import { Footer } from "../../components/Footer";
 import { getHotelById, getAvailableRooms, RoomWithDetails } from "../../actions/hotels";
 import { getHotelReviews, getHotelRatingBreakdown } from "../../actions/review";
 import { FiMapPin, FiStar, FiClock, FiXCircle, FiCreditCard, FiArrowLeft } from "react-icons/fi";
@@ -460,6 +461,7 @@ export default function HotelDetailPage() {
             </div>
 
             <BottomNav />
+            <Footer />
         </>
     );
 }
