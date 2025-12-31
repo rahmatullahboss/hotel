@@ -6,6 +6,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../l10n/generated/app_localizations.dart';
 import '../providers/booking_provider.dart';
+import '../../booking_flow/providers/stripe_payment_provider.dart';
 
 class BookingDetailsScreen extends ConsumerWidget {
   final String bookingId;
@@ -247,6 +248,35 @@ class BookingDetailsScreen extends ConsumerWidget {
               ],
             ),
           ),
+
+          // Pay Now Button for pending Stripe payments
+          if (booking.needsPayment)
+            Padding(
+              padding: const EdgeInsets.only(top: 16),
+              child: SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  onPressed: () =>
+                      _processStripePayment(context, ref, booking, loc),
+                  icon: const Icon(Icons.payment, color: Colors.white),
+                  label: Text(
+                    'Pay Now • ৳${_formatPrice(booking.totalAmount)}',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                ),
+              ),
+            ),
           const SizedBox(height: 16),
 
           // QR Code Card
@@ -406,6 +436,62 @@ class BookingDetailsScreen extends ConsumerWidget {
         ],
       ),
     );
+  }
+
+  Future<void> _processStripePayment(
+    BuildContext context,
+    WidgetRef ref,
+    Booking booking,
+    AppLocalizations loc,
+  ) async {
+    // Show loading dialog
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => const Center(child: CircularProgressIndicator()),
+    );
+
+    // Process Stripe payment
+    final success = await ref
+        .read(stripePaymentProvider.notifier)
+        .processPayment(bookingId: booking.id, amount: booking.totalAmount);
+
+    // Hide loading
+    if (context.mounted) Navigator.of(context).pop();
+
+    if (success) {
+      // Refresh booking data
+      ref.invalidate(bookingProvider(bookingId));
+
+      // Show success message
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(Icons.check_circle, color: Colors.white),
+                const SizedBox(width: 12),
+                Expanded(child: Text(loc.paymentSuccess)),
+              ],
+            ),
+            backgroundColor: AppColors.success,
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      }
+    } else {
+      // Show error message
+      final stripeState = ref.read(stripePaymentProvider);
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(stripeState.error ?? loc.paymentFailed),
+            backgroundColor: AppColors.error,
+            duration: const Duration(seconds: 4),
+          ),
+        );
+      }
+    }
   }
 }
 

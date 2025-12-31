@@ -18,6 +18,7 @@ class Booking {
   final int totalAmount;
   final String status;
   final String paymentMethod;
+  final String paymentStatus; // PENDING, PAID, FAILED
   final String? qrCode;
   final DateTime createdAt;
 
@@ -34,6 +35,7 @@ class Booking {
     required this.totalAmount,
     required this.status,
     required this.paymentMethod,
+    required this.paymentStatus,
     this.qrCode,
     required this.createdAt,
   });
@@ -58,6 +60,7 @@ class Booking {
           double.tryParse(json['totalAmount']?.toString() ?? '0')?.toInt() ?? 0,
       status: json['status']?.toString().toLowerCase() ?? 'pending',
       paymentMethod: json['paymentMethod']?.toString() ?? 'PAY_AT_HOTEL',
+      paymentStatus: json['paymentStatus']?.toString() ?? 'PENDING',
       qrCode: json['qrCode']?.toString(),
       createdAt: json['createdAt'] != null
           ? DateTime.parse(json['createdAt'].toString())
@@ -70,6 +73,12 @@ class Booking {
       ['upcoming', 'pending', 'confirmed'].contains(status.toLowerCase());
   bool get isCompleted => status == 'completed';
   bool get isCancelled => status == 'cancelled';
+
+  /// Returns true if this booking requires payment (pending payment with Stripe)
+  bool get needsPayment =>
+      paymentMethod == 'STRIPE' &&
+      paymentStatus.toUpperCase() != 'PAID' &&
+      !isCancelled;
 }
 
 // Bookings state

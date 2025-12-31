@@ -427,6 +427,7 @@ export interface RoomWithDetails {
   totalDynamicPrice: number; // Total for all nights
   nights: number;
   maxGuests: number;
+  size?: string; // Room size in square meters (optional)
   description: string | null;
   photos: string[];
   amenities: string[];
