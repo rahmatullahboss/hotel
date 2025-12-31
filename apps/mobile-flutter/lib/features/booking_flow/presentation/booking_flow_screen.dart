@@ -455,22 +455,6 @@ class _BookingFlowScreenState extends ConsumerState<BookingFlowScreen> {
           onChanged: (v) => setState(() => _paymentMethod = v!),
         ),
         _PaymentOption(
-          value: 'BKASH',
-          groupValue: _paymentMethod,
-          title: loc.bkash,
-          subtitle: loc.bkashSubtitle,
-          icon: Icons.phone_android,
-          onChanged: (v) => setState(() => _paymentMethod = v!),
-        ),
-        _PaymentOption(
-          value: 'NAGAD',
-          groupValue: _paymentMethod,
-          title: loc.nagad,
-          subtitle: loc.nagadSubtitle,
-          icon: Icons.phone_android,
-          onChanged: (v) => setState(() => _paymentMethod = v!),
-        ),
-        _PaymentOption(
           value: 'STRIPE',
           groupValue: _paymentMethod,
           title: loc.card,
@@ -485,11 +469,7 @@ class _BookingFlowScreenState extends ConsumerState<BookingFlowScreen> {
   String _getPaymentMethodLabel(BuildContext context) {
     final loc = AppLocalizations.of(context)!;
     switch (_paymentMethod) {
-      case 'BKASH':
-        return loc.bkash;
-      case 'NAGAD':
-        return loc.nagad;
-      case 'CARD':
+      case 'STRIPE':
         return loc.card;
       case 'PAY_AT_HOTEL':
         return loc.payAtHotel;
