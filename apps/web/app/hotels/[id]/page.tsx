@@ -807,6 +807,10 @@ export default function HotelDetailPage() {
                                             value={checkIn}
                                             min={today}
                                             onChange={(e) => setCheckIn(e.target.value)}
+                                            onClick={(e) => {
+                                                const target = e.target as HTMLInputElement;
+                                                if (target.showPicker) target.showPicker();
+                                            }}
                                             style={{ position: "absolute", inset: 0, opacity: 0, cursor: "pointer", zIndex: 10 }}
                                         />
                                     </label>
@@ -818,6 +822,10 @@ export default function HotelDetailPage() {
                                             value={checkOut}
                                             min={checkIn || today}
                                             onChange={(e) => setCheckOut(e.target.value)}
+                                            onClick={(e) => {
+                                                const target = e.target as HTMLInputElement;
+                                                if (target.showPicker) target.showPicker();
+                                            }}
                                             style={{ position: "absolute", inset: 0, opacity: 0, cursor: "pointer", zIndex: 10 }}
                                         />
                                     </label>

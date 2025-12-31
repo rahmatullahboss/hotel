@@ -6244,12 +6244,16 @@ main.page-with-book-bar {
     display: block;
     width: 400px;
     flex-shrink: 0;
+    align-self: flex-start;
   }
 }
 
 .premium-sidebar-sticky {
   position: sticky;
-  top: 7rem;
+  top: 6rem;
+  height: fit-content;
+  max-height: calc(100vh - 8rem);
+  overflow-y: auto;
 }
 
 /* Premium Header Section */
