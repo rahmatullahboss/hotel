@@ -46,33 +46,15 @@ export function WishlistHeart({
     >
       {isWishlisted ? (
         <HiHeart
-          className={`${sizes[size]} ${
-            isAnimating ? "animate-ping-once" : ""
-          } transition-transform`}
+          className={`${sizes[size]} transition-transform ${
+            isAnimating ? "scale-125" : "scale-100"
+          }`}
         />
       ) : (
         <HiOutlineHeart
           className={`${sizes[size]} transition-transform hover:scale-110`}
         />
       )}
-
-      {/* CSS for ping animation */}
-      <style jsx>{`
-        @keyframes ping-once {
-          0% {
-            transform: scale(1);
-          }
-          50% {
-            transform: scale(1.3);
-          }
-          100% {
-            transform: scale(1);
-          }
-        }
-        .animate-ping-once {
-          animation: ping-once 0.3s ease-in-out;
-        }
-      `}</style>
     </button>
   );
 }

@@ -292,6 +292,37 @@ class AuthNotifier extends Notifier<AuthState> {
       // Silent fail
     }
   }
+
+  /// Update user profile (name, phone)
+  Future<bool> updateProfile({
+    required String name,
+    String? phone,
+    String? avatarUrl,
+  }) async {
+    state = state.copyWith(isLoading: true, error: null);
+
+    try {
+      final response = await _dio.put(
+        '/user/profile',
+        data: {
+          'name': name,
+          if (phone != null) 'phone': phone,
+          if (avatarUrl != null) 'avatarUrl': avatarUrl,
+        },
+      );
+
+      // Update local user state with new data
+      final updatedUser = User.fromJson(response.data);
+      state = state.copyWith(user: updatedUser, isLoading: false);
+      return true;
+    } on DioException catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        error: e.response?.data?['message'] ?? 'প্রোফাইল আপডেট ব্যর্থ হয়েছে',
+      );
+      return false;
+    }
+  }
 }
 
 // Provider (Riverpod 3.0)

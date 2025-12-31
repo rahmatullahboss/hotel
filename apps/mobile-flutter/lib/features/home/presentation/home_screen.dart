@@ -221,7 +221,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     scrollDirection: Axis.horizontal,
                     padding: const EdgeInsets.symmetric(horizontal: 20),
                     itemCount: quickFilters.length,
-                    separatorBuilder: (_, __) => const SizedBox(width: 10),
+                    separatorBuilder: (context, idx) =>
+                        const SizedBox(width: 10),
                     itemBuilder: (context, index) {
                       final filter = quickFilters[index];
                       final filterId = filter['id'] as String;
@@ -348,7 +349,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   scrollDirection: Axis.horizontal,
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   itemCount: popularCities.length,
-                  separatorBuilder: (_, __) => const SizedBox(width: 14),
+                  separatorBuilder: (context, idx) => const SizedBox(width: 14),
                   itemBuilder: (context, index) {
                     final city = popularCities[index];
                     final String cityName = city['name'] as String;

@@ -162,7 +162,7 @@ class ReviewsBottomSheet extends StatelessWidget {
                   controller: scrollController,
                   padding: const EdgeInsets.all(20),
                   itemCount: reviews.length,
-                  separatorBuilder: (_, _i) => Divider(
+                  separatorBuilder: (context, idx) => Divider(
                     height: 32,
                     color: isDark ? Colors.white12 : AppColors.divider,
                   ),

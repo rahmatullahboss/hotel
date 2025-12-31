@@ -79,7 +79,7 @@ class _BookingsScreenState extends ConsumerState<BookingsScreen>
               ),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.08),
+                  color: Colors.black.withValues(alpha: 0.08),
                   blurRadius: 16,
                   offset: const Offset(0, 4),
                 ),
@@ -131,7 +131,7 @@ class _BookingsScreenState extends ConsumerState<BookingsScreen>
                           height: 46,
                           decoration: BoxDecoration(
                             color: AppColors.isDarkMode(context)
-                                ? Colors.white.withOpacity(0.1)
+                                ? Colors.white.withValues(alpha: 0.1)
                                 : AppColors.surfaceVariant,
                             borderRadius: BorderRadius.circular(14),
                           ),
@@ -152,7 +152,7 @@ class _BookingsScreenState extends ConsumerState<BookingsScreen>
                   Container(
                     decoration: BoxDecoration(
                       color: AppColors.isDarkMode(context)
-                          ? Colors.white.withOpacity(0.08)
+                          ? Colors.white.withValues(alpha: 0.08)
                           : AppColors.surfaceVariant,
                       borderRadius: BorderRadius.circular(14),
                     ),
@@ -163,7 +163,7 @@ class _BookingsScreenState extends ConsumerState<BookingsScreen>
                         borderRadius: BorderRadius.circular(10),
                         boxShadow: [
                           BoxShadow(
-                            color: AppColors.primary.withOpacity(0.3),
+                            color: AppColors.primary.withValues(alpha: 0.3),
                             blurRadius: 8,
                             offset: const Offset(0, 2),
                           ),

@@ -124,7 +124,7 @@ class NotificationsScreen extends ConsumerWidget {
       return ListView.builder(
         padding: const EdgeInsets.all(20),
         itemCount: 3,
-        itemBuilder: (_, __) => _NotificationShimmer(),
+        itemBuilder: (context, idx) => _NotificationShimmer(),
       );
     }
 
@@ -171,7 +171,7 @@ class NotificationsScreen extends ConsumerWidget {
       child: ListView.separated(
         padding: const EdgeInsets.all(20),
         itemCount: notifications.length,
-        separatorBuilder: (_, __) => const SizedBox(height: 12),
+        separatorBuilder: (context, idx) => const SizedBox(height: 12),
         itemBuilder: (context, index) {
           final notification = notifications[index];
           return Dismissible(

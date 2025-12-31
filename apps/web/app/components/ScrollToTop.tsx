@@ -27,10 +27,35 @@ export function ScrollToTop() {
   return (
     <button
       onClick={scrollToTop}
-      className="fixed bottom-6 right-6 z-40 w-12 h-12 bg-primary text-white rounded-full shadow-lg hover:shadow-xl transition-all hover:scale-110 flex items-center justify-center animate-in fade-in slide-in-from-bottom-4 duration-300"
       aria-label="Scroll to top"
+      style={{
+        position: "fixed",
+        bottom: "24px",
+        right: "24px",
+        zIndex: 9998,
+        width: "48px",
+        height: "48px",
+        backgroundColor: "#E63946",
+        color: "#ffffff",
+        borderRadius: "50%",
+        border: "none",
+        boxShadow: "0 4px 20px rgba(230, 57, 70, 0.4)",
+        cursor: "pointer",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        transition: "all 0.2s ease",
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.transform = "scale(1.1)";
+        e.currentTarget.style.boxShadow = "0 6px 25px rgba(230, 57, 70, 0.5)";
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.transform = "scale(1)";
+        e.currentTarget.style.boxShadow = "0 4px 20px rgba(230, 57, 70, 0.4)";
+      }}
     >
-      <HiOutlineArrowUp className="w-5 h-5" />
+      <HiOutlineArrowUp style={{ width: "20px", height: "20px" }} />
     </button>
   );
 }

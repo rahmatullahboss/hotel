@@ -32,16 +32,16 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
     ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
 
     _controller.forward().whenComplete(() async {
-      if (mounted) {
-        // Check if user has already seen onboarding
-        final storage = ref.read(secureStorageProvider);
-        final hasSeenOnboarding = await storage.hasSeenOnboarding();
+      // Check if user has already seen onboarding
+      final storage = ref.read(secureStorageProvider);
+      final hasSeenOnboarding = await storage.hasSeenOnboarding();
 
-        if (hasSeenOnboarding) {
-          context.go('/home');
-        } else {
-          context.go('/onboarding');
-        }
+      if (!mounted) return;
+
+      if (hasSeenOnboarding) {
+        context.go('/home');
+      } else {
+        context.go('/onboarding');
       }
     });
   }

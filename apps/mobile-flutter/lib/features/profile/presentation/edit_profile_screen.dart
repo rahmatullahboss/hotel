@@ -1,6 +1,8 @@
 // Edit Profile Screen - Premium Design
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../auth/providers/auth_provider.dart';
@@ -18,6 +20,8 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
   late TextEditingController _emailController;
   late TextEditingController _phoneController;
   bool _isLoading = false;
+  File? _selectedImage;
+  final _imagePicker = ImagePicker();
 
   @override
   void initState() {
@@ -41,19 +45,110 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
 
     setState(() => _isLoading = true);
 
-    // TODO: Call API to update profile
-    await Future.delayed(const Duration(seconds: 1));
+    // Call API to update profile
+    final success = await ref
+        .read(authProvider.notifier)
+        .updateProfile(
+          name: _nameController.text.trim(),
+          phone: _phoneController.text.trim().isNotEmpty
+              ? _phoneController.text.trim()
+              : null,
+        );
 
     setState(() => _isLoading = false);
 
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('প্রোফাইল আপডেট হয়েছে'),
-          backgroundColor: AppColors.success,
+      if (success) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('প্রোফাইল আপডেট হয়েছে'),
+            backgroundColor: AppColors.success,
+          ),
+        );
+        Navigator.pop(context);
+      } else {
+        final error =
+            ref.read(authProvider).error ?? 'প্রোফাইল আপডেট ব্যর্থ হয়েছে';
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(error), backgroundColor: AppColors.error),
+        );
+      }
+    }
+  }
+
+  Future<void> _pickImage() async {
+    // Show bottom sheet to choose source
+    final source = await showModalBottomSheet<ImageSource>(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text('ছবি নির্বাচন করুন', style: AppTypography.h4),
+              const SizedBox(height: 20),
+              ListTile(
+                leading: const CircleAvatar(
+                  backgroundColor: AppColors.primary,
+                  child: Icon(Icons.camera_alt, color: Colors.white),
+                ),
+                title: const Text('ক্যামেরা'),
+                onTap: () => Navigator.pop(context, ImageSource.camera),
+              ),
+              ListTile(
+                leading: CircleAvatar(
+                  backgroundColor: AppColors.primary.withValues(alpha: 0.2),
+                  child: const Icon(
+                    Icons.photo_library,
+                    color: AppColors.primary,
+                  ),
+                ),
+                title: const Text('গ্যালারি'),
+                onTap: () => Navigator.pop(context, ImageSource.gallery),
+              ),
+            ],
+          ),
         ),
+      ),
+    );
+
+    if (source == null) return;
+
+    try {
+      final pickedFile = await _imagePicker.pickImage(
+        source: source,
+        maxWidth: 500,
+        maxHeight: 500,
+        imageQuality: 80,
       );
-      Navigator.pop(context);
+
+      if (pickedFile != null) {
+        setState(() {
+          _selectedImage = File(pickedFile.path);
+        });
+        // TODO: Upload image to server and get URL
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('ছবি নির্বাচন করা হয়েছে'),
+              backgroundColor: AppColors.success,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('ছবি নির্বাচন ব্যর্থ: $e'),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
     }
   }
 
@@ -132,20 +227,26 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                 color: AppColors.primary.withValues(alpha: 0.3),
                                 width: 3,
                               ),
+                              image: _selectedImage != null
+                                  ? DecorationImage(
+                                      image: FileImage(_selectedImage!),
+                                      fit: BoxFit.cover,
+                                    )
+                                  : null,
                             ),
-                            child: const Icon(
-                              Icons.person,
-                              size: 50,
-                              color: AppColors.primary,
-                            ),
+                            child: _selectedImage == null
+                                ? const Icon(
+                                    Icons.person,
+                                    size: 50,
+                                    color: AppColors.primary,
+                                  )
+                                : null,
                           ),
                           Positioned(
                             bottom: 0,
                             right: 0,
                             child: GestureDetector(
-                              onTap: () {
-                                // TODO: Pick image
-                              },
+                              onTap: _pickImage,
                               child: Container(
                                 width: 36,
                                 height: 36,

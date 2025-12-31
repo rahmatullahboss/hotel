@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { HiOutlineXMark } from "react-icons/hi2";
 import Link from "next/link";
 
 const COOKIE_CONSENT_KEY = "zinurooms-cookie-consent";
@@ -32,23 +31,62 @@ export function CookieConsent() {
   if (!isVisible) return null;
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-50 p-4 animate-in slide-in-from-bottom duration-500">
-      <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden">
-        <div className="p-4 md:p-6">
-          <div className="flex flex-col md:flex-row md:items-center gap-4">
+    <div
+      style={{
+        position: "fixed",
+        bottom: "16px",
+        left: "16px",
+        right: "16px",
+        zIndex: 9999,
+      }}
+    >
+      <div
+        style={{
+          maxWidth: "800px",
+          margin: "0 auto",
+          backgroundColor: "#ffffff",
+          borderRadius: "16px",
+          boxShadow: "0 10px 40px rgba(0,0,0,0.15)",
+          border: "1px solid #e5e7eb",
+          overflow: "hidden",
+        }}
+      >
+        <div style={{ padding: "20px" }}>
+          <div
+            style={{
+              display: "flex",
+              flexWrap: "wrap",
+              alignItems: "center",
+              gap: "16px",
+            }}
+          >
             {/* Icon & Text */}
-            <div className="flex-1">
-              <div className="flex items-start gap-3">
-                <span className="text-2xl">🍪</span>
+            <div style={{ flex: 1, minWidth: "200px" }}>
+              <div style={{ display: "flex", alignItems: "flex-start", gap: "12px" }}>
+                <span style={{ fontSize: "28px" }}>🍪</span>
                 <div>
-                  <h3 className="font-bold text-gray-900 mb-1">
+                  <h3
+                    style={{
+                      fontWeight: "700",
+                      color: "#111827",
+                      marginBottom: "4px",
+                      fontSize: "16px",
+                    }}
+                  >
                     কুকি ব্যবহারের অনুমতি
                   </h3>
-                  <p className="text-sm text-gray-600 leading-relaxed">
+                  <p
+                    style={{
+                      fontSize: "14px",
+                      color: "#6b7280",
+                      lineHeight: "1.5",
+                      margin: 0,
+                    }}
+                  >
                     আমরা আপনার অভিজ্ঞতা উন্নত করতে কুকি ব্যবহার করি।{" "}
                     <Link
                       href="/privacy"
-                      className="text-primary hover:underline"
+                      style={{ color: "#E63946", textDecoration: "underline" }}
                     >
                       গোপনীয়তা নীতি
                     </Link>{" "}
@@ -59,36 +97,49 @@ export function CookieConsent() {
             </div>
 
             {/* Actions */}
-            <div className="flex items-center gap-3 flex-shrink-0">
+            <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
               <button
                 onClick={handleDecline}
-                className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors"
+                style={{
+                  padding: "10px 16px",
+                  fontSize: "14px",
+                  fontWeight: "500",
+                  color: "#6b7280",
+                  backgroundColor: "transparent",
+                  border: "1px solid #e5e7eb",
+                  borderRadius: "8px",
+                  cursor: "pointer",
+                }}
               >
                 প্রত্যাখ্যান
               </button>
               <button
                 onClick={handleAccept}
-                className="px-5 py-2.5 text-sm font-semibold text-white bg-primary hover:bg-primary/90 rounded-lg transition-colors shadow-sm"
+                style={{
+                  padding: "10px 20px",
+                  fontSize: "14px",
+                  fontWeight: "600",
+                  color: "#ffffff",
+                  backgroundColor: "#E63946",
+                  border: "none",
+                  borderRadius: "8px",
+                  cursor: "pointer",
+                }}
               >
                 গ্রহণ করুন
               </button>
             </div>
-
-            {/* Close Button */}
-            <button
-              onClick={handleDecline}
-              className="absolute top-3 right-3 md:hidden p-1 text-gray-400 hover:text-gray-600"
-            >
-              <HiOutlineXMark className="w-5 h-5" />
-            </button>
           </div>
         </div>
 
-        {/* Progress Bar Animation */}
-        <div className="h-1 bg-gray-100">
-          <div 
-            className="h-full bg-primary animate-pulse"
-            style={{ width: "100%" }}
+        {/* Progress Bar */}
+        <div style={{ height: "4px", backgroundColor: "#f3f4f6" }}>
+          <div
+            style={{
+              height: "100%",
+              width: "100%",
+              backgroundColor: "#E63946",
+            }}
           />
         </div>
       </div>
