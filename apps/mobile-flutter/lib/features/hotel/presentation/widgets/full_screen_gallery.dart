@@ -1,7 +1,11 @@
 // Full Screen Gallery - Premium Image Viewer with Zoom
+import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:http/http.dart' as http;
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 
@@ -105,6 +109,52 @@ class _FullScreenGalleryState extends State<FullScreenGallery>
 
   void _close() {
     _animationController.reverse().then((_) => Navigator.of(context).pop());
+  }
+
+  Future<void> _shareImage() async {
+    try {
+      final imageUrl = widget.images[_currentIndex];
+
+      // Show loading indicator
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('ছবি শেয়ার করার জন্য প্রস্তুত হচ্ছে...'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+
+      // Download image to temporary file
+      final response = await http.get(Uri.parse(imageUrl));
+      if (response.statusCode != 200) {
+        throw Exception('Failed to download image');
+      }
+
+      // Save to temp directory
+      final tempDir = await getTemporaryDirectory();
+      final fileName =
+          'zinu_rooms_${DateTime.now().millisecondsSinceEpoch}.jpg';
+      final file = File('${tempDir.path}/$fileName');
+      await file.writeAsBytes(response.bodyBytes);
+
+      // Share the file
+      await SharePlus.instance.share(
+        ShareParams(
+          files: [XFile(file.path)],
+          text: widget.hotelName != null
+              ? '${widget.hotelName} - Zinu Rooms থেকে শেয়ার করা হয়েছে'
+              : 'Zinu Rooms থেকে শেয়ার করা হয়েছে',
+        ),
+      );
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('শেয়ার করতে সমস্যা হয়েছে: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
   }
 
   @override
@@ -232,9 +282,7 @@ class _FullScreenGalleryState extends State<FullScreenGallery>
                       // Share Button
                       _CircleIconButton(
                         icon: Icons.share_outlined,
-                        onTap: () {
-                          // TODO: Implement share
-                        },
+                        onTap: _shareImage,
                       ),
                     ],
                   ),
