@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
+import '../../../core/api/api_client.dart';
 import '../../auth/providers/auth_provider.dart';
 
 class EditProfileScreen extends ConsumerStatefulWidget {
@@ -45,7 +46,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
 
     setState(() => _isLoading = true);
 
-    // Call API to update profile
+    // Call API to update profile with avatar if uploaded
     final success = await ref
         .read(authProvider.notifier)
         .updateProfile(
@@ -53,6 +54,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
           phone: _phoneController.text.trim().isNotEmpty
               ? _phoneController.text.trim()
               : null,
+          avatarUrl: _uploadedImageUrl,
         );
 
     setState(() => _isLoading = false);
@@ -75,6 +77,8 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
       }
     }
   }
+
+  String? _uploadedImageUrl;
 
   Future<void> _pickImage() async {
     // Show bottom sheet to choose source
@@ -130,14 +134,39 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
         setState(() {
           _selectedImage = File(pickedFile.path);
         });
-        // TODO: Upload image to server and get URL
+
+        // Upload image to server
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text('ছবি নির্বাচন করা হয়েছে'),
-              backgroundColor: AppColors.success,
+              content: Text('ছবি আপলোড হচ্ছে...'),
+              backgroundColor: AppColors.info,
             ),
           );
+        }
+
+        final dio = ref.read(dioProvider);
+        final imageUrl = await uploadImage(dio, pickedFile.path);
+
+        if (imageUrl != null) {
+          _uploadedImageUrl = imageUrl;
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('ছবি আপলোড সফল হয়েছে'),
+                backgroundColor: AppColors.success,
+              ),
+            );
+          }
+        } else {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('ছবি আপলোড ব্যর্থ হয়েছে'),
+                backgroundColor: AppColors.error,
+              ),
+            );
+          }
         }
       }
     } catch (e) {

@@ -141,3 +141,33 @@ class ApiException implements Exception {
     }
   }
 }
+
+/// Upload image to server and get the URL
+/// Returns the uploaded image URL on success, null on failure
+Future<String?> uploadImage(
+  Dio dio,
+  String filePath, {
+  String folder = 'avatars',
+}) async {
+  try {
+    final fileName = filePath.split('/').last;
+    final formData = FormData.fromMap({
+      'file': await MultipartFile.fromFile(filePath, filename: fileName),
+      'folder': folder,
+    });
+
+    final response = await dio.post(
+      '/upload',
+      data: formData,
+      options: Options(headers: {'Content-Type': 'multipart/form-data'}),
+    );
+
+    if (response.statusCode == 200 && response.data['url'] != null) {
+      return response.data['url'] as String;
+    }
+    return null;
+  } catch (e) {
+    debugPrint('Image upload failed: $e');
+    return null;
+  }
+}
