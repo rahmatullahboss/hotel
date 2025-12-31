@@ -4110,6 +4110,7 @@ main.page-with-book-bar {
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 1rem;
+  align-items: start; /* Important for sticky to work */
 }
 
 .oyo-main-content {
@@ -4118,9 +4119,26 @@ main.page-with-book-bar {
 
 .oyo-sidebar {
   position: sticky;
-  top: 80px;
+  top: 20px;
   height: fit-content;
   align-self: start;
+  z-index: 50;
+  max-height: calc(100vh - 40px);
+  overflow-y: auto;
+}
+
+/* Custom scrollbar for sidebar */
+.oyo-sidebar::-webkit-scrollbar {
+  width: 4px;
+}
+
+.oyo-sidebar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.oyo-sidebar::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 4px;
 }
 
 @media (max-width: 1024px) {
@@ -4406,6 +4424,338 @@ main.page-with-book-bar {
 
 .oyo-terms a {
   color: #d40000;
+}
+
+/* ================================================
+   OYO BOOKING SIDEBAR - Enhanced Interactive Styles
+   ================================================ */
+
+/* Date Box with Icon */
+.oyo-date-box {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  padding: 0.25rem 0;
+}
+
+.oyo-date-icon {
+  color: var(--color-primary);
+  flex-shrink: 0;
+}
+
+.oyo-date-input-native {
+  position: absolute;
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+  z-index: 1;
+}
+
+/* Guest Wrapper and Dropdown */
+.oyo-guests-wrapper {
+  position: relative;
+  border-left: 1px solid var(--color-border);
+  padding-left: 0.75rem;
+}
+
+.oyo-guests-trigger {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.375rem 0.5rem;
+  background: transparent;
+  border: none;
+  font-size: 0.75rem;
+  cursor: pointer;
+  color: var(--color-text-primary);
+  font-weight: 500;
+  border-radius: 0.375rem;
+  transition: background 0.2s;
+}
+
+.oyo-guests-trigger:hover {
+  background: var(--color-bg-tertiary);
+}
+
+.oyo-guests-trigger svg.rotated {
+  transform: rotate(180deg);
+}
+
+.oyo-guests-dropdown {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  right: 0;
+  width: 280px;
+  background: white;
+  border: 1px solid var(--color-border);
+  border-radius: 0.75rem;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  z-index: 100;
+  overflow: hidden;
+  animation: slideDown 0.2s ease;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.oyo-guests-dropdown-header {
+  padding: 0.875rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-bg-secondary);
+}
+
+.oyo-counter-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.oyo-counter-row:last-of-type {
+  border-bottom: none;
+}
+
+.oyo-counter-label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+
+.oyo-counter-title {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.oyo-counter-subtitle {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+}
+
+.oyo-counter-controls {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.oyo-counter-btn {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--color-border);
+  border-radius: 50%;
+  background: white;
+  cursor: pointer;
+  color: var(--color-primary);
+  transition: all 0.2s;
+}
+
+.oyo-counter-btn:hover:not(:disabled) {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: white;
+}
+
+.oyo-counter-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.oyo-counter-value {
+  font-size: 1rem;
+  font-weight: 600;
+  min-width: 24px;
+  text-align: center;
+  color: var(--color-text-primary);
+}
+
+.oyo-apply-btn {
+  display: block;
+  width: calc(100% - 2rem);
+  margin: 1rem;
+  padding: 0.75rem;
+  background: linear-gradient(90deg, #22c55e 0%, #16a34a 100%);
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.oyo-apply-btn:hover {
+  opacity: 0.9;
+}
+
+/* Room Selector Wrapper and Dropdown */
+.oyo-room-selector-wrapper {
+  position: relative;
+}
+
+.oyo-room-selector {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem;
+  border: none;
+  border-bottom: 1px solid var(--color-border);
+  cursor: pointer;
+  width: 100%;
+  background: transparent;
+  text-align: left;
+  transition: background 0.2s;
+}
+
+.oyo-room-selector:hover {
+  background: var(--color-bg-secondary);
+}
+
+.oyo-room-selector svg.rotated {
+  transform: rotate(180deg);
+}
+
+.oyo-room-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border: 1px solid var(--color-border);
+  border-radius: 0 0 0.5rem 0.5rem;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  z-index: 100;
+  max-height: 240px;
+  overflow-y: auto;
+}
+
+.oyo-room-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.875rem 1rem;
+  width: 100%;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+  border-bottom: 1px solid var(--color-border);
+  transition: background 0.2s;
+}
+
+.oyo-room-option:last-child {
+  border-bottom: none;
+}
+
+.oyo-room-option:hover {
+  background: var(--color-bg-secondary);
+}
+
+.oyo-room-option.selected {
+  background: var(--color-bg-tertiary);
+}
+
+.oyo-room-option.selected .oyo-room-option-name {
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+.oyo-room-option-name {
+  font-size: 0.875rem;
+  color: var(--color-text-primary);
+}
+
+.oyo-room-option-price {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-primary);
+}
+
+/* ================================================
+   OYO MOBILE STICKY BOOKING BAR
+   ================================================ */
+.oyo-mobile-booking-bar {
+  display: none;
+  position: fixed;
+  bottom: 60px; /* Above bottom nav */
+  left: 0;
+  right: 0;
+  background: white;
+  border-top: 1px solid var(--color-border);
+  padding: 0.75rem 1rem;
+  z-index: 90;
+  box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.oyo-mobile-bar-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.oyo-mobile-price-section {
+  flex: 1;
+}
+
+.oyo-mobile-price {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.oyo-mobile-price-original {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  text-decoration: line-through;
+  margin-left: 0.375rem;
+}
+
+.oyo-mobile-taxes {
+  font-size: 0.625rem;
+  color: var(--color-text-muted);
+  margin-top: 0.125rem;
+}
+
+.oyo-mobile-book-btn {
+  padding: 0.75rem 1.5rem;
+  background: linear-gradient(90deg, #22c55e 0%, #16a34a 100%);
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: opacity 0.2s;
+}
+
+.oyo-mobile-book-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Show mobile bar only on mobile */
+@media (max-width: 1024px) {
+  .oyo-mobile-booking-bar {
+    display: block;
+  }
 }
 
 /* ================================================

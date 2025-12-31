@@ -434,31 +434,49 @@ export default function HotelDetailPage() {
                 <div className="oyo-sidebar">
                     {selectedRoom && (
                         <OYOBookingSidebar
-                            hotelName={displayName}
                             roomName={selectedRoom.name}
                             basePrice={selectedBasePrice}
                             dynamicPrice={selectedPrice}
                             totalPrice={totalPrice}
-                            nights={nights}
                             checkIn={checkIn}
                             checkOut={checkOut}
                             guests={guests}
                             isSelected={!!selectedRoom}
+                            availableRooms={rooms}
                             onCheckInChange={setCheckIn}
                             onCheckOutChange={setCheckOut}
                             onGuestsChange={setGuests}
+                            onRoomSelect={(roomId) => {
+                                const room = rooms.find(r => r.id === roomId);
+                                if (room) setSelectedRoom(room);
+                            }}
                             onBookNow={handleBookNow}
                         />
                     )}
                 </div>
             </div>
 
-            {/* Mobile Book Now Bar (only on mobile) */}
-            <div className="book-now-bar" style={{
-                display: "none",
-            }}>
-                {/* Hidden on desktop, CSS shows on mobile */}
-            </div>
+            {/* Mobile Sticky Booking Bar */}
+            {selectedRoom && (
+                <div className="oyo-mobile-booking-bar">
+                    <div className="oyo-mobile-bar-content">
+                        <div className="oyo-mobile-price-section">
+                            <span className="oyo-mobile-price">৳{selectedPrice.toLocaleString()}</span>
+                            {selectedBasePrice > selectedPrice && (
+                                <span className="oyo-mobile-price-original">৳{selectedBasePrice.toLocaleString()}</span>
+                            )}
+                            <div className="oyo-mobile-taxes">+ ট্যাক্স ও ফি সহ</div>
+                        </div>
+                        <button 
+                            className="oyo-mobile-book-btn" 
+                            onClick={handleBookNow}
+                            disabled={!selectedRoom}
+                        >
+                            বুকিং করুন
+                        </button>
+                    </div>
+                </div>
+            )}
 
             <BottomNav />
             <Footer />
