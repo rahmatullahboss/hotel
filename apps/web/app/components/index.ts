@@ -29,3 +29,4 @@ export { OYOFiltersPanel } from "./OYOFiltersPanel";
 export { OYOHotelCard } from "./OYOHotelCard";
 export { SignOutButton } from "./SignOutButton";
 export { DeleteAccountButton } from "./DeleteAccountButton";
+export { DatePickerModal } from "./DatePickerModal";

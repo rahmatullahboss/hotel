@@ -7,6 +7,7 @@ import {
     BottomNav,
     RoomDetailModal,
     ImageGalleryModal,
+    DatePickerModal,
 } from "../../components";
 import { Footer } from "../../components/Footer";
 import { getHotelById, getAvailableRooms, RoomWithDetails } from "../../actions/hotels";
@@ -179,6 +180,10 @@ export default function HotelDetailPage() {
     const [guests, setGuests] = useState(2);
     const [rooms_count, setRoomsCount] = useState(1);
     const [showGuestDropdown, setShowGuestDropdown] = useState(false);
+    
+    // Date picker modals
+    const [showCheckInPicker, setShowCheckInPicker] = useState(false);
+    const [showCheckOutPicker, setShowCheckOutPicker] = useState(false);
 
     // Fetch hotel data
     useEffect(() => {
@@ -827,38 +832,50 @@ export default function HotelDetailPage() {
                             {/* Date Selection */}
                             <div className="premium-sidebar-dates">
                                 <div className="premium-sidebar-dates-grid">
-                                    <label className="premium-sidebar-date-item" style={{ position: "relative" }}>
+                                    <button 
+                                        className="premium-sidebar-date-item"
+                                        onClick={() => setShowCheckInPicker(true)}
+                                        type="button"
+                                    >
                                         <div className="premium-sidebar-date-label">{t("sidebar.checkIn") || "Check-in"}</div>
                                         <div className="premium-sidebar-date-value">{formatDate(checkIn)}</div>
-                                        <input
-                                            type="date"
-                                            value={checkIn}
-                                            min={today}
-                                            onChange={(e) => setCheckIn(e.target.value)}
-                                            onClick={(e) => {
-                                                const target = e.target as HTMLInputElement;
-                                                if (target.showPicker) target.showPicker();
-                                            }}
-                                            style={{ position: "absolute", inset: 0, opacity: 0, cursor: "pointer", zIndex: 10 }}
-                                        />
-                                    </label>
-                                    <label className="premium-sidebar-date-item" style={{ position: "relative" }}>
+                                    </button>
+                                    <button 
+                                        className="premium-sidebar-date-item"
+                                        onClick={() => setShowCheckOutPicker(true)}
+                                        type="button"
+                                    >
                                         <div className="premium-sidebar-date-label">{t("sidebar.checkOut") || "Check-out"}</div>
                                         <div className="premium-sidebar-date-value">{formatDate(checkOut)}</div>
-                                        <input
-                                            type="date"
-                                            value={checkOut}
-                                            min={checkIn || today}
-                                            onChange={(e) => setCheckOut(e.target.value)}
-                                            onClick={(e) => {
-                                                const target = e.target as HTMLInputElement;
-                                                if (target.showPicker) target.showPicker();
-                                            }}
-                                            style={{ position: "absolute", inset: 0, opacity: 0, cursor: "pointer", zIndex: 10 }}
-                                        />
-                                    </label>
+                                    </button>
                                 </div>
                             </div>
+
+                            {/* Date Picker Modals */}
+                            <DatePickerModal
+                                isOpen={showCheckInPicker}
+                                onClose={() => setShowCheckInPicker(false)}
+                                onSelectDate={(date) => {
+                                    setCheckIn(date);
+                                    // If check-out is before new check-in, update it
+                                    if (date >= checkOut) {
+                                        const nextDay = new Date(date);
+                                        nextDay.setDate(nextDay.getDate() + 1);
+                                        setCheckOut(nextDay.toISOString().split("T")[0]!);
+                                    }
+                                }}
+                                selectedDate={checkIn}
+                                minDate={today}
+                                title={t("sidebar.checkIn") || "Select Check-in Date"}
+                            />
+                            <DatePickerModal
+                                isOpen={showCheckOutPicker}
+                                onClose={() => setShowCheckOutPicker(false)}
+                                onSelectDate={setCheckOut}
+                                selectedDate={checkOut}
+                                minDate={checkIn}
+                                title={t("sidebar.checkOut") || "Select Check-out Date"}
+                            />
 
                             {/* Guests Selection */}
                             <div 
