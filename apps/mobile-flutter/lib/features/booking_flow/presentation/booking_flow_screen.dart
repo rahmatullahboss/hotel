@@ -13,8 +13,16 @@ import '../providers/stripe_payment_provider.dart';
 class BookingFlowScreen extends ConsumerStatefulWidget {
   final String roomId;
   final String? hotelId;
+  final String? checkIn;
+  final String? checkOut;
 
-  const BookingFlowScreen({super.key, required this.roomId, this.hotelId});
+  const BookingFlowScreen({
+    super.key,
+    required this.roomId,
+    this.hotelId,
+    this.checkIn,
+    this.checkOut,
+  });
 
   @override
   ConsumerState<BookingFlowScreen> createState() => _BookingFlowScreenState();
@@ -43,8 +51,27 @@ class _BookingFlowScreenState extends ConsumerState<BookingFlowScreen> {
   @override
   void initState() {
     super.initState();
-    _checkIn = DateTime.now().add(const Duration(days: 1));
-    _checkOut = DateTime.now().add(const Duration(days: 2));
+
+    // Parse dates from query params, or use defaults
+    if (widget.checkIn != null && widget.checkOut != null) {
+      try {
+        _checkIn = DateTime.parse(widget.checkIn!);
+        _checkOut = DateTime.parse(widget.checkOut!);
+        debugPrint(
+          'BookingFlow: Using dates from hotel page: $_checkIn - $_checkOut',
+        );
+      } catch (e) {
+        debugPrint('BookingFlow: Failed to parse dates: $e, using defaults');
+        _checkIn = DateTime.now().add(const Duration(days: 1));
+        _checkOut = DateTime.now().add(const Duration(days: 2));
+      }
+    } else {
+      _checkIn = DateTime.now().add(const Duration(days: 1));
+      _checkOut = DateTime.now().add(const Duration(days: 2));
+      debugPrint(
+        'BookingFlow: No dates passed, using defaults: $_checkIn - $_checkOut',
+      );
+    }
 
     // Pre-fill user info
     // Using Future.microtask to access ref safely

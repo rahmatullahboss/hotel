@@ -769,8 +769,14 @@ class _HotelDetailsScreenState extends ConsumerState<HotelDetailsScreen>
                                 isAvailable: room.isAvailable,
                                 availableCount: room.availableCount,
                                 onSelect: () async {
+                                  final checkInStr = _checkIn
+                                      .toIso8601String()
+                                      .split('T')[0];
+                                  final checkOutStr = _checkOut
+                                      .toIso8601String()
+                                      .split('T')[0];
                                   await context.push(
-                                    '/book/${room.id}?hotel=${widget.hotelId}',
+                                    '/book/${room.id}?hotel=${widget.hotelId}&checkIn=$checkInStr&checkOut=$checkOutStr',
                                   );
                                   // Refresh rooms availability after returning from booking
                                   ref.invalidate(

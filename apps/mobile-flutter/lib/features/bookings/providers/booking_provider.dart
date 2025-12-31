@@ -246,21 +246,25 @@ class BookingsNotifier extends Notifier<BookingsState> {
       debugPrint(
         'BookingProvider: Creating booking with hotelId=$hotelId, roomId=$roomId, checkIn=$checkIn, checkOut=$checkOut',
       );
-      final response = await _dio.post(
-        '/bookings',
-        data: {
-          'hotelId': hotelId,
-          'roomId': roomId,
-          'checkIn': checkIn.toIso8601String().split('T')[0],
-          'checkOut': checkOut.toIso8601String().split('T')[0],
-          'guests': guests,
-          'paymentMethod': paymentMethod,
-          'totalAmount': totalAmount,
-          if (guestName != null) 'guestName': guestName,
-          if (guestPhone != null) 'guestPhone': guestPhone,
-          if (guestEmail != null) 'guestEmail': guestEmail,
-        },
-      );
+
+      final requestBody = {
+        'hotelId': hotelId,
+        'roomId': roomId,
+        'checkIn': checkIn.toIso8601String().split('T')[0],
+        'checkOut': checkOut.toIso8601String().split('T')[0],
+        'guests': guests,
+        'paymentMethod': paymentMethod,
+        'totalAmount': totalAmount,
+        if (guestName != null && guestName.isNotEmpty) 'guestName': guestName,
+        if (guestPhone != null && guestPhone.isNotEmpty)
+          'guestPhone': guestPhone,
+        if (guestEmail != null && guestEmail.isNotEmpty)
+          'guestEmail': guestEmail,
+      };
+
+      debugPrint('BookingProvider: REQUEST BODY = $requestBody');
+
+      final response = await _dio.post('/bookings', data: requestBody);
 
       debugPrint(
         'BookingProvider: Response status=${response.statusCode}, data=${response.data}',
