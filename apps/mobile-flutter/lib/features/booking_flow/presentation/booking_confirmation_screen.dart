@@ -4,8 +4,9 @@ import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import 'package:intl/intl.dart';
+import '../utils/booking_receipt_generator.dart';
 
-class BookingConfirmationScreen extends StatelessWidget {
+class BookingConfirmationScreen extends StatefulWidget {
   final String bookingId;
   final String hotelName;
   final String roomName;
@@ -24,6 +25,63 @@ class BookingConfirmationScreen extends StatelessWidget {
     required this.totalAmount,
     required this.paymentMethod,
   });
+
+  @override
+  State<BookingConfirmationScreen> createState() =>
+      _BookingConfirmationScreenState();
+}
+
+class _BookingConfirmationScreenState extends State<BookingConfirmationScreen> {
+  bool _isDownloading = false;
+
+  Future<void> _downloadReceipt() async {
+    if (_isDownloading) return;
+
+    setState(() => _isDownloading = true);
+
+    try {
+      final filePath = await BookingReceiptGenerator.generateReceipt(
+        bookingId: widget.bookingId,
+        hotelName: widget.hotelName,
+        roomName: widget.roomName,
+        checkIn: widget.checkIn,
+        checkOut: widget.checkOut,
+        totalAmount: widget.totalAmount,
+        paymentMethod: widget.paymentMethod,
+      );
+
+      if (filePath != null && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('রিসিট ডাউনলোড হয়েছে! ফাইল খোলা হচ্ছে...'),
+            backgroundColor: AppColors.success,
+            action: SnackBarAction(
+              label: 'খুলুন',
+              textColor: Colors.white,
+              onPressed: () => BookingReceiptGenerator.openPdf(filePath),
+            ),
+          ),
+        );
+        // Open PDF automatically
+        await BookingReceiptGenerator.openPdf(filePath);
+      } else if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('রিসিট তৈরি করতে সমস্যা হয়েছে'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('ত্রুটি: $e'), backgroundColor: Colors.red),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isDownloading = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -121,7 +179,7 @@ class BookingConfirmationScreen extends StatelessWidget {
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Text(
-                            '#$bookingId',
+                            '#${widget.bookingId}',
                             style: AppTypography.h3.copyWith(
                               color: AppColors.primary,
                               fontWeight: FontWeight.bold,
@@ -151,31 +209,35 @@ class BookingConfirmationScreen extends StatelessWidget {
                         _DetailRow(
                           icon: Icons.hotel_outlined,
                           label: 'হোটেল',
-                          value: hotelName,
+                          value: widget.hotelName,
                         ),
                         const Divider(height: 24),
                         _DetailRow(
                           icon: Icons.bed_outlined,
                           label: 'রুম',
-                          value: roomName,
+                          value: widget.roomName,
                         ),
                         const Divider(height: 24),
                         _DetailRow(
                           icon: Icons.calendar_today_outlined,
                           label: 'চেক-ইন',
-                          value: DateFormat('dd MMM yyyy').format(checkIn),
+                          value: DateFormat(
+                            'dd MMM yyyy',
+                          ).format(widget.checkIn),
                         ),
                         const Divider(height: 24),
                         _DetailRow(
                           icon: Icons.event_outlined,
                           label: 'চেক-আউট',
-                          value: DateFormat('dd MMM yyyy').format(checkOut),
+                          value: DateFormat(
+                            'dd MMM yyyy',
+                          ).format(widget.checkOut),
                         ),
                         const Divider(height: 24),
                         _DetailRow(
                           icon: Icons.payments_outlined,
                           label: 'পেমেন্ট',
-                          value: _getPaymentLabel(paymentMethod),
+                          value: _getPaymentLabel(widget.paymentMethod),
                         ),
                       ],
                     ),
@@ -201,7 +263,7 @@ class BookingConfirmationScreen extends StatelessWidget {
                           ),
                         ),
                         Text(
-                          '৳${NumberFormat('#,###').format(totalAmount)}',
+                          '৳${NumberFormat('#,###').format(widget.totalAmount)}',
                           style: AppTypography.h2.copyWith(
                             color: Colors.white,
                             fontWeight: FontWeight.bold,
@@ -217,11 +279,19 @@ class BookingConfirmationScreen extends StatelessWidget {
                     children: [
                       Expanded(
                         child: OutlinedButton.icon(
-                          onPressed: () {
-                            // TODO: Download PDF
-                          },
-                          icon: const Icon(Icons.download_outlined),
-                          label: const Text('রিসিট'),
+                          onPressed: _isDownloading ? null : _downloadReceipt,
+                          icon: _isDownloading
+                              ? const SizedBox(
+                                  width: 16,
+                                  height: 16,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                  ),
+                                )
+                              : const Icon(Icons.download_outlined),
+                          label: Text(
+                            _isDownloading ? 'ডাউনলোড হচ্ছে...' : 'রিসিট',
+                          ),
                           style: OutlinedButton.styleFrom(
                             padding: const EdgeInsets.symmetric(vertical: 16),
                           ),
