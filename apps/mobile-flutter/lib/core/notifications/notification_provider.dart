@@ -7,9 +7,24 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:dio/dio.dart';
 import '../storage/secure_storage.dart';
 import '../api/api_client.dart';
+
+// Flutter Local Notifications instance (top-level for initialization)
+final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+    FlutterLocalNotificationsPlugin();
+
+// Android Notification Channel for high-priority notifications
+const AndroidNotificationChannel androidChannel = AndroidNotificationChannel(
+  'zinu_rooms_channel', // id
+  'Zinu Rooms Notifications', // name
+  description: 'Notifications for bookings, offers, and updates',
+  importance: Importance.high,
+  playSound: true,
+  enableVibration: true,
+);
 
 // Background message handler - must be top-level function
 @pragma('vm:entry-point')
@@ -73,9 +88,54 @@ class NotificationNotifier extends Notifier<NotificationState> {
     return NotificationState();
   }
 
+  /// Initialize Flutter Local Notifications
+  Future<void> _initializeLocalNotifications() async {
+    // Android initialization
+    const AndroidInitializationSettings initializationSettingsAndroid =
+        AndroidInitializationSettings('@mipmap/ic_launcher');
+
+    // iOS/macOS initialization
+    const DarwinInitializationSettings initializationSettingsDarwin =
+        DarwinInitializationSettings(
+          requestAlertPermission: false,
+          requestBadgePermission: false,
+          requestSoundPermission: false,
+        );
+
+    // Combined initialization settings
+    const InitializationSettings initializationSettings =
+        InitializationSettings(
+          android: initializationSettingsAndroid,
+          iOS: initializationSettingsDarwin,
+          macOS: initializationSettingsDarwin,
+        );
+
+    // Initialize plugin
+    await flutterLocalNotificationsPlugin.initialize(
+      initializationSettings,
+      onDidReceiveNotificationResponse: (NotificationResponse response) {
+        debugPrint('[LocalNotif] Notification tapped: ${response.payload}');
+      },
+    );
+
+    // Create Android notification channel
+    if (Platform.isAndroid) {
+      await flutterLocalNotificationsPlugin
+          .resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin
+          >()
+          ?.createNotificationChannel(androidChannel);
+    }
+
+    debugPrint('[LocalNotif] Flutter Local Notifications initialized');
+  }
+
   /// Initialize Firebase Messaging
   Future<void> initialize() async {
     try {
+      // Initialize local notifications first
+      await _initializeLocalNotifications();
+
       // Set background handler
       FirebaseMessaging.onBackgroundMessage(
         _firebaseMessagingBackgroundHandler,
@@ -155,9 +215,45 @@ class NotificationNotifier extends Notifier<NotificationState> {
   }
 
   /// Show local notification for foreground messages
-  void _showLocalNotification(RemoteMessage message) {
-    debugPrint('[FCM] Notification: ${message.notification?.title}');
-    // TODO: Use flutter_local_notifications for better foreground notification display
+  Future<void> _showLocalNotification(RemoteMessage message) async {
+    final notification = message.notification;
+    if (notification == null) return;
+
+    // Android notification details
+    final androidDetails = AndroidNotificationDetails(
+      androidChannel.id,
+      androidChannel.name,
+      channelDescription: androidChannel.description,
+      importance: Importance.high,
+      priority: Priority.high,
+      icon: '@mipmap/ic_launcher',
+      playSound: true,
+      enableVibration: true,
+    );
+
+    // iOS notification details
+    const darwinDetails = DarwinNotificationDetails(
+      presentAlert: true,
+      presentBadge: true,
+      presentSound: true,
+    );
+
+    // Combined notification details
+    final notificationDetails = NotificationDetails(
+      android: androidDetails,
+      iOS: darwinDetails,
+    );
+
+    // Show notification
+    await flutterLocalNotificationsPlugin.show(
+      notification.hashCode, // unique id
+      notification.title ?? 'Zinu Rooms',
+      notification.body ?? '',
+      notificationDetails,
+      payload: message.data.toString(),
+    );
+
+    debugPrint('[LocalNotif] Notification shown: ${notification.title}');
   }
 
   /// Register FCM token with backend server
