@@ -595,4 +595,56 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get flashDeals => 'ফ্ল্যাশ ডিল';
+
+  @override
+  String get booking => 'বুকিং';
+
+  @override
+  String get bookingDetails => 'বুকিং বিবরণ';
+
+  @override
+  String get confirmed => 'নিশ্চিত হয়েছে';
+
+  @override
+  String get pending => 'অপেক্ষমাণ';
+
+  @override
+  String get payment => 'পেমেন্ট';
+
+  @override
+  String get nights => 'রাত';
+
+  @override
+  String get checkInQRCode => 'চেক-ইন QR কোড';
+
+  @override
+  String get showQRAtReception => 'রিসেপশনে এই কোড দেখান';
+
+  @override
+  String get callHotel => 'হোটেলে কল';
+
+  @override
+  String get viewOnMap => 'ম্যাপে দেখুন';
+
+  @override
+  String get cancelBooking => 'বুকিং বাতিল করুন';
+
+  @override
+  String get cancelBookingQuestion => 'বুকিং বাতিল করবেন?';
+
+  @override
+  String get cancelBookingMessage =>
+      'চেক-ইনের ২৪ ঘণ্টা আগে বাতিল করলে কোনো চার্জ কাটা হবে না।';
+
+  @override
+  String get no => 'না';
+
+  @override
+  String get yesCancelBooking => 'হ্যাঁ, বাতিল করুন';
+
+  @override
+  String get errorLoadingBooking => 'বুকিং লোড করতে সমস্যা হয়েছে';
+
+  @override
+  String get bookingNotFound => 'বুকিং পাওয়া যায়নি';
 }

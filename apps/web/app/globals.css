@@ -114,24 +114,24 @@ html {
 }
 
 :root {
-  /* LuxStay Premium Brand Colors */
-  --color-primary: #135bec;
-  --color-primary-hover: #0e46b9;
+  /* LuxStay Premium Brand Colors - Sky Blue Theme */
+  --color-primary: #0ea5e9;
+  --color-primary-hover: #0284c7;
 
   --color-secondary: #D4AF37; /* Gold for luxury accents */
   --color-secondary-hover: #b8972f;
 
   /* Background Colors */
   --color-bg-primary: #ffffff;
-  --color-bg-secondary: #f6f6f8;
-  --color-bg-dark: #101622;
+  --color-bg-secondary: #f0f9ff;
+  --color-bg-dark: #0c4a6e;
   --color-bg-card: #ffffff;
 
   /* Text Colors */
-  --color-text-primary: #0d121b;
-  --color-text-secondary: #4c669a;
+  --color-text-primary: #0c4a6e;
+  --color-text-secondary: #0369a1;
   --color-text-muted: #64748b;
-  --color-text-light: #f8fafc;
+  --color-text-light: #f0f9ff;
 
   /* Legacy aliases */
   --color-gold: #D4AF37;
@@ -144,23 +144,23 @@ html {
   --color-error: #ef4444;
 
   /* Borders */
-  --color-border: #e7ebf3;
-  --color-border-dark: #1e293b;
+  --color-border: #e0f2fe;
+  --color-border-dark: #075985;
 
   /* Gradients */
   --gradient-hero: linear-gradient(
     180deg,
-    rgba(16, 22, 34, 0) 0%,
-    #101622 100%
+    rgba(12, 74, 110, 0) 0%,
+    #0c4a6e 100%
   );
-  --gradient-primary: linear-gradient(135deg, #135bec 0%, #3b82f6 100%);
+  --gradient-primary: linear-gradient(135deg, #0ea5e9 0%, #38bdf8 100%);
   --gradient-gold: linear-gradient(135deg, #D4AF37 0%, #f4e29e 100%);
   --gradient-glass: linear-gradient(
     135deg,
     rgba(255, 255, 255, 0.1) 0%,
     rgba(255, 255, 255, 0.05) 100%
   );
-  --gradient-dark: linear-gradient(135deg, #101622 0%, #1a202c 100%);
+  --gradient-dark: linear-gradient(135deg, #0c4a6e 0%, #075985 100%);
 
   /* Shadows - Layered & Soft */
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
@@ -171,8 +171,8 @@ html {
   --shadow-xl:
     0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
   --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-  --shadow-glow: 0 0 20px rgba(19, 91, 236, 0.4);
-  --shadow-primary: 0 10px 30px rgba(19, 91, 236, 0.25);
+  --shadow-glow: 0 0 20px rgba(14, 165, 233, 0.4);
+  --shadow-primary: 0 10px 30px rgba(14, 165, 233, 0.25);
   --shadow-gold: 0 10px 30px rgba(212, 175, 55, 0.2);
 }
 

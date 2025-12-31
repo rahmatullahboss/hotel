@@ -239,5 +239,23 @@
   "goodAfternoon": "Good Afternoon",
   "goodEvening": "Good Evening",
   "goodNight": "Good Night",
-  "flashDeals": "Flash Deals"
+  "flashDeals": "Flash Deals",
+  
+  "booking": "Booking",
+  "bookingDetails": "Booking Details",
+  "confirmed": "Confirmed",
+  "pending": "Pending",
+  "payment": "Payment",
+  "nights": "nights",
+  "checkInQRCode": "Check-in QR Code",
+  "showQRAtReception": "Show this code at reception",
+  "callHotel": "Call Hotel",
+  "viewOnMap": "View on Map",
+  "cancelBooking": "Cancel Booking",
+  "cancelBookingQuestion": "Cancel this booking?",
+  "cancelBookingMessage": "Cancellation 24 hours before check-in is free. Less than 24 hours may incur charges.",
+  "no": "No",
+  "yesCancelBooking": "Yes, Cancel",
+  "errorLoadingBooking": "Error loading booking",
+  "bookingNotFound": "Booking not found"
 }

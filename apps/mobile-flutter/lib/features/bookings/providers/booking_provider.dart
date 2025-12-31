@@ -105,6 +105,15 @@ class BookingsState {
   }
 }
 
+// Result class for booking creation
+class BookingCreationResult {
+  final String? bookingId;
+  final String? error;
+  final bool success;
+
+  BookingCreationResult({this.bookingId, this.error, required this.success});
+}
+
 // Bookings notifier (Riverpod 3.0)
 class BookingsNotifier extends Notifier<BookingsState> {
   Dio get _dio => ref.read(dioProvider);
@@ -221,7 +230,7 @@ class BookingsNotifier extends Notifier<BookingsState> {
   }
 
   /// Creates a booking and returns the booking ID for payment processing
-  Future<String?> createBookingAndReturnId({
+  Future<BookingCreationResult> createBookingAndReturnId({
     required String hotelId,
     required String roomId,
     required DateTime checkIn,
@@ -235,7 +244,7 @@ class BookingsNotifier extends Notifier<BookingsState> {
   }) async {
     try {
       debugPrint(
-        'BookingProvider: Creating booking with hotelId=$hotelId, roomId=$roomId',
+        'BookingProvider: Creating booking with hotelId=$hotelId, roomId=$roomId, checkIn=$checkIn, checkOut=$checkOut',
       );
       final response = await _dio.post(
         '/bookings',
@@ -253,28 +262,76 @@ class BookingsNotifier extends Notifier<BookingsState> {
         },
       );
 
-      debugPrint('BookingProvider: Response = ${response.data}');
+      debugPrint(
+        'BookingProvider: Response status=${response.statusCode}, data=${response.data}',
+      );
 
-      if (response.data['success'] == true) {
+      // Check for success response
+      final data = response.data;
+      if (data is Map<String, dynamic>) {
+        // Check multiple ways to get bookingId
         final bookingId =
-            response.data['bookingId']?.toString() ??
-            response.data['booking']?['id']?.toString();
-        debugPrint('BookingProvider: Booking created, ID = $bookingId');
-        return bookingId;
+            data['bookingId']?.toString() ??
+            data['booking']?['id']?.toString() ??
+            data['id']?.toString();
+
+        if (bookingId != null && bookingId.isNotEmpty) {
+          debugPrint(
+            'BookingProvider: Booking created successfully, ID = $bookingId',
+          );
+          return BookingCreationResult(bookingId: bookingId, success: true);
+        }
+
+        // If we get here, check if success flag exists
+        final success = data['success'];
+        if (success == true) {
+          debugPrint(
+            'BookingProvider: API returned success=true but no bookingId',
+          );
+        } else {
+          final error = data['error'] ?? data['message'] ?? 'Unknown error';
+          debugPrint('BookingProvider: API returned error: $error');
+          return BookingCreationResult(error: error.toString(), success: false);
+        }
+      } else {
+        debugPrint('BookingProvider: Unexpected response format: $data');
       }
 
-      debugPrint(
-        'BookingProvider: API returned success=false, error=${response.data['error']}',
+      return BookingCreationResult(
+        error: 'Unexpected response',
+        success: false,
       );
-      return null;
     } on DioException catch (e) {
+      final statusCode = e.response?.statusCode;
+      final responseData = e.response?.data;
       debugPrint(
-        'BookingProvider: DioException - status=${e.response?.statusCode}, data=${e.response?.data}',
+        'BookingProvider: DioException - status=$statusCode, data=$responseData',
       );
-      return null;
+
+      // Check if booking was actually created despite error status
+      // This can happen if booking succeeds but post-processing fails
+      if (responseData is Map<String, dynamic>) {
+        final bookingId =
+            responseData['bookingId']?.toString() ??
+            responseData['booking']?['id']?.toString();
+        if (bookingId != null && bookingId.isNotEmpty) {
+          debugPrint(
+            'BookingProvider: Found bookingId in error response: $bookingId',
+          );
+          return BookingCreationResult(bookingId: bookingId, success: true);
+        }
+        final error =
+            responseData['error'] ??
+            responseData['message'] ??
+            'Request failed';
+        debugPrint('BookingProvider: API error message: $error');
+        return BookingCreationResult(error: error.toString(), success: false);
+      }
+
+      return BookingCreationResult(error: 'Network error', success: false);
     } catch (e) {
       debugPrint('BookingProvider: Unknown error - $e');
-      return null;
+      return BookingCreationResult(error: e.toString(), success: false);
     }
   }
 }

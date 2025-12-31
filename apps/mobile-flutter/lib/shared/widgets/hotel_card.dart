@@ -272,7 +272,7 @@ class _HotelCardState extends State<HotelCard>
                               ),
                             ),
                             TextSpan(
-                              text: '/রাত',
+                              text: '/night',
                               style: AppTypography.bodySmall.copyWith(
                                 color: Colors.white.withValues(alpha: 0.7),
                               ),

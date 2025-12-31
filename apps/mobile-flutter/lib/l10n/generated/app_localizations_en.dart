@@ -597,4 +597,56 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get flashDeals => 'Flash Deals';
+
+  @override
+  String get booking => 'Booking';
+
+  @override
+  String get bookingDetails => 'Booking Details';
+
+  @override
+  String get confirmed => 'Confirmed';
+
+  @override
+  String get pending => 'Pending';
+
+  @override
+  String get payment => 'Payment';
+
+  @override
+  String get nights => 'nights';
+
+  @override
+  String get checkInQRCode => 'Check-in QR Code';
+
+  @override
+  String get showQRAtReception => 'Show this code at reception';
+
+  @override
+  String get callHotel => 'Call Hotel';
+
+  @override
+  String get viewOnMap => 'View on Map';
+
+  @override
+  String get cancelBooking => 'Cancel Booking';
+
+  @override
+  String get cancelBookingQuestion => 'Cancel this booking?';
+
+  @override
+  String get cancelBookingMessage =>
+      'Cancellation 24 hours before check-in is free. Less than 24 hours may incur charges.';
+
+  @override
+  String get no => 'No';
+
+  @override
+  String get yesCancelBooking => 'Yes, Cancel';
+
+  @override
+  String get errorLoadingBooking => 'Error loading booking';
+
+  @override
+  String get bookingNotFound => 'Booking not found';
 }

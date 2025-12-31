@@ -3,7 +3,7 @@ import Stripe from "stripe";
 import { db } from "@repo/db";
 import { bookings } from "@repo/db/schema";
 import { eq } from "drizzle-orm";
-import { auth } from "@/auth";
+import { getUserIdFromRequest } from "@/lib/mobile-auth";
 
 export const dynamic = "force-dynamic";
 
@@ -18,7 +18,9 @@ function getStripe() {
 export async function POST(request: NextRequest) {
     try {
         const stripe = getStripe();
-        const session = await auth();
+        
+        // Get user ID from JWT or session
+        const userId = await getUserIdFromRequest(request);
 
         const body = await request.json() as {
             bookingId: string;
@@ -51,7 +53,7 @@ export async function POST(request: NextRequest) {
         }
 
         // Security: Verify the user owns this booking (if authenticated)
-        if (session?.user?.id && booking.userId !== session.user.id) {
+        if (userId && booking.userId && booking.userId !== userId) {
             return NextResponse.json(
                 { success: false, error: "Unauthorized: You don't own this booking" },
                 { status: 403 }

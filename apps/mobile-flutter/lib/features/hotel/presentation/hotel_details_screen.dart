@@ -768,9 +768,23 @@ class _HotelDetailsScreenState extends ConsumerState<HotelDetailsScreen>
                                     : 'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=400',
                                 isAvailable: room.isAvailable,
                                 availableCount: room.availableCount,
-                                onSelect: () {
-                                  context.push(
+                                onSelect: () async {
+                                  await context.push(
                                     '/book/${room.id}?hotel=${widget.hotelId}',
+                                  );
+                                  // Refresh rooms availability after returning from booking
+                                  ref.invalidate(
+                                    roomsProvider(
+                                      RoomsParams(
+                                        hotelId: widget.hotelId,
+                                        checkIn: _checkIn
+                                            .toIso8601String()
+                                            .split('T')[0],
+                                        checkOut: _checkOut
+                                            .toIso8601String()
+                                            .split('T')[0],
+                                      ),
+                                    ),
                                   );
                                 },
                               ),

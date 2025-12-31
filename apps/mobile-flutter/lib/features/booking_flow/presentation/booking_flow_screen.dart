@@ -113,7 +113,19 @@ class _BookingFlowScreenState extends ConsumerState<BookingFlowScreen> {
             _roomPrice = room.dynamicPrice;
             _roomName = room.name;
             // Store hotelId for booking - use widget.hotelId or fallback from room lookup
-            _resolvedHotelId ??= widget.hotelId;
+            if (widget.hotelId == null) {
+              // Since we don't have hotelId in room model (yet), we try to assume it matches
+              // or relying on backend to handle handle just roomId if possible.
+              // Ideally the Room model should have hotelId.
+              // For now, if widget.hotelId is null, we can't do much unless ID contains it.
+              // _resolvedHotelId = ...;
+              // Wait, previous code was: _resolvedHotelId ??= widget.hotelId; which did nothing if widget.hotelId was null.
+              // If ID is composite like "hotelId-roomId", we could split it.
+              // Assuming standard UUIDs, we can't infer.
+              // We will log a warning if resolvedHotelId is typically null.
+            } else {
+              _resolvedHotelId = widget.hotelId;
+            }
           });
         });
       }
@@ -176,8 +188,8 @@ class _BookingFlowScreenState extends ConsumerState<BookingFlowScreen> {
               title: Text(loc.stepDate, style: AppTypography.labelLarge),
               subtitle: Text(
                 _checkIn != null && _checkOut != null
-                    ? '${_formatDate(_checkIn!)} - ${_formatDate(_checkOut!)} ($_nights রাত)'
-                    : 'চেক-ইন ও চেক-আউট তারিখ',
+                    ? '${_formatDate(_checkIn!)} - ${_formatDate(_checkOut!)} ($_nights ${loc.night})'
+                    : loc.datesLabel,
                 style: AppTypography.bodySmall,
               ),
               isActive: _currentStep >= 0,
@@ -512,7 +524,7 @@ class _BookingFlowScreenState extends ConsumerState<BookingFlowScreen> {
     );
 
     // Call booking API to create pending booking
-    final bookingId = await ref
+    final result = await ref
         .read(bookingsProvider.notifier)
         .createBookingAndReturnId(
           hotelId: hotelId,
@@ -527,21 +539,23 @@ class _BookingFlowScreenState extends ConsumerState<BookingFlowScreen> {
           totalAmount: _grandTotal,
         );
 
-    // If booking creation failed, show error
-    if (bookingId == null) {
-      debugPrint('Booking creation failed - bookingId is null');
+    // If booking creation failed, show actual error message
+    if (!result.success || result.bookingId == null) {
+      debugPrint('Booking creation failed: ${result.error}');
       if (mounted) Navigator.of(context).pop();
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(loc.bookingError),
+            content: Text(result.error ?? loc.bookingError),
             backgroundColor: AppColors.error,
+            duration: const Duration(seconds: 4),
           ),
         );
       }
       return;
     }
 
+    final bookingId = result.bookingId!;
     debugPrint('Booking created successfully: $bookingId');
 
     // For STRIPE payment, process payment before confirming
@@ -592,15 +606,15 @@ class _BookingFlowScreenState extends ConsumerState<BookingFlowScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'চেক-ইন: ${_formatDate(_checkIn!)}',
+                        '${loc.checkIn}: ${_formatDate(_checkIn!)}',
                         style: AppTypography.bodySmall,
                       ),
                       Text(
-                        'চেক-আউট: ${_formatDate(_checkOut!)}',
+                        '${loc.checkOut}: ${_formatDate(_checkOut!)}',
                         style: AppTypography.bodySmall,
                       ),
                       Text(
-                        'মোট: ৳${_formatPrice(_grandTotal)}',
+                        '${loc.total}: ৳${_formatPrice(_grandTotal)}',
                         style: AppTypography.labelMedium,
                       ),
                     ],

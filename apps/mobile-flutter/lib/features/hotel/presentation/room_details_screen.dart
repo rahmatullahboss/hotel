@@ -160,7 +160,7 @@ class RoomDetailsScreen extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text('৳2,500', style: AppTypography.priceLarge),
-                  Text('/রাত • ট্যাক্স ছাড়া', style: AppTypography.labelSmall),
+                  Text('/night • excl. taxes', style: AppTypography.labelSmall),
                 ],
               ),
               const SizedBox(width: 16),
@@ -169,7 +169,7 @@ class RoomDetailsScreen extends ConsumerWidget {
                   onPressed: () {
                     context.push('/book/$roomId');
                   },
-                  child: const Text('বুকিং করুন'),
+                  child: const Text('Book Now'),
                 ),
               ),
             ],

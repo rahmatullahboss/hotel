@@ -1255,6 +1255,108 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Flash Deals'**
   String get flashDeals;
+
+  /// No description provided for @booking.
+  ///
+  /// In en, this message translates to:
+  /// **'Booking'**
+  String get booking;
+
+  /// No description provided for @bookingDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Booking Details'**
+  String get bookingDetails;
+
+  /// No description provided for @confirmed.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirmed'**
+  String get confirmed;
+
+  /// No description provided for @pending.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending'**
+  String get pending;
+
+  /// No description provided for @payment.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment'**
+  String get payment;
+
+  /// No description provided for @nights.
+  ///
+  /// In en, this message translates to:
+  /// **'nights'**
+  String get nights;
+
+  /// No description provided for @checkInQRCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Check-in QR Code'**
+  String get checkInQRCode;
+
+  /// No description provided for @showQRAtReception.
+  ///
+  /// In en, this message translates to:
+  /// **'Show this code at reception'**
+  String get showQRAtReception;
+
+  /// No description provided for @callHotel.
+  ///
+  /// In en, this message translates to:
+  /// **'Call Hotel'**
+  String get callHotel;
+
+  /// No description provided for @viewOnMap.
+  ///
+  /// In en, this message translates to:
+  /// **'View on Map'**
+  String get viewOnMap;
+
+  /// No description provided for @cancelBooking.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel Booking'**
+  String get cancelBooking;
+
+  /// No description provided for @cancelBookingQuestion.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel this booking?'**
+  String get cancelBookingQuestion;
+
+  /// No description provided for @cancelBookingMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancellation 24 hours before check-in is free. Less than 24 hours may incur charges.'**
+  String get cancelBookingMessage;
+
+  /// No description provided for @no.
+  ///
+  /// In en, this message translates to:
+  /// **'No'**
+  String get no;
+
+  /// No description provided for @yesCancelBooking.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes, Cancel'**
+  String get yesCancelBooking;
+
+  /// No description provided for @errorLoadingBooking.
+  ///
+  /// In en, this message translates to:
+  /// **'Error loading booking'**
+  String get errorLoadingBooking;
+
+  /// No description provided for @bookingNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'Booking not found'**
+  String get bookingNotFound;
 }
 
 class _AppLocalizationsDelegate

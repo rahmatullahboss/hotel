@@ -195,7 +195,7 @@ export function SearchForm({ compact = false }: SearchFormProps) {
                 .luxstay-search-label {
                     font-size: 0.6875rem;
                     font-weight: 700;
-                    color: #4c669a;
+                    color: #0369a1;
                     text-transform: uppercase;
                     letter-spacing: 0.05em;
                     margin-left: 0.25rem;
@@ -213,7 +213,7 @@ export function SearchForm({ compact = false }: SearchFormProps) {
                     display: flex;
                     align-items: center;
                     justify-content: center;
-                    color: #135bec;
+                    color: #0ea5e9;
                     pointer-events: none;
                     transition: color 0.2s;
                 }
@@ -225,14 +225,14 @@ export function SearchForm({ compact = false }: SearchFormProps) {
                 .luxstay-search-input {
                     width: 100%;
                     padding: 0.875rem 1rem 0.875rem 3rem;
-                    background: #f8fafc;
+                    background: #f0f9ff;
                     border: none;
                     border-radius: 0.75rem;
                     font-size: 0.9375rem;
                     font-weight: 600;
-                    color: #0d121b;
+                    color: #0c4a6e;
                     outline: none;
-                    box-shadow: inset 0 0 0 1px #e5e7eb;
+                    box-shadow: inset 0 0 0 1px #e0f2fe;
                     transition: all 0.2s;
                 }
 
@@ -243,7 +243,7 @@ export function SearchForm({ compact = false }: SearchFormProps) {
 
                 .luxstay-search-input:focus {
                     background: white;
-                    box-shadow: inset 0 0 0 2px #135bec;
+                    box-shadow: inset 0 0 0 2px #0ea5e9;
                 }
 
                 .luxstay-search-select {
@@ -265,7 +265,7 @@ export function SearchForm({ compact = false }: SearchFormProps) {
                     gap: 0.5rem;
                     width: 100%;
                     padding: 1rem;
-                    background: #135bec;
+                    background: #0ea5e9;
                     color: white;
                     border: none;
                     border-radius: 0.75rem;
@@ -273,14 +273,14 @@ export function SearchForm({ compact = false }: SearchFormProps) {
                     font-weight: 700;
                     cursor: pointer;
                     transition: all 0.2s;
-                    box-shadow: 0 10px 25px rgba(19, 91, 236, 0.3);
+                    box-shadow: 0 10px 25px rgba(14, 165, 233, 0.3);
                     margin-top: 0.5rem;
                 }
 
                 .luxstay-search-btn:hover {
-                    background: #0e46b9;
+                    background: #0284c7;
                     transform: translateY(-2px);
-                    box-shadow: 0 15px 30px rgba(19, 91, 236, 0.4);
+                    box-shadow: 0 15px 30px rgba(14, 165, 233, 0.4);
                 }
 
                 .luxstay-search-btn:active {
@@ -321,11 +321,11 @@ export function SearchForm({ compact = false }: SearchFormProps) {
                     padding: 0.5rem 0.75rem;
                     background: white;
                     border-radius: 0.5rem;
-                    border: 1px solid #e5e7eb;
+                    border: 1px solid #e0f2fe;
                 }
 
                 .luxstay-search-compact-icon {
-                    color: #135bec;
+                    color: #0ea5e9;
                     flex-shrink: 0;
                 }
 
@@ -339,7 +339,7 @@ export function SearchForm({ compact = false }: SearchFormProps) {
 
                 .luxstay-search-compact-btn {
                     padding: 0.5rem 1rem;
-                    background: #135bec;
+                    background: #0ea5e9;
                     color: white;
                     border: none;
                     border-radius: 0.5rem;

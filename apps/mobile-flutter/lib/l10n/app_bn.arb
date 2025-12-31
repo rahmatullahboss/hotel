@@ -234,5 +234,23 @@
   "goodAfternoon": "শুভ দুপুর",
   "goodEvening": "শুভ সন্ধ্যা",
   "goodNight": "শুভ রাত্রি",
-  "flashDeals": "ফ্ল্যাশ ডিল"
+  "flashDeals": "ফ্ল্যাশ ডিল",
+  
+  "booking": "বুকিং",
+  "bookingDetails": "বুকিং বিবরণ",
+  "confirmed": "নিশ্চিত হয়েছে",
+  "pending": "অপেক্ষমাণ",
+  "payment": "পেমেন্ট",
+  "nights": "রাত",
+  "checkInQRCode": "চেক-ইন QR কোড",
+  "showQRAtReception": "রিসেপশনে এই কোড দেখান",
+  "callHotel": "হোটেলে কল",
+  "viewOnMap": "ম্যাপে দেখুন",
+  "cancelBooking": "বুকিং বাতিল করুন",
+  "cancelBookingQuestion": "বুকিং বাতিল করবেন?",
+  "cancelBookingMessage": "চেক-ইনের ২৪ ঘণ্টা আগে বাতিল করলে কোনো চার্জ কাটা হবে না।",
+  "no": "না",
+  "yesCancelBooking": "হ্যাঁ, বাতিল করুন",
+  "errorLoadingBooking": "বুকিং লোড করতে সমস্যা হয়েছে",
+  "bookingNotFound": "বুকিং পাওয়া যায়নি"
 }
