@@ -14,6 +14,7 @@ import '../providers/room_provider.dart';
 import 'widgets/full_screen_gallery.dart';
 import 'widgets/date_selector_sheet.dart';
 import 'widgets/premium_room_card.dart';
+import 'widgets/reviews_bottom_sheet.dart';
 
 import '../../../l10n/generated/app_localizations.dart';
 
@@ -694,6 +695,7 @@ class _HotelDetailsScreenState extends ConsumerState<HotelDetailsScreen>
                         _ReviewsSummary(
                           rating: hotelRating,
                           reviewCount: hotelReviewCount,
+                          hotelName: hotelName,
                           isDark: isDark,
                         ),
 
@@ -1185,11 +1187,13 @@ class _AmenitiesGrid extends StatelessWidget {
 class _ReviewsSummary extends StatelessWidget {
   final double rating;
   final int reviewCount;
+  final String hotelName;
   final bool isDark;
 
   const _ReviewsSummary({
     required this.rating,
     required this.reviewCount,
+    required this.hotelName,
     required this.isDark,
   });
 
@@ -1225,7 +1229,12 @@ class _ReviewsSummary extends StatelessWidget {
               const Spacer(),
               TextButton(
                 onPressed: () {
-                  // TODO: Navigate to all reviews
+                  ReviewsBottomSheet.show(
+                    context,
+                    rating: rating,
+                    reviewCount: reviewCount,
+                    hotelName: hotelName,
+                  );
                 },
                 child: Text(
                   'See All',
