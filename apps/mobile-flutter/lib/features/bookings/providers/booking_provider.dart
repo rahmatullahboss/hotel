@@ -234,6 +234,9 @@ class BookingsNotifier extends Notifier<BookingsState> {
     String? guestEmail,
   }) async {
     try {
+      debugPrint(
+        'BookingProvider: Creating booking with hotelId=$hotelId, roomId=$roomId',
+      );
       final response = await _dio.post(
         '/bookings',
         data: {
@@ -250,15 +253,27 @@ class BookingsNotifier extends Notifier<BookingsState> {
         },
       );
 
+      debugPrint('BookingProvider: Response = ${response.data}');
+
       if (response.data['success'] == true) {
         final bookingId =
             response.data['bookingId']?.toString() ??
             response.data['booking']?['id']?.toString();
+        debugPrint('BookingProvider: Booking created, ID = $bookingId');
         return bookingId;
       }
+
+      debugPrint(
+        'BookingProvider: API returned success=false, error=${response.data['error']}',
+      );
       return null;
     } on DioException catch (e) {
-      debugPrint('Booking error: ${e.response?.data}');
+      debugPrint(
+        'BookingProvider: DioException - status=${e.response?.statusCode}, data=${e.response?.data}',
+      );
+      return null;
+    } catch (e) {
+      debugPrint('BookingProvider: Unknown error - $e');
       return null;
     }
   }

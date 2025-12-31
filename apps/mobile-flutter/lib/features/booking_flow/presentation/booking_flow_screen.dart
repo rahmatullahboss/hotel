@@ -38,6 +38,7 @@ class _BookingFlowScreenState extends ConsumerState<BookingFlowScreen> {
   // Room price (fetched from API)
   int _roomPrice = 0;
   String _roomName = '';
+  String? _resolvedHotelId; // Store hotelId from room data
 
   @override
   void initState() {
@@ -111,6 +112,8 @@ class _BookingFlowScreenState extends ConsumerState<BookingFlowScreen> {
           setState(() {
             _roomPrice = room.dynamicPrice;
             _roomName = room.name;
+            // Store hotelId for booking - use widget.hotelId or fallback from room lookup
+            _resolvedHotelId ??= widget.hotelId;
           });
         });
       }
@@ -501,6 +504,22 @@ class _BookingFlowScreenState extends ConsumerState<BookingFlowScreen> {
 
   void _completeBooking() async {
     final loc = AppLocalizations.of(context)!;
+
+    // Validate hotelId before proceeding
+    final hotelId = _resolvedHotelId ?? widget.hotelId;
+    if (hotelId == null || hotelId.isEmpty) {
+      debugPrint('Booking Error: hotelId is empty or null');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'হোটেল তথ্য পাওয়া যায়নি। অনুগ্রহ করে আবার চেষ্টা করুন।',
+          ),
+          backgroundColor: AppColors.error,
+        ),
+      );
+      return;
+    }
+
     // Show loading
     showDialog(
       context: context,
@@ -508,11 +527,15 @@ class _BookingFlowScreenState extends ConsumerState<BookingFlowScreen> {
       builder: (context) => const Center(child: CircularProgressIndicator()),
     );
 
+    debugPrint(
+      'Creating booking: hotelId=$hotelId, roomId=${widget.roomId}, total=$_grandTotal',
+    );
+
     // Call booking API to create pending booking
     final bookingId = await ref
         .read(bookingsProvider.notifier)
         .createBookingAndReturnId(
-          hotelId: widget.hotelId ?? '',
+          hotelId: hotelId,
           roomId: widget.roomId,
           checkIn: _checkIn!,
           checkOut: _checkOut!,
@@ -526,6 +549,7 @@ class _BookingFlowScreenState extends ConsumerState<BookingFlowScreen> {
 
     // If booking creation failed, show error
     if (bookingId == null) {
+      debugPrint('Booking creation failed - bookingId is null');
       if (mounted) Navigator.of(context).pop();
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -537,6 +561,8 @@ class _BookingFlowScreenState extends ConsumerState<BookingFlowScreen> {
       }
       return;
     }
+
+    debugPrint('Booking created successfully: $bookingId');
 
     // For STRIPE payment, process payment before confirming
     bool success = true;

@@ -7,6 +7,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/theme/theme_provider.dart';
 import '../../../core/l10n/locale_provider.dart';
+import '../../../core/providers/currency_provider.dart';
 import '../../../l10n/generated/app_localizations.dart';
 import '../../auth/providers/auth_provider.dart';
 
@@ -320,6 +321,130 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                                       .toggleDarkMode();
                                 },
                                 activeThumbColor: AppColors.primary,
+                              ),
+                            ],
+                          ),
+                        ),
+
+                        const Divider(height: 1),
+
+                        // Currency Toggle
+                        Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Container(
+                                    width: 40,
+                                    height: 40,
+                                    decoration: BoxDecoration(
+                                      color: AppColors.primary.withValues(
+                                        alpha: 0.1,
+                                      ),
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    child: const Icon(
+                                      Icons.currency_exchange,
+                                      color: AppColors.primary,
+                                      size: 20,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Text(
+                                    'মুদ্রা (Currency)',
+                                    style: AppTypography.bodyMedium.copyWith(
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 12),
+                              Padding(
+                                padding: const EdgeInsets.only(left: 52),
+                                child: Builder(
+                                  builder: (context) {
+                                    final isBDT =
+                                        ref.watch(currencyProvider).currency ==
+                                        Currency.bdt;
+                                    return Row(
+                                      children: [
+                                        Expanded(
+                                          child: GestureDetector(
+                                            onTap: () => ref
+                                                .read(currencyProvider.notifier)
+                                                .setCurrency(Currency.bdt),
+                                            child: Container(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                    vertical: 10,
+                                                  ),
+                                              decoration: BoxDecoration(
+                                                color: isBDT
+                                                    ? AppColors.primary
+                                                    : AppColors.surfaceVariant,
+                                                borderRadius:
+                                                    BorderRadius.circular(12),
+                                              ),
+                                              child: Center(
+                                                child: Text(
+                                                  '৳ BDT',
+                                                  style: AppTypography
+                                                      .labelLarge
+                                                      .copyWith(
+                                                        color: isBDT
+                                                            ? Colors.white
+                                                            : AppColors
+                                                                  .textSecondary,
+                                                        fontWeight:
+                                                            FontWeight.w600,
+                                                      ),
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                        const SizedBox(width: 12),
+                                        Expanded(
+                                          child: GestureDetector(
+                                            onTap: () => ref
+                                                .read(currencyProvider.notifier)
+                                                .setCurrency(Currency.usd),
+                                            child: Container(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                    vertical: 10,
+                                                  ),
+                                              decoration: BoxDecoration(
+                                                color: !isBDT
+                                                    ? AppColors.primary
+                                                    : AppColors.surfaceVariant,
+                                                borderRadius:
+                                                    BorderRadius.circular(12),
+                                              ),
+                                              child: Center(
+                                                child: Text(
+                                                  '\$ USD',
+                                                  style: AppTypography
+                                                      .labelLarge
+                                                      .copyWith(
+                                                        color: !isBDT
+                                                            ? Colors.white
+                                                            : AppColors
+                                                                  .textSecondary,
+                                                        fontWeight:
+                                                            FontWeight.w600,
+                                                      ),
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    );
+                                  },
+                                ),
                               ),
                             ],
                           ),
