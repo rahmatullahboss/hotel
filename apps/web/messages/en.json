@@ -210,7 +210,14 @@
             "safetyMeasures": "Follow safety measures advised at the hotel",
             "agreeToTerms": "By proceeding, you agree to our",
             "guestPolicies": "Guest Policies",
-            "off": "off"
+            "off": "off",
+            "checkIn": "Check-in",
+            "checkOut": "Check-out",
+            "guests": "Guests",
+            "adults": "Adults",
+            "room": "Room",
+            "nights": "nights",
+            "noPaymentRequired": "No payment required today"
         },
         "reviews": {
             "showMore": "Show More",

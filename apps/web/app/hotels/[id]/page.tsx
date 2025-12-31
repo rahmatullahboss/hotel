@@ -13,10 +13,8 @@ import { getHotelById, getAvailableRooms, RoomWithDetails } from "../../actions/
 import { getHotelReviews, getHotelRatingBreakdown } from "../../actions/review";
 import { 
     FiMapPin, 
-    FiStar, 
     FiArrowLeft, 
     FiChevronRight, 
-    FiWifi,
     FiUsers,
     FiMaximize,
     FiCalendar,
@@ -118,8 +116,7 @@ const getQuickAmenityIcon = (amenity: string) => {
     return icons[amenity] || <FaWifi size={24} />;
 };
 
-// Section tabs
-const SECTION_IDS = ["overview", "rooms", "amenities", "reviews", "location"] as const;
+
 
 export default function HotelDetailPage() {
     const params = useParams();
@@ -802,26 +799,26 @@ export default function HotelDetailPage() {
                             {/* Date Selection */}
                             <div className="premium-sidebar-dates">
                                 <div className="premium-sidebar-dates-grid">
-                                    <label className="premium-sidebar-date-item">
-                                        <div className="premium-sidebar-date-label">Check-in</div>
+                                    <label className="premium-sidebar-date-item" style={{ position: "relative" }}>
+                                        <div className="premium-sidebar-date-label">{t("sidebar.checkIn") || "Check-in"}</div>
                                         <div className="premium-sidebar-date-value">{formatDate(checkIn)}</div>
                                         <input
                                             type="date"
                                             value={checkIn}
                                             min={today}
                                             onChange={(e) => setCheckIn(e.target.value)}
-                                            style={{ position: "absolute", opacity: 0, width: "100%", height: "100%", cursor: "pointer" }}
+                                            style={{ position: "absolute", inset: 0, opacity: 0, cursor: "pointer", zIndex: 10 }}
                                         />
                                     </label>
-                                    <label className="premium-sidebar-date-item">
-                                        <div className="premium-sidebar-date-label">Check-out</div>
+                                    <label className="premium-sidebar-date-item" style={{ position: "relative" }}>
+                                        <div className="premium-sidebar-date-label">{t("sidebar.checkOut") || "Check-out"}</div>
                                         <div className="premium-sidebar-date-value">{formatDate(checkOut)}</div>
                                         <input
                                             type="date"
                                             value={checkOut}
                                             min={checkIn || today}
                                             onChange={(e) => setCheckOut(e.target.value)}
-                                            style={{ position: "absolute", opacity: 0, width: "100%", height: "100%", cursor: "pointer" }}
+                                            style={{ position: "absolute", inset: 0, opacity: 0, cursor: "pointer", zIndex: 10 }}
                                         />
                                     </label>
                                 </div>
@@ -833,8 +830,8 @@ export default function HotelDetailPage() {
                                 onClick={() => setShowGuestDropdown(!showGuestDropdown)}
                             >
                                 <div>
-                                    <div className="premium-sidebar-guests-label">Guests</div>
-                                    <div className="premium-sidebar-guests-value">{guests} Adults, {rooms_count} Room</div>
+                                    <div className="premium-sidebar-guests-label">{t("sidebar.guests") || "Guests"}</div>
+                                    <div className="premium-sidebar-guests-value">{guests} {t("sidebar.adults") || "Adults"}, {rooms_count} {t("sidebar.room") || "Room"}</div>
                                 </div>
                                 <FiChevronDown size={18} style={{ color: "#64748b" }} />
                             </div>
@@ -910,15 +907,15 @@ export default function HotelDetailPage() {
                             {/* Price Summary */}
                             <div className="premium-sidebar-summary">
                                 <div className="premium-sidebar-summary-row">
-                                    <span>৳{selectedPrice.toLocaleString()} x {nights} nights</span>
+                                    <span>৳{selectedPrice.toLocaleString()} x {nights} {t("sidebar.nights") || "nights"}</span>
                                     <span>৳{(selectedPrice * nights).toLocaleString()}</span>
                                 </div>
                                 <div className="premium-sidebar-summary-row">
-                                    <span>Taxes & Fees</span>
+                                    <span>{t("sidebar.taxesAndFees") || "Taxes & Fees"}</span>
                                     <span>৳{taxesAndFees.toLocaleString()}</span>
                                 </div>
                                 <div className="premium-sidebar-summary-row premium-sidebar-summary-total">
-                                    <span>Total</span>
+                                    <span>{t("sidebar.totalPrice") || "Total"}</span>
                                     <span>৳{(totalPrice + taxesAndFees).toLocaleString()}</span>
                                 </div>
                             </div>
@@ -929,11 +926,11 @@ export default function HotelDetailPage() {
                                 onClick={handleBookNow}
                                 disabled={!selectedRoom}
                             >
-                                Instant Book
+                                {t("sidebar.continueToBook") || "Instant Book"}
                             </button>
 
                             <div className="premium-sidebar-note">
-                                No payment required today
+                                {t("sidebar.noPaymentRequired") || "No payment required today"}
                             </div>
                         </div>
 

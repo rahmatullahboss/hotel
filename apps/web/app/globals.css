@@ -7337,6 +7337,7 @@ main.page-with-book-bar {
   cursor: pointer;
   border-radius: 0.75rem;
   transition: background 0.2s ease;
+  position: relative;
 }
 
 .premium-sidebar-date-item:hover {
