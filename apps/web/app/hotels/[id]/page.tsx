@@ -143,6 +143,34 @@ export default function HotelDetailPage() {
     // Active section for navigation
     const [activeSection, setActiveSection] = useState<string>("overview");
 
+    // Scroll spy - auto-update active section based on scroll position
+    useEffect(() => {
+        const sections = ["overview", "rooms", "amenities", "reviews", "location"];
+        
+        const observer = new IntersectionObserver(
+            (entries) => {
+                entries.forEach((entry) => {
+                    if (entry.isIntersecting) {
+                        setActiveSection(entry.target.id);
+                    }
+                });
+            },
+            {
+                rootMargin: "-20% 0px -70% 0px", // Trigger when section is in top 30% of viewport
+                threshold: 0
+            }
+        );
+
+        sections.forEach((sectionId) => {
+            const element = document.getElementById(sectionId);
+            if (element) {
+                observer.observe(element);
+            }
+        });
+
+        return () => observer.disconnect();
+    }, [hotel]); // Re-run when hotel data loads
+
     // Date & guests
     const today = new Date().toISOString().split("T")[0]!;
     const tomorrow = new Date(Date.now() + 86400000).toISOString().split("T")[0]!;
