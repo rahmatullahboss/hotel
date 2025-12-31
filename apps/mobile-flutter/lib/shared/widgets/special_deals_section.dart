@@ -73,7 +73,7 @@ class SpecialDealsSection extends StatelessWidget {
             scrollDirection: Axis.horizontal,
             padding: const EdgeInsets.symmetric(horizontal: 20),
             itemCount: deals.length,
-            separatorBuilder: (_, __) => const SizedBox(width: 14),
+            separatorBuilder: (_, _) => const SizedBox(width: 14),
             itemBuilder: (context, index) {
               return _SpecialDealCard(deal: deals[index]);
             },

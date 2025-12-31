@@ -16,7 +16,7 @@ import {
 import { Footer } from "../../components/Footer";
 import { getHotelById, getAvailableRooms, RoomWithDetails } from "../../actions/hotels";
 import { getHotelReviews, getHotelRatingBreakdown } from "../../actions/review";
-import { FiMapPin, FiStar, FiClock, FiXCircle, FiCreditCard, FiArrowLeft } from "react-icons/fi";
+import { FiMapPin, FiStar, FiArrowLeft } from "react-icons/fi";
 import { FaWifi, FaSnowflake, FaTv, FaParking, FaSwimmingPool, FaUtensils, FaDumbbell, FaSpa, FaCoffee, FaConciergeBell } from "react-icons/fa";
 
 // Lazy load map to avoid SSR issues
@@ -24,7 +24,7 @@ const HotelMap = lazy(() =>
     import("../../components/Map/HotelMap").then((mod) => ({ default: mod.HotelMap }))
 );
 
-interface Room extends RoomWithDetails { }
+type Room = RoomWithDetails;
 
 // Review interface
 interface Review {

@@ -7,7 +7,6 @@
     "dev:web": "dotenv -e .env -- turbo run dev --filter=web",
     "dev:partner": "dotenv -e .env -- turbo run dev --filter=partner",
     "dev:admin": "dotenv -e .env -- turbo run dev --filter=admin",
-    "dev:mobile": "dotenv -e .env -- turbo run dev --filter=mobile",
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "check-types": "turbo run check-types",
