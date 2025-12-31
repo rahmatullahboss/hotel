@@ -31,6 +31,10 @@ export const users = pgTable("users", {
     lateCancellationCount: integer("lateCancellationCount").default(0).notNull(),
     // Whether user can use "Pay at Hotel" option (disabled after 3 late cancellations)
     payAtHotelAllowed: boolean("payAtHotelAllowed").default(true).notNull(),
+    // Wallet balance in BDT (for prepaid bookings and refunds)
+    walletBalance: integer("walletBalance").default(0).notNull(),
+    // Loyalty points earned from bookings
+    loyaltyPoints: integer("loyaltyPoints").default(0).notNull(),
     // Soft delete fields - account is marked for deletion but not immediately removed
     // User can recover account by logging in before deleteScheduledFor date
     deletedAt: timestamp("deletedAt", { mode: "date" }),

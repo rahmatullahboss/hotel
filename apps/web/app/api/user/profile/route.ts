@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@repo/db";
-import { users } from "@repo/db/schema";
-import { eq } from "drizzle-orm";
+import { users, bookings } from "@repo/db/schema";
+import { eq, count } from "drizzle-orm";
 import { getUserIdFromRequest } from "@/lib/mobile-auth";
 
 /**
@@ -21,6 +21,7 @@ export async function GET(request: NextRequest) {
             );
         }
 
+        // Fetch user with wallet and loyalty data
         const user = await db.query.users.findFirst({
             where: eq(users.id, userId),
             columns: {
@@ -30,6 +31,8 @@ export async function GET(request: NextRequest) {
                 phone: true,
                 image: true,
                 role: true,
+                walletBalance: true,
+                loyaltyPoints: true,
                 createdAt: true,
             },
         });
@@ -41,7 +44,17 @@ export async function GET(request: NextRequest) {
             );
         }
 
-        return NextResponse.json(user);
+        // Calculate total bookings count
+        const [bookingsResult] = await db
+            .select({ totalBookings: count() })
+            .from(bookings)
+            .where(eq(bookings.userId, userId));
+
+        return NextResponse.json({
+            ...user,
+            avatarUrl: user.image, // Map image to avatarUrl for mobile app
+            totalBookings: bookingsResult?.totalBookings ?? 0,
+        });
     } catch (error) {
         console.error("Error fetching profile:", error);
         return NextResponse.json(
