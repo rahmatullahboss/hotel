@@ -1,5 +1,4 @@
-// Glassmorphic Container Widget
-import 'dart:ui';
+// Simple Container Widget (Performance Optimized - No BackdropFilter)
 import 'package:flutter/material.dart';
 import '../../core/theme/app_colors.dart';
 
@@ -10,7 +9,7 @@ class GlassContainer extends StatelessWidget {
   final EdgeInsetsGeometry? padding;
   final EdgeInsetsGeometry? margin;
   final BorderRadius? borderRadius;
-  final double blur;
+  final double blur; // Kept for API compatibility but not used
   final Color? backgroundColor;
   final Color? borderColor;
   final double borderWidth;
@@ -33,31 +32,30 @@ class GlassContainer extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       margin: margin,
-      child: ClipRRect(
+      width: width,
+      height: height,
+      padding: padding,
+      decoration: BoxDecoration(
+        color: backgroundColor ?? AppColors.glassWhite.withValues(alpha: 0.95),
         borderRadius: borderRadius ?? BorderRadius.circular(16),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: blur, sigmaY: blur),
-          child: Container(
-            width: width,
-            height: height,
-            padding: padding,
-            decoration: BoxDecoration(
-              color: backgroundColor ?? AppColors.glassWhite,
-              borderRadius: borderRadius ?? BorderRadius.circular(16),
-              border: Border.all(
-                color: borderColor ?? AppColors.glassBorder,
-                width: borderWidth,
-              ),
-            ),
-            child: child,
-          ),
+        border: Border.all(
+          color: borderColor ?? AppColors.glassBorder,
+          width: borderWidth,
         ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
+      child: child,
     );
   }
 }
 
-// Dark glassmorphic variant
+// Dark variant
 class DarkGlassContainer extends StatelessWidget {
   final Widget child;
   final double? width;
@@ -87,7 +85,7 @@ class DarkGlassContainer extends StatelessWidget {
       margin: margin,
       borderRadius: borderRadius,
       blur: blur,
-      backgroundColor: AppColors.glassDark,
+      backgroundColor: AppColors.glassDark.withValues(alpha: 0.95),
       borderColor: AppColors.glassBorder,
       child: child,
     );

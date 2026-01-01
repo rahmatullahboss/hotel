@@ -457,41 +457,35 @@ class _HotelDetailsScreenState extends ConsumerState<HotelDetailsScreen>
                         right: 16,
                         child: GestureDetector(
                           onTap: () => _openGallery(images, 0),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(8),
-                            child: BackdropFilter(
-                              filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 12,
-                                  vertical: 8,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 8,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.black.withValues(alpha: 0.6),
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(
+                                color: Colors.white.withValues(alpha: 0.2),
+                              ),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Icon(
+                                  Icons.photo_library_outlined,
+                                  color: Colors.white,
+                                  size: 16,
                                 ),
-                                decoration: BoxDecoration(
-                                  color: Colors.black.withValues(alpha: 0.4),
-                                  borderRadius: BorderRadius.circular(8),
-                                  border: Border.all(
-                                    color: Colors.white.withValues(alpha: 0.2),
+                                const SizedBox(width: 6),
+                                Text(
+                                  '${images.length} Photos',
+                                  style: AppTypography.labelSmall.copyWith(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w500,
                                   ),
                                 ),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    const Icon(
-                                      Icons.photo_library_outlined,
-                                      color: Colors.white,
-                                      size: 16,
-                                    ),
-                                    const SizedBox(width: 6),
-                                    Text(
-                                      '${images.length} Photos',
-                                      style: AppTypography.labelSmall.copyWith(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
+                              ],
                             ),
                           ),
                         ),
@@ -811,8 +805,7 @@ class _HotelDetailsScreenState extends ConsumerState<HotelDetailsScreen>
             top: 0,
             left: 0,
             right: 0,
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 200),
+            child: Container(
               color: (isDark ? AppColors.surfaceDark : Colors.white).withValues(
                 alpha: _appBarOpacity,
               ),
@@ -1418,117 +1411,117 @@ class _BottomBookingBar extends ConsumerWidget {
     final totalPrice = price * nights;
     final currencyState = ref.watch(currencyProvider);
 
-    return ClipRRect(
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-        child: Container(
-          padding: EdgeInsets.only(
-            left: 20,
-            right: 20,
-            top: 16,
-            bottom: MediaQuery.of(context).padding.bottom + 16,
-          ),
-          decoration: BoxDecoration(
-            color: (isDark ? AppColors.surfaceDark : Colors.white).withValues(
-              alpha: 0.9,
-            ),
-            border: Border(
-              top: BorderSide(
-                color: isDark ? Colors.white12 : AppColors.divider,
-              ),
-            ),
-          ),
-          child: Row(
-            children: [
-              // Price Info
-              Expanded(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    RichText(
-                      text: TextSpan(
-                        children: [
-                          TextSpan(
-                            text: currencyState.formatPrice(totalPrice),
-                            style: AppTypography.h3.copyWith(
-                              color: AppColors.primary,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Text(
-                      '$nights ${nights == 1 ? 'night' : 'nights'} • ${currencyState.formatPrice(price)}/night',
-                      style: AppTypography.labelSmall.copyWith(
-                        color: AppColors.textSecondary,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
-              GestureDetector(
-                onTap: onSave,
-                child: Container(
-                  width: 52,
-                  height: 52,
-                  margin: const EdgeInsets.only(right: 12),
-                  decoration: BoxDecoration(
-                    color: isSaved
-                        ? AppColors.error.withValues(alpha: 0.1)
-                        : (isDark
-                              ? Colors.white.withValues(alpha: 0.08)
-                              : AppColors.surfaceVariant),
-                    borderRadius: BorderRadius.circular(14),
-                    border: Border.all(
-                      color: isSaved
-                          ? AppColors.error.withValues(alpha: 0.3)
-                          : (isDark ? Colors.white12 : AppColors.divider),
-                    ),
-                  ),
-                  child: Icon(
-                    isSaved ? Icons.favorite : Icons.favorite_border,
-                    color: isSaved
-                        ? AppColors.error
-                        : (isDark ? Colors.white70 : AppColors.textSecondary),
-                    size: 24,
-                  ),
-                ),
-              ),
-
-              // Book Button
-              Expanded(
-                child: GestureDetector(
-                  onTap: onBook,
-                  child: Container(
-                    height: 52,
-                    decoration: BoxDecoration(
-                      gradient: AppColors.primaryGradient,
-                      borderRadius: BorderRadius.circular(14),
-                      boxShadow: AppColors.buttonShadow,
-                    ),
-                    child: Center(
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(loc.bookNow, style: AppTypography.button),
-                          const SizedBox(width: 4),
-                          const Icon(
-                            Icons.arrow_forward,
-                            color: Colors.white,
-                            size: 18,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
+    return Container(
+      padding: EdgeInsets.only(
+        left: 20,
+        right: 20,
+        top: 16,
+        bottom: MediaQuery.of(context).padding.bottom + 16,
+      ),
+      decoration: BoxDecoration(
+        color: (isDark ? AppColors.surfaceDark : Colors.white).withValues(
+          alpha: 0.98,
         ),
+        border: Border(
+          top: BorderSide(color: isDark ? Colors.white12 : AppColors.divider),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.08),
+            blurRadius: 10,
+            offset: const Offset(0, -2),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          // Price Info
+          Expanded(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                RichText(
+                  text: TextSpan(
+                    children: [
+                      TextSpan(
+                        text: currencyState.formatPrice(totalPrice),
+                        style: AppTypography.h3.copyWith(
+                          color: AppColors.primary,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Text(
+                  '$nights ${nights == 1 ? 'night' : 'nights'} • ${currencyState.formatPrice(price)}/night',
+                  style: AppTypography.labelSmall.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          GestureDetector(
+            onTap: onSave,
+            child: Container(
+              width: 52,
+              height: 52,
+              margin: const EdgeInsets.only(right: 12),
+              decoration: BoxDecoration(
+                color: isSaved
+                    ? AppColors.error.withValues(alpha: 0.1)
+                    : (isDark
+                          ? Colors.white.withValues(alpha: 0.08)
+                          : AppColors.surfaceVariant),
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(
+                  color: isSaved
+                      ? AppColors.error.withValues(alpha: 0.3)
+                      : (isDark ? Colors.white12 : AppColors.divider),
+                ),
+              ),
+              child: Icon(
+                isSaved ? Icons.favorite : Icons.favorite_border,
+                color: isSaved
+                    ? AppColors.error
+                    : (isDark ? Colors.white70 : AppColors.textSecondary),
+                size: 24,
+              ),
+            ),
+          ),
+
+          // Book Button
+          Expanded(
+            child: GestureDetector(
+              onTap: onBook,
+              child: Container(
+                height: 52,
+                decoration: BoxDecoration(
+                  gradient: AppColors.primaryGradient,
+                  borderRadius: BorderRadius.circular(14),
+                  boxShadow: AppColors.buttonShadow,
+                ),
+                child: Center(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(loc.bookNow, style: AppTypography.button),
+                      const SizedBox(width: 4),
+                      const Icon(
+                        Icons.arrow_forward,
+                        color: Colors.white,
+                        size: 18,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
