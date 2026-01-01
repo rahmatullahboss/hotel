@@ -5,6 +5,7 @@ import 'package:shimmer/shimmer.dart';
 import 'package:intl/intl.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
+import '../../../core/providers/currency_provider.dart';
 import '../providers/wallet_provider.dart';
 
 class WalletScreen extends ConsumerStatefulWidget {
@@ -25,16 +26,10 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
     });
   }
 
-  String _formatCurrency(int amount) {
-    return amount.toString().replaceAllMapped(
-      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-      (Match m) => '${m[1]},',
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final walletState = ref.watch(walletProvider);
+    final currencyState = ref.watch(currencyProvider);
 
     return Scaffold(
       backgroundColor: AppColors.adaptiveBackground(context),
@@ -86,7 +81,7 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            '৳${_formatCurrency(walletState.balance)}',
+                            currencyState.formatPrice(walletState.balance),
                             style: AppTypography.h1.copyWith(
                               color: Colors.white,
                               fontSize: 40,
@@ -235,7 +230,10 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
                               Divider(height: 1, color: AppColors.divider),
                           itemBuilder: (context, index) {
                             final transaction = walletState.transactions[index];
-                            return _TransactionItem(transaction: transaction);
+                            return _TransactionItem(
+                              transaction: transaction,
+                              currencyState: currencyState,
+                            );
                           },
                         ),
                       ),
@@ -301,8 +299,12 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
 
 class _TransactionItem extends StatelessWidget {
   final Transaction transaction;
+  final CurrencyState currencyState;
 
-  const _TransactionItem({required this.transaction});
+  const _TransactionItem({
+    required this.transaction,
+    required this.currencyState,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -342,7 +344,7 @@ class _TransactionItem extends StatelessWidget {
             ),
           ),
           Text(
-            '${isCredit ? '+' : '-'}৳${transaction.amount}',
+            '${isCredit ? '+' : '-'}${currencyState.formatPrice(transaction.amount)}',
             style: AppTypography.labelLarge.copyWith(
               color: isCredit ? AppColors.success : AppColors.error,
               fontWeight: FontWeight.bold,
