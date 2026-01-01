@@ -2,9 +2,11 @@
 import 'dart:async';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_typography.dart';
+import '../../core/providers/currency_provider.dart';
 import '../../l10n/generated/app_localizations.dart';
 
 class FeaturedHotelCarousel extends StatefulWidget {
@@ -125,22 +127,16 @@ class _FeaturedHotelCarouselState extends State<FeaturedHotelCarousel> {
   }
 }
 
-class _FeaturedHotelCard extends StatelessWidget {
+class _FeaturedHotelCard extends ConsumerWidget {
   final FeaturedHotelData hotel;
   final bool isActive;
 
   const _FeaturedHotelCard({required this.hotel, required this.isActive});
 
-  String _formatPrice(int price) {
-    return price.toString().replaceAllMapped(
-      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-      (Match m) => '${m[1]},',
-    );
-  }
-
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final loc = AppLocalizations.of(context)!;
+    final currencyState = ref.watch(currencyProvider);
 
     return GestureDetector(
       onTap: () => context.push('/hotel/${hotel.id}'),
@@ -337,7 +333,9 @@ class _FeaturedHotelCard extends StatelessWidget {
                               text: TextSpan(
                                 children: [
                                   TextSpan(
-                                    text: '৳${_formatPrice(hotel.price)}',
+                                    text: currencyState.formatPrice(
+                                      hotel.price,
+                                    ),
                                     style: AppTypography.h4.copyWith(
                                       color: Colors.white,
                                       fontWeight: FontWeight.bold,

@@ -5,6 +5,7 @@ import 'package:qr_flutter/qr_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
+import '../../../core/providers/currency_provider.dart';
 import '../../../l10n/generated/app_localizations.dart';
 import '../providers/booking_provider.dart';
 import '../../booking_flow/providers/stripe_payment_provider.dart';
@@ -30,13 +31,6 @@ class BookingDetailsScreen extends ConsumerWidget {
       'Dec',
     ];
     return '${date.day} ${months[date.month - 1]}, ${date.year}';
-  }
-
-  String _formatPrice(int price) {
-    return price.toString().replaceAllMapped(
-      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-      (Match m) => '${m[1]},',
-    );
   }
 
   @override
@@ -88,6 +82,7 @@ class BookingDetailsScreen extends ConsumerWidget {
   ) {
     final statusColor = _getStatusColor(booking.status);
     final statusText = _getStatusText(booking.status, loc);
+    final currencyState = ref.watch(currencyProvider);
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
@@ -225,7 +220,7 @@ class BookingDetailsScreen extends ConsumerWidget {
                 const SizedBox(height: 12),
                 _PaymentRow(
                   label: loc.total,
-                  value: '৳${_formatPrice(booking.totalAmount)}',
+                  value: currencyState.formatPrice(booking.totalAmount),
                   isTotal: true,
                 ),
                 const SizedBox(height: 12),
@@ -261,7 +256,7 @@ class BookingDetailsScreen extends ConsumerWidget {
                       _processStripePayment(context, ref, booking, loc),
                   icon: const Icon(Icons.payment, color: Colors.white),
                   label: Text(
-                    'Pay Now • ৳${_formatPrice(booking.totalAmount)}',
+                    'Pay Now • ${currencyState.formatPrice(booking.totalAmount)}',
                     style: const TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,

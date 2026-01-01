@@ -8,6 +8,7 @@ import 'package:share_plus/share_plus.dart';
 import 'package:shimmer/shimmer.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
+import '../../../core/providers/currency_provider.dart';
 import '../../home/providers/hotel_provider.dart';
 import '../../home/providers/saved_hotels_provider.dart';
 import '../providers/room_provider.dart';
@@ -1394,7 +1395,7 @@ class _RatingBar extends StatelessWidget {
   }
 }
 
-class _BottomBookingBar extends StatelessWidget {
+class _BottomBookingBar extends ConsumerWidget {
   final int price;
   final int nights;
   final bool isSaved;
@@ -1411,17 +1412,11 @@ class _BottomBookingBar extends StatelessWidget {
     required this.isDark,
   });
 
-  String _formatPrice(int price) {
-    return price.toString().replaceAllMapped(
-      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-      (Match m) => '${m[1]},',
-    );
-  }
-
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final loc = AppLocalizations.of(context)!;
     final totalPrice = price * nights;
+    final currencyState = ref.watch(currencyProvider);
 
     return ClipRRect(
       child: BackdropFilter(
@@ -1455,7 +1450,7 @@ class _BottomBookingBar extends StatelessWidget {
                       text: TextSpan(
                         children: [
                           TextSpan(
-                            text: '৳${_formatPrice(totalPrice)}',
+                            text: currencyState.formatPrice(totalPrice),
                             style: AppTypography.h3.copyWith(
                               color: AppColors.primary,
                               fontWeight: FontWeight.bold,
@@ -1465,7 +1460,7 @@ class _BottomBookingBar extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      '$nights ${nights == 1 ? 'night' : 'nights'} • ৳${_formatPrice(price)}/night',
+                      '$nights ${nights == 1 ? 'night' : 'nights'} • ${currencyState.formatPrice(price)}/night',
                       style: AppTypography.labelSmall.copyWith(
                         color: AppColors.textSecondary,
                       ),

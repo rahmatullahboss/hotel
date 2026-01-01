@@ -2,9 +2,11 @@
 import 'dart:async';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_typography.dart';
+import '../../core/providers/currency_provider.dart';
 
 class SpecialDealsSection extends StatelessWidget {
   final List<SpecialDealData> deals;
@@ -84,20 +86,14 @@ class SpecialDealsSection extends StatelessWidget {
   }
 }
 
-class _SpecialDealCard extends StatelessWidget {
+class _SpecialDealCard extends ConsumerWidget {
   final SpecialDealData deal;
 
   const _SpecialDealCard({required this.deal});
 
-  String _formatPrice(int price) {
-    return price.toString().replaceAllMapped(
-      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-      (Match m) => '${m[1]},',
-    );
-  }
-
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final currencyState = ref.watch(currencyProvider);
     final discount = deal.originalPrice > 0
         ? ((deal.originalPrice - deal.discountedPrice) /
                   deal.originalPrice *
@@ -234,7 +230,7 @@ class _SpecialDealCard extends StatelessWidget {
                       Row(
                         children: [
                           Text(
-                            '৳${_formatPrice(deal.originalPrice)}',
+                            currencyState.formatPrice(deal.originalPrice),
                             style: AppTypography.bodySmall.copyWith(
                               color: Colors.white.withValues(alpha: 0.6),
                               decoration: TextDecoration.lineThrough,
@@ -242,7 +238,7 @@ class _SpecialDealCard extends StatelessWidget {
                           ),
                           const SizedBox(width: 8),
                           Text(
-                            '৳${_formatPrice(deal.discountedPrice)}',
+                            currencyState.formatPrice(deal.discountedPrice),
                             style: AppTypography.h4.copyWith(
                               color: Colors.white,
                               fontWeight: FontWeight.bold,
