@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import { HiOutlineHome, HiOutlineMagnifyingGlass, HiOutlineArrowLeft } from "react-icons/hi2";
 

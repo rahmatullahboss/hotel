@@ -25,9 +25,10 @@ export async function POST(request: NextRequest) {
         const body = await request.json() as {
             bookingId: string;
             amount?: number;
+            currency?: 'bdt' | 'usd'; // Accept currency from mobile app
         };
 
-        const { bookingId, amount } = body;
+        const { bookingId, amount, currency = 'bdt' } = body; // Default to BDT
 
         if (!bookingId) {
             return NextResponse.json(
@@ -67,21 +68,31 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        // Use custom amount or full booking amount (in BDT)
+        // Use custom amount or full booking amount (always in BDT)
         const paymentAmountBDT = amount || Number(booking.totalAmount);
         
-        // Convert BDT to USD (approx rate: 1 USD = 110 BDT)
-        // Stripe requires amounts in smallest currency unit (cents for USD)
+        // Calculate amount in smallest currency unit based on selected currency
+        // BDT: paisa (1 BDT = 100 paisa)
+        // USD: cents (1 USD = 100 cents), convert from BDT at 1 USD = 110 BDT
         const exchangeRate = 110;
-        const amountInUSD = Math.round(paymentAmountBDT / exchangeRate);
-        const amountInCents = amountInUSD * 100;
+        let amountInSmallestUnit: number;
+        let displayAmount: string;
+        
+        if (currency === 'usd') {
+            const amountInUSD = Math.round(paymentAmountBDT / exchangeRate);
+            amountInSmallestUnit = amountInUSD * 100; // cents
+            displayAmount = `BDT ${paymentAmountBDT} → USD ${amountInUSD} (${amountInSmallestUnit} cents)`;
+        } else {
+            amountInSmallestUnit = Math.round(paymentAmountBDT * 100); // paisa
+            displayAmount = `BDT ${paymentAmountBDT} (${amountInSmallestUnit} paisa)`;
+        }
 
-        console.log(`Creating Stripe payment intent: BDT ${paymentAmountBDT} → USD ${amountInUSD} (${amountInCents} cents)`);
+        console.log(`Creating Stripe payment intent: ${displayAmount} [currency: ${currency}]`);
 
-        // Create payment intent
+        // Create payment intent with user's selected currency
         const paymentIntent = await stripe.paymentIntents.create({
-            amount: amountInCents,
-            currency: "usd", // US Dollar (Stripe Atlas accounts use USD)
+            amount: amountInSmallestUnit,
+            currency: currency, // Use selected currency (bdt or usd)
             metadata: {
                 bookingId: booking.id,
                 hotelId: booking.hotelId,
@@ -89,6 +100,7 @@ export async function POST(request: NextRequest) {
                 guestName: booking.guestName,
                 guestPhone: booking.guestPhone,
                 originalAmountBDT: paymentAmountBDT.toString(),
+                currency: currency,
             },
             automatic_payment_methods: {
                 enabled: true,
