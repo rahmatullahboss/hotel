@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { HiOutlineWifi, HiOutlineArrowPath, HiOutlineHome } from "react-icons/hi2";
+import { HiOutlineWifi, HiOutlineHome } from "react-icons/hi2";
+import RetryButton from "./components/RetryButton";
 
 export const metadata = {
   title: "অফলাইন - ZinuRooms",
@@ -32,13 +33,7 @@ export default function OfflinePage() {
 
         {/* Actions */}
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
-          <button
-            onClick={() => window.location.reload()}
-            className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-primary text-white font-semibold rounded-xl hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20"
-          >
-            <HiOutlineArrowPath className="w-5 h-5" />
-            আবার চেষ্টা করুন
-          </button>
+          <RetryButton />
           <Link
             href="/"
             className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-white text-gray-700 font-semibold rounded-xl hover:bg-gray-50 transition-colors border border-gray-200"
