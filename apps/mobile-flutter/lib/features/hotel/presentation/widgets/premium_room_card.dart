@@ -45,8 +45,7 @@ class PremiumRoomCard extends ConsumerWidget {
 
     return GestureDetector(
       onTap: isAvailable ? onSelect : null,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 120),
+      child: Container(
         decoration: BoxDecoration(
           color: isDark ? AppColors.surfaceDark : Colors.white,
           borderRadius: BorderRadius.circular(20),
@@ -324,8 +323,7 @@ class PremiumRoomCard extends ConsumerWidget {
                       ),
 
                       // Book Button
-                      AnimatedContainer(
-                        duration: const Duration(milliseconds: 200),
+                      Container(
                         child: ElevatedButton(
                           onPressed: isAvailable ? onSelect : null,
                           style: ElevatedButton.styleFrom(
