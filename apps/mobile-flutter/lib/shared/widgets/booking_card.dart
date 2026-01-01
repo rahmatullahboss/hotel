@@ -1,10 +1,12 @@
 // Booking Card Widget
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_typography.dart';
+import '../../core/providers/currency_provider.dart';
 
 enum BookingStatus {
   confirmed,
@@ -15,7 +17,7 @@ enum BookingStatus {
   checkedOut,
 }
 
-class BookingCard extends StatelessWidget {
+class BookingCard extends ConsumerWidget {
   final String id;
   final String hotelName;
   final String hotelLocation;
@@ -112,7 +114,8 @@ class BookingCard extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final currencyState = ref.watch(currencyProvider);
     return GestureDetector(
       onTap: () => context.push('/bookings/$id'),
       child: Container(
@@ -253,7 +256,7 @@ class BookingCard extends StatelessWidget {
 
                   // Amount
                   Text(
-                    '৳${totalAmount.toInt()}',
+                    currencyState.formatPrice(totalAmount.toInt()),
                     style: AppTypography.priceSmall.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
