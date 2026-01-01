@@ -105,8 +105,13 @@ final routerProvider = Provider<GoRouter>((ref) {
             pageBuilder: (context, state) {
               final city = state.uri.queryParameters['city'];
               final filter = state.uri.queryParameters['filter'];
+              final query = state.uri.queryParameters['query'];
               return NoTransitionPage(
-                child: SearchScreen(initialCity: city, initialFilter: filter),
+                child: SearchScreen(
+                  initialCity: city,
+                  initialFilter: filter,
+                  initialQuery: query,
+                ),
               );
             },
           ),

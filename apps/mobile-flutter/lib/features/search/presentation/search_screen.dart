@@ -109,8 +109,14 @@ final searchQueryProvider = NotifierProvider<SearchQueryNotifier, String>(
 class SearchScreen extends ConsumerStatefulWidget {
   final String? initialCity;
   final String? initialFilter;
+  final String? initialQuery;
 
-  const SearchScreen({super.key, this.initialCity, this.initialFilter});
+  const SearchScreen({
+    super.key,
+    this.initialCity,
+    this.initialFilter,
+    this.initialQuery,
+  });
 
   @override
   ConsumerState<SearchScreen> createState() => _SearchScreenState();
@@ -137,8 +143,39 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
     selectedCity = widget.initialCity;
     activeFilter = widget.initialFilter;
 
-    // If we have a city, set it as the search query
-    if (selectedCity != null) {
+    // Handle initial query (e.g., nearby:lat,lng from home screen)
+    if (widget.initialQuery != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        ref.read(searchQueryProvider.notifier).update(widget.initialQuery!);
+        // Check if it's a nearby query
+        if (widget.initialQuery!.startsWith('nearby:')) {
+          activeFilter = 'nearby';
+          // Parse coordinates and set location state
+          final coords = widget.initialQuery!.substring(7).split(',');
+          if (coords.length == 2) {
+            final lat = double.tryParse(coords[0]);
+            final lng = double.tryParse(coords[1]);
+            if (lat != null && lng != null) {
+              setState(() {
+                _currentPosition = Position(
+                  latitude: lat,
+                  longitude: lng,
+                  timestamp: DateTime.now(),
+                  accuracy: 0,
+                  altitude: 0,
+                  altitudeAccuracy: 0,
+                  heading: 0,
+                  headingAccuracy: 0,
+                  speed: 0,
+                  speedAccuracy: 0,
+                );
+              });
+            }
+          }
+        }
+      });
+    } else if (selectedCity != null) {
+      // If we have a city, set it as the search query
       WidgetsBinding.instance.addPostFrameCallback((_) {
         ref.read(searchQueryProvider.notifier).update(selectedCity!);
         _searchController.text = selectedCity!;
