@@ -70,9 +70,13 @@ class _HotelDetailsScreenState extends ConsumerState<HotelDetailsScreen>
   void _onScroll() {
     final offset = _scrollController.offset;
     final maxOffset = 200.0;
-    setState(() {
-      _appBarOpacity = (offset / maxOffset).clamp(0.0, 1.0);
-    });
+    final newOpacity = (offset / maxOffset).clamp(0.0, 1.0);
+    // Only update if opacity changed significantly (reduces rebuilds)
+    if ((newOpacity - _appBarOpacity).abs() > 0.05) {
+      setState(() {
+        _appBarOpacity = newOpacity;
+      });
+    }
   }
 
   @override
