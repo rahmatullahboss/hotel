@@ -44,7 +44,7 @@ class _HotelCardState extends State<HotelCard>
   void initState() {
     super.initState();
     _heartController = AnimationController(
-      duration: const Duration(milliseconds: 200),
+      duration: const Duration(milliseconds: 120),
       vsync: this,
     );
     _heartScale = Tween<double>(begin: 1.0, end: 1.3).animate(

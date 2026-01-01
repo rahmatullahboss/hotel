@@ -26,7 +26,7 @@ class QuickFilterButton extends StatelessWidget {
     return GestureDetector(
       onTap: isLoading ? null : onPressed,
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
+        duration: const Duration(milliseconds: 120),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         decoration: BoxDecoration(
           color: isActive ? AppColors.primary : Colors.white,
@@ -97,7 +97,7 @@ class FilterChip extends StatelessWidget {
     return GestureDetector(
       onTap: onPressed,
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
+        duration: const Duration(milliseconds: 120),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         decoration: BoxDecoration(
           color: isActive ? color : Colors.white,

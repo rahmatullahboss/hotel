@@ -167,7 +167,7 @@ class _NavItem extends StatelessWidget {
           children: [
             // Icon with animated background
             AnimatedContainer(
-              duration: const Duration(milliseconds: 250),
+              duration: const Duration(milliseconds: 150),
               curve: Curves.easeOutCubic,
               width: isSelected ? 52 : 40,
               height: 32,
@@ -179,7 +179,7 @@ class _NavItem extends StatelessWidget {
               ),
               child: Center(
                 child: AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 200),
+                  duration: const Duration(milliseconds: 120),
                   child: Icon(
                     isSelected ? selectedIcon : icon,
                     key: ValueKey(isSelected),
@@ -196,7 +196,7 @@ class _NavItem extends StatelessWidget {
             const SizedBox(height: 4),
             // Label
             AnimatedDefaultTextStyle(
-              duration: const Duration(milliseconds: 200),
+              duration: const Duration(milliseconds: 120),
               style: GoogleFonts.notoSans(
                 fontSize: isSelected ? 11 : 10,
                 fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,

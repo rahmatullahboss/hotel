@@ -543,7 +543,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                     Padding(
                       padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
                       child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 300),
+                        duration: const Duration(milliseconds: 150),
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
                           color: _locationError != null

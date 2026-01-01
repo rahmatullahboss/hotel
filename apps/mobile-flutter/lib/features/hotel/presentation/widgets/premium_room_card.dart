@@ -50,7 +50,7 @@ class PremiumRoomCard extends StatelessWidget {
     return GestureDetector(
       onTap: isAvailable ? onSelect : null,
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
+        duration: const Duration(milliseconds: 120),
         decoration: BoxDecoration(
           color: isDark ? AppColors.surfaceDark : Colors.white,
           borderRadius: BorderRadius.circular(20),

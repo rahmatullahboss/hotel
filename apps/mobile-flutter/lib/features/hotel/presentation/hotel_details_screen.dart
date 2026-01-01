@@ -52,7 +52,7 @@ class _HotelDetailsScreenState extends ConsumerState<HotelDetailsScreen>
 
     _bottomBarController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 400),
+      duration: const Duration(milliseconds: 250),
     );
     _bottomBarOpacity = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(parent: _bottomBarController, curve: Curves.easeOut),
@@ -61,7 +61,7 @@ class _HotelDetailsScreenState extends ConsumerState<HotelDetailsScreen>
     _scrollController.addListener(_onScroll);
 
     // Animate bottom bar in after a delay
-    Future.delayed(const Duration(milliseconds: 500), () {
+    Future.delayed(const Duration(milliseconds: 300), () {
       if (mounted) _bottomBarController.forward();
     });
   }

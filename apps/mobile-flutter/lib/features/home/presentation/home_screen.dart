@@ -801,7 +801,7 @@ class _QuickFilterChipState extends State<_QuickFilterChip>
   void initState() {
     super.initState();
     _controller = AnimationController(
-      duration: const Duration(milliseconds: 150),
+      duration: const Duration(milliseconds: 100),
       vsync: this,
     );
     _scaleAnimation = Tween<double>(
@@ -833,7 +833,7 @@ class _QuickFilterChipState extends State<_QuickFilterChip>
           return Transform.scale(scale: _scaleAnimation.value, child: child);
         },
         child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
+          duration: const Duration(milliseconds: 120),
           padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
           decoration: BoxDecoration(
             color: widget.isActive ? AppColors.primary : Colors.white,

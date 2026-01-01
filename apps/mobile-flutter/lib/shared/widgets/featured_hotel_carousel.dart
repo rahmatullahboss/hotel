@@ -47,7 +47,7 @@ class _FeaturedHotelCarouselState extends State<FeaturedHotelCarousel> {
         }
         _pageController.animateToPage(
           nextPage,
-          duration: const Duration(milliseconds: 500),
+          duration: const Duration(milliseconds: 350),
           curve: Curves.easeInOut,
         );
       }
@@ -106,7 +106,7 @@ class _FeaturedHotelCarouselState extends State<FeaturedHotelCarousel> {
               children: List.generate(
                 widget.hotels.length,
                 (index) => AnimatedContainer(
-                  duration: const Duration(milliseconds: 250),
+                  duration: const Duration(milliseconds: 150),
                   width: index == _currentPage ? 24 : 8,
                   height: 8,
                   margin: const EdgeInsets.symmetric(horizontal: 3),

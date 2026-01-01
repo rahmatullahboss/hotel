@@ -162,7 +162,7 @@ class _HotelFiltersSheetState extends ConsumerState<HotelFiltersSheet> {
                           });
                         },
                         child: AnimatedContainer(
-                          duration: const Duration(milliseconds: 200),
+                          duration: const Duration(milliseconds: 120),
                           padding: const EdgeInsets.symmetric(
                             horizontal: 16,
                             vertical: 10,
@@ -228,7 +228,7 @@ class _HotelFiltersSheetState extends ConsumerState<HotelFiltersSheet> {
                           });
                         },
                         child: AnimatedContainer(
-                          duration: const Duration(milliseconds: 200),
+                          duration: const Duration(milliseconds: 120),
                           padding: const EdgeInsets.symmetric(
                             horizontal: 14,
                             vertical: 8,
@@ -291,7 +291,7 @@ class _HotelFiltersSheetState extends ConsumerState<HotelFiltersSheet> {
                           });
                         },
                         child: AnimatedContainer(
-                          duration: const Duration(milliseconds: 200),
+                          duration: const Duration(milliseconds: 120),
                           padding: const EdgeInsets.symmetric(
                             horizontal: 14,
                             vertical: 8,

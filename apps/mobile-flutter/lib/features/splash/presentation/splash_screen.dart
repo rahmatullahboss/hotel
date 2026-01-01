@@ -23,7 +23,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(seconds: 3),
+      duration: const Duration(seconds: 2),
     );
 
     _progressAnimation = Tween<double>(

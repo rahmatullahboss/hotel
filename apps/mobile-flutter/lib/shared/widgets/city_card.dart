@@ -37,12 +37,12 @@ class _CityCardState extends State<CityCard>
   void initState() {
     super.initState();
     _controller = AnimationController(
-      duration: const Duration(milliseconds: 150),
+      duration: const Duration(milliseconds: 100),
       vsync: this,
     );
     _scaleAnimation = Tween<double>(
       begin: 1.0,
-      end: 0.96,
+      end: 0.98,
     ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
   }
 
@@ -100,7 +100,7 @@ class _CityCardState extends State<CityCard>
                 // Background Image with subtle zoom on press
                 AnimatedScale(
                   scale: _isPressed ? 1.08 : 1.0,
-                  duration: const Duration(milliseconds: 200),
+                  duration: const Duration(milliseconds: 100),
                   child: widget.imageUrl != null
                       ? CachedNetworkImage(
                           imageUrl: widget.imageUrl!,
@@ -141,7 +141,7 @@ class _CityCardState extends State<CityCard>
                   top: 12,
                   right: 12,
                   child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 200),
+                    duration: const Duration(milliseconds: 100),
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
                       color: _isPressed
