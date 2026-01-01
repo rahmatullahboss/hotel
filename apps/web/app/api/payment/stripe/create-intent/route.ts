@@ -67,23 +67,28 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        // Use custom amount or full booking amount
-        const paymentAmount = amount || Number(booking.totalAmount);
+        // Use custom amount or full booking amount (in BDT)
+        const paymentAmountBDT = amount || Number(booking.totalAmount);
         
-        // Convert to smallest currency unit (paisa for BDT)
-        // Stripe expects amounts in the smallest currency unit
-        const amountInSmallestUnit = Math.round(paymentAmount * 100);
+        // Convert BDT to USD (approx rate: 1 USD = 110 BDT)
+        // Stripe requires amounts in smallest currency unit (cents for USD)
+        const exchangeRate = 110;
+        const amountInUSD = Math.round(paymentAmountBDT / exchangeRate);
+        const amountInCents = amountInUSD * 100;
+
+        console.log(`Creating Stripe payment intent: BDT ${paymentAmountBDT} → USD ${amountInUSD} (${amountInCents} cents)`);
 
         // Create payment intent
         const paymentIntent = await stripe.paymentIntents.create({
-            amount: amountInSmallestUnit,
-            currency: "bdt", // Bangladesh Taka
+            amount: amountInCents,
+            currency: "usd", // US Dollar (Stripe Atlas accounts use USD)
             metadata: {
                 bookingId: booking.id,
                 hotelId: booking.hotelId,
                 userId: booking.userId || "guest",
                 guestName: booking.guestName,
                 guestPhone: booking.guestPhone,
+                originalAmountBDT: paymentAmountBDT.toString(),
             },
             automatic_payment_methods: {
                 enabled: true,
@@ -106,14 +111,22 @@ export async function POST(request: NextRequest) {
         });
     } catch (error: unknown) {
         console.error("Error creating Stripe payment intent:", error);
-        if (error instanceof Stripe.errors.StripeError) {
-            return NextResponse.json(
-                { success: false, error: error.message },
-                { status: error.statusCode || 500 }
-            );
+        
+        // Type-safe Stripe error handling
+        if (error && typeof error === 'object' && 'type' in error) {
+            const stripeError = error as { type: string; message?: string; statusCode?: number };
+            if (stripeError.type.startsWith('Stripe')) {
+                return NextResponse.json(
+                    { success: false, error: stripeError.message || 'Stripe error' },
+                    { status: stripeError.statusCode || 400 }
+                );
+            }
         }
+        
+        // Generic error
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
         return NextResponse.json(
-            { success: false, error: "Failed to create payment intent" },
+            { success: false, error: `Failed to create payment intent: ${errorMessage}` },
             { status: 500 }
         );
     }
