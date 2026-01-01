@@ -26,6 +26,13 @@ export async function GET(request: NextRequest) {
         const minRating = searchParams.get("minRating");
         const amenities = searchParams.get("amenities");
         const limit = searchParams.get("limit");
+        const all = searchParams.get("all");
+
+        // If 'all' param is true, return all hotels (for nearby search etc)
+        if (all === "true") {
+            const hotels = await searchHotels({});
+            return NextResponse.json(hotels);
+        }
 
         // If no search params, return featured hotels
         if (!city && !minPrice && !maxPrice && !payAtHotel && !minRating && !amenities) {

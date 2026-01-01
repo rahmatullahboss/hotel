@@ -314,7 +314,9 @@ final searchHotelsProvider = FutureProvider.family<List<Hotel>, String>((
       );
 
   try {
-    final response = await dio.get('/hotels');
+    // For nearby search, fetch all hotels
+    final String endpoint = isNearbySearch ? '/hotels?all=true' : '/hotels';
+    final response = await dio.get(endpoint);
     final dynamic responseData = response.data;
     final List<dynamic> data;
     if (responseData is Map<String, dynamic> &&
