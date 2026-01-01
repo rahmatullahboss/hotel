@@ -10,6 +10,7 @@ import '../../../core/l10n/locale_provider.dart';
 import '../../../core/providers/currency_provider.dart';
 import '../../../l10n/generated/app_localizations.dart';
 import '../../auth/providers/auth_provider.dart';
+import '../providers/wallet_provider.dart';
 
 class ProfileScreen extends ConsumerStatefulWidget {
   const ProfileScreen({super.key});
@@ -20,17 +21,31 @@ class ProfileScreen extends ConsumerStatefulWidget {
 
 class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   @override
+  void initState() {
+    super.initState();
+    // Fetch wallet data when screen loads
+    Future.microtask(() {
+      if (ref.read(authProvider).isAuthenticated) {
+        ref.read(walletProvider.notifier).fetchWallet();
+      }
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     final topPadding = MediaQuery.of(context).padding.top;
     final authState = ref.watch(authProvider);
     final isLoggedIn = authState.isAuthenticated;
     final user = authState.user;
 
+    // Use walletProvider for accurate wallet/points data
+    final walletState = ref.watch(walletProvider);
+
     // Use user data from API or defaults
-    final membershipTier = 'BRONZE';
+    final membershipTier = walletState.loyaltyTier.toUpperCase();
     final bookingsCount = user?.totalBookings ?? 0;
-    final walletBalance = user?.walletBalance ?? 0;
-    final loyaltyPoints = user?.loyaltyPoints ?? 0;
+    final walletBalance = walletState.balance;
+    final loyaltyPoints = walletState.loyaltyPoints;
 
     return Scaffold(
       backgroundColor: AppColors.adaptiveBackground(context),
@@ -488,26 +503,22 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                     width: double.infinity,
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     decoration: BoxDecoration(
-                      color: AppColors.errorLight,
+                      color: AppColors.primary.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(
-                        color: AppColors.error.withValues(alpha: 0.3),
+                        color: AppColors.primary.withValues(alpha: 0.3),
                         width: 2,
                       ),
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Icon(
-                          Icons.logout,
-                          color: AppColors.error,
-                          size: 20,
-                        ),
+                        Icon(Icons.logout, color: AppColors.primary, size: 20),
                         const SizedBox(width: 8),
                         Text(
                           AppLocalizations.of(context)!.logout,
                           style: AppTypography.button.copyWith(
-                            color: AppColors.error,
+                            color: AppColors.primary,
                           ),
                         ),
                       ],
