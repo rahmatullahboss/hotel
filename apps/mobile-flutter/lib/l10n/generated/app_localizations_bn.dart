@@ -117,6 +117,9 @@ class AppLocalizationsBn extends AppLocalizations {
   String get bengali => 'বাংলা';
 
   @override
+  String get currency => 'মুদ্রা';
+
+  @override
   String get login => 'লগইন';
 
   @override

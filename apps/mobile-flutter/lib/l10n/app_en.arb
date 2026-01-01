@@ -48,6 +48,7 @@
   "language": "Language",
   "english": "English",
   "bengali": "Bengali",
+  "currency": "Currency",
   
   "login": "Login",
   "logout": "Logout",

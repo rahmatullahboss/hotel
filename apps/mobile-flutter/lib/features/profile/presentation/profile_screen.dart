@@ -46,6 +46,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     final bookingsCount = user?.totalBookings ?? 0;
     final walletBalance = walletState.balance;
     final loyaltyPoints = walletState.loyaltyPoints;
+    final loc = AppLocalizations.of(context)!;
 
     return Scaffold(
       backgroundColor: AppColors.adaptiveBackground(context),
@@ -270,7 +271,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                                               ),
                                               child: Center(
                                                 child: Text(
-                                                  'বাংলা',
+                                                  loc.bengali,
                                                   style: AppTypography
                                                       .labelLarge
                                                       .copyWith(
@@ -323,7 +324,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                               const SizedBox(width: 12),
                               Expanded(
                                 child: Text(
-                                  'ডার্ক মোড',
+                                  loc.darkMode,
                                   style: AppTypography.bodyMedium.copyWith(
                                     fontWeight: FontWeight.w500,
                                   ),
@@ -369,7 +370,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                                   ),
                                   const SizedBox(width: 12),
                                   Text(
-                                    'মুদ্রা (Currency)',
+                                    loc.currency,
                                     style: AppTypography.bodyMedium.copyWith(
                                       fontWeight: FontWeight.w500,
                                     ),
@@ -852,7 +853,7 @@ class _StatsCard extends ConsumerWidget {
               child: _StatItem(
                 icon: Icons.account_balance_wallet_outlined,
                 value: currencyState.formatPrice(walletBalance),
-                label: 'ওয়ালেট',
+                label: AppLocalizations.of(context)!.wallet,
                 onTap: onWalletTap,
               ),
             ),

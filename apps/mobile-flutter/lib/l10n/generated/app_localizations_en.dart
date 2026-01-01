@@ -117,6 +117,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get bengali => 'Bengali';
 
   @override
+  String get currency => 'Currency';
+
+  @override
   String get login => 'Login';
 
   @override

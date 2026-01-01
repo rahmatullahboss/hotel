@@ -314,6 +314,12 @@ abstract class AppLocalizations {
   /// **'Bengali'**
   String get bengali;
 
+  /// No description provided for @currency.
+  ///
+  /// In en, this message translates to:
+  /// **'Currency'**
+  String get currency;
+
   /// No description provided for @login.
   ///
   /// In en, this message translates to:
