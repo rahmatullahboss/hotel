@@ -41,6 +41,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             _ProfileHeader(
               isLoggedIn: isLoggedIn,
               userName: user?.name,
+              avatarUrl: user?.avatarUrl,
               membershipTier: membershipTier,
               onSignIn: () => context.push('/login'),
               onEditProfile: () => context.push('/edit-profile'),
@@ -565,6 +566,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
 class _ProfileHeader extends StatelessWidget {
   final bool isLoggedIn;
   final String? userName;
+  final String? avatarUrl;
   final String membershipTier;
   final VoidCallback onSignIn;
   final VoidCallback onEditProfile;
@@ -573,6 +575,7 @@ class _ProfileHeader extends StatelessWidget {
   const _ProfileHeader({
     required this.isLoggedIn,
     this.userName,
+    this.avatarUrl,
     required this.membershipTier,
     required this.onSignIn,
     required this.onEditProfile,
@@ -636,7 +639,25 @@ class _ProfileHeader extends StatelessWidget {
                     ],
                   ),
                   child: isLoggedIn
-                      ? Icon(Icons.person, size: 50, color: AppColors.primary)
+                      ? (avatarUrl != null && avatarUrl!.isNotEmpty
+                            ? ClipOval(
+                                child: Image.network(
+                                  avatarUrl!,
+                                  width: 94,
+                                  height: 94,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (_, __, ___) => Icon(
+                                    Icons.person,
+                                    size: 50,
+                                    color: AppColors.primary,
+                                  ),
+                                ),
+                              )
+                            : Icon(
+                                Icons.person,
+                                size: 50,
+                                color: AppColors.primary,
+                              ))
                       : Icon(
                           Icons.person_outline,
                           size: 50,
