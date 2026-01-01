@@ -801,7 +801,7 @@ class _ProfileHeader extends StatelessWidget {
   }
 }
 
-class _StatsCard extends StatelessWidget {
+class _StatsCard extends ConsumerWidget {
   final int bookingsCount;
   final int walletBalance;
   final int loyaltyPoints;
@@ -819,7 +819,9 @@ class _StatsCard extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final currencyState = ref.watch(currencyProvider);
+
     return Transform.translate(
       offset: const Offset(0, -20),
       child: Container(
@@ -849,7 +851,7 @@ class _StatsCard extends StatelessWidget {
             Expanded(
               child: _StatItem(
                 icon: Icons.account_balance_wallet_outlined,
-                value: '৳$walletBalance',
+                value: currencyState.formatPrice(walletBalance),
                 label: 'ওয়ালেট',
                 onTap: onWalletTap,
               ),
