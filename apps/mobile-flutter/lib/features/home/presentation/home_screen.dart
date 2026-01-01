@@ -299,14 +299,24 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   deals: hotelsState.hotels.take(3).map((h) {
                     final originalPrice = h.pricePerNight;
                     final discountedPrice = (originalPrice * 0.8).round();
+                    // Deal expires at midnight (end of day)
+                    final now = DateTime.now();
+                    final endOfDay = DateTime(
+                      now.year,
+                      now.month,
+                      now.day,
+                      23,
+                      59,
+                      59,
+                    );
                     return SpecialDealData(
                       hotelId: h.id,
                       hotelName: h.name,
-                      title: '20% Off Weekend Stay',
+                      title: '20% Off Today Only!',
                       originalPrice: originalPrice,
                       discountedPrice: discountedPrice,
                       imageUrl: h.imageUrl,
-                      expiresAt: DateTime.now().add(const Duration(hours: 12)),
+                      expiresAt: endOfDay,
                     );
                   }).toList(),
                   onViewAll: () => context.push('/deals'),
