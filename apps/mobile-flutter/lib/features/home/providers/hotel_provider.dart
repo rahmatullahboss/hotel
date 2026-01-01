@@ -334,15 +334,45 @@ final searchHotelsProvider = FutureProvider.family<List<Hotel>, String>((
         final userLat = double.tryParse(coords[0]) ?? 0;
         final userLng = double.tryParse(coords[1]) ?? 0;
 
-        // Calculate distance for all hotels and update their distanceFromUser property
+        // City coordinates for fallback when hotel lat/lng is missing
+        const cityCoordinates = <String, List<double>>{
+          'dhaka': [23.8103, 90.4125],
+          'chittagong': [22.3569, 91.7832],
+          "cox's bazar": [21.4272, 92.0058],
+          'sylhet': [24.8949, 91.8687],
+          'rajshahi': [24.3636, 88.6241],
+          'khulna': [22.8456, 89.5403],
+          'barisal': [22.7010, 90.3535],
+          'rangpur': [25.7439, 89.2752],
+          'mymensingh': [24.7471, 90.4203],
+          'comilla': [23.4607, 91.1809],
+        };
+
+        // Calculate distance for all hotels using their actual or city-based coordinates
         final hotelsWithDistance = hotels.map((hotel) {
+          // Use hotel's actual coordinates, or fallback to city coordinates
+          double hotelLat = hotel.latitude;
+          double hotelLng = hotel.longitude;
+
+          if (hotelLat == 0.0 || hotelLng == 0.0) {
+            // Use city-based coordinates as fallback
+            final cityLower = hotel.city.toLowerCase();
+            final cityCoords = cityCoordinates[cityLower];
+            if (cityCoords != null) {
+              hotelLat = cityCoords[0];
+              hotelLng = cityCoords[1];
+            } else {
+              // If city not found, use a very far distance
+              hotelLat = 0;
+              hotelLng = 0;
+            }
+          }
+
           final distance = _calculateDistance(
             userLat,
             userLng,
-            hotel.latitude != 0.0
-                ? hotel.latitude
-                : 23.8103, // Default to Dhaka if missing
-            hotel.longitude != 0.0 ? hotel.longitude : 90.4125,
+            hotelLat,
+            hotelLng,
           );
           return hotel.copyWith(distanceFromUser: distance);
         }).toList();
@@ -354,8 +384,7 @@ final searchHotelsProvider = FutureProvider.family<List<Hotel>, String>((
           );
         });
 
-        // Filter out hotels that are too far away (e.g., > 50km) if desired,
-        // or just return the closest ones. Here we return top 20 closest.
+        // Return top 20 closest hotels
         return hotelsWithDistance.take(20).toList();
       }
     } else if (isBudgetFilter) {
