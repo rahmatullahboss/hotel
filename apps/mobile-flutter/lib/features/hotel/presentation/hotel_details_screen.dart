@@ -52,7 +52,7 @@ class _HotelDetailsScreenState extends ConsumerState<HotelDetailsScreen>
 
     _bottomBarController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 250),
+      duration: const Duration(milliseconds: 150),
     );
     _bottomBarOpacity = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(parent: _bottomBarController, curve: Curves.easeOut),
@@ -60,8 +60,8 @@ class _HotelDetailsScreenState extends ConsumerState<HotelDetailsScreen>
 
     _scrollController.addListener(_onScroll);
 
-    // Animate bottom bar in after a delay
-    Future.delayed(const Duration(milliseconds: 300), () {
+    // Animate bottom bar in immediately
+    Future.delayed(const Duration(milliseconds: 100), () {
       if (mounted) _bottomBarController.forward();
     });
   }
@@ -435,8 +435,7 @@ class _HotelDetailsScreenState extends ConsumerState<HotelDetailsScreen>
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: List.generate(
                             images.length,
-                            (index) => AnimatedContainer(
-                              duration: const Duration(milliseconds: 250),
+                            (index) => Container(
                               width: index == _currentImageIndex ? 28 : 8,
                               height: 8,
                               margin: const EdgeInsets.symmetric(horizontal: 3),
@@ -460,7 +459,7 @@ class _HotelDetailsScreenState extends ConsumerState<HotelDetailsScreen>
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(8),
                             child: BackdropFilter(
-                              filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                              filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
                               child: Container(
                                 padding: const EdgeInsets.symmetric(
                                   horizontal: 12,
@@ -1426,7 +1425,7 @@ class _BottomBookingBar extends StatelessWidget {
 
     return ClipRRect(
       child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
         child: Container(
           padding: EdgeInsets.only(
             left: 20,
@@ -1475,11 +1474,9 @@ class _BottomBookingBar extends StatelessWidget {
                 ),
               ),
 
-              // Save Button
               GestureDetector(
                 onTap: onSave,
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 200),
+                child: Container(
                   width: 52,
                   height: 52,
                   margin: const EdgeInsets.only(right: 12),
