@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:qr_flutter/qr_flutter.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../l10n/generated/app_localizations.dart';
@@ -310,9 +311,7 @@ class BookingDetailsScreen extends ConsumerWidget {
             children: [
               Expanded(
                 child: OutlinedButton.icon(
-                  onPressed: () {
-                    // TODO: Implement call hotel
-                  },
+                  onPressed: () => _callHotel(context, booking, loc),
                   icon: const Icon(Icons.phone),
                   label: Text(loc.callHotel),
                 ),
@@ -320,9 +319,7 @@ class BookingDetailsScreen extends ConsumerWidget {
               const SizedBox(width: 12),
               Expanded(
                 child: OutlinedButton.icon(
-                  onPressed: () {
-                    // TODO: Implement view on map
-                  },
+                  onPressed: () => _viewOnMap(context, booking, loc),
                   icon: const Icon(Icons.map),
                   label: Text(loc.viewOnMap),
                 ),
@@ -404,6 +401,110 @@ class BookingDetailsScreen extends ConsumerWidget {
         return loc.wallet;
       default:
         return method;
+    }
+  }
+
+  Future<void> _callHotel(
+    BuildContext context,
+    Booking booking,
+    AppLocalizations loc,
+  ) async {
+    final phone = booking.hotelPhone;
+    if (phone == null || phone.isEmpty) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('Phone number not available'),
+            backgroundColor: AppColors.warning,
+          ),
+        );
+      }
+      return;
+    }
+
+    final uri = Uri.parse('tel:$phone');
+    try {
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri);
+      } else {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: const Text('Could not open phone dialer'),
+              backgroundColor: AppColors.error,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: $e'),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _viewOnMap(
+    BuildContext context,
+    Booking booking,
+    AppLocalizations loc,
+  ) async {
+    final lat = booking.hotelLatitude;
+    final lng = booking.hotelLongitude;
+
+    if (lat == null || lng == null) {
+      // Fallback: Search by hotel name and address
+      final searchQuery = Uri.encodeComponent(
+        '${booking.hotelName} ${booking.hotelAddress ?? ''}',
+      );
+      final uri = Uri.parse(
+        'https://www.google.com/maps/search/?api=1&query=$searchQuery',
+      );
+      try {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+      } catch (e) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: const Text('Could not open maps'),
+              backgroundColor: AppColors.error,
+            ),
+          );
+        }
+      }
+      return;
+    }
+
+    // Open Google Maps with coordinates
+    final uri = Uri.parse(
+      'https://www.google.com/maps/search/?api=1&query=$lat,$lng',
+    );
+    try {
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+      } else {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: const Text('Could not open maps'),
+              backgroundColor: AppColors.error,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: $e'),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
     }
   }
 

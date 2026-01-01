@@ -12,6 +12,10 @@ class Booking {
   final String roomId;
   final String roomName;
   final String? hotelImageUrl;
+  final String? hotelPhone;
+  final double? hotelLatitude;
+  final double? hotelLongitude;
+  final String? hotelAddress;
   final DateTime checkIn;
   final DateTime checkOut;
   final int guests;
@@ -29,6 +33,10 @@ class Booking {
     required this.roomId,
     required this.roomName,
     this.hotelImageUrl,
+    this.hotelPhone,
+    this.hotelLatitude,
+    this.hotelLongitude,
+    this.hotelAddress,
     required this.checkIn,
     required this.checkOut,
     required this.guests,
@@ -49,6 +57,17 @@ class Booking {
       roomName: json['roomName']?.toString() ?? 'Room',
       hotelImageUrl:
           json['hotelImage']?.toString() ?? json['hotelImageUrl']?.toString(),
+      hotelPhone: json['hotelPhone']?.toString() ?? json['phone']?.toString(),
+      hotelLatitude: double.tryParse(
+        json['hotelLatitude']?.toString() ?? json['latitude']?.toString() ?? '',
+      ),
+      hotelLongitude: double.tryParse(
+        json['hotelLongitude']?.toString() ??
+            json['longitude']?.toString() ??
+            '',
+      ),
+      hotelAddress:
+          json['hotelAddress']?.toString() ?? json['address']?.toString(),
       checkIn: json['checkIn'] != null
           ? DateTime.parse(json['checkIn'].toString())
           : DateTime.now(),
