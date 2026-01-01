@@ -1,5 +1,4 @@
 // Main Shell - Premium Floating Bottom Navigation
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -63,75 +62,63 @@ class _FloatingBottomNav extends StatelessWidget {
 
     return Container(
       margin: EdgeInsets.only(left: 20, right: 20, bottom: safeAreaBottom),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(32),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 25, sigmaY: 25),
-          child: Container(
-            height: 70,
-            decoration: BoxDecoration(
-              color: isDark
-                  ? AppColors.surfaceDark.withValues(alpha: 0.85)
-                  : Colors.white.withValues(alpha: 0.92),
-              borderRadius: BorderRadius.circular(32),
-              border: Border.all(
-                color: isDark
-                    ? Colors.white.withValues(alpha: 0.1)
-                    : Colors.white.withValues(alpha: 0.5),
-                width: 1,
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.12),
-                  blurRadius: 30,
-                  offset: const Offset(0, 10),
-                ),
-                if (!isDark)
-                  BoxShadow(
-                    color: AppColors.primary.withValues(alpha: 0.08),
-                    blurRadius: 50,
-                    spreadRadius: -15,
-                  ),
-              ],
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                _NavItem(
-                  icon: Icons.home_outlined,
-                  selectedIcon: Icons.home_rounded,
-                  label: AppLocalizations.of(context)!.navHome,
-                  isSelected: selectedIndex == 0,
-                  onTap: () => _onItemTapped(context, 0),
-                  isDark: isDark,
-                ),
-                _NavItem(
-                  icon: Icons.search_outlined,
-                  selectedIcon: Icons.search_rounded,
-                  label: AppLocalizations.of(context)!.navSearch,
-                  isSelected: selectedIndex == 1,
-                  onTap: () => _onItemTapped(context, 1),
-                  isDark: isDark,
-                ),
-                _NavItem(
-                  icon: Icons.calendar_today_outlined,
-                  selectedIcon: Icons.calendar_today_rounded,
-                  label: AppLocalizations.of(context)!.navBookings,
-                  isSelected: selectedIndex == 2,
-                  onTap: () => _onItemTapped(context, 2),
-                  isDark: isDark,
-                ),
-                _NavItem(
-                  icon: Icons.person_outline_rounded,
-                  selectedIcon: Icons.person_rounded,
-                  label: AppLocalizations.of(context)!.navProfile,
-                  isSelected: selectedIndex == 3,
-                  onTap: () => _onItemTapped(context, 3),
-                  isDark: isDark,
-                ),
-              ],
-            ),
+      child: Container(
+        height: 70,
+        decoration: BoxDecoration(
+          color: isDark
+              ? AppColors.surfaceDark.withValues(alpha: 0.98)
+              : Colors.white.withValues(alpha: 0.98),
+          borderRadius: BorderRadius.circular(32),
+          border: Border.all(
+            color: isDark
+                ? Colors.white.withValues(alpha: 0.1)
+                : Colors.black.withValues(alpha: 0.05),
+            width: 1,
           ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.08),
+              blurRadius: 20,
+              offset: const Offset(0, 6),
+            ),
+          ],
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            _NavItem(
+              icon: Icons.home_outlined,
+              selectedIcon: Icons.home_rounded,
+              label: AppLocalizations.of(context)!.navHome,
+              isSelected: selectedIndex == 0,
+              onTap: () => _onItemTapped(context, 0),
+              isDark: isDark,
+            ),
+            _NavItem(
+              icon: Icons.search_outlined,
+              selectedIcon: Icons.search_rounded,
+              label: AppLocalizations.of(context)!.navSearch,
+              isSelected: selectedIndex == 1,
+              onTap: () => _onItemTapped(context, 1),
+              isDark: isDark,
+            ),
+            _NavItem(
+              icon: Icons.calendar_today_outlined,
+              selectedIcon: Icons.calendar_today_rounded,
+              label: AppLocalizations.of(context)!.navBookings,
+              isSelected: selectedIndex == 2,
+              onTap: () => _onItemTapped(context, 2),
+              isDark: isDark,
+            ),
+            _NavItem(
+              icon: Icons.person_outline_rounded,
+              selectedIcon: Icons.person_rounded,
+              label: AppLocalizations.of(context)!.navProfile,
+              isSelected: selectedIndex == 3,
+              onTap: () => _onItemTapped(context, 3),
+              isDark: isDark,
+            ),
+          ],
         ),
       ),
     );
@@ -165,10 +152,8 @@ class _NavItem extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // Icon with animated background
-            AnimatedContainer(
-              duration: const Duration(milliseconds: 150),
-              curve: Curves.easeOutCubic,
+            // Icon with background
+            Container(
               width: isSelected ? 52 : 40,
               height: 32,
               decoration: BoxDecoration(
@@ -178,25 +163,23 @@ class _NavItem extends StatelessWidget {
                 borderRadius: BorderRadius.circular(16),
               ),
               child: Center(
-                child: AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 120),
-                  child: Icon(
-                    isSelected ? selectedIcon : icon,
-                    key: ValueKey(isSelected),
-                    color: isSelected
-                        ? AppColors.primary
-                        : isDark
-                        ? Colors.white54
-                        : AppColors.textTertiary,
-                    size: isSelected ? 26 : 24,
-                  ),
+                child: Icon(
+                  isSelected ? selectedIcon : icon,
+                  color: isSelected
+                      ? AppColors.primary
+                      : isDark
+                      ? Colors.white54
+                      : AppColors.textTertiary,
+                  size: isSelected ? 26 : 24,
                 ),
               ),
             ),
             const SizedBox(height: 4),
             // Label
-            AnimatedDefaultTextStyle(
-              duration: const Duration(milliseconds: 120),
+            Text(
+              label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
               style: GoogleFonts.notoSans(
                 fontSize: isSelected ? 11 : 10,
                 fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
@@ -206,7 +189,6 @@ class _NavItem extends StatelessWidget {
                     ? Colors.white54
                     : AppColors.textTertiary,
               ),
-              child: Text(label, maxLines: 1, overflow: TextOverflow.ellipsis),
             ),
           ],
         ),

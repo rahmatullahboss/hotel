@@ -78,22 +78,12 @@ class _FeaturedHotelCarouselState extends State<FeaturedHotelCarousel> {
             },
             itemCount: widget.hotels.length,
             itemBuilder: (context, index) {
-              return AnimatedBuilder(
-                animation: _pageController,
-                builder: (context, child) {
-                  double value = 1.0;
-                  if (_pageController.position.haveDimensions) {
-                    value = (_pageController.page! - index).abs();
-                    value = (1 - (value * 0.15)).clamp(0.85, 1.0);
-                  }
-                  return Transform.scale(
-                    scale: value,
-                    child: _FeaturedHotelCard(
-                      hotel: widget.hotels[index],
-                      isActive: index == _currentPage,
-                    ),
-                  );
-                },
+              return Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
+                child: _FeaturedHotelCard(
+                  hotel: widget.hotels[index],
+                  isActive: index == _currentPage,
+                ),
               );
             },
           ),
@@ -107,8 +97,7 @@ class _FeaturedHotelCarouselState extends State<FeaturedHotelCarousel> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: List.generate(
                 widget.hotels.length,
-                (index) => AnimatedContainer(
-                  duration: const Duration(milliseconds: 150),
+                (index) => Container(
                   width: index == _currentPage ? 24 : 8,
                   height: 8,
                   margin: const EdgeInsets.symmetric(horizontal: 3),
