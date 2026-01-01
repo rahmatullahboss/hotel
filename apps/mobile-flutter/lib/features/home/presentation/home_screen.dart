@@ -772,8 +772,8 @@ class _HotelCardShimmer extends StatelessWidget {
   }
 }
 
-// Quick Filter Chip with Animation
-class _QuickFilterChip extends StatefulWidget {
+// Quick Filter Chip - Simplified
+class _QuickFilterChip extends StatelessWidget {
   final String id;
   final String label;
   final IconData icon;
@@ -789,93 +789,51 @@ class _QuickFilterChip extends StatefulWidget {
   });
 
   @override
-  State<_QuickFilterChip> createState() => _QuickFilterChipState();
-}
-
-class _QuickFilterChipState extends State<_QuickFilterChip>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<double> _scaleAnimation;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      duration: const Duration(milliseconds: 100),
-      vsync: this,
-    );
-    _scaleAnimation = Tween<double>(
-      begin: 1.0,
-      end: 0.95,
-    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  void _handleTap() {
-    _controller.forward().then((_) {
-      _controller.reverse();
-      widget.onPressed();
-    });
-  }
-
-  @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: _handleTap,
-      child: AnimatedBuilder(
-        animation: _scaleAnimation,
-        builder: (context, child) {
-          return Transform.scale(scale: _scaleAnimation.value, child: child);
-        },
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 120),
-          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
-          decoration: BoxDecoration(
-            color: widget.isActive ? AppColors.primary : Colors.white,
-            borderRadius: BorderRadius.circular(24),
-            border: widget.isActive
-                ? null
-                : Border.all(color: AppColors.divider, width: 1),
-            boxShadow: widget.isActive
-                ? [
-                    BoxShadow(
-                      color: AppColors.primary.withValues(alpha: 0.35),
-                      blurRadius: 12,
-                      offset: const Offset(0, 4),
-                    ),
-                  ]
-                : [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.06),
-                      blurRadius: 6,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                widget.icon,
-                size: 18,
-                color: widget.isActive ? Colors.white : AppColors.primary,
+      onTap: onPressed,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+        decoration: BoxDecoration(
+          color: isActive ? AppColors.primary : Colors.white,
+          borderRadius: BorderRadius.circular(24),
+          border: isActive
+              ? null
+              : Border.all(color: AppColors.divider, width: 1),
+          boxShadow: isActive
+              ? [
+                  BoxShadow(
+                    color: AppColors.primary.withValues(alpha: 0.35),
+                    blurRadius: 12,
+                    offset: const Offset(0, 4),
+                  ),
+                ]
+              : [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.06),
+                    blurRadius: 6,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              icon,
+              size: 18,
+              color: isActive ? Colors.white : AppColors.primary,
+            ),
+            const SizedBox(width: 8),
+            Text(
+              label,
+              style: GoogleFonts.notoSans(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: isActive ? Colors.white : AppColors.textPrimary,
               ),
-              const SizedBox(width: 8),
-              Text(
-                widget.label,
-                style: GoogleFonts.notoSans(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                  color: widget.isActive ? Colors.white : AppColors.textPrimary,
-                ),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
