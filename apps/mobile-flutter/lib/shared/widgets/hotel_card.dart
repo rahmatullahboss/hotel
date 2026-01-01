@@ -1,11 +1,13 @@
 // Premium Hotel Card Widget - World-Class Design
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_typography.dart';
+import 'price_text.dart';
 
-class HotelCard extends StatefulWidget {
+class HotelCard extends ConsumerStatefulWidget {
   final String id;
   final String name;
   final String city;
@@ -32,10 +34,10 @@ class HotelCard extends StatefulWidget {
   });
 
   @override
-  State<HotelCard> createState() => _HotelCardState();
+  ConsumerState<HotelCard> createState() => _HotelCardState();
 }
 
-class _HotelCardState extends State<HotelCard>
+class _HotelCardState extends ConsumerState<HotelCard>
     with SingleTickerProviderStateMixin {
   late AnimationController _heartController;
   late Animation<double> _heartScale;
@@ -259,25 +261,16 @@ class _HotelCardState extends State<HotelCard>
                       ),
                       const SizedBox(height: 4),
 
-                      // Price
-                      RichText(
-                        text: TextSpan(
-                          children: [
-                            TextSpan(
-                              text:
-                                  '৳${widget.price.toInt().toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},')}',
-                              style: AppTypography.h4.copyWith(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            TextSpan(
-                              text: '/night',
-                              style: AppTypography.bodySmall.copyWith(
-                                color: Colors.white.withValues(alpha: 0.7),
-                              ),
-                            ),
-                          ],
+                      // Price - Currency Aware
+                      PriceRichText(
+                        amountInBDT: widget.price.toInt(),
+                        priceStyle: AppTypography.h4.copyWith(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        suffix: '/night',
+                        suffixStyle: AppTypography.bodySmall.copyWith(
+                          color: Colors.white.withValues(alpha: 0.7),
                         ),
                       ),
                     ],

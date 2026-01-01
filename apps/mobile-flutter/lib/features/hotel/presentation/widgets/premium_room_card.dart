@@ -1,11 +1,13 @@
 // Premium Room Card - Enhanced Room Display Widget
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
+import '../../../../core/providers/currency_provider.dart';
 import '../../../../l10n/generated/app_localizations.dart';
 
-class PremiumRoomCard extends StatelessWidget {
+class PremiumRoomCard extends ConsumerWidget {
   final String name;
   final String capacity;
   final String beds;
@@ -31,17 +33,11 @@ class PremiumRoomCard extends StatelessWidget {
     required this.onSelect,
   });
 
-  String _formatPrice(int price) {
-    return price.toString().replaceAllMapped(
-      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-      (Match m) => '${m[1]},',
-    );
-  }
-
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final loc = AppLocalizations.of(context)!;
     final isDark = AppColors.isDarkMode(context);
+    final currencyState = ref.watch(currencyProvider);
     final hasDiscount = originalPrice != null && originalPrice! > price;
     final discountPercent = hasDiscount
         ? ((originalPrice! - price) / originalPrice! * 100).round()
@@ -294,13 +290,13 @@ class PremiumRoomCard extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
-                      // Price
+                      // Price - Currency Aware
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           if (hasDiscount)
                             Text(
-                              '৳${_formatPrice(originalPrice!)}',
+                              currencyState.formatPrice(originalPrice!),
                               style: AppTypography.bodySmall.copyWith(
                                 color: AppColors.textTertiary,
                                 decoration: TextDecoration.lineThrough,
@@ -310,7 +306,7 @@ class PremiumRoomCard extends StatelessWidget {
                             text: TextSpan(
                               children: [
                                 TextSpan(
-                                  text: '৳${_formatPrice(price)}',
+                                  text: currencyState.formatPrice(price),
                                   style: AppTypography.priceLarge.copyWith(
                                     fontSize: 20,
                                   ),

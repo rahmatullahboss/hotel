@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
+import '../../../core/providers/currency_provider.dart';
 import '../../bookings/providers/booking_provider.dart';
 import '../../hotel/providers/room_provider.dart';
 import '../../../l10n/generated/app_localizations.dart';
@@ -238,7 +239,7 @@ class _BookingFlowScreenState extends ConsumerState<BookingFlowScreen> {
             Step(
               title: Text(loc.stepPayment, style: AppTypography.labelLarge),
               subtitle: Text(
-                '৳${_formatPrice(_grandTotal)} - ${_getPaymentMethodLabel(context)}',
+                '${ref.watch(currencyProvider).formatPrice(_grandTotal)} - ${_getPaymentMethodLabel(context)}',
                 style: AppTypography.bodySmall,
               ),
               isActive: _currentStep >= 2,
@@ -335,7 +336,7 @@ class _BookingFlowScreenState extends ConsumerState<BookingFlowScreen> {
                   child: Text(_roomName, style: AppTypography.labelMedium),
                 ),
                 Text(
-                  '৳${_formatPrice(_roomPrice)}/${loc.night}',
+                  '${ref.watch(currencyProvider).formatPrice(_roomPrice)}/${loc.night}',
                   style: AppTypography.priceSmall,
                 ),
               ],
@@ -439,16 +440,16 @@ class _BookingFlowScreenState extends ConsumerState<BookingFlowScreen> {
             children: [
               _PriceRow(
                 label: '${loc.roomRent} ($_nights ${loc.night})',
-                value: '৳${_formatPrice(_roomTotal)}',
+                value: ref.watch(currencyProvider).formatPrice(_roomTotal),
               ),
               _PriceRow(
                 label: '${loc.tax} (10%)',
-                value: '৳${_formatPrice(_tax)}',
+                value: ref.watch(currencyProvider).formatPrice(_tax),
               ),
               const Divider(),
               _PriceRow(
                 label: loc.total,
-                value: '৳${_formatPrice(_grandTotal)}',
+                value: ref.watch(currencyProvider).formatPrice(_grandTotal),
                 isTotal: true,
               ),
               if (_paymentMethod == 'PAY_AT_HOTEL') ...[
@@ -641,7 +642,7 @@ class _BookingFlowScreenState extends ConsumerState<BookingFlowScreen> {
                         style: AppTypography.bodySmall,
                       ),
                       Text(
-                        '${loc.total}: ৳${_formatPrice(_grandTotal)}',
+                        '${loc.total}: ${ref.watch(currencyProvider).formatPrice(_grandTotal)}',
                         style: AppTypography.labelMedium,
                       ),
                     ],
