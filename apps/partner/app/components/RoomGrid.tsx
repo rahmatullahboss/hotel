@@ -14,7 +14,7 @@ const statusLabels: Record<RoomStatus["status"], string> = {
     BLOCKED: "Blocked",
 };
 
-export function RoomGrid({ initialRooms, hotelId }: RoomGridProps) {
+export function RoomGrid({ initialRooms }: RoomGridProps) {
     const [rooms, setRooms] = useState<RoomStatus[]>(initialRooms);
     const [selectedRoom, setSelectedRoom] = useState<RoomStatus | null>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -164,39 +164,67 @@ export function RoomGrid({ initialRooms, hotelId }: RoomGridProps) {
             </div>
 
             {/* Room Grid */}
-            <div className="room-grid">
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(100px, 1fr))", gap: "12px" }}>
                 {rooms.length === 0 ? (
                     <div
                         style={{
                             gridColumn: "1 / -1",
                             textAlign: "center",
-                            padding: "2rem",
-                            color: "var(--color-text-secondary)",
+                            padding: "32px",
+                            color: "#64748b",
                         }}
                     >
                         No rooms found. Add rooms to your hotel first.
                     </div>
                 ) : (
-                    rooms.map((room) => (
-                        <button
-                            key={room.id}
-                            onClick={() => handleRoomClick(room)}
-                            disabled={isPending}
-                            className={`room-card ${room.status === "AVAILABLE"
-                                ? "room-available"
-                                : room.status === "OCCUPIED"
-                                    ? "room-occupied"
-                                    : "room-blocked"
-                                }`}
-                        >
-                            <span style={{ fontSize: "1.5rem", fontWeight: 700 }}>
-                                {room.number}
-                            </span>
-                            <span style={{ fontSize: "0.75rem", marginTop: "0.25rem" }}>
-                                {room.type}
-                            </span>
-                        </button>
-                    ))
+                    rooms.map((room) => {
+                        let borderColor = "#cbd5e1";
+                        let bgColor = "white";
+                        let textColor = "#1e293b";
+
+                        if (room.status === "AVAILABLE") {
+                            borderColor = "#86efac"; // green-300
+                            bgColor = "#f0fdf4"; // green-50
+                            textColor = "#15803d"; // green-700
+                        } else if (room.status === "OCCUPIED") {
+                            borderColor = "#fda4af"; // rose-300
+                            bgColor = "#fff1f2"; // rose-50
+                            textColor = "#be123c"; // rose-700
+                        } else if (room.status === "BLOCKED") {
+                            borderColor = "#cbd5e1"; // slate-300
+                            bgColor = "#f1f5f9"; // slate-100
+                            textColor = "#64748b"; // slate-500
+                        }
+
+                        return (
+                            <button
+                                key={room.id}
+                                onClick={() => handleRoomClick(room)}
+                                disabled={isPending}
+                                style={{
+                                    display: "flex",
+                                    flexDirection: "column",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    padding: "16px",
+                                    borderRadius: "16px",
+                                    border: `1px solid ${borderColor}`,
+                                    background: bgColor,
+                                    color: textColor,
+                                    aspectRatio: "1",
+                                    cursor: isPending ? "not-allowed" : "pointer",
+                                    transition: "all 0.2s"
+                                }}
+                            >
+                                <span style={{ fontSize: "1.5rem", fontWeight: 700 }}>
+                                    {room.number}
+                                </span>
+                                <span style={{ fontSize: "0.75rem", marginTop: "0.25rem", fontWeight: 600 }}>
+                                    {room.type}
+                                </span>
+                            </button>
+                        );
+                    })
                 )}
             </div>
 
@@ -214,12 +242,13 @@ export function RoomGrid({ initialRooms, hotelId }: RoomGridProps) {
                     onClick={() => setIsModalOpen(false)}
                 >
                     <div
-                        className="card"
                         style={{
                             width: "100%",
-                            borderRadius: "1.5rem 1.5rem 0 0",
-                            padding: "1.5rem",
-                            paddingBottom: "calc(1.5rem + env(safe-area-inset-bottom))",
+                            background: "white",
+                            borderRadius: "24px 24px 0 0",
+                            boxShadow: "0 -4px 6px -1px rgba(0, 0, 0, 0.1)",
+                            padding: "24px",
+                            paddingBottom: "calc(24px + env(safe-area-inset-bottom))",
                             maxHeight: "85vh",
                             overflow: "auto",
                         }}

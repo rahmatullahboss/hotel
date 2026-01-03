@@ -62,7 +62,7 @@ export function RevenueChart({ data, height = 200 }: RevenueChartProps) {
           display: false,
         },
         ticks: {
-          color: "var(--color-text-muted)",
+          color: "#94a3b8", // slate-400
           font: {
             size: 11,
           },
@@ -77,7 +77,7 @@ export function RevenueChart({ data, height = 200 }: RevenueChartProps) {
           display: false,
         },
         ticks: {
-          color: "var(--color-text-muted)",
+          color: "#94a3b8", // slate-400
           font: {
             size: 11,
           },
@@ -88,7 +88,7 @@ export function RevenueChart({ data, height = 200 }: RevenueChartProps) {
   };
 
   return (
-    <div style={{ width: "100%", height: `${height}px` }}>
+    <div className="w-full relative" style={{ height: `${height}px` }}>
       <Line data={chartData} options={options} />
     </div>
   );

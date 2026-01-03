@@ -30,13 +30,13 @@ import { HiOutlineMoon, HiOutlineSun } from "react-icons/hi2";
 interface NavItem {
   href: string;
   label: string;
-  icon: React.ComponentType<{ className?: string }>;
+  icon: React.ComponentType<{ style?: React.CSSProperties }>;
 }
 
 interface NavSection {
   id: string;
   title: string;
-  icon: React.ComponentType<{ className?: string }>;
+  icon: React.ComponentType<{ style?: React.CSSProperties }>;
   items: NavItem[];
 }
 
@@ -94,7 +94,7 @@ interface OyoSidebarProps {
   className?: string;
 }
 
-export function OyoSidebar({ hotelName = "Zinu Hotel", className = "" }: OyoSidebarProps) {
+export function OyoSidebar({ hotelName = "Zinu Hotel" }: OyoSidebarProps) {
   const pathname = usePathname();
   const { data: session } = useSession();
   const [expandedSections, setExpandedSections] = useState<string[]>(["front-desk", "inventory", "revenue", "operations"]);
@@ -129,56 +129,83 @@ export function OyoSidebar({ hotelName = "Zinu Hotel", className = "" }: OyoSide
   }, [searchQuery]);
 
   return (
-    <aside className={`flex flex-col h-full bg-white border-r border-gray-100 w-64 ${className}`}>
+    <aside style={{
+      display: 'flex',
+      flexDirection: 'column',
+      height: '100%',
+      background: 'white',
+      borderRight: '1px solid #f3f4f6',
+      width: '240px',
+      flexShrink: 0
+    }}>
       {/* Search Bar */}
-      <div className="p-4 border-b border-gray-100">
-        <div className="relative">
-          <HiOutlineMagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+      <div style={{ padding: '16px', borderBottom: '1px solid #f3f4f6' }}>
+        <div style={{ position: 'relative' }}>
+          <HiOutlineMagnifyingGlass style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', width: '16px', height: '16px', color: '#9ca3af' }} />
           <input
             type="text"
             placeholder="Search..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-9 pr-4 py-2 text-sm bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+            style={{
+              width: '100%',
+              paddingLeft: '36px',
+              paddingRight: '16px',
+              paddingTop: '8px',
+              paddingBottom: '8px',
+              fontSize: '14px',
+              background: '#f9fafb',
+              border: '1px solid #e5e7eb',
+              borderRadius: '8px',
+              outline: 'none'
+            }}
           />
         </div>
       </div>
 
       {/* Main Navigation */}
-      <nav className="flex-1 overflow-y-auto p-3 space-y-1">
+      <nav style={{ flex: 1, overflowY: 'auto', padding: '12px' }}>
         {filteredSections.map((section) => {
           const isExpanded = expandedSections.includes(section.id);
           const SectionIcon = section.icon;
           const hasActiveItem = section.items.some((item) => isActive(item.href));
 
           return (
-            <div key={section.id} className="mb-2">
+            <div key={section.id} style={{ marginBottom: '8px' }}>
               {/* Section Header */}
               <button
                 onClick={() => toggleSection(section.id)}
-                className={`
-                  w-full flex items-center justify-between px-3 py-2 text-xs font-semibold uppercase tracking-wider rounded-lg transition-colors
-                  ${hasActiveItem ? "text-primary bg-primary/5" : "text-gray-500 hover:bg-gray-50"}
-                `}
+                style={{
+                  width: '100%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  padding: '8px 12px',
+                  fontSize: '12px',
+                  fontWeight: '600',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.05em',
+                  borderRadius: '8px',
+                  border: 'none',
+                  background: hasActiveItem ? '#eef2ff' : 'transparent',
+                  color: hasActiveItem ? '#4f46e5' : '#6b7280',
+                  cursor: 'pointer'
+                }}
               >
-                <div className="flex items-center gap-2">
-                  <SectionIcon className="w-4 h-4" />
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <SectionIcon style={{ width: '16px', height: '16px' }} />
                   <span>{section.title}</span>
                 </div>
                 {isExpanded ? (
-                  <HiOutlineChevronDown className="w-4 h-4" />
+                  <HiOutlineChevronDown style={{ width: '16px', height: '16px' }} />
                 ) : (
-                  <HiOutlineChevronRight className="w-4 h-4" />
+                  <HiOutlineChevronRight style={{ width: '16px', height: '16px' }} />
                 )}
               </button>
 
               {/* Section Items */}
-              <div
-                className={`overflow-hidden transition-all duration-200 ${
-                  isExpanded ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
-                }`}
-              >
-                <div className="mt-1 ml-4 border-l border-gray-100 pl-2 space-y-0.5">
+              {isExpanded && (
+                <div style={{ marginTop: '4px', marginLeft: '16px', borderLeft: '1px solid #f3f4f6', paddingLeft: '8px' }}>
                   {section.items.map((item) => {
                     const Icon = item.icon;
                     const active = isActive(item.href);
@@ -187,30 +214,36 @@ export function OyoSidebar({ hotelName = "Zinu Hotel", className = "" }: OyoSide
                       <Link
                         key={item.href}
                         href={item.href}
-                        className={`
-                          flex items-center gap-3 px-3 py-2 text-sm rounded-lg transition-all
-                          ${active
-                            ? "bg-primary text-white font-medium shadow-sm shadow-primary/20"
-                            : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
-                          }
-                        `}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '12px',
+                          padding: '8px 12px',
+                          fontSize: '14px',
+                          borderRadius: '8px',
+                          textDecoration: 'none',
+                          marginBottom: '2px',
+                          background: active ? '#4f46e5' : 'transparent',
+                          color: active ? 'white' : '#4b5563',
+                          fontWeight: active ? '500' : '400'
+                        }}
                       >
-                        <Icon className={`w-4 h-4 ${active ? "text-white" : "text-gray-400"}`} />
+                        <Icon style={{ width: '16px', height: '16px', color: active ? 'white' : '#9ca3af' }} />
                         <span>{item.label}</span>
                       </Link>
                     );
                   })}
                 </div>
-              </div>
+              )}
             </div>
           );
         })}
 
         {/* Divider */}
-        <div className="border-t border-gray-100 my-3" />
+        <div style={{ borderTop: '1px solid #f3f4f6', margin: '12px 0' }} />
 
         {/* Bottom Items */}
-        <div className="space-y-0.5">
+        <div>
           {bottomNavItems.map((item) => {
             const Icon = item.icon;
             const active = isActive(item.href);
@@ -219,15 +252,20 @@ export function OyoSidebar({ hotelName = "Zinu Hotel", className = "" }: OyoSide
               <Link
                 key={item.href}
                 href={item.href}
-                className={`
-                  flex items-center gap-3 px-3 py-2 text-sm rounded-lg transition-all
-                  ${active
-                    ? "bg-primary text-white font-medium"
-                    : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
-                  }
-                `}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '12px',
+                  padding: '8px 12px',
+                  fontSize: '14px',
+                  borderRadius: '8px',
+                  textDecoration: 'none',
+                  marginBottom: '2px',
+                  background: active ? '#4f46e5' : 'transparent',
+                  color: active ? 'white' : '#4b5563'
+                }}
               >
-                <Icon className={`w-4 h-4 ${active ? "text-white" : "text-gray-400"}`} />
+                <Icon style={{ width: '16px', height: '16px', color: active ? 'white' : '#9ca3af' }} />
                 <span>{item.label}</span>
               </Link>
             );
@@ -236,19 +274,31 @@ export function OyoSidebar({ hotelName = "Zinu Hotel", className = "" }: OyoSide
       </nav>
 
       {/* User Profile Section */}
-      <div className="border-t border-gray-100 p-4">
-        <div className="flex items-center gap-3">
+      <div style={{ borderTop: '1px solid #f3f4f6', padding: '16px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           {/* Avatar */}
-          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white font-bold text-sm shadow-md">
+          <div style={{
+            width: '40px',
+            height: '40px',
+            borderRadius: '9999px',
+            background: 'linear-gradient(to bottom right, #4f46e5, #06b6d4)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: 'white',
+            fontWeight: 'bold',
+            fontSize: '14px',
+            boxShadow: '0 4px 6px -1px rgba(79, 70, 229, 0.3)'
+          }}>
             {session?.user?.name?.[0]?.toUpperCase() || "U"}
           </div>
 
           {/* Info */}
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-semibold text-gray-900 truncate">
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <p style={{ fontSize: '14px', fontWeight: '600', color: '#111827', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
               {hotelName}
             </p>
-            <p className="text-xs text-gray-500 truncate">
+            <p style={{ fontSize: '12px', color: '#6b7280', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
               {session?.user?.email || "Partner"}
             </p>
           </div>
@@ -259,10 +309,17 @@ export function OyoSidebar({ hotelName = "Zinu Hotel", className = "" }: OyoSide
           {/* Logout */}
           <button
             onClick={() => signOut({ callbackUrl: "/auth/signin" })}
-            className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+            style={{
+              padding: '8px',
+              color: '#9ca3af',
+              background: 'transparent',
+              border: 'none',
+              borderRadius: '8px',
+              cursor: 'pointer'
+            }}
             title="Logout"
           >
-            <HiOutlineArrowRightOnRectangle className="w-5 h-5" />
+            <HiOutlineArrowRightOnRectangle style={{ width: '20px', height: '20px' }} />
           </button>
         </div>
       </div>
@@ -281,13 +338,20 @@ function ThemeToggleButton() {
   return (
     <button
       onClick={toggleTheme}
-      className="p-2 text-gray-400 hover:text-yellow-500 hover:bg-yellow-50 dark:hover:bg-yellow-900/20 rounded-lg transition-colors"
+      style={{
+        padding: '8px',
+        color: '#9ca3af',
+        background: 'transparent',
+        border: 'none',
+        borderRadius: '8px',
+        cursor: 'pointer'
+      }}
       title={`Switch to ${resolvedTheme === "dark" ? "light" : "dark"} mode`}
     >
       {resolvedTheme === "dark" ? (
-        <HiOutlineSun className="w-5 h-5" />
+        <HiOutlineSun style={{ width: '20px', height: '20px' }} />
       ) : (
-        <HiOutlineMoon className="w-5 h-5" />
+        <HiOutlineMoon style={{ width: '20px', height: '20px' }} />
       )}
     </button>
   );

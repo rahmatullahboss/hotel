@@ -118,27 +118,31 @@ export function PayoutSection({ availableBalance, pendingPayouts, payouts }: Pay
 
             {/* Balance Info */}
             <div
-                className="card"
                 style={{
-                    marginBottom: "1rem",
+                    marginBottom: "16px",
                     display: "grid",
                     gridTemplateColumns: "repeat(2, 1fr)",
-                    gap: "1rem",
+                    gap: "16px",
+                    padding: "16px",
+                    background: "white",
+                    borderRadius: "16px",
+                    boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
+                    border: "1px solid #f1f5f9"
                 }}
             >
                 <div>
-                    <div style={{ fontSize: "0.875rem", color: "var(--color-text-secondary)" }}>
+                    <div style={{ fontSize: "0.875rem", color: "#64748b" }}>
                         Available to Withdraw
                     </div>
-                    <div style={{ fontSize: "1.25rem", fontWeight: 700, color: "var(--color-success)" }}>
+                    <div style={{ fontSize: "1.25rem", fontWeight: 700, color: "#10b981" }}>
                         ৳{availableBalance.toLocaleString()}
                     </div>
                 </div>
                 <div>
-                    <div style={{ fontSize: "0.875rem", color: "var(--color-text-secondary)" }}>
+                    <div style={{ fontSize: "0.875rem", color: "#64748b" }}>
                         Pending Payouts
                     </div>
-                    <div style={{ fontSize: "1.25rem", fontWeight: 700, color: "var(--color-warning)" }}>
+                    <div style={{ fontSize: "1.25rem", fontWeight: 700, color: "#f59e0b" }}>
                         ৳{pendingPayouts.toLocaleString()}
                     </div>
                 </div>
@@ -165,12 +169,15 @@ export function PayoutSection({ availableBalance, pendingPayouts, payouts }: Pay
                     {payouts.slice(0, 5).map((payout) => (
                         <div
                             key={payout.id}
-                            className="card"
                             style={{
                                 display: "flex",
                                 justifyContent: "space-between",
                                 alignItems: "center",
-                                padding: "1rem",
+                                padding: "16px",
+                                background: "white",
+                                borderRadius: "16px",
+                                boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
+                                border: "1px solid #f1f5f9"
                             }}
                         >
                             <div>
@@ -233,11 +240,13 @@ export function PayoutSection({ availableBalance, pendingPayouts, payouts }: Pay
                     onClick={() => setIsFormOpen(false)}
                 >
                     <div
-                        className="card"
                         style={{
                             width: "100%",
                             maxWidth: "400px",
-                            padding: "1.5rem",
+                            padding: "24px",
+                            background: "white",
+                            borderRadius: "16px",
+                            boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1)",
                         }}
                         onClick={(e) => e.stopPropagation()}
                     >

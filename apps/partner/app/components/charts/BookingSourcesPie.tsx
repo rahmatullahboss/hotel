@@ -24,9 +24,8 @@ const sourceColors: Record<string, string> = {
   Other: "#6B7280",
 };
 
-export function BookingSourcesPie({ sources, size = 200 }: BookingSourcesPieProps) {
+export function BookingSourcesPie({ sources }: BookingSourcesPieProps) {
   const totalBookings = sources.reduce((sum, s) => sum + s.count, 0);
-  const totalRevenue = sources.reduce((sum, s) => sum + s.revenue, 0);
 
   const chartData = {
     labels: sources.map((s) => s.source),
@@ -72,95 +71,41 @@ export function BookingSourcesPie({ sources, size = 200 }: BookingSourcesPieProp
   };
 
   return (
-    <div style={{ display: "flex", gap: "1.5rem", alignItems: "center" }}>
-      {/* Chart */}
-      <div
-        style={{
-          position: "relative",
-          width: `${size}px`,
-          height: `${size}px`,
-          flexShrink: 0,
-        }}
-      >
-        <Doughnut data={chartData} options={options} />
-
-        {/* Center text */}
-        <div
-          style={{
-            position: "absolute",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            textAlign: "center",
-          }}
-        >
-          <div style={{ fontSize: "1.5rem", fontWeight: 700, color: "var(--color-text-primary)" }}>
-            {totalBookings}
-          </div>
-          <div style={{ fontSize: "0.75rem", color: "var(--color-text-secondary)" }}>
-            Bookings
-          </div>
-        </div>
-      </div>
-
-      {/* Legend */}
-      <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem", flex: 1 }}>
-        {sources.map((source) => {
-          const percentage = totalBookings > 0 
-            ? ((source.count / totalBookings) * 100).toFixed(0) 
-            : "0";
-          const color = sourceColors[source.source] || "#6B7280";
-
-          return (
-            <div
-              key={source.source}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                padding: "0.5rem 0",
-                borderBottom: "1px solid var(--color-border)",
-              }}
-            >
-              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                <div
-                  style={{
-                    width: "12px",
-                    height: "12px",
-                    borderRadius: "3px",
-                    background: color,
-                  }}
-                />
-                <span style={{ fontSize: "0.875rem", color: "var(--color-text-primary)" }}>
-                  {source.source}
-                </span>
+    <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+       <div style={{ flex: 1, position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '200px' }}>
+           {/* Chart */}
+          <div style={{ position: 'relative', width: '180px', height: '180px', zIndex: 10 }}>
+             <Doughnut data={chartData} options={options} />
+             {/* Center text */}
+            <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none' }}>
+              <div style={{ fontSize: '28px', fontWeight: 'bold', color: '#1e293b' }}>
+                {totalBookings}
               </div>
-              <div style={{ textAlign: "right" }}>
-                <div style={{ fontWeight: 600, fontSize: "0.875rem" }}>
-                  {source.count} <span style={{ color: "var(--color-text-muted)", fontWeight: 400 }}>({percentage}%)</span>
-                </div>
-                <div style={{ fontSize: "0.75rem", color: "var(--color-success)" }}>
-                  ৳{source.revenue.toLocaleString()}
-                </div>
+              <div style={{ fontSize: '10px', color: '#94a3b8', fontWeight: '500', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                Bookings
               </div>
             </div>
-          );
-        })}
+          </div>
+            {/* Soft Glow behind chart */}
+           <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: '128px', height: '128px', background: 'rgba(219, 234, 254, 0.5)', borderRadius: '9999px', filter: 'blur(48px)', zIndex: 0 }} />
+       </div>
 
-        {/* Total */}
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            paddingTop: "0.5rem",
-            marginTop: "auto",
-          }}
-        >
-          <span style={{ fontWeight: 600, color: "var(--color-text-primary)" }}>Total Revenue</span>
-          <span style={{ fontWeight: 700, color: "var(--color-success)", fontSize: "1.125rem" }}>
-            ৳{totalRevenue.toLocaleString()}
-          </span>
-        </div>
+      {/* Legend Grid */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '12px', marginTop: '16px' }}>
+        {sources.slice(0, 4).map((source) => {
+           const color = sourceColors[source.source] || "#6B7280";
+           return (
+             <div key={source.source} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px', borderRadius: '12px', background: 'rgba(248, 250, 252, 0.8)', border: '1px solid #f1f5f9' }}>
+                <div style={{ width: '8px', height: '32px', borderRadius: '9999px', backgroundColor: color }} />
+                <div>
+                  <div style={{ fontSize: '12px', fontWeight: '600', color: '#475569' }}>{source.source}</div>
+                  <div style={{ fontSize: '10px', color: '#94a3b8' }}>
+                    {source.count} • ৳{(source.revenue / 1000).toFixed(1)}k
+                  </div>
+                </div>
+             </div>
+           )
+        })}
       </div>
     </div>
   );

@@ -126,6 +126,8 @@ export default function MaintenanceClient({
                     marginBottom: "1rem",
                     borderBottom: "1px solid var(--color-border)",
                     paddingBottom: "0.5rem",
+                    maxWidth: "1200px",
+                    margin: "0 auto 1rem auto"
                 }}
             >
                 {[
@@ -153,7 +155,7 @@ export default function MaintenanceClient({
 
             {/* Work Orders Tab */}
             {activeTab === "requests" && (
-                <section>
+                <section style={{ maxWidth: "1200px", margin: "0 auto" }}>
                     {/* Header with filters */}
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.75rem", flexWrap: "wrap", gap: "0.5rem" }}>
                         <div style={{ display: "flex", gap: "0.25rem" }}>
@@ -186,9 +188,16 @@ export default function MaintenanceClient({
 
                     {/* Requests List */}
                     {filteredRequests.length === 0 ? (
-                        <div className="glass-card" style={{ padding: "2rem", textAlign: "center" }}>
+                        <div style={{
+                            padding: "32px",
+                            textAlign: "center",
+                            background: "white",
+                            borderRadius: "16px",
+                            boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
+                            border: "1px solid #f1f5f9"
+                        }}>
                             <div style={{ fontSize: "2rem", marginBottom: "0.5rem" }}>🛠️</div>
-                            <p style={{ color: "var(--color-text-secondary)" }}>
+                            <p style={{ color: "#64748b" }}>
                                 No maintenance requests found
                             </p>
                         </div>
@@ -202,9 +211,12 @@ export default function MaintenanceClient({
                                 return (
                                     <div
                                         key={request.id}
-                                        className="glass-card"
                                         style={{
-                                            padding: "0.75rem 1rem",
+                                            padding: "16px",
+                                            background: "white",
+                                            borderRadius: "16px",
+                                            boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
+                                            border: `1px solid #f1f5f9`,
                                             borderLeft: `4px solid ${PRIORITY_COLORS[request.priority]}`,
                                         }}
                                     >
@@ -299,7 +311,7 @@ export default function MaintenanceClient({
 
             {/* Preventive Tab */}
             {activeTab === "preventive" && (
-                <section>
+                <section style={{ maxWidth: "1200px", margin: "0 auto" }}>
                     <h2 style={{ fontSize: "1rem", fontWeight: 600, marginBottom: "0.75rem" }}>
                         Scheduled Maintenance
                     </h2>
@@ -311,12 +323,15 @@ export default function MaintenanceClient({
                             return (
                                 <div
                                     key={schedule.id}
-                                    className="glass-card"
                                     style={{
-                                        padding: "1rem",
+                                        padding: "16px",
+                                        background: "white",
+                                        borderRadius: "16px",
+                                        boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
+                                        border: `1px solid #f1f5f9`,
                                         borderLeft: isOverdue
-                                            ? "4px solid var(--color-error)"
-                                            : "4px solid var(--color-success)",
+                                            ? "4px solid #ef4444"
+                                            : "4px solid #10b981",
                                     }}
                                 >
                                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "0.5rem" }}>
@@ -386,8 +401,16 @@ export default function MaintenanceClient({
                     onClick={() => setShowCreateModal(false)}
                 >
                     <div
-                        className="card"
-                        style={{ width: "100%", maxWidth: "400px", padding: "1.5rem", maxHeight: "90vh", overflow: "auto" }}
+                        style={{
+                            width: "100%",
+                            maxWidth: "400px",
+                            padding: "24px",
+                            maxHeight: "90vh",
+                            overflow: "auto",
+                            background: "white",
+                            borderRadius: "16px",
+                            boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1)",
+                        }}
                         onClick={(e) => e.stopPropagation()}
                     >
                         <h2 style={{ fontSize: "1.25rem", fontWeight: 600, marginBottom: "1.5rem" }}>

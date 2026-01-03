@@ -23,7 +23,18 @@ export function PartnerHeader({ user, hotel, allHotels }: PartnerHeaderProps) {
     const [isProfileOpen, setIsProfileOpen] = useState(false);
 
     return (
-        <header className="oyo-header">
+        <header style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            padding: '12px 24px',
+            background: 'white',
+            borderBottom: '1px solid #f3f4f6',
+            position: 'sticky',
+            top: 0,
+            zIndex: 50,
+            height: '64px'
+        }}>
             <div style={{ display: "flex", alignItems: "center", gap: "1.5rem", flexShrink: 0 }}>
                 {/* Logo */}
                 <div style={{
@@ -45,24 +56,79 @@ export function PartnerHeader({ user, hotel, allHotels }: PartnerHeaderProps) {
                 </div>
             </div>
 
-            {/* Search - Hidden on mobile */}
-            <div className="oyo-search hidden md:flex">
+            {/* Search */}
+            <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                background: '#f9fafb',
+                border: '1px solid #e5e7eb',
+                borderRadius: '8px',
+                padding: '8px 16px',
+                flex: 1,
+                maxWidth: '400px',
+                margin: '0 24px'
+            }}>
                 <FiSearch size={16} color="#9ca3af" />
-                <input type="text" placeholder="Search Bookings" />
+                <input 
+                    type="text" 
+                    placeholder="Search Bookings" 
+                    style={{
+                        border: 'none',
+                        background: 'transparent',
+                        outline: 'none',
+                        fontSize: '14px',
+                        flex: 1
+                    }}
+                />
             </div>
 
             <div style={{ display: "flex", alignItems: "center", gap: "1rem", flexShrink: 0, marginLeft: "auto" }}>
-                <Link href="/walkin" className="oyo-new-booking-btn hidden sm:block" style={{ whiteSpace: "nowrap" }}>
+                <Link 
+                    href="/walkin" 
+                    style={{ 
+                        whiteSpace: "nowrap",
+                        background: '#e63946',
+                        color: 'white',
+                        padding: '8px 16px',
+                        borderRadius: '8px',
+                        fontWeight: '600',
+                        fontSize: '14px',
+                        textDecoration: 'none'
+                    }}
+                >
                     New Booking
                 </Link>
 
-                <div className="oyo-header-actions relative">
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', position: 'relative' }}>
                     <ThemeToggle />
                     <NotificationBell />
-                    <Link href="/help" className="oyo-header-icon hidden md:flex">
+                    <Link 
+                        href="/help" 
+                        style={{ 
+                            padding: '8px', 
+                            borderRadius: '8px', 
+                            display: 'flex', 
+                            alignItems: 'center', 
+                            justifyContent: 'center',
+                            color: '#6b7280',
+                            textDecoration: 'none'
+                        }}
+                    >
                         <FiHelpCircle size={18} />
                     </Link>
-                    <Link href="/settings" className="oyo-header-icon hidden md:flex">
+                    <Link 
+                        href="/settings" 
+                        style={{ 
+                            padding: '8px', 
+                            borderRadius: '8px', 
+                            display: 'flex', 
+                            alignItems: 'center', 
+                            justifyContent: 'center',
+                            color: '#6b7280',
+                            textDecoration: 'none'
+                        }}
+                    >
                         <FiSettings size={18} />
                     </Link>
 
@@ -86,7 +152,7 @@ export function PartnerHeader({ user, hotel, allHotels }: PartnerHeaderProps) {
                         }}>
                             {user.name?.charAt(0) || "U"}
                         </div>
-                        <span className="hidden sm:block" style={{
+                        <span style={{
                             fontSize: "0.875rem",
                             whiteSpace: "nowrap",
                             overflow: "hidden",
@@ -100,24 +166,70 @@ export function PartnerHeader({ user, hotel, allHotels }: PartnerHeaderProps) {
 
                     {/* Dropdown Menu */}
                     {isProfileOpen && (
-                        <div className="absolute right-0 top-full mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50">
-                            <div className="px-4 py-2 border-b border-gray-100">
-                                <p className="text-sm font-semibold text-gray-900">{user.name}</p>
-                                <p className="text-xs text-gray-500 truncate">{user.email}</p>
+                        <div style={{
+                            position: 'absolute',
+                            right: 0,
+                            top: '100%',
+                            marginTop: '8px',
+                            width: '192px',
+                            background: 'white',
+                            borderRadius: '12px',
+                            boxShadow: '0 10px 25px -5px rgba(0,0,0,0.1)',
+                            border: '1px solid #e5e7eb',
+                            padding: '4px 0',
+                            zIndex: 50
+                        }}>
+                            <div style={{ padding: '12px 16px', borderBottom: '1px solid #f3f4f6' }}>
+                                <p style={{ fontSize: '14px', fontWeight: '600', color: '#111827', margin: 0 }}>{user.name}</p>
+                                <p style={{ fontSize: '12px', color: '#6b7280', margin: '2px 0 0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user.email}</p>
                             </div>
 
-                            <Link href="/profile" className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                            <Link 
+                                href="/profile" 
+                                style={{ 
+                                    display: 'flex', 
+                                    alignItems: 'center', 
+                                    gap: '8px', 
+                                    padding: '8px 16px', 
+                                    fontSize: '14px', 
+                                    color: '#374151',
+                                    textDecoration: 'none'
+                                }}
+                            >
                                 <FiUser size={16} />
                                 Profile
                             </Link>
-                            <Link href="/settings" className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                            <Link 
+                                href="/settings" 
+                                style={{ 
+                                    display: 'flex', 
+                                    alignItems: 'center', 
+                                    gap: '8px', 
+                                    padding: '8px 16px', 
+                                    fontSize: '14px', 
+                                    color: '#374151',
+                                    textDecoration: 'none'
+                                }}
+                            >
                                 <FiSettings size={16} />
                                 Settings
                             </Link>
-                            <div className="border-t border-gray-100 my-1"></div>
+                            <div style={{ borderTop: '1px solid #f3f4f6', margin: '4px 0' }}></div>
                             <button
                                 onClick={() => signOut({ callbackUrl: "/auth/signin" })}
-                                className="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 text-left"
+                                style={{
+                                    width: '100%',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '8px',
+                                    padding: '8px 16px',
+                                    fontSize: '14px',
+                                    color: '#dc2626',
+                                    background: 'transparent',
+                                    border: 'none',
+                                    cursor: 'pointer',
+                                    textAlign: 'left'
+                                }}
                             >
                                 <FiLogOut size={16} />
                                 Sign out

@@ -20,6 +20,10 @@ interface PerformanceChartsProps {
     avgARR: number;
 }
 
+import { Bar, Doughnut } from "react-chartjs-2";
+import { ChartData, ChartOptions } from "chart.js";
+import "./charts/chartjs-register"; 
+
 export function PerformanceCharts({
     occupancyData,
     occupancyThisMonth,
@@ -27,208 +31,188 @@ export function PerformanceCharts({
     totalBookings,
     avgARR,
 }: PerformanceChartsProps) {
-    const maxOccupancy = Math.max(...occupancyData.map((d) => Math.max(d.value, d.cityAvg)), 100);
-    const totalSourceCount = bookingSources.reduce((sum, s) => sum + s.count, 0);
+    
+    // Occupancy Chart Configuration
+    const occupancyChartData: ChartData<'bar'> = {
+        labels: occupancyData.map(d => d.date),
+        datasets: [
+            {
+                label: 'Your Occupancy',
+                data: occupancyData.map(d => d.value),
+                backgroundColor: '#6366f1', // Indigo 500
+                borderRadius: 4,
+                barThickness: 20,
+            },
+            {
+                label: 'City Avg.',
+                data: occupancyData.map(d => d.cityAvg),
+                backgroundColor: '#cbd5e1', // Slate 300
+                borderRadius: 4,
+                barThickness: 20,
+            }
+        ]
+    };
+
+    const occupancyOptions: ChartOptions<'bar'> = {
+        responsive: true,
+        plugins: {
+            legend: {
+                position: 'top',
+                align: 'end',
+                labels: {
+                    usePointStyle: true,
+                    boxWidth: 8,
+                    font: { size: 10 }
+                }
+            },
+            tooltip: {
+                backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                padding: 12,
+                cornerRadius: 8,
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                max: 100,
+                grid: {
+                    color: 'rgba(148, 163, 184, 0.1)',
+                },
+                border: {
+                    display: false
+                },
+                ticks: {
+                    font: { size: 10 },
+                    callback: (value) => value + '%'
+                }
+            },
+            x: {
+                grid: { display: false },
+                ticks: { font: { size: 10 } }
+            }
+        }
+    };
+
+    // Booking Sources Configuration
+    const sourceChartData: ChartData<'doughnut'> = {
+        labels: bookingSources.map(s => s.source),
+        datasets: [{
+            data: bookingSources.map(s => s.count),
+            backgroundColor: [
+                '#3b82f6', // blue-500
+                '#8b5cf6', // violet-500
+                '#f43f5e', // rose-500
+                '#22c55e', // green-500
+                '#eab308'  // yellow-500
+            ],
+            borderWidth: 0,
+            hoverOffset: 4
+        }]
+    };
 
     return (
-        <section>
-            <h2 className="oyo-section-title">Property performance</h2>
-
-            <div className="oyo-perf-grid">
-                {/* Occupancy Chart */}
-                <div className="oyo-card">
-                    <div className="oyo-card-body">
-                        <div className="oyo-chart-header">
-                            <span className="oyo-chart-title">Occupancy</span>
-                            <span className="oyo-chart-subtitle">({occupancyThisMonth}% this month)</span>
-                        </div>
-
-                        {/* Simple CSS Chart */}
-                        <div style={{ position: "relative", height: "150px", marginBottom: "1rem" }}>
-                            {/* Y-axis labels */}
-                            <div
-                                style={{
-                                    position: "absolute",
-                                    left: 0,
-                                    top: 0,
-                                    bottom: 20,
-                                    width: "40px",
-                                    display: "flex",
-                                    flexDirection: "column",
-                                    justifyContent: "space-between",
-                                    fontSize: "0.625rem",
-                                    color: "#9ca3af",
-                                }}
-                            >
-                                <span>100%</span>
-                                <span>50%</span>
-                                <span>0%</span>
-                            </div>
-
-                            {/* Chart area */}
-                            <div
-                                style={{
-                                    marginLeft: "45px",
-                                    height: "130px",
-                                    display: "flex",
-                                    alignItems: "flex-end",
-                                    gap: "4px",
-                                    borderBottom: "1px solid #e5e7eb",
-                                }}
-                            >
-                                {occupancyData.map((d, i) => (
-                                    <div
-                                        key={i}
-                                        style={{
-                                            flex: 1,
-                                            display: "flex",
-                                            flexDirection: "column",
-                                            alignItems: "center",
-                                            gap: "2px",
-                                        }}
-                                    >
-                                        {/* City avg line marker */}
-                                        <div
-                                            style={{
-                                                width: "100%",
-                                                height: `${(d.value / maxOccupancy) * 100}%`,
-                                                background: "linear-gradient(180deg, #3b82f6 0%, #60a5fa 100%)",
-                                                borderRadius: "4px 4px 0 0",
-                                                position: "relative",
-                                            }}
-                                        >
-                                            {/* City average marker */}
-                                            <div
-                                                style={{
-                                                    position: "absolute",
-                                                    bottom: `${((d.cityAvg - d.value) / maxOccupancy) * 100}%`,
-                                                    left: "50%",
-                                                    transform: "translateX(-50%)",
-                                                    width: "6px",
-                                                    height: "6px",
-                                                    background: "#f97316",
-                                                    borderRadius: "50%",
-                                                }}
-                                            />
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-
-                            {/* X-axis labels */}
-                            <div
-                                style={{
-                                    marginLeft: "45px",
-                                    display: "flex",
-                                    justifyContent: "space-between",
-                                    fontSize: "0.625rem",
-                                    color: "#9ca3af",
-                                    marginTop: "4px",
-                                }}
-                            >
-                                {occupancyData.slice(0, 5).map((d, i) => (
-                                    <span key={i}>{d.date}</span>
-                                ))}
-                            </div>
-                        </div>
-
-                        {/* Legend */}
-                        <div style={{ display: "flex", gap: "1rem", fontSize: "0.75rem" }}>
-                            <div style={{ display: "flex", alignItems: "center", gap: "0.25rem" }}>
-                                <div style={{ width: "12px", height: "12px", background: "#3b82f6", borderRadius: "2px" }} />
-                                <span>Your Occupancy</span>
-                            </div>
-                            <div style={{ display: "flex", alignItems: "center", gap: "0.25rem" }}>
-                                <div style={{ width: "8px", height: "8px", background: "#f97316", borderRadius: "50%" }} />
-                                <span>Avg. City Occupancy</span>
-                            </div>
-                        </div>
+        <section style={{ gridColumn: 'span 1 / span 1', display: 'grid', gridTemplateColumns: 'repeat(1, 1fr)', gap: '24px' }} className="lg:col-span-3 lg:grid-cols-2">
+            
+            {/* Occupancy Card */}
+            <div style={{
+                background: 'rgba(255, 255, 255, 0.8)',
+                backdropFilter: 'blur(20px)',
+                WebkitBackdropFilter: 'blur(20px)',
+                borderRadius: '24px',
+                padding: '24px',
+                boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+                border: '1px solid rgba(241, 245, 249, 1)',
+                display: 'flex',
+                flexDirection: 'column',
+                height: '100%'
+            }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
+                    <div>
+                        <h2 style={{ fontSize: '18px', fontWeight: 'bold', color: '#1e293b', margin: 0 }}>Occupancy</h2>
+                        <span style={{
+                            fontSize: '12px',
+                            fontWeight: '600',
+                            color: '#059669',
+                            background: '#ecfdf5',
+                            padding: '2px 8px',
+                            borderRadius: '9999px',
+                            marginTop: '4px',
+                            display: 'inline-block'
+                        }}>
+                            {occupancyThisMonth}% This Month
+                        </span>
                     </div>
                 </div>
+                <div style={{ flex: 1, width: '100%', minHeight: '200px', display: 'flex', alignItems: 'flex-end' }}>
+                    <Bar data={occupancyChartData} options={occupancyOptions} />
+                </div>
+            </div>
 
-                {/* Booking Sources */}
-                <div className="oyo-card">
-                    <div className="oyo-card-body">
-                        <div className="oyo-chart-header">
-                            <span className="oyo-chart-title">{totalBookings} URNs</span>
-                            <span className="oyo-chart-subtitle">(Last 7 Days)</span>
+            {/* Booking Sources Card */}
+            <div style={{
+                background: 'rgba(255, 255, 255, 0.8)',
+                backdropFilter: 'blur(20px)',
+                WebkitBackdropFilter: 'blur(20px)',
+                borderRadius: '24px',
+                padding: '24px',
+                boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+                border: '1px solid rgba(241, 245, 249, 1)',
+                display: 'flex',
+                flexDirection: 'column',
+                height: '100%'
+            }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
+                    <div>
+                        <h2 style={{ fontSize: '18px', fontWeight: 'bold', color: '#1e293b', margin: 0 }}>Sources</h2>
+                        <span style={{ fontSize: '12px', fontWeight: '500', color: '#94a3b8' }}>
+                            {totalBookings} Total Bookings
+                        </span>
+                    </div>
+                    <div style={{ textAlign: 'right' }}>
+                         <span style={{ display: 'block', fontSize: '12px', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Avg ARR</span>
+                         <span style={{ fontWeight: 'bold', color: '#1e293b' }}>৳{avgARR}</span>
+                    </div>
+                </div>
+                
+                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '24px' }} className="md:flex-row">
+                    <div style={{ position: 'relative', width: '128px', height: '128px', flexShrink: 0 }}>
+                        <Doughnut 
+                            data={sourceChartData} 
+                            options={{
+                                cutout: '70%',
+                                plugins: { legend: { display: false } }
+                            }} 
+                        />
+                        <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                             <span style={{ fontSize: '14px', fontWeight: 'bold', color: '#334155' }}>{totalBookings}</span>
                         </div>
-
-                        {/* Bar chart */}
-                        <div style={{ display: "flex", gap: "0.5rem", marginBottom: "1rem" }}>
-                            {bookingSources.map((source, i) => (
-                                <div
-                                    key={i}
-                                    style={{
-                                        flex: 1,
-                                        display: "flex",
-                                        flexDirection: "column",
-                                        alignItems: "center",
-                                    }}
-                                >
-                                    <div
-                                        style={{
-                                            width: "100%",
-                                            height: "80px",
-                                            display: "flex",
-                                            alignItems: "flex-end",
-                                        }}
-                                    >
-                                        <div
-                                            style={{
-                                                width: "100%",
-                                                height: `${(source.count / totalSourceCount) * 100}%`,
-                                                background:
-                                                    i === 0
-                                                        ? "#1e3a5f"
-                                                        : i === 1
-                                                            ? "#3b82f6"
-                                                            : i === 2
-                                                                ? "#60a5fa"
-                                                                : "#93c5fd",
-                                                borderRadius: "4px 4px 0 0",
-                                            }}
-                                        />
+                    </div>
+                    
+                    <div style={{ flex: 1, display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '12px', width: '100%' }}>
+                        {bookingSources.map((source, idx) => {
+                            const bgColors = (sourceChartData.datasets?.[0]?.backgroundColor as string[]) || [];
+                            const color = bgColors[idx] || '#cbd5e1';
+                            
+                            return (
+                                <div key={idx} style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'space-between',
+                                    padding: '8px',
+                                    borderRadius: '8px',
+                                    background: '#f8fafc',
+                                    border: '1px solid #f1f5f9'
+                                }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                        <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: color }} />
+                                        <span style={{ fontSize: '12px', fontWeight: '600', color: '#475569', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '80px' }}>{source.source}</span>
                                     </div>
-                                    <span style={{ fontSize: "0.75rem", fontWeight: 600, marginTop: "0.5rem" }}>
-                                        {Math.round((source.count / totalSourceCount) * 100)}%
-                                    </span>
-                                    <span style={{ fontSize: "0.625rem", color: "#9ca3af" }}>{source.source}</span>
-                                </div>
-                            ))}
-                        </div>
-
-                        {/* Revenue breakdown */}
-                        <div style={{ display: "flex", gap: "0.5rem" }}>
-                            {bookingSources.map((source, i) => (
-                                <div
-                                    key={i}
-                                    style={{
-                                        flex: 1,
-                                        textAlign: "center",
-                                        padding: "0.5rem",
-                                        background: "#f9fafb",
-                                        borderRadius: "4px",
-                                    }}
-                                >
-                                    <div style={{ fontSize: "0.75rem", fontWeight: 600 }}>
-                                        {Math.round((source.count / totalSourceCount) * 100)}%
+                                    <div style={{ fontSize: '12px' }}>
+                                        <span style={{ fontWeight: 'bold', color: '#1e293b' }}>{source.count}</span>
                                     </div>
-                                    <div style={{ fontSize: "0.625rem", color: "#9ca3af" }}>৳{source.revenue}</div>
                                 </div>
-                            ))}
-                        </div>
-
-                        <div
-                            style={{
-                                textAlign: "center",
-                                marginTop: "0.75rem",
-                                fontSize: "0.75rem",
-                                color: "#6b7280",
-                            }}
-                        >
-                            Avg ARR ৳{avgARR}
-                        </div>
+                            );
+                        })}
                     </div>
                 </div>
             </div>
@@ -236,7 +220,7 @@ export function PerformanceCharts({
     );
 }
 
-// Ranking Card
+// Ranking Card - Redesigned
 interface RankingCardProps {
     occupancyRank?: number | null;
     occupancyChange?: "up" | "down" | "same";
@@ -247,44 +231,94 @@ interface RankingCardProps {
 export function RankingCard({ occupancyRank, occupancyChange, arrRank, guestExpRank }: RankingCardProps) {
     const formatRank = (value: string | number | null | undefined) => {
         if (value === null || value === undefined) return "—";
-        return value;
+        return `#${value}`;
     };
 
     return (
-        <div className="oyo-card">
-            <div className="oyo-card-header">
-                <h2 className="oyo-card-title">Rank <span style={{ fontSize: "0.75rem", color: "#9ca3af" }}>(Last 7 Days)</span></h2>
-                <Link href="/portfolio" className="oyo-card-link">Details</Link>
+        <div style={{
+            background: 'rgba(255, 255, 255, 0.9)',
+            backdropFilter: 'blur(20px)',
+            WebkitBackdropFilter: 'blur(20px)',
+            borderRadius: '24px',
+            padding: '24px',
+            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+            border: '1px solid #f1f5f9',
+            height: '100%',
+            display: 'flex',
+            flexDirection: 'column',
+            position: 'relative',
+            overflow: 'hidden'
+        }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                   <div style={{
+                       width: '40px',
+                       height: '40px',
+                       borderRadius: '16px',
+                       background: '#ede9fe',
+                       display: 'flex',
+                       alignItems: 'center',
+                       justifyContent: 'center',
+                       color: '#7c3aed'
+                   }}>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/>
+                            <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/>
+                            <path d="M4 22h16"/>
+                            <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/>
+                            <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/>
+                            <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h2 style={{ fontSize: '18px', fontWeight: 'bold', color: '#1e293b', margin: 0 }}>
+                            Rankings
+                        </h2>
+                         <span style={{ fontSize: '12px', fontWeight: '500', color: '#94a3b8' }}>Last 7 Days</span>
+                    </div>
+                </div>
+                <Link 
+                    href="/portfolio" 
+                    style={{
+                        fontSize: '14px',
+                        fontWeight: '600',
+                        color: '#64748b',
+                        background: '#f8fafc',
+                        padding: '6px 12px',
+                        borderRadius: '9999px',
+                        border: '1px solid #e2e8f0',
+                        textDecoration: 'none'
+                    }}
+                >
+                    Details
+                </Link>
             </div>
-            <div className="oyo-card-body">
-                <div className="oyo-rank-item">
-                    <span className="oyo-rank-label">
-                        Occupancy Rank <span style={{ color: "#9ca3af" }}>ⓘ</span>
-                    </span>
-                    <span className={`oyo-rank-value ${occupancyChange === "up" ? "oyo-rank-up" : ""}`}>
-                        {occupancyChange === "up" && "↑"}
-                        {occupancyChange === "down" && "↓"}
-                        {formatRank(occupancyRank)}
-                    </span>
+            
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px', borderRadius: '16px', background: '#f8fafc', border: '1px solid #f1f5f9' }}>
+                    <span style={{ fontSize: '14px', fontWeight: '600', color: '#475569' }}>Occupancy</span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        {occupancyChange === "up" && <span style={{ fontSize: '12px', color: '#10b981' }}>▲</span>}
+                        {occupancyChange === "down" && <span style={{ fontSize: '12px', color: '#f43f5e' }}>▼</span>}
+                        <span style={{ fontSize: '18px', fontWeight: 'bold', color: '#1e293b' }}>{formatRank(occupancyRank)}</span>
+                    </div>
                 </div>
-                <div className="oyo-rank-item">
-                    <span className="oyo-rank-label">
-                        ARR Rank <span style={{ color: "#9ca3af" }}>ⓘ</span>
-                    </span>
-                    <span className="oyo-rank-value oyo-rank-badge">{formatRank(arrRank)}</span>
+
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px', borderRadius: '16px', background: '#f8fafc', border: '1px solid #f1f5f9' }}>
+                    <span style={{ fontSize: '14px', fontWeight: '600', color: '#475569' }}>ARR</span>
+                    <span style={{ fontSize: '18px', fontWeight: 'bold', color: '#1e293b' }}>{formatRank(arrRank)}</span>
                 </div>
-                <div className="oyo-rank-item">
-                    <span className="oyo-rank-label">
-                        Guest Exp. Rank
-                    </span>
-                    <span className="oyo-rank-value oyo-rank-badge">{formatRank(guestExpRank)}</span>
+
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px', borderRadius: '16px', background: '#f8fafc', border: '1px solid #f1f5f9' }}>
+                    <span style={{ fontSize: '14px', fontWeight: '600', color: '#475569' }}>Guest Exp.</span>
+                    <span style={{ fontSize: '18px', fontWeight: 'bold', color: '#1e293b' }}>{formatRank(guestExpRank)}</span>
                 </div>
             </div>
         </div>
     );
 }
 
-// Guest Experience Card
+// Guest Experience Card - Redesigned
 interface GuestExpCardProps {
     happyPercent: number;
     unhappyPercent: number;
@@ -293,25 +327,105 @@ interface GuestExpCardProps {
 
 export function GuestExpCard({ happyPercent, unhappyPercent, level }: GuestExpCardProps) {
     return (
-        <div className="oyo-card">
-            <div className="oyo-card-header">
-                <h2 className="oyo-card-title">Guest Exp <span style={{ fontSize: "0.75rem", color: "#9ca3af" }}>(Last 10 Days)</span></h2>
-                <Link href="/reviews" className="oyo-card-link">Details</Link>
+        <div style={{
+            background: 'rgba(255, 255, 255, 0.9)',
+            backdropFilter: 'blur(20px)',
+            WebkitBackdropFilter: 'blur(20px)',
+            borderRadius: '24px',
+            padding: '24px',
+            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+            border: '1px solid #f1f5f9',
+            height: '100%',
+            display: 'flex',
+            flexDirection: 'column',
+            position: 'relative',
+            overflow: 'hidden'
+        }}>
+             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                   <div style={{
+                       width: '40px',
+                       height: '40px',
+                       borderRadius: '16px',
+                       background: '#ffe4e6',
+                       display: 'flex',
+                       alignItems: 'center',
+                       justifyContent: 'center',
+                       color: '#e11d48'
+                   }}>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M20 21v-8a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8"/>
+                            <path d="M4 16s.5-1 2-1 2.5 2 4 2 2.5-2 4-2 2.5 2 4 2 2-1 2-1"/>
+                            <path d="M2 21h20"/>
+                            <path d="M7 8v2"/>
+                            <path d="M17 8v2"/>
+                            <path d="M12 5a3 3 0 0 0-3 3v2h6V8a3 3 0 0 0-3-3Z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h2 style={{ fontSize: '18px', fontWeight: 'bold', color: '#1e293b', margin: 0 }}>
+                            Guest Exp
+                        </h2>
+                         <span style={{ fontSize: '12px', fontWeight: '500', color: '#94a3b8' }}>Last 10 Days</span>
+                    </div>
+                </div>
+                <Link 
+                    href="/reviews" 
+                    style={{
+                        fontSize: '14px',
+                        fontWeight: '600',
+                        color: '#64748b',
+                        background: '#f8fafc',
+                        padding: '6px 12px',
+                        borderRadius: '9999px',
+                        border: '1px solid #e2e8f0',
+                        textDecoration: 'none'
+                    }}
+                >
+                    Details
+                </Link>
             </div>
-            <div className="oyo-card-body">
-                <div className="oyo-guest-exp-item">
-                    <span className="oyo-guest-exp-label">Happy</span>
-                    <span className="oyo-guest-exp-value oyo-guest-exp-happy">{happyPercent}%</span>
+            
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', flex: 1 }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '14px' }}>
+                        <span style={{ fontWeight: '600', color: '#059669' }}>Happy Guests</span>
+                        <span style={{ fontWeight: 'bold', color: '#1e293b' }}>{happyPercent}%</span>
+                    </div>
+                    <div style={{ height: '8px', width: '100%', background: '#f1f5f9', borderRadius: '9999px', overflow: 'hidden' }}>
+                        <div style={{ height: '100%', background: '#10b981', borderRadius: '9999px', width: `${happyPercent}%`, transition: 'width 1s ease-out' }}></div>
+                    </div>
                 </div>
-                <div className="oyo-guest-exp-item">
-                    <span className="oyo-guest-exp-label">Unhappy</span>
-                    <span className="oyo-guest-exp-value oyo-guest-exp-unhappy">{unhappyPercent}%</span>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '14px' }}>
+                        <span style={{ fontWeight: '600', color: '#e11d48' }}>Unhappy Guests</span>
+                        <span style={{ fontWeight: 'bold', color: '#1e293b' }}>{unhappyPercent}%</span>
+                    </div>
+                     <div style={{ height: '8px', width: '100%', background: '#f1f5f9', borderRadius: '9999px', overflow: 'hidden' }}>
+                        <div style={{ height: '100%', background: '#f43f5e', borderRadius: '9999px', width: `${unhappyPercent}%`, transition: 'width 1s ease-out' }}></div>
+                    </div>
                 </div>
-                <div className="oyo-guest-exp-item">
-                    <span className="oyo-guest-exp-label">3C Level</span>
-                    <span className="oyo-guest-exp-value">{level}</span>
+
+                <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px solid #f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <span style={{ fontSize: '14px', fontWeight: '500', color: '#64748b' }}>3C Experience Level</span>
+                    <span style={{ fontSize: '24px', fontWeight: '900', color: '#1e293b' }}>{level}</span>
                 </div>
             </div>
+            
+             {/* Decorative background blob */}
+            <div style={{
+                position: 'absolute',
+                bottom: '-48px',
+                right: '-48px',
+                width: '128px',
+                height: '128px',
+                background: '#ffe4e6',
+                borderRadius: '9999px',
+                filter: 'blur(48px)',
+                opacity: 0.5,
+                pointerEvents: 'none'
+            }}></div>
         </div>
     );
 }

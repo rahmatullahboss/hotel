@@ -53,63 +53,47 @@ export function OccupancyGauge({
 
   return (
     <div
+      className="relative mx-auto flex flex-col items-center"
       style={{
-        position: "relative",
         width: `${size}px`,
         height: `${size / 2 + 30}px`,
-        margin: "0 auto",
       }}
     >
-      <div style={{ width: `${size}px`, height: `${size}px`, marginTop: `-${size / 4}px` }}>
-        <Doughnut data={chartData} options={options} />
+      {/* Gauge Chart */}
+      <div 
+        className="relative overflow-hidden"
+        style={{ width: `${size}px`, height: `${size / 2}px` }}
+      >
+        <div style={{ width: `${size}px`, height: `${size}px` }}>
+           <Doughnut data={chartData} options={options} />
+        </div>
       </div>
 
-      {/* Center text */}
+      {/* Center text Overlay */}
       <div
-        style={{
-          position: "absolute",
-          top: "50%",
-          left: "50%",
-          transform: "translate(-50%, 0)",
-          textAlign: "center",
-        }}
+        className="absolute inset-0 flex flex-col items-center justify-end pb-8 pointer-events-none"
+        style={{ height: `${size / 2}px` }}
       >
         <div
+          className="font-bold leading-none"
           style={{
             fontSize: `${size / 5}px`,
-            fontWeight: 700,
             color: mainColor,
-            lineHeight: 1,
           }}
         >
           {occupancyRate}%
         </div>
-        <div
-          style={{
-            fontSize: "0.75rem",
-            color: "var(--color-text-secondary)",
-            marginTop: "4px",
-          }}
-        >
+        <div className="text-xs text-slate-500 mt-1 font-medium bg-white/80 px-2 rounded-full backdrop-blur-sm">
           Occupancy
         </div>
       </div>
 
       {/* Target indicator */}
-      <div
-        style={{
-          position: "absolute",
-          bottom: "0",
-          left: "50%",
-          transform: "translateX(-50%)",
-          display: "flex",
-          alignItems: "center",
-          gap: "4px",
-          fontSize: "0.75rem",
-          color: isOnTarget ? "var(--color-success)" : "var(--color-text-muted)",
-        }}
-      >
-        {isOnTarget ? "✓" : "○"} Target: {targetRate}%
+      <div className="absolute bottom-0 left-0 right-0 flex items-center justify-center gap-1.5 text-xs font-medium text-slate-500">
+        <span className={isOnTarget ? "text-emerald-600 font-bold" : "text-slate-400"}>
+           {isOnTarget ? "✓" : "○"}
+        </span>
+        <span>Target: {targetRate}%</span>
       </div>
     </div>
   );

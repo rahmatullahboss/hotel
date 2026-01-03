@@ -63,13 +63,13 @@ export default async function RootLayout({
 
   return (
     <html lang={locale}>
-      <body className={`${geistSans.variable} ${geistMono.variable}`}>
+      <body className={`${geistSans.variable} ${geistMono.variable}`} style={{ margin: 0, padding: 0 }}>
         <SessionProvider>
           <ThemeProvider>
             <NextIntlClientProvider messages={messages}>
               {/* Global Layout Wrapper */}
               {hotel && session?.user ? (
-                <div className="oyo-layout">
+                <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
                   {/* Global Header */}
                   <PartnerHeader
                     user={session.user}
@@ -78,12 +78,14 @@ export default async function RootLayout({
                   />
 
                   {/* Body Container (Sidebar + Main) */}
-                  <div className="oyo-body">
-                    {/* Desktop Sidebar (Left) */}
-                    <OyoSidebar hotelName={hotel.name} className="hidden lg:block" />
+                  <div style={{ display: 'flex', flex: 1 }}>
+                    {/* Desktop Sidebar (Left) - Hidden on mobile via media query in CSS or JS */}
+                    <div className="hidden lg:block">
+                      <OyoSidebar hotelName={hotel.name} />
+                    </div>
 
                     {/* Main Content Area */}
-                    <main className="oyo-main">
+                    <main style={{ flex: 1, overflowY: 'auto' }}>
                       {children}
                     </main>
                   </div>
@@ -102,3 +104,4 @@ export default async function RootLayout({
     </html>
   );
 }
+

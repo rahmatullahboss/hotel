@@ -60,7 +60,7 @@ export default async function BookingsPage({ searchParams }: PageProps) {
     return (
         <>
             {/* Header */}
-            <header className="page-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+            <header className="page-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", maxWidth: "1200px", margin: "0 auto 16px auto" }}>
                 <div>
                     <Link
                         href="/settings"
@@ -103,7 +103,7 @@ export default async function BookingsPage({ searchParams }: PageProps) {
                 />
             </header>
 
-            <main>
+            <main style={{ maxWidth: "1200px", margin: "0 auto" }}>
                 {/* Status Filter Tabs */}
                 <div
                     style={{
@@ -119,18 +119,20 @@ export default async function BookingsPage({ searchParams }: PageProps) {
                             key={tab.value}
                             href={`/bookings?status=${tab.value}`}
                             style={{
-                                padding: "0.5rem 1rem",
-                                borderRadius: "20px",
+                                padding: "8px 16px",
+                                borderRadius: "12px",
                                 background: currentStatus === tab.value
-                                    ? "var(--color-primary)"
-                                    : "var(--color-bg-secondary)",
+                                    ? "#0f172a" // slate-900 (primary)
+                                    : "white",
+                                border: currentStatus === tab.value ? "none" : "1px solid #e2e8f0",
                                 color: currentStatus === tab.value
                                     ? "white"
-                                    : "var(--color-text-primary)",
-                                fontSize: "0.875rem",
+                                    : "#64748b",
+                                fontSize: "13px",
                                 textDecoration: "none",
                                 whiteSpace: "nowrap",
-                                fontWeight: currentStatus === tab.value ? 600 : 400,
+                                fontWeight: 600,
+                                boxShadow: currentStatus === tab.value ? "0 4px 6px -1px rgba(0, 0, 0, 0.1)" : "none"
                             }}
                         >
                             {tab.label}
@@ -142,11 +144,14 @@ export default async function BookingsPage({ searchParams }: PageProps) {
                 <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
                     {bookings.length === 0 ? (
                         <div
-                            className="card"
                             style={{
-                                padding: "2rem",
+                                padding: "32px",
                                 textAlign: "center",
-                                color: "var(--color-text-secondary)",
+                                color: "#64748b",
+                                background: "white",
+                                borderRadius: "16px",
+                                boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
+                                border: "1px solid #f1f5f9"
                             }}
                         >
                             No bookings found
@@ -155,9 +160,12 @@ export default async function BookingsPage({ searchParams }: PageProps) {
                         bookings.map((booking) => (
                             <div
                                 key={booking.id}
-                                className="card"
                                 style={{
-                                    padding: "1rem",
+                                    padding: "16px",
+                                    background: "white",
+                                    borderRadius: "16px",
+                                    boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
+                                    border: "1px solid #f1f5f9",
                                     borderLeft: `4px solid ${getStatusColor(booking.status)}`,
                                 }}
                             >

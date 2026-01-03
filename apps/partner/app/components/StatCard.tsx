@@ -46,13 +46,15 @@ export function StatCard({ value, label, icon, variant = "default", trend }: Sta
 
     return (
         <div
-            className="card stat-card"
             style={{
                 background: styles.background,
                 borderLeft: styles.borderColor ? `3px solid ${styles.borderColor}` : undefined,
-                padding: "1rem",
+                padding: "16px",
                 position: "relative",
                 overflow: "hidden",
+                borderRadius: "16px",
+                boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
+                border: "1px solid #f1f5f9",
             }}
         >
             {/* Icon */}

@@ -184,7 +184,7 @@ export default async function AnalyticsPage({ searchParams }: PageProps) {
                         <h2 style={{ fontSize: "1rem", fontWeight: 600, marginBottom: "1rem", display: "flex", alignItems: "center", gap: "0.5rem" }}>
                             <span>📉</span> RevPAR & ADR Trend
                         </h2>
-                        <RevPARTrend data={analytics.revparTrend} height={200} />
+                        <RevPARTrend data={analytics.revparTrend} />
                     </section>
                 )}
 

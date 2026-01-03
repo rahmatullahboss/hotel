@@ -10,75 +10,82 @@ import {
   HiOutlineQrCode
 } from "react-icons/hi2";
 
+const actionColors: Record<string, { bg: string; text: string; border: string }> = {
+  blue: { bg: '#eff6ff', text: '#2563eb', border: '#dbeafe' },
+  green: { bg: '#f0fdf4', text: '#16a34a', border: '#dcfce7' },
+  purple: { bg: '#faf5ff', text: '#9333ea', border: '#f3e8ff' },
+  rose: { bg: '#fff1f2', text: '#e11d48', border: '#ffe4e6' },
+  orange: { bg: '#fff7ed', text: '#ea580c', border: '#ffedd5' },
+  cyan: { bg: '#ecfeff', text: '#0891b2', border: '#cffafe' },
+};
+
 export function QuickActionsGrid() {
   const actions = [
     {
       label: "New Booking",
       icon: HiOutlinePlusCircle,
       href: "/bookings/new",
-      color: "text-blue-600",
-      bg: "bg-blue-50 hover:bg-blue-100",
-      border: "border-blue-100",
+      color: "blue",
     },
     {
       label: "Check-ins",
       icon: HiOutlineUserGroup,
       href: "/bookings?filter=today",
-      color: "text-green-600",
-      bg: "bg-green-50 hover:bg-green-100",
-      border: "border-green-100",
+      color: "green",
     },
     {
       label: "Payments",
       icon: HiOutlineCurrencyDollar,
       href: "/finance",
-      color: "text-purple-600",
-      bg: "bg-purple-50 hover:bg-purple-100",
-      border: "border-purple-100",
+      color: "purple",
     },
     {
       label: "Scan QR",
       icon: HiOutlineQrCode,
       href: "/scanner",
-      color: "text-rose-600",
-      bg: "bg-rose-50 hover:bg-rose-100",
-      border: "border-rose-100",
+      color: "rose",
     },
     {
       label: "Maintenance",
       icon: HiOutlineWrenchScrewdriver,
       href: "/rooms/maintenance",
-      color: "text-orange-600",
-      bg: "bg-orange-50 hover:bg-orange-100",
-      border: "border-orange-100",
+      color: "orange",
     },
     {
       label: "Availability",
       icon: HiOutlineCalendar,
       href: "/rooms/calendar",
-      color: "text-cyan-600",
-      bg: "bg-cyan-50 hover:bg-cyan-100",
-      border: "border-cyan-100",
+      color: "cyan",
     }
   ];
 
   return (
-    <div className="grid grid-cols-2 lg:grid-cols-6 gap-4">
-      {actions.map((action) => (
-        <Link
-          key={action.label}
-          href={action.href}
-          className={`
-            flex flex-col items-center justify-center p-4 rounded-xl 
-            border ${action.border} ${action.bg} 
-            transition-all duration-200 hover:scale-105 hover:shadow-sm
-            text-center
-          `}
-        >
-          <action.icon className={`w-8 h-8 mb-2 ${action.color}`} />
-          <span className="text-xs font-semibold text-gray-700">{action.label}</span>
-        </Link>
-      ))}
+    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px' }}>
+      {actions.map((action) => {
+        const colors = actionColors[action.color]!;
+        return (
+          <Link
+            key={action.label}
+            href={action.href}
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: '12px 8px',
+              borderRadius: '12px',
+              border: `1px solid ${colors.border}`,
+              background: colors.bg,
+              transition: 'all 0.2s',
+              textAlign: 'center',
+              textDecoration: 'none'
+            }}
+          >
+            <action.icon style={{ width: '24px', height: '24px', marginBottom: '4px', color: colors.text }} />
+            <span style={{ fontSize: '10px', fontWeight: '600', color: '#374151' }}>{action.label}</span>
+          </Link>
+        );
+      })}
     </div>
   );
 }

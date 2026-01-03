@@ -30,10 +30,24 @@ export default async function EarningsPage() {
     return (
         <>
             {/* Header */}
-            <header className="page-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+            <header
+                style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "flex-start",
+                    background: "white",
+                    padding: "16px",
+                    borderRadius: "16px",
+                    boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
+                    border: "1px solid #f1f5f9",
+                    marginBottom: "16px",
+                    maxWidth: "1200px",
+                    margin: "0 auto 16px auto"
+                }}
+            >
                 <div>
-                    <h1 className="page-title">Earnings</h1>
-                    <p style={{ color: "var(--color-text-secondary)", fontSize: "0.875rem" }}>
+                    <h1 style={{ fontSize: "1.5rem", fontWeight: 700, color: "#1e293b", margin: 0 }}>Earnings</h1>
+                    <p style={{ color: "#64748b", fontSize: "0.875rem", margin: 0, marginTop: "4px" }}>
                         Your revenue summary
                     </p>
                 </div>
@@ -44,7 +58,7 @@ export default async function EarningsPage() {
                 />
             </header>
 
-            <main>
+            <main style={{ maxWidth: "1200px", margin: "0 auto" }}>
                 {/* Earnings Cards */}
                 <div
                     style={{
@@ -54,26 +68,50 @@ export default async function EarningsPage() {
                         marginBottom: "1.5rem",
                     }}
                 >
-                    <div className="card stat-card">
-                        <div className="stat-value">৳{earnings.totalRevenue.toLocaleString()}</div>
-                        <div className="stat-label">Total Revenue</div>
+                    <div style={{
+                        padding: "16px",
+                        background: "white",
+                        borderRadius: "16px",
+                        boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
+                        border: "1px solid #f1f5f9"
+                    }}>
+                        <div className="stat-value" style={{ fontSize: "1.5rem", fontWeight: 700, color: "#1e293b" }}>৳{earnings.totalRevenue.toLocaleString()}</div>
+                        <div className="stat-label" style={{ fontSize: "0.875rem", color: "#64748b" }}>Total Revenue</div>
                     </div>
-                    <div className="card stat-card">
-                        <div className="stat-value">৳{earnings.netEarnings.toLocaleString()}</div>
-                        <div className="stat-label">Net Earnings</div>
+                    <div style={{
+                        padding: "16px",
+                        background: "white",
+                        borderRadius: "16px",
+                        boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
+                        border: "1px solid #f1f5f9"
+                    }}>
+                        <div className="stat-value" style={{ fontSize: "1.5rem", fontWeight: 700, color: "#1e293b" }}>৳{earnings.netEarnings.toLocaleString()}</div>
+                        <div className="stat-label" style={{ fontSize: "0.875rem", color: "#64748b" }}>Net Earnings</div>
                     </div>
-                    <div className="card stat-card">
-                        <div className="stat-value">{earnings.totalBookings}</div>
-                        <div className="stat-label">Total Bookings</div>
+                    <div style={{
+                        padding: "16px",
+                        background: "white",
+                        borderRadius: "16px",
+                        boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
+                        border: "1px solid #f1f5f9"
+                    }}>
+                        <div className="stat-value" style={{ fontSize: "1.5rem", fontWeight: 700, color: "#1e293b" }}>{earnings.totalBookings}</div>
+                        <div className="stat-label" style={{ fontSize: "0.875rem", color: "#64748b" }}>Total Bookings</div>
                     </div>
-                    <div className="card stat-card">
+                    <div style={{
+                        padding: "16px",
+                        background: "white",
+                        borderRadius: "16px",
+                        boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
+                        border: "1px solid #f1f5f9"
+                    }}>
                         <div
                             className="stat-value"
-                            style={{ color: "var(--color-warning)" }}
+                            style={{ color: "#ef4444", fontSize: "1.5rem", fontWeight: 700 }}
                         >
                             -৳{earnings.totalCommission.toLocaleString()}
                         </div>
-                        <div className="stat-label">Platform Commission</div>
+                        <div className="stat-label" style={{ fontSize: "0.875rem", color: "#64748b" }}>Platform Commission</div>
                     </div>
                 </div>
 
@@ -136,11 +174,14 @@ export default async function EarningsPage() {
                     <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
                         {earnings.transactions.length === 0 ? (
                             <div
-                                className="card"
                                 style={{
-                                    padding: "2rem",
+                                    padding: "32px",
                                     textAlign: "center",
-                                    color: "var(--color-text-secondary)",
+                                    color: "#64748b",
+                                    background: "white",
+                                    borderRadius: "16px",
+                                    boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
+                                    border: "1px solid #f1f5f9"
                                 }}
                             >
                                 No transactions this month
@@ -149,19 +190,23 @@ export default async function EarningsPage() {
                             earnings.transactions.map((tx) => (
                                 <div
                                     key={tx.id}
-                                    className="card"
+                                    className=""
                                     style={{
                                         display: "flex",
                                         justifyContent: "space-between",
                                         alignItems: "center",
-                                        padding: "1rem",
+                                        padding: "16px",
+                                        background: "white",
+                                        borderRadius: "16px",
+                                        boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
+                                        border: "1px solid #f1f5f9"
                                     }}
                                 >
                                     <div>
-                                        <div style={{ fontWeight: 600, marginBottom: "0.25rem" }}>
+                                        <div style={{ fontWeight: 600, marginBottom: "0.25rem", color: "#1e293b" }}>
                                             {tx.guestName}
                                         </div>
-                                        <div style={{ fontSize: "0.875rem", color: "var(--color-text-secondary)" }}>
+                                        <div style={{ fontSize: "0.875rem", color: "#64748b" }}>
                                             Check-in: {tx.checkIn}
                                         </div>
                                     </div>

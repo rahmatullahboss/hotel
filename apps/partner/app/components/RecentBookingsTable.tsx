@@ -1,7 +1,5 @@
 "use client";
 
-import Link from "next/link";
-
 interface Booking {
   id: string;
   guestName: string;
@@ -12,6 +10,7 @@ interface Booking {
   status: string;
   paymentStatus: string;
   totalAmount: number;
+  roomType?: string;
 }
 
 interface RecentBookingsTableProps {
@@ -25,15 +24,17 @@ function formatDate(dateStr: string): string {
   return `${months[date.getMonth()]} ${date.getDate()}`;
 }
 
+const statusStyles: Record<string, { bg: string; text: string; border: string }> = {
+  CHECKED_IN: { bg: '#dcfce7', text: '#166534', border: '#bbf7d0' },
+  CONFIRMED: { bg: '#dbeafe', text: '#1e40af', border: '#bfdbfe' },
+  CHECKED_OUT: { bg: '#f3f4f6', text: '#374151', border: '#e5e7eb' },
+  CANCELLED: { bg: '#fee2e2', text: '#991b1b', border: '#fecaca' },
+  DEFAULT: { bg: '#fef3c7', text: '#92400e', border: '#fde68a' }
+};
+
 export function RecentBookingsTable({ bookings }: RecentBookingsTableProps) {
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "CHECKED_IN": return "bg-green-100 text-green-800 border-green-200";
-      case "CONFIRMED": return "bg-blue-100 text-blue-800 border-blue-200";
-      case "CHECKED_OUT": return "bg-gray-100 text-gray-800 border-gray-200";
-      case "CANCELLED": return "bg-red-100 text-red-800 border-red-200";
-      default: return "bg-yellow-100 text-yellow-800 border-yellow-200";
-    }
+  const getStatusStyle = (status: string) => {
+    return statusStyles[status] || statusStyles.DEFAULT!;
   };
 
   const getStatusLabel = (status: string) => {
@@ -42,76 +43,92 @@ export function RecentBookingsTable({ bookings }: RecentBookingsTableProps) {
 
   if (bookings.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-12 text-center bg-white rounded-xl border border-dashed border-gray-200">
-        <div className="w-12 h-12 bg-gray-50 rounded-full flex items-center justify-center text-2xl mb-3">
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '64px 0', textAlign: 'center' }}>
+        <div style={{ width: '64px', height: '64px', background: '#f1f5f9', borderRadius: '9999px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '30px', marginBottom: '16px', boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.06)' }}>
           📅
         </div>
-        <p className="text-gray-500 text-sm font-medium">No recent bookings found</p>
+        <h3 style={{ color: '#1e293b', fontWeight: 'bold', fontSize: '18px', margin: 0 }}>No recent bookings</h3>
+        <p style={{ color: '#94a3b8', fontSize: '14px', marginTop: '4px', maxWidth: '250px' }}>New bookings will appear here instantly when they occur.</p>
       </div>
     );
   }
 
   return (
-    <div className="overflow-x-auto bg-white rounded-xl shadow-sm border border-gray-100/50">
-      <table className="w-full text-left border-collapse">
+    <div style={{ overflowX: 'auto' }}>
+      <table style={{ width: '100%', textAlign: 'left', borderCollapse: 'collapse' }}>
         <thead>
-          <tr className="border-b border-gray-100 bg-gray-50/50">
-            <th className="py-4 px-6 text-xs font-semibold uppercase tracking-wider text-gray-400">Guest</th>
-            <th className="py-4 px-6 text-xs font-semibold uppercase tracking-wider text-gray-400">Room</th>
-            <th className="py-4 px-6 text-xs font-semibold uppercase tracking-wider text-gray-400">Dates</th>
-            <th className="py-4 px-6 text-xs font-semibold uppercase tracking-wider text-gray-400">Status</th>
-            <th className="py-4 px-6 text-xs font-semibold uppercase tracking-wider text-gray-400 text-right">Amount</th>
-            <th className="py-4 px-6 text-xs font-semibold uppercase tracking-wider text-gray-400 text-center">Action</th>
+          <tr>
+            <th style={{ padding: '16px', fontSize: '12px', fontWeight: 'bold', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: '1px solid #f1f5f9' }}>Guest</th>
+            <th style={{ padding: '16px', fontSize: '12px', fontWeight: 'bold', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: '1px solid #f1f5f9' }}>Room</th>
+            <th style={{ padding: '16px', fontSize: '12px', fontWeight: 'bold', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: '1px solid #f1f5f9', textAlign: 'center' }}>Status</th>
+            <th style={{ padding: '16px', fontSize: '12px', fontWeight: 'bold', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: '1px solid #f1f5f9', textAlign: 'right' }}>Amount</th>
           </tr>
         </thead>
-        <tbody>
+        <tbody style={{ fontSize: '14px' }}>
           {bookings.map((booking) => {
-            const nights = Math.ceil((new Date(booking.checkOut).getTime() - new Date(booking.checkIn).getTime()) / (1000 * 60 * 60 * 24));
-            
-            return (
-              <tr 
-                key={booking.id} 
-                className="group hover:bg-gray-50/50 transition-colors border-b border-gray-50 last:border-none"
-              >
-                <td className="py-4 px-6">
-                  <div className="flex flex-col">
-                    <span className="font-semibold text-gray-900 group-hover:text-primary transition-colors">
-                      {booking.guestName}
-                    </span>
-                    <span className="text-xs text-gray-500">{booking.guestPhone}</span>
+             const statusStyle = getStatusStyle(booking.status);
+             const statusLabel = getStatusLabel(booking.status);
+             
+             return (
+              <tr key={booking.id} style={{ borderBottom: '1px solid #f8fafc' }}>
+                <td style={{ padding: '16px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    <div style={{ 
+                      width: '40px', 
+                      height: '40px', 
+                      borderRadius: '9999px', 
+                      background: 'linear-gradient(to bottom right, #6366f1, #9333ea)', 
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      justifyContent: 'center', 
+                      color: 'white', 
+                      fontWeight: 'bold', 
+                      fontSize: '12px',
+                      boxShadow: '0 4px 6px -1px rgba(99, 102, 241, 0.3)'
+                    }}>
+                      {booking.guestName.charAt(0)}
+                    </div>
+                    <div>
+                      <div style={{ fontWeight: 'bold', color: '#334155' }}>
+                        {booking.guestName}
+                      </div>
+                      <div style={{ fontSize: '12px', color: '#94a3b8', fontWeight: '500' }}>
+                        {formatDate(booking.checkIn)}
+                      </div>
+                    </div>
                   </div>
                 </td>
-                <td className="py-4 px-6">
-                  <span className="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">
-                    {booking.roomNumber}
+                <td style={{ padding: '16px' }}>
+                  <div style={{ color: '#475569', fontWeight: '600' }}>{booking.roomNumber}</div>
+                   <div style={{ fontSize: '12px', color: '#94a3b8' }}>{booking.roomType || 'Standard'}</div>
+                </td>
+                <td style={{ padding: '16px', textAlign: 'center' }}>
+                  <span style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    padding: '4px 10px',
+                    borderRadius: '9999px',
+                    fontSize: '12px',
+                    fontWeight: 'bold',
+                    background: statusStyle.bg,
+                    color: statusStyle.text,
+                    border: `1px solid ${statusStyle.border}`,
+                    boxShadow: '0 1px 2px rgba(0,0,0,0.05)'
+                  }}>
+                    {statusLabel}
                   </span>
                 </td>
-                <td className="py-4 px-6">
-                  <div className="flex flex-col text-sm text-gray-600">
-                    <span>{formatDate(booking.checkIn)} - {formatDate(booking.checkOut)}</span>
-                    <span className="text-xs text-gray-400">({nights} nights)</span>
+                <td style={{ padding: '16px', textAlign: 'right' }}>
+                  <div style={{ fontWeight: 'bold', color: '#334155' }}>৳{booking.totalAmount.toLocaleString()}</div>
+                  <div style={{ fontSize: '12px', color: '#94a3b8' }}>
+                     {booking.paymentStatus === 'PAID' ? (
+                       <span style={{ color: '#10b981', display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '4px' }}>
+                         Paid ✓
+                       </span>
+                     ) : (
+                       <span style={{ color: '#f59e0b' }}>Pending</span>
+                     )}
                   </div>
-                </td>
-                <td className="py-4 px-6">
-                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${getStatusColor(booking.status)}`}>
-                    {getStatusLabel(booking.status)}
-                  </span>
-                </td>
-                <td className="py-4 px-6 text-right">
-                  <div className="flex flex-col items-end">
-                    <span className="font-semibold text-gray-900">৳{booking.totalAmount.toLocaleString()}</span>
-                    <span className={`text-[10px] uppercase font-bold ${booking.paymentStatus === 'PAID' ? 'text-green-600' : 'text-orange-500'}`}>
-                      {booking.paymentStatus}
-                    </span>
-                  </div>
-                </td>
-                <td className="py-4 px-6 text-center">
-                  <Link 
-                    href={`/bookings/${booking.id}`}
-                    className="text-gray-400 hover:text-primary transition-colors p-2 rounded-full hover:bg-gray-100"
-                  >
-                    Details →
-                  </Link>
                 </td>
               </tr>
             );

@@ -10,6 +10,7 @@ const QRIcon = () => (
         viewBox="0 0 24 24"
         strokeWidth={2}
         stroke="currentColor"
+        className="w-6 h-6"
     >
         <path
             strokeLinecap="round"
@@ -33,7 +34,8 @@ export function ScannerFAB({ onClick, href = "/scanner" }: ScannerFABProps) {
     if (onClick) {
         return (
             <button
-                className="fab"
+                className="fixed bottom-20 right-4 p-4 bg-primary text-white rounded-full shadow-lg z-40 transition-transform hover:scale-105 active:scale-95"
+                style={{ backgroundColor: 'var(--color-primary, #E63946)' }}
                 onClick={onClick}
                 aria-label="Scan QR Code for check-in"
             >
@@ -45,7 +47,8 @@ export function ScannerFAB({ onClick, href = "/scanner" }: ScannerFABProps) {
     return (
         <Link
             href={href}
-            className="fab"
+            className="fixed bottom-20 right-4 p-4 bg-primary text-white rounded-full shadow-lg z-40 transition-transform hover:scale-105 active:scale-95"
+            style={{ backgroundColor: 'var(--color-primary, #E63946)' }}
             aria-label="Scan QR Code for check-in"
         >
             <QRIcon />

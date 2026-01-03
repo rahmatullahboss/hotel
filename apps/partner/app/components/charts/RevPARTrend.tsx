@@ -6,10 +6,9 @@ import type { ChartOptions } from "chart.js";
 
 interface RevPARTrendProps {
   data: { date: string; revpar: number; adr: number }[];
-  height?: number;
 }
 
-export function RevPARTrend({ data, height = 200 }: RevPARTrendProps) {
+export function RevPARTrend({ data }: RevPARTrendProps) {
   const chartData = {
     labels: data.map((d) => d.date),
     datasets: [
@@ -59,7 +58,7 @@ export function RevPARTrend({ data, height = 200 }: RevPARTrendProps) {
           usePointStyle: true,
           pointStyle: "circle",
           padding: 16,
-          color: "var(--color-text-secondary)",
+          color: "#64748b", // slate-500
           font: {
             size: 12,
           },
@@ -85,7 +84,7 @@ export function RevPARTrend({ data, height = 200 }: RevPARTrendProps) {
           display: false,
         },
         ticks: {
-          color: "var(--color-text-muted)",
+          color: "#94a3b8", // slate-400
           font: {
             size: 11,
           },
@@ -99,7 +98,7 @@ export function RevPARTrend({ data, height = 200 }: RevPARTrendProps) {
           display: false,
         },
         ticks: {
-          color: "var(--color-text-muted)",
+          color: "#94a3b8", // slate-400
           font: {
             size: 11,
           },
@@ -118,56 +117,57 @@ export function RevPARTrend({ data, height = 200 }: RevPARTrendProps) {
     : "0";
 
   return (
-    <div>
+    <div style={{ display: 'flex', flexDirection: 'column' }}>
       {/* Metric Cards */}
-      <div style={{ display: "flex", gap: "1rem", marginBottom: "1rem" }}>
-        <div
-          style={{
-            flex: 1,
-            padding: "1rem",
-            background: "rgba(139, 92, 246, 0.1)",
-            borderRadius: "12px",
-            borderLeft: "4px solid #8B5CF6",
-          }}
-        >
-          <div style={{ fontSize: "0.75rem", color: "var(--color-text-secondary)", marginBottom: "4px" }}>
-            RevPAR (Revenue Per Available Room)
+      <div style={{ display: 'flex', gap: '12px', marginBottom: '16px' }}>
+        <div style={{
+          flex: 1,
+          padding: '12px',
+          background: '#f5f3ff',
+          borderRadius: '12px',
+          border: '1px solid #ede9fe'
+        }}>
+          <div style={{ fontSize: '10px', fontWeight: 'bold', color: '#7c3aed', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '4px' }}>
+            RevPAR
           </div>
-          <div style={{ display: "flex", alignItems: "baseline", gap: "0.5rem" }}>
-            <span style={{ fontSize: "1.5rem", fontWeight: 700, color: "#8B5CF6" }}>
+          <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between' }}>
+            <span style={{ fontSize: '18px', fontWeight: 'bold', color: '#1e293b' }}>
               ৳{currentRevPAR.toLocaleString()}
             </span>
-            <span
-              style={{
-                fontSize: "0.75rem",
-                color: Number(revparChange) >= 0 ? "var(--color-success)" : "var(--color-error)",
-              }}
-            >
+            <span style={{
+              fontSize: '11px',
+              fontWeight: 'bold',
+              padding: '2px 6px',
+              borderRadius: '9999px',
+              background: Number(revparChange) >= 0 ? '#dcfce7' : '#fee2e2',
+              color: Number(revparChange) >= 0 ? '#15803d' : '#b91c1c'
+            }}>
               {Number(revparChange) >= 0 ? "↑" : "↓"} {Math.abs(Number(revparChange))}%
             </span>
           </div>
         </div>
 
-        <div
-          style={{
-            flex: 1,
-            padding: "1rem",
-            background: "rgba(249, 115, 22, 0.1)",
-            borderRadius: "12px",
-            borderLeft: "4px solid #F97316",
-          }}
-        >
-          <div style={{ fontSize: "0.75rem", color: "var(--color-text-secondary)", marginBottom: "4px" }}>
-            ADR (Average Daily Rate)
+        <div style={{
+          flex: 1,
+          padding: '12px',
+          background: '#fff7ed',
+          borderRadius: '12px',
+          border: '1px solid #ffedd5'
+        }}>
+           <div style={{ fontSize: '10px', fontWeight: 'bold', color: '#ea580c', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '4px' }}>
+            ADR
           </div>
-          <div style={{ fontSize: "1.5rem", fontWeight: 700, color: "#F97316" }}>
-            ৳{currentADR.toLocaleString()}
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px' }}>
+            <span style={{ fontSize: '18px', fontWeight: 'bold', color: '#1e293b' }}>
+                ৳{currentADR.toLocaleString()}
+            </span>
+             <span style={{ fontSize: '11px', color: '#fb923c', fontWeight: '500' }}>Avg</span>
           </div>
         </div>
       </div>
 
-      {/* Chart */}
-      <div style={{ width: "100%", height: `${height}px` }}>
+      {/* Chart - Fixed height */}
+      <div style={{ width: '100%', height: '120px', position: 'relative' }}>
         <Line data={chartData} options={options} />
       </div>
     </div>
