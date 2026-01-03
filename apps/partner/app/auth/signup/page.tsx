@@ -90,32 +90,20 @@ function SignUpContent() {
 
     return (
         <main className="main-centered">
-            <div className="container" style={{ maxWidth: "400px", margin: "0 auto" }}>
-                {/* Logo */}
-                <div style={{ textAlign: "center", marginBottom: "2rem" }}>
-                    <h1 style={{ fontSize: "2rem", fontWeight: 800, color: "var(--color-primary)" }}>
-                        Become a Partner
-                    </h1>
-                    <p style={{ color: "var(--color-text-secondary)" }}>
-                        Create your account to list your hotel
-                    </p>
+            <div className="auth-container">
+                {/* Header */}
+                <div className="auth-header">
+                    <h1 className="auth-title">Become a Partner</h1>
+                    <p className="auth-subtitle">Create your account to list your hotel</p>
                 </div>
 
                 {/* Sign Up Card */}
-                <div className="card" style={{ padding: "2rem" }}>
+                <div className="auth-card">
                     {/* Google Sign Up */}
                     <button
                         onClick={handleGoogleSignUp}
                         disabled={isLoading}
-                        className="btn btn-outline"
-                        style={{
-                            width: "100%",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            gap: "0.75rem",
-                            marginBottom: "1.5rem",
-                        }}
+                        className="btn-google"
                     >
                         <svg width="20" height="20" viewBox="0 0 24 24">
                             <path
@@ -138,33 +126,17 @@ function SignUpContent() {
                         {isLoading ? "Please wait..." : "Continue with Google"}
                     </button>
 
-                    <div
-                        style={{
-                            display: "flex",
-                            alignItems: "center",
-                            gap: "1rem",
-                            marginBottom: "1.5rem",
-                            color: "var(--color-text-muted)",
-                        }}
-                    >
-                        <div style={{ flex: 1, height: "1px", background: "var(--color-border)" }} />
-                        <span style={{ fontSize: "0.875rem" }}>or</span>
-                        <div style={{ flex: 1, height: "1px", background: "var(--color-border)" }} />
+                    {/* Divider */}
+                    <div className="auth-divider">
+                        <div className="auth-divider-line" />
+                        <span className="auth-divider-text">or</span>
+                        <div className="auth-divider-line" />
                     </div>
 
                     {/* Email/Password Sign Up Form */}
-                    <form onSubmit={handleSubmit}>
-                        <div style={{ marginBottom: "1rem" }}>
-                            <label
-                                style={{
-                                    display: "block",
-                                    fontWeight: 600,
-                                    fontSize: "0.875rem",
-                                    marginBottom: "0.5rem",
-                                }}
-                            >
-                                Full Name
-                            </label>
+                    <form onSubmit={handleSubmit} className="auth-form">
+                        <div className="auth-form-group">
+                            <label className="auth-label">Full Name</label>
                             <input
                                 type="text"
                                 name="name"
@@ -174,17 +146,8 @@ function SignUpContent() {
                                 className="form-input"
                             />
                         </div>
-                        <div style={{ marginBottom: "1rem" }}>
-                            <label
-                                style={{
-                                    display: "block",
-                                    fontWeight: 600,
-                                    fontSize: "0.875rem",
-                                    marginBottom: "0.5rem",
-                                }}
-                            >
-                                Email
-                            </label>
+                        <div className="auth-form-group">
+                            <label className="auth-label">Email</label>
                             <input
                                 type="email"
                                 name="email"
@@ -194,17 +157,8 @@ function SignUpContent() {
                                 className="form-input"
                             />
                         </div>
-                        <div style={{ marginBottom: "1rem" }}>
-                            <label
-                                style={{
-                                    display: "block",
-                                    fontWeight: 600,
-                                    fontSize: "0.875rem",
-                                    marginBottom: "0.5rem",
-                                }}
-                            >
-                                Password
-                            </label>
+                        <div className="auth-form-group">
+                            <label className="auth-label">Password</label>
                             <input
                                 type="password"
                                 name="password"
@@ -214,17 +168,8 @@ function SignUpContent() {
                                 className="form-input"
                             />
                         </div>
-                        <div style={{ marginBottom: "1rem" }}>
-                            <label
-                                style={{
-                                    display: "block",
-                                    fontWeight: 600,
-                                    fontSize: "0.875rem",
-                                    marginBottom: "0.5rem",
-                                }}
-                            >
-                                Confirm Password
-                            </label>
+                        <div className="auth-form-group">
+                            <label className="auth-label">Confirm Password</label>
                             <input
                                 type="password"
                                 name="confirmPassword"
@@ -234,16 +179,7 @@ function SignUpContent() {
                                 className="form-input"
                             />
                         </div>
-                        {error && (
-                            <p style={{
-                                color: "var(--color-error)",
-                                fontSize: "0.875rem",
-                                marginBottom: "1rem",
-                                textAlign: "center",
-                            }}>
-                                {error}
-                            </p>
-                        )}
+                        {error && <div className="auth-error">{error}</div>}
                         <button
                             type="submit"
                             disabled={isLoading}
@@ -256,25 +192,9 @@ function SignUpContent() {
                 </div>
 
                 {/* Sign In Link */}
-                <p
-                    style={{
-                        textAlign: "center",
-                        fontSize: "0.875rem",
-                        color: "var(--color-text-secondary)",
-                        marginTop: "1.5rem",
-                    }}
-                >
+                <p className="auth-link">
                     Already have an account?{" "}
-                    <Link
-                        href="/auth/signin"
-                        style={{
-                            color: "var(--color-primary)",
-                            fontWeight: 600,
-                            textDecoration: "none",
-                        }}
-                    >
-                        Sign In
-                    </Link>
+                    <Link href="/auth/signin">Sign In</Link>
                 </p>
             </div>
         </main>
