@@ -1,5 +1,6 @@
 "use client";
 
+import "./chartjs-register"; // Must be first - registers Chart.js components
 import { Line } from "react-chartjs-2";
 import type { ChartOptions } from "chart.js";
 
