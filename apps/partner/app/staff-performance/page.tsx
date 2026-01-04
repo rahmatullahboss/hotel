@@ -1,5 +1,14 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import {
+    FiArrowLeft,
+    FiActivity,
+    FiClock,
+    FiUsers,
+    FiLogIn,
+    FiLogOut,
+    FiDollarSign,
+} from "react-icons/fi";
 import { getPartnerRole } from "../actions/getPartnerRole";
 import { getCurrentShiftStatus, getHandoverReports, getLatestHandoverReport } from "../actions/staffAttendance";
 import { getDailyPerformanceSummary, getStaffActivityLog } from "../actions/staffPerformance";
@@ -7,17 +16,79 @@ import { getStaffMembers } from "../actions/staff";
 import { BottomNav } from "../components";
 import { AttendanceWidget } from "./AttendanceWidget";
 import { HandoverForm } from "./HandoverForm";
-import {
-    FiActivity,
-    FiClock,
-    FiUsers,
-    FiCheckCircle,
-    FiLogIn,
-    FiLogOut,
-    FiDollarSign,
-} from "react-icons/fi";
 
 export const dynamic = "force-dynamic";
+
+// Reusable style objects
+const styles = {
+    pageContainer: {
+        minHeight: "100vh",
+        background: "linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)",
+        paddingBottom: "100px",
+    } as React.CSSProperties,
+    header: {
+        background: "linear-gradient(135deg, #ec4899 0%, #db2777 100%)",
+        padding: "24px 20px 32px",
+        borderRadius: "0 0 32px 32px",
+        boxShadow: "0 8px 32px rgba(236, 72, 153, 0.3)",
+        marginBottom: "24px",
+    } as React.CSSProperties,
+    backLink: {
+        display: "inline-flex",
+        alignItems: "center",
+        gap: "8px",
+        color: "rgba(255,255,255,0.9)",
+        fontSize: "14px",
+        fontWeight: "500",
+        textDecoration: "none",
+        marginBottom: "12px",
+    } as React.CSSProperties,
+    pageTitle: {
+        fontSize: "26px",
+        fontWeight: "800",
+        color: "white",
+        margin: 0,
+        marginBottom: "8px",
+        display: "flex",
+        alignItems: "center",
+        gap: "12px",
+    } as React.CSSProperties,
+    pageSubtitle: {
+        color: "rgba(255,255,255,0.8)",
+        fontSize: "15px",
+        margin: 0,
+    } as React.CSSProperties,
+    main: {
+        padding: "0 16px",
+        maxWidth: "800px",
+        margin: "0 auto",
+    } as React.CSSProperties,
+    card: {
+        background: "white",
+        borderRadius: "20px",
+        padding: "24px",
+        boxShadow: "0 4px 20px rgba(0, 0, 0, 0.08)",
+        marginBottom: "20px",
+    } as React.CSSProperties,
+    cardTitle: {
+        fontSize: "16px",
+        fontWeight: "700",
+        color: "#1a1a2e",
+        marginBottom: "16px",
+        display: "flex",
+        alignItems: "center",
+        gap: "10px",
+    } as React.CSSProperties,
+    statsGrid: {
+        display: "grid",
+        gridTemplateColumns: "repeat(3, 1fr)",
+        gap: "16px",
+        marginBottom: "20px",
+    } as React.CSSProperties,
+    statItem: {
+        textAlign: "center" as const,
+    } as React.CSSProperties,
+};
 
 export default async function StaffPerformancePage() {
     const roleInfo = await getPartnerRole();
@@ -26,10 +97,8 @@ export default async function StaffPerformancePage() {
         redirect("/auth/signin");
     }
 
-    // Only OWNER and MANAGER can view staff performance
     const canViewPerformance = roleInfo.role === "OWNER" || roleInfo.role === "MANAGER";
 
-    // Get data
     const [shiftStatus, dailySummary, activityLog, staffMembers, latestHandover, handoverReports] =
         await Promise.all([
             getCurrentShiftStatus(),
@@ -70,301 +139,269 @@ export default async function StaffPerformancePage() {
     };
 
     return (
-        <>
+        <div style={styles.pageContainer}>
             {/* Header */}
-            <header className="page-header">
-                <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
-                    <Link
-                        href="/"
-                        style={{
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            width: "36px",
-                            height: "36px",
-                            borderRadius: "50%",
-                            backgroundColor: "var(--color-bg-secondary)",
-                            color: "var(--color-text-secondary)",
-                            textDecoration: "none",
-                        }}
-                    >
-                        ←
+            <header style={styles.header}>
+                <div style={{ maxWidth: "800px", margin: "0 auto" }}>
+                    <Link href="/" style={styles.backLink}>
+                        <FiArrowLeft size={18} />
+                        Back to Dashboard
                     </Link>
-                    <div>
-                        <h1 className="page-title">Staff Performance</h1>
-                        <p style={{ color: "var(--color-text-secondary)", fontSize: "0.875rem" }}>
-                            {canViewPerformance ? "Track team activity & performance" : "Manage your shift"}
-                        </p>
-                    </div>
+                    <h1 style={styles.pageTitle}>
+                        <FiUsers size={26} />
+                        Staff Performance
+                    </h1>
+                    <p style={styles.pageSubtitle}>
+                        {canViewPerformance ? "Track team activity & performance" : "Manage your shift"}
+                    </p>
                 </div>
             </header>
 
-            <main>
-                {/* Attendance Widget - visible to all staff */}
+            <main style={styles.main}>
+                {/* Attendance Widget */}
                 <AttendanceWidget initialStatus={shiftStatus} />
 
-                {/* Daily Summary - OWNER/MANAGER only */}
+                {/* Daily Summary */}
                 {canViewPerformance && dailySummary && (
-                    <div className="card" style={{ marginTop: "1rem" }}>
-                        <div className="card-header">
-                            <h3 className="card-title">
-                                <FiUsers style={{ marginRight: "0.5rem" }} />
-                                Today&apos;s Summary
-                            </h3>
-                        </div>
-                        <div className="card-body">
-                            <div
-                                style={{
-                                    display: "grid",
-                                    gridTemplateColumns: "repeat(3, 1fr)",
-                                    gap: "1rem",
-                                    marginBottom: "1rem",
-                                }}
-                            >
-                                <div style={{ textAlign: "center" }}>
-                                    <div
-                                        style={{
-                                            fontSize: "2rem",
-                                            fontWeight: 700,
-                                            color: "#22c55e",
-                                        }}
-                                    >
-                                        {dailySummary.totalCheckIns}
-                                    </div>
-                                    <div style={{ fontSize: "0.75rem", color: "var(--color-text-secondary)" }}>
-                                        Check-ins
-                                    </div>
+                    <div style={styles.card}>
+                        <h3 style={styles.cardTitle}>
+                            <FiUsers size={20} color="#ec4899" />
+                            Today&apos;s Summary
+                        </h3>
+                        <div style={styles.statsGrid}>
+                            <div style={styles.statItem}>
+                                <div style={{
+                                    width: "48px",
+                                    height: "48px",
+                                    borderRadius: "14px",
+                                    background: "linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%)",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    margin: "0 auto 10px",
+                                }}>
+                                    <FiLogIn size={22} color="#059669" />
                                 </div>
-                                <div style={{ textAlign: "center" }}>
-                                    <div
-                                        style={{
-                                            fontSize: "2rem",
-                                            fontWeight: 700,
-                                            color: "#f59e0b",
-                                        }}
-                                    >
-                                        {dailySummary.totalCheckOuts}
-                                    </div>
-                                    <div style={{ fontSize: "0.75rem", color: "var(--color-text-secondary)" }}>
-                                        Check-outs
-                                    </div>
+                                <div style={{ fontSize: "28px", fontWeight: "800", color: "#1a1a2e" }}>
+                                    {dailySummary.totalCheckIns}
                                 </div>
-                                <div style={{ textAlign: "center" }}>
-                                    <div
-                                        style={{
-                                            fontSize: "2rem",
-                                            fontWeight: 700,
-                                            color: "#3b82f6",
-                                        }}
-                                    >
-                                        {dailySummary.totalPayments}
-                                    </div>
-                                    <div style={{ fontSize: "0.75rem", color: "var(--color-text-secondary)" }}>
-                                        Payments
-                                    </div>
-                                </div>
+                                <div style={{ fontSize: "12px", color: "#6b7280" }}>Check-ins</div>
                             </div>
+                            <div style={styles.statItem}>
+                                <div style={{
+                                    width: "48px",
+                                    height: "48px",
+                                    borderRadius: "14px",
+                                    background: "linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    margin: "0 auto 10px",
+                                }}>
+                                    <FiLogOut size={22} color="#d97706" />
+                                </div>
+                                <div style={{ fontSize: "28px", fontWeight: "800", color: "#1a1a2e" }}>
+                                    {dailySummary.totalCheckOuts}
+                                </div>
+                                <div style={{ fontSize: "12px", color: "#6b7280" }}>Check-outs</div>
+                            </div>
+                            <div style={styles.statItem}>
+                                <div style={{
+                                    width: "48px",
+                                    height: "48px",
+                                    borderRadius: "14px",
+                                    background: "linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%)",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    margin: "0 auto 10px",
+                                }}>
+                                    <FiDollarSign size={22} color="#2563eb" />
+                                </div>
+                                <div style={{ fontSize: "28px", fontWeight: "800", color: "#1a1a2e" }}>
+                                    {dailySummary.totalPayments}
+                                </div>
+                                <div style={{ fontSize: "12px", color: "#6b7280" }}>Payments</div>
+                            </div>
+                        </div>
 
-                            {/* Staff Breakdown */}
-                            {dailySummary.staffBreakdown.length > 0 && (
-                                <div>
-                                    <h4 style={{ fontSize: "0.875rem", fontWeight: 600, marginBottom: "0.75rem" }}>
-                                        Staff Breakdown
-                                    </h4>
-                                    {dailySummary.staffBreakdown.map((staff) => (
-                                        <div
-                                            key={staff.staffId}
-                                            style={{
-                                                display: "flex",
-                                                alignItems: "center",
-                                                justifyContent: "space-between",
-                                                padding: "0.75rem",
-                                                marginBottom: "0.5rem",
-                                                backgroundColor: "var(--color-bg-secondary)",
-                                                borderRadius: "0.5rem",
-                                            }}
-                                        >
-                                            <div>
-                                                <div style={{ fontWeight: 500 }}>
-                                                    {staff.staffName || staff.staffEmail || "Unknown"}
-                                                </div>
-                                                <div
-                                                    style={{
-                                                        fontSize: "0.75rem",
-                                                        color: "var(--color-text-secondary)",
-                                                    }}
-                                                >
-                                                    {staff.role}
-                                                </div>
+                        {/* Staff Breakdown */}
+                        {dailySummary.staffBreakdown.length > 0 && (
+                            <div>
+                                <h4 style={{ fontSize: "14px", fontWeight: "700", marginBottom: "12px", color: "#1a1a2e" }}>
+                                    Staff Breakdown
+                                </h4>
+                                {dailySummary.staffBreakdown.map((staff) => (
+                                    <div
+                                        key={staff.staffId}
+                                        style={{
+                                            display: "flex",
+                                            alignItems: "center",
+                                            justifyContent: "space-between",
+                                            padding: "14px 16px",
+                                            marginBottom: "10px",
+                                            background: "#f8fafc",
+                                            borderRadius: "14px",
+                                        }}
+                                    >
+                                        <div>
+                                            <div style={{ fontWeight: "600", color: "#1a1a2e" }}>
+                                                {staff.staffName || staff.staffEmail || "Unknown"}
                                             </div>
-                                            <div style={{ display: "flex", gap: "1rem", textAlign: "center" }}>
-                                                <div>
-                                                    <div style={{ fontWeight: 600 }}>{staff.checkInsHandled}</div>
-                                                    <div style={{ fontSize: "0.65rem", color: "var(--color-text-secondary)" }}>
-                                                        In
-                                                    </div>
-                                                </div>
-                                                <div>
-                                                    <div style={{ fontWeight: 600 }}>{staff.checkOutsHandled}</div>
-                                                    <div style={{ fontSize: "0.65rem", color: "var(--color-text-secondary)" }}>
-                                                        Out
-                                                    </div>
-                                                </div>
-                                                <div>
-                                                    <div style={{ fontWeight: 600 }}>{staff.totalActions}</div>
-                                                    <div style={{ fontSize: "0.65rem", color: "var(--color-text-secondary)" }}>
-                                                        Total
-                                                    </div>
-                                                </div>
+                                            <div style={{ fontSize: "12px", color: "#6b7280" }}>
+                                                {staff.role}
                                             </div>
                                         </div>
-                                    ))}
-                                </div>
-                            )}
-                        </div>
+                                        <div style={{ display: "flex", gap: "16px", textAlign: "center" }}>
+                                            <div>
+                                                <div style={{ fontWeight: "700", color: "#059669" }}>{staff.checkInsHandled}</div>
+                                                <div style={{ fontSize: "10px", color: "#6b7280" }}>In</div>
+                                            </div>
+                                            <div>
+                                                <div style={{ fontWeight: "700", color: "#d97706" }}>{staff.checkOutsHandled}</div>
+                                                <div style={{ fontSize: "10px", color: "#6b7280" }}>Out</div>
+                                            </div>
+                                            <div>
+                                                <div style={{ fontWeight: "700", color: "#1a1a2e" }}>{staff.totalActions}</div>
+                                                <div style={{ fontSize: "10px", color: "#6b7280" }}>Total</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
                     </div>
                 )}
 
                 {/* Handover Form */}
-                <div style={{ marginTop: "1rem" }}>
+                <div style={{ marginBottom: "20px" }}>
                     <HandoverForm
                         staffMembers={staffMembers}
                         latestReport={latestHandover}
                     />
                 </div>
 
-                {/* Recent Activity Log - OWNER/MANAGER only */}
+                {/* Recent Activity Log */}
                 {canViewPerformance && activityLog.length > 0 && (
-                    <div className="card" style={{ marginTop: "1rem" }}>
-                        <div className="card-header">
-                            <h3 className="card-title">
-                                <FiActivity style={{ marginRight: "0.5rem" }} />
-                                Recent Activity
-                            </h3>
-                        </div>
-                        <div className="card-body">
-                            {activityLog.slice(0, 10).map((log) => (
+                    <div style={styles.card}>
+                        <h3 style={styles.cardTitle}>
+                            <FiActivity size={20} color="#3b82f6" />
+                            Recent Activity
+                        </h3>
+                        {activityLog.slice(0, 10).map((log) => (
+                            <div
+                                key={log.id}
+                                style={{
+                                    display: "flex",
+                                    alignItems: "flex-start",
+                                    gap: "14px",
+                                    padding: "14px 0",
+                                    borderBottom: "1px solid #f0f0f0",
+                                }}
+                            >
                                 <div
-                                    key={log.id}
                                     style={{
                                         display: "flex",
-                                        alignItems: "flex-start",
-                                        gap: "0.75rem",
-                                        padding: "0.75rem 0",
-                                        borderBottom: "1px solid var(--color-border)",
+                                        alignItems: "center",
+                                        justifyContent: "center",
+                                        width: "40px",
+                                        height: "40px",
+                                        borderRadius: "12px",
+                                        background: "#f8fafc",
                                     }}
                                 >
+                                    {getActivityIcon(log.type)}
+                                </div>
+                                <div style={{ flex: 1 }}>
+                                    <div style={{ fontSize: "14px", color: "#1a1a2e" }}>{log.description}</div>
                                     <div
                                         style={{
                                             display: "flex",
-                                            alignItems: "center",
-                                            justifyContent: "center",
-                                            width: "32px",
-                                            height: "32px",
-                                            borderRadius: "50%",
-                                            backgroundColor: "var(--color-bg-secondary)",
+                                            gap: "8px",
+                                            fontSize: "12px",
+                                            color: "#6b7280",
+                                            marginTop: "4px",
                                         }}
                                     >
-                                        {getActivityIcon(log.type)}
-                                    </div>
-                                    <div style={{ flex: 1 }}>
-                                        <div style={{ fontSize: "0.875rem" }}>{log.description}</div>
-                                        <div
-                                            style={{
-                                                display: "flex",
-                                                gap: "0.5rem",
-                                                fontSize: "0.75rem",
-                                                color: "var(--color-text-secondary)",
-                                                marginTop: "0.25rem",
-                                            }}
-                                        >
-                                            <span>{log.actorName || log.actorEmail || "System"}</span>
-                                            <span>•</span>
-                                            <span>{formatTime(log.createdAt)}</span>
-                                        </div>
+                                        <span>{log.actorName || log.actorEmail || "System"}</span>
+                                        <span>•</span>
+                                        <span>{formatTime(log.createdAt)}</span>
                                     </div>
                                 </div>
-                            ))}
-                        </div>
+                            </div>
+                        ))}
                     </div>
                 )}
 
-                {/* Recent Handover Reports - OWNER/MANAGER only */}
+                {/* Recent Handover Reports */}
                 {canViewPerformance && handoverReports.length > 0 && (
-                    <div className="card" style={{ marginTop: "1rem" }}>
-                        <div className="card-header">
-                            <h3 className="card-title">
-                                <FiClock style={{ marginRight: "0.5rem" }} />
-                                Recent Handovers
-                            </h3>
-                        </div>
-                        <div className="card-body">
-                            {handoverReports.map((report) => (
+                    <div style={styles.card}>
+                        <h3 style={styles.cardTitle}>
+                            <FiClock size={20} color="#8b5cf6" />
+                            Recent Handovers
+                        </h3>
+                        {handoverReports.map((report) => (
+                            <div
+                                key={report.id}
+                                style={{
+                                    padding: "16px",
+                                    marginBottom: "12px",
+                                    background: "#f8fafc",
+                                    borderRadius: "14px",
+                                }}
+                            >
                                 <div
-                                    key={report.id}
                                     style={{
-                                        padding: "0.75rem",
-                                        marginBottom: "0.5rem",
-                                        backgroundColor: "var(--color-bg-secondary)",
-                                        borderRadius: "0.5rem",
+                                        display: "flex",
+                                        justifyContent: "space-between",
+                                        alignItems: "center",
+                                        marginBottom: "10px",
                                     }}
                                 >
-                                    <div
-                                        style={{
-                                            display: "flex",
-                                            justifyContent: "space-between",
-                                            alignItems: "center",
-                                            marginBottom: "0.5rem",
-                                        }}
-                                    >
-                                        <div style={{ fontWeight: 500 }}>
-                                            {report.fromStaffName || "Unknown"} → {report.toStaffName || "Next shift"}
-                                        </div>
-                                        <div style={{ fontSize: "0.75rem", color: "var(--color-text-secondary)" }}>
-                                            {formatDate(report.handoverTime)}
-                                        </div>
+                                    <div style={{ fontWeight: "600", color: "#1a1a2e" }}>
+                                        {report.fromStaffName || "Unknown"} → {report.toStaffName || "Next shift"}
                                     </div>
-                                    <div
-                                        style={{
-                                            display: "flex",
-                                            gap: "1rem",
-                                            fontSize: "0.75rem",
-                                        }}
-                                    >
-                                        <span>
-                                            <FiLogIn style={{ marginRight: "0.25rem" }} />
-                                            {report.checkInsHandled} check-ins
-                                        </span>
-                                        <span>
-                                            <FiLogOut style={{ marginRight: "0.25rem" }} />
-                                            {report.checkOutsHandled} check-outs
-                                        </span>
-                                        {report.pendingTasks.length > 0 && (
-                                            <span style={{ color: "#f59e0b" }}>
-                                                {report.pendingTasks.length} pending tasks
-                                            </span>
-                                        )}
+                                    <div style={{ fontSize: "12px", color: "#6b7280" }}>
+                                        {formatDate(report.handoverTime)}
                                     </div>
-                                    {report.notes && (
-                                        <div
-                                            style={{
-                                                marginTop: "0.5rem",
-                                                fontSize: "0.875rem",
-                                                color: "var(--color-text-secondary)",
-                                                fontStyle: "italic",
-                                            }}
-                                        >
-                                            &quot;{report.notes}&quot;
-                                        </div>
+                                </div>
+                                <div style={{ display: "flex", gap: "16px", fontSize: "13px" }}>
+                                    <span style={{ display: "flex", alignItems: "center", gap: "6px", color: "#059669" }}>
+                                        <FiLogIn size={14} />
+                                        {report.checkInsHandled} check-ins
+                                    </span>
+                                    <span style={{ display: "flex", alignItems: "center", gap: "6px", color: "#d97706" }}>
+                                        <FiLogOut size={14} />
+                                        {report.checkOutsHandled} check-outs
+                                    </span>
+                                    {report.pendingTasks.length > 0 && (
+                                        <span style={{ color: "#f59e0b", fontWeight: "600" }}>
+                                            {report.pendingTasks.length} pending
+                                        </span>
                                     )}
                                 </div>
-                            ))}
-                        </div>
+                                {report.notes && (
+                                    <div
+                                        style={{
+                                            marginTop: "10px",
+                                            fontSize: "13px",
+                                            color: "#6b7280",
+                                            fontStyle: "italic",
+                                            background: "white",
+                                            padding: "10px 14px",
+                                            borderRadius: "10px",
+                                        }}
+                                    >
+                                        &quot;{report.notes}&quot;
+                                    </div>
+                                )}
+                            </div>
+                        ))}
                     </div>
                 )}
             </main>
 
             <BottomNav role={roleInfo.role} />
-        </>
+        </div>
     );
 }

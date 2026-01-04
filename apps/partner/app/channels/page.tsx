@@ -1,12 +1,76 @@
 import { redirect } from "next/navigation";
+import Link from "next/link";
+import { FiArrowLeft, FiLink2, FiHome, FiGlobe, FiCheckCircle, FiClock } from "react-icons/fi";
 import { auth } from "../../auth";
 import { getPartnerHotel } from "../actions/dashboard";
 import { getChannelConnections, getHotelRooms } from "../actions/channels";
 import { BottomNav } from "../components";
 import ChannelsClient from "./ChannelsClient";
-import Link from "next/link";
 
 export const dynamic = "force-dynamic";
+
+// Reusable style objects
+const styles = {
+    pageContainer: {
+        minHeight: "100vh",
+        background: "linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)",
+        paddingBottom: "100px",
+    } as React.CSSProperties,
+    header: {
+        background: "linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)",
+        padding: "24px 20px 32px",
+        borderRadius: "0 0 32px 32px",
+        boxShadow: "0 8px 32px rgba(99, 102, 241, 0.3)",
+        marginBottom: "24px",
+    } as React.CSSProperties,
+    backLink: {
+        display: "inline-flex",
+        alignItems: "center",
+        gap: "8px",
+        color: "rgba(255,255,255,0.9)",
+        fontSize: "14px",
+        fontWeight: "500",
+        textDecoration: "none",
+        marginBottom: "12px",
+    } as React.CSSProperties,
+    pageTitle: {
+        fontSize: "26px",
+        fontWeight: "800",
+        color: "white",
+        margin: 0,
+        marginBottom: "8px",
+        display: "flex",
+        alignItems: "center",
+        gap: "12px",
+    } as React.CSSProperties,
+    pageSubtitle: {
+        color: "rgba(255,255,255,0.8)",
+        fontSize: "15px",
+        margin: 0,
+    } as React.CSSProperties,
+    main: {
+        padding: "0 16px",
+        maxWidth: "800px",
+        margin: "0 auto",
+    } as React.CSSProperties,
+    summaryCard: {
+        background: "white",
+        borderRadius: "20px",
+        padding: "20px",
+        marginBottom: "24px",
+        boxShadow: "0 4px 20px rgba(0, 0, 0, 0.08)",
+        border: "1px solid #f0f0f0",
+    } as React.CSSProperties,
+    statItem: {
+        textAlign: "center" as const,
+        flex: 1,
+    } as React.CSSProperties,
+    divider: {
+        width: "1px",
+        background: "#f0f0f0",
+        alignSelf: "stretch" as const,
+    } as React.CSSProperties,
+};
 
 // Channel metadata
 const CHANNELS = [
@@ -70,72 +134,91 @@ export default async function ChannelsPage() {
         getHotelRooms(),
     ]);
 
+    const activeConnections = connections.filter((c) => c.isActive).length;
+    const availableOTAs = CHANNELS.filter((c) => c.status === "available").length;
+
     return (
-        <>
-            <header className="page-header">
-                <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                    <Link
-                        href="/"
-                        style={{
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            width: "36px",
-                            height: "36px",
-                            borderRadius: "50%",
-                            background: "var(--color-bg-secondary)",
-                            color: "var(--color-text-secondary)",
-                            fontSize: "1rem",
-                            textDecoration: "none",
-                        }}
-                    >
-                        ←
+        <div style={styles.pageContainer}>
+            {/* Header */}
+            <header style={styles.header}>
+                <div style={{ maxWidth: "800px", margin: "0 auto" }}>
+                    <Link href="/" style={styles.backLink}>
+                        <FiArrowLeft size={18} />
+                        Back to Dashboard
                     </Link>
-                    <div>
-                        <h1 className="page-title" style={{ marginBottom: "0.25rem" }}>
-                            Channel Manager
-                        </h1>
-                        <p style={{ fontSize: "0.875rem", color: "var(--color-text-secondary)" }}>
-                            Sync inventory with OTAs
-                        </p>
-                    </div>
+                    <h1 style={styles.pageTitle}>
+                        <FiLink2 size={26} />
+                        Channel Manager
+                    </h1>
+                    <p style={styles.pageSubtitle}>
+                        Sync inventory with OTAs
+                    </p>
                 </div>
             </header>
 
-            <main style={{ padding: "0 1rem 6rem 1rem" }}>
+            <main style={styles.main}>
                 {/* Status Summary */}
-                <div
-                    className="card"
-                    style={{
-                        padding: "1rem",
-                        marginBottom: "1.5rem",
-                        background: "linear-gradient(135deg, rgba(42, 157, 143, 0.1) 0%, rgba(29, 53, 87, 0.1) 100%)",
-                    }}
-                >
-                    <div style={{ display: "flex", justifyContent: "space-around", textAlign: "center" }}>
-                        <div>
-                            <div style={{ fontSize: "1.5rem", fontWeight: 700, color: "var(--color-primary)" }}>
-                                {connections.filter((c) => c.isActive).length}
+                <div style={styles.summaryCard}>
+                    <div style={{ display: "flex", justifyContent: "space-around", alignItems: "center" }}>
+                        <div style={styles.statItem}>
+                            <div style={{
+                                width: "48px",
+                                height: "48px",
+                                borderRadius: "14px",
+                                background: "linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%)",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                margin: "0 auto 10px",
+                            }}>
+                                <FiCheckCircle size={22} color="#059669" />
                             </div>
-                            <div style={{ fontSize: "0.75rem", color: "var(--color-text-secondary)" }}>
+                            <div style={{ fontSize: "26px", fontWeight: "800", color: "#1a1a2e" }}>
+                                {activeConnections}
+                            </div>
+                            <div style={{ fontSize: "12px", color: "#6b7280" }}>
                                 Active Channels
                             </div>
                         </div>
-                        <div style={{ width: "1px", background: "var(--color-border)" }} />
-                        <div>
-                            <div style={{ fontSize: "1.5rem", fontWeight: 700, color: "var(--color-text-primary)" }}>
+                        <div style={styles.divider} />
+                        <div style={styles.statItem}>
+                            <div style={{
+                                width: "48px",
+                                height: "48px",
+                                borderRadius: "14px",
+                                background: "linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%)",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                margin: "0 auto 10px",
+                            }}>
+                                <FiHome size={22} color="#2563eb" />
+                            </div>
+                            <div style={{ fontSize: "26px", fontWeight: "800", color: "#1a1a2e" }}>
                                 {rooms.length}
                             </div>
-                            <div style={{ fontSize: "0.75rem", color: "var(--color-text-secondary)" }}>
+                            <div style={{ fontSize: "12px", color: "#6b7280" }}>
                                 Total Rooms
                             </div>
                         </div>
-                        <div style={{ width: "1px", background: "var(--color-border)" }} />
-                        <div>
-                            <div style={{ fontSize: "1.5rem", fontWeight: 700, color: "var(--color-accent)" }}>
-                                {CHANNELS.filter((c) => c.status === "available").length}
+                        <div style={styles.divider} />
+                        <div style={styles.statItem}>
+                            <div style={{
+                                width: "48px",
+                                height: "48px",
+                                borderRadius: "14px",
+                                background: "linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%)",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                margin: "0 auto 10px",
+                            }}>
+                                <FiGlobe size={22} color="#7c3aed" />
                             </div>
-                            <div style={{ fontSize: "0.75rem", color: "var(--color-text-secondary)" }}>
+                            <div style={{ fontSize: "26px", fontWeight: "800", color: "#1a1a2e" }}>
+                                {availableOTAs}
+                            </div>
+                            <div style={{ fontSize: "12px", color: "#6b7280" }}>
                                 Available OTAs
                             </div>
                         </div>
@@ -151,6 +234,6 @@ export default async function ChannelsPage() {
             </main>
 
             <BottomNav />
-        </>
+        </div>
     );
 }
