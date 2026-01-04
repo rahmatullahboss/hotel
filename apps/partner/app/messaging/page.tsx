@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import { FiArrowLeft, FiMail, FiMessageSquare, FiZap, FiClock, FiSend } from "react-icons/fi";
 import { auth } from "../../auth";
 import { getPartnerHotel } from "../actions/dashboard";
 import {
@@ -10,9 +11,68 @@ import {
 } from "../actions/messaging";
 import { BottomNav, ScannerFAB } from "../components";
 import MessagingClient from "./MessagingClient";
-import { FiMail, FiMessageSquare, FiZap, FiClock } from "react-icons/fi";
 
 export const dynamic = "force-dynamic";
+
+// Reusable style objects
+const styles = {
+    pageContainer: {
+        minHeight: "100vh",
+        background: "linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)",
+        paddingBottom: "100px",
+    } as React.CSSProperties,
+    header: {
+        background: "linear-gradient(135deg, #14b8a6 0%, #0d9488 100%)",
+        padding: "24px 20px 32px",
+        borderRadius: "0 0 32px 32px",
+        boxShadow: "0 8px 32px rgba(20, 184, 166, 0.3)",
+        marginBottom: "24px",
+    } as React.CSSProperties,
+    backLink: {
+        display: "inline-flex",
+        alignItems: "center",
+        gap: "8px",
+        color: "rgba(255,255,255,0.9)",
+        fontSize: "14px",
+        fontWeight: "500",
+        textDecoration: "none",
+        marginBottom: "12px",
+    } as React.CSSProperties,
+    pageTitle: {
+        fontSize: "28px",
+        fontWeight: "800",
+        color: "white",
+        margin: 0,
+        marginBottom: "8px",
+        display: "flex",
+        alignItems: "center",
+        gap: "12px",
+    } as React.CSSProperties,
+    pageSubtitle: {
+        color: "rgba(255,255,255,0.8)",
+        fontSize: "15px",
+        margin: 0,
+    } as React.CSSProperties,
+    main: {
+        padding: "0 16px",
+        maxWidth: "800px",
+        margin: "0 auto",
+    } as React.CSSProperties,
+    statsGrid: {
+        display: "grid",
+        gridTemplateColumns: "repeat(2, 1fr)",
+        gap: "14px",
+        marginBottom: "24px",
+    } as React.CSSProperties,
+    statCard: {
+        padding: "20px",
+        background: "white",
+        borderRadius: "18px",
+        boxShadow: "0 4px 20px rgba(0, 0, 0, 0.08)",
+        border: "1px solid #f0f0f0",
+        textAlign: "center" as const,
+    } as React.CSSProperties,
+};
 
 export default async function MessagingPage() {
     const session = await auth();
@@ -34,99 +94,97 @@ export default async function MessagingPage() {
         getUpcomingCheckInsForMessaging(),
     ]);
 
-    // Stats
-    const stats = {
-        pendingMessages: messages.filter((m) => m.status === "PENDING").length,
-        sentToday: messages.filter(
-            (m) => m.status === "SENT" && m.sentAt && 
-            new Date(m.sentAt).toDateString() === new Date().toDateString()
-        ).length,
-        upcomingCheckIns: upcomingCheckIns.length,
-        automationsEnabled: [
-            settings.preArrivalEnabled,
-            settings.welcomeMessageEnabled,
-            settings.postStayEnabled,
-        ].filter(Boolean).length,
-    };
+    const statCards = [
+        {
+            icon: FiClock,
+            value: messages.filter((m) => m.status === "PENDING").length,
+            label: "Pending",
+            gradient: "linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%)",
+            iconColor: "#2563eb",
+        },
+        {
+            icon: FiSend,
+            value: messages.filter(
+                (m) => m.status === "SENT" && m.sentAt && 
+                new Date(m.sentAt).toDateString() === new Date().toDateString()
+            ).length,
+            label: "Sent Today",
+            gradient: "linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%)",
+            iconColor: "#059669",
+        },
+        {
+            icon: FiMessageSquare,
+            value: upcomingCheckIns.length,
+            label: "Upcoming Check-ins",
+            gradient: "linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%)",
+            iconColor: "#7c3aed",
+        },
+        {
+            icon: FiZap,
+            value: `${[
+                settings.preArrivalEnabled,
+                settings.welcomeMessageEnabled,
+                settings.postStayEnabled,
+            ].filter(Boolean).length}/3`,
+            label: "Automations Active",
+            gradient: "linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)",
+            iconColor: "#d97706",
+        },
+    ];
 
     return (
-        <>
-            <header className="page-header glass">
-                <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                    <Link
-                        href="/"
-                        style={{
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            width: "36px",
-                            height: "36px",
-                            borderRadius: "50%",
-                            background: "var(--color-bg-secondary)",
-                            color: "var(--color-text-secondary)",
-                            fontSize: "1rem",
-                            textDecoration: "none",
-                        }}
-                    >
-                        ←
+        <div style={styles.pageContainer}>
+            {/* Header */}
+            <header style={styles.header}>
+                <div style={{ maxWidth: "800px", margin: "0 auto" }}>
+                    <Link href="/" style={styles.backLink}>
+                        <FiArrowLeft size={18} />
+                        Back to Dashboard
                     </Link>
-                    <div>
-                        <h1 className="page-title gradient-text" style={{ marginBottom: "0.25rem" }}>
-                            Guest Communication
-                        </h1>
-                        <p style={{ fontSize: "0.875rem", color: "var(--color-text-secondary)" }}>
-                            Automate guest messaging
-                        </p>
-                    </div>
+                    <h1 style={styles.pageTitle}>
+                        <FiMail size={28} />
+                        Guest Communication
+                    </h1>
+                    <p style={styles.pageSubtitle}>
+                        Automate guest messaging & notifications
+                    </p>
                 </div>
             </header>
 
-            <main style={{ padding: "0 1rem 6rem 1rem" }}>
+            <main style={styles.main}>
                 {/* Stats Cards */}
-                <div
-                    style={{
-                        display: "grid",
-                        gridTemplateColumns: "repeat(2, 1fr)",
-                        gap: "0.75rem",
-                        marginBottom: "1.5rem",
-                    }}
-                >
-                    <div className="glass-card" style={{ padding: "1rem", textAlign: "center" }}>
-                        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "0.5rem", marginBottom: "0.5rem" }}>
-                            <FiClock style={{ color: "var(--color-primary)" }} />
-                            <span style={{ fontSize: "1.5rem", fontWeight: 700 }}>{stats.pendingMessages}</span>
+                <div style={styles.statsGrid}>
+                    {statCards.map((stat, index) => (
+                        <div key={index} style={styles.statCard}>
+                            <div style={{
+                                width: "48px",
+                                height: "48px",
+                                borderRadius: "14px",
+                                background: stat.gradient,
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                margin: "0 auto 12px",
+                            }}>
+                                <stat.icon size={22} color={stat.iconColor} />
+                            </div>
+                            <div style={{
+                                fontSize: "26px",
+                                fontWeight: "800",
+                                color: "#1a1a2e",
+                                marginBottom: "4px",
+                            }}>
+                                {stat.value}
+                            </div>
+                            <div style={{
+                                fontSize: "12px",
+                                color: "#6b7280",
+                                fontWeight: "500",
+                            }}>
+                                {stat.label}
+                            </div>
                         </div>
-                        <div style={{ fontSize: "0.75rem", color: "var(--color-text-secondary)" }}>
-                            Pending
-                        </div>
-                    </div>
-                    <div className="glass-card" style={{ padding: "1rem", textAlign: "center" }}>
-                        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "0.5rem", marginBottom: "0.5rem" }}>
-                            <FiMail style={{ color: "var(--color-success)" }} />
-                            <span style={{ fontSize: "1.5rem", fontWeight: 700 }}>{stats.sentToday}</span>
-                        </div>
-                        <div style={{ fontSize: "0.75rem", color: "var(--color-text-secondary)" }}>
-                            Sent Today
-                        </div>
-                    </div>
-                    <div className="glass-card" style={{ padding: "1rem", textAlign: "center" }}>
-                        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "0.5rem", marginBottom: "0.5rem" }}>
-                            <FiMessageSquare style={{ color: "var(--color-accent)" }} />
-                            <span style={{ fontSize: "1.5rem", fontWeight: 700 }}>{stats.upcomingCheckIns}</span>
-                        </div>
-                        <div style={{ fontSize: "0.75rem", color: "var(--color-text-secondary)" }}>
-                            Upcoming Check-ins
-                        </div>
-                    </div>
-                    <div className="glass-card" style={{ padding: "1rem", textAlign: "center" }}>
-                        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "0.5rem", marginBottom: "0.5rem" }}>
-                            <FiZap style={{ color: "var(--color-warning)" }} />
-                            <span style={{ fontSize: "1.5rem", fontWeight: 700 }}>{stats.automationsEnabled}/3</span>
-                        </div>
-                        <div style={{ fontSize: "0.75rem", color: "var(--color-text-secondary)" }}>
-                            Automations Active
-                        </div>
-                    </div>
+                    ))}
                 </div>
 
                 {/* Client Component for Interactive Parts */}
@@ -141,6 +199,6 @@ export default async function MessagingPage() {
 
             <ScannerFAB />
             <BottomNav />
-        </>
+        </div>
     );
 }
