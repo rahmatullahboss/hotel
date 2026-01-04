@@ -37,51 +37,34 @@ export default async function ProfilePage() {
 
     return (
         <>
-            <main className="container page-content profile-layout" style={{ paddingTop: "2rem" }}>
+            <main className="container page-content premium-page-wrapper" style={{ paddingTop: "2rem" }}>
                 {/* Profile Header */}
-                <div className="card" style={{ padding: "1.5rem", marginBottom: "1.5rem" }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-                        {session.user.image ? (
-                            <img
-                                src={session.user.image}
-                                alt={session.user.name || "Profile"}
-                                style={{
-                                    width: 64,
-                                    height: 64,
-                                    borderRadius: "50%",
-                                    objectFit: "cover",
-                                }}
-                            />
-                        ) : (
-                            <div
-                                style={{
-                                    width: 64,
-                                    height: 64,
-                                    borderRadius: "50%",
-                                    background: "var(--color-primary)",
-                                    color: "white",
-                                    display: "flex",
-                                    alignItems: "center",
-                                    justifyContent: "center",
-                                    fontSize: "1.5rem",
-                                    fontWeight: 700,
-                                }}
-                            >
-                                {(session.user.name || session.user.email)?.[0]?.toUpperCase()}
-                            </div>
-                        )}
-                        <div>
-                            <h1 style={{ fontSize: "1.25rem", fontWeight: 700, marginBottom: "0.25rem" }}>
+                <div className="premium-profile-card">
+                    <div className="premium-profile-header">
+                        <div className="premium-profile-avatar">
+                            {session.user.image ? (
+                                <img
+                                    src={session.user.image}
+                                    alt={session.user.name || "Profile"}
+                                />
+                            ) : (
+                                <div className="premium-profile-avatar-placeholder">
+                                    {(session.user.name || session.user.email)?.[0]?.toUpperCase()}
+                                </div>
+                            )}
+                        </div>
+                        <div className="premium-profile-info">
+                            <h1 className="premium-profile-name">
                                 {session.user.name || "User"}
                             </h1>
-                            <p style={{ color: "var(--color-text-secondary)", fontSize: "0.875rem" }}>
+                            <p className="premium-profile-email">
                                 {session.user.email}
                             </p>
                         </div>
                     </div>
 
-                    <div style={{ display: "flex", gap: "1rem", marginTop: "1rem" }}>
-                        <Link href="/profile/edit" className="btn btn-outline" style={{ flex: 1, textAlign: "center", textDecoration: "none", color: "inherit", lineHeight: "inherit" }}>
+                    <div className="premium-profile-actions">
+                        <Link href="/profile/edit" className="premium-btn-outline" style={{ textAlign: "center", textDecoration: "none" }}>
                             {t("editProfile")}
                         </Link>
                         <SignOutButton style={{ flex: 1, width: "100%" }} />
@@ -93,64 +76,51 @@ export default async function ProfilePage() {
                     href="/wallet"
                     style={{ textDecoration: "none" }}
                 >
-                    <div
-                        style={{
-                            background: "linear-gradient(135deg, #1d3557 0%, #457b9d 100%)",
-                            borderRadius: "1rem",
-                            padding: "1.25rem",
-                            marginBottom: "1.5rem",
-                            color: "white",
-                        }}
-                    >
-                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                    <div className="premium-wallet-card">
+                        <div className="premium-wallet-row">
                             <div>
-                                <div style={{ fontSize: "0.75rem", opacity: 0.8, marginBottom: "0.25rem" }}>{tWallet("walletBalance")}</div>
-                                <div style={{ fontSize: "1.75rem", fontWeight: 700 }}>
+                                <div className="premium-wallet-label">{tWallet("walletBalance")}</div>
+                                <div className="premium-wallet-balance">
                                     ৳{Number(wallet?.balance || 0).toLocaleString()}
                                 </div>
                             </div>
-                            <div style={{ textAlign: "right" }}>
-                                <div style={{ fontSize: "0.75rem", opacity: 0.8, marginBottom: "0.25rem" }}>{tWallet("loyaltyPoints")}</div>
-                                <div style={{ fontSize: "1.25rem", fontWeight: 600 }}>
+                            <div>
+                                <div className="premium-wallet-label">{tWallet("loyaltyPoints")}</div>
+                                <div className="premium-wallet-points">
                                     {(loyalty?.points || 0).toLocaleString()} {tWallet("pts")}
                                 </div>
                                 <div
+                                    className="premium-wallet-tier"
                                     style={{
-                                        display: "inline-block",
-                                        padding: "0.25rem 0.5rem",
                                         background: tierColors[loyalty?.tier as keyof typeof tierColors || "BRONZE"],
                                         color: loyalty?.tier === "SILVER" || loyalty?.tier === "PLATINUM" ? "#333" : "white",
-                                        borderRadius: "1rem",
-                                        fontSize: "0.625rem",
-                                        fontWeight: 600,
-                                        marginTop: "0.25rem",
                                     }}
                                 >
                                     {loyalty?.tier || "BRONZE"} 🏆
                                 </div>
                             </div>
                         </div>
-                        <div style={{ fontSize: "0.75rem", marginTop: "0.75rem", opacity: 0.7 }}>
+                        <div className="premium-wallet-hint">
                             {tWallet("tapToManage")}
                         </div>
                     </div>
                 </Link>
 
                 {/* Quick Stats */}
-                <div className="profile-stats-grid" style={{ marginBottom: "1.5rem" }}>
-                    <div className="card profile-stat-card">
-                        <div className="profile-stat-number">
+                <div className="premium-stats-grid">
+                    <div className="premium-stat-card">
+                        <div className="premium-stat-number">
                             {upcomingBookings.length}
                         </div>
-                        <div className="profile-stat-label">
+                        <div className="premium-stat-label">
                             {t("upcomingTrips")}
                         </div>
                     </div>
-                    <div className="card profile-stat-card">
-                        <div className="profile-stat-number">
+                    <div className="premium-stat-card">
+                        <div className="premium-stat-number">
                             {pastBookings.length}
                         </div>
-                        <div className="profile-stat-label">
+                        <div className="premium-stat-label">
                             {t("pastBookings")}
                         </div>
                     </div>

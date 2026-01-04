@@ -265,59 +265,16 @@ function BookingContent() {
             <main className="page-content">
                 <div className="container" style={{ maxWidth: 600 }}>
                     {/* Progress Steps */}
-                    <div
-                        style={{
-                            display: "flex",
-                            justifyContent: "space-between",
-                            marginBottom: "2rem",
-                            position: "relative",
-                        }}
-                    >
-                        <div
-                            style={{
-                                position: "absolute",
-                                top: "50%",
-                                left: "15%",
-                                right: "15%",
-                                height: 2,
-                                background: "var(--color-border)",
-                                transform: "translateY(-50%)",
-                                zIndex: 0,
-                            }}
-                        />
+                    <div className="premium-step-indicator">
                         {[1, 2, 3].map((s) => (
                             <div
                                 key={s}
-                                style={{
-                                    display: "flex",
-                                    flexDirection: "column",
-                                    alignItems: "center",
-                                    zIndex: 1,
-                                }}
+                                className={`premium-step ${step >= s ? (step > s ? 'completed' : 'active') : ''}`}
                             >
-                                <div
-                                    style={{
-                                        width: 32,
-                                        height: 32,
-                                        borderRadius: "50%",
-                                        background: step >= s ? "var(--color-primary)" : "var(--color-border)",
-                                        color: step >= s ? "white" : "var(--color-text-muted)",
-                                        display: "flex",
-                                        alignItems: "center",
-                                        justifyContent: "center",
-                                        fontWeight: 600,
-                                        fontSize: "0.875rem",
-                                    }}
-                                >
-                                    {step > s ? "✓" : s}
+                                <div className="premium-step-circle">
+                                    {step > s ? <FiCheck size={16} /> : s}
                                 </div>
-                                <span
-                                    style={{
-                                        fontSize: "0.75rem",
-                                        marginTop: "0.5rem",
-                                        color: step >= s ? "var(--color-text-primary)" : "var(--color-text-muted)",
-                                    }}
-                                >
+                                <span className="premium-step-label">
                                     {s === 1 ? t("details") : s === 2 ? t("payment") : t("confirmStep")}
                                 </span>
                             </div>
@@ -325,34 +282,17 @@ function BookingContent() {
                     </div>
 
                     {/* Booking Summary Card with Room Photo */}
-                    <div className="card" style={{ overflow: "hidden", marginBottom: "1rem" }}>
-                        {/* Room Photo */}
-                        <div style={{ position: "relative", height: "140px", overflow: "hidden" }}>
+                    <div className="premium-summary-card">
+                        <div className="premium-summary-image">
                             <img
                                 src={roomPhoto || "https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=800&h=400&fit=crop"}
                                 alt={roomName}
-                                style={{
-                                    width: "100%",
-                                    height: "100%",
-                                    objectFit: "cover",
-                                }}
                             />
                         </div>
-                        <div style={{ padding: "1rem" }}>
-                            <h3 style={{ fontWeight: 600, marginBottom: "0.25rem" }}>{hotelName}</h3>
-                            <p style={{ color: "var(--color-text-secondary)", fontSize: "0.875rem" }}>
-                                {roomName}
-                            </p>
-                            <div
-                                style={{
-                                    display: "flex",
-                                    justifyContent: "space-between",
-                                    marginTop: "0.75rem",
-                                    paddingTop: "0.75rem",
-                                    borderTop: "1px solid var(--color-border)",
-                                    fontSize: "0.875rem",
-                                }}
-                            >
+                        <div className="premium-summary-content">
+                            <h3 className="premium-summary-title">{hotelName}</h3>
+                            <p className="premium-summary-subtitle">{roomName}</p>
+                            <div className="premium-summary-row">
                                 <span>{checkIn} → {checkOut}</span>
                                 <span>{nights} {tCommon(nights > 1 ? "nights" : "night")}</span>
                             </div>
@@ -377,42 +317,42 @@ function BookingContent() {
                     {/* Step 1: Guest Details */}
                     {step === 1 && (
                         <form onSubmit={handleSubmit}>
-                            <div className="card" style={{ padding: "1.5rem", marginBottom: "1rem" }}>
-                                <h3 style={{ fontWeight: 600, marginBottom: "1rem" }}>{t("guestDetails")}</h3>
-                                <div className="form-group">
-                                    <label className="form-label">{t("guestName")} *</label>
+                            <div className="premium-form-card">
+                                <h3 className="premium-form-card-title">{t("guestDetails")}</h3>
+                                <div className="premium-form-group">
+                                    <label className="premium-form-label">{t("guestName")} *</label>
                                     <input
                                         type="text"
-                                        className="form-input"
+                                        className="premium-form-input"
                                         placeholder={t("asPerID")}
                                         value={guestName}
                                         onChange={(e) => setGuestName(e.target.value)}
                                         required
                                     />
                                 </div>
-                                <div className="form-group">
-                                    <label className="form-label">{t("guestPhone")} *</label>
+                                <div className="premium-form-group">
+                                    <label className="premium-form-label">{t("guestPhone")} *</label>
                                     <input
                                         type="tel"
-                                        className="form-input"
+                                        className="premium-form-input"
                                         placeholder="01XXXXXXXXX"
                                         value={guestPhone}
                                         onChange={(e) => setGuestPhone(e.target.value)}
                                         required
                                     />
                                 </div>
-                                <div className="form-group" style={{ marginBottom: 0 }}>
-                                    <label className="form-label">{t("guestEmail")}</label>
+                                <div className="premium-form-group">
+                                    <label className="premium-form-label">{t("guestEmail")}</label>
                                     <input
                                         type="email"
-                                        className="form-input"
+                                        className="premium-form-input"
                                         placeholder={t("forConfirmation")}
                                         value={guestEmail}
                                         onChange={(e) => setGuestEmail(e.target.value)}
                                     />
                                 </div>
                             </div>
-                            <button type="submit" className="btn btn-primary btn-block btn-lg">
+                            <button type="submit" className="premium-btn-primary">
                                 {t("continueToPayment")}
                             </button>
                         </form>

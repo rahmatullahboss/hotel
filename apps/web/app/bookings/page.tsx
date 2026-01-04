@@ -517,29 +517,31 @@ export default function BookingsPage() {
                 }
             `}</style>
 
-            <header className="bookings-header">
-                <h1>{t("title")}</h1>
+            <header className="premium-page-header">
+                <div className="premium-page-header-content">
+                    <h1 className="premium-page-title">{t("title")}</h1>
+                </div>
             </header>
 
             {/* Tabs */}
-            <div className="bookings-tabs">
+            <div className="premium-tabs">
                 <button
-                    className={`tab-btn ${activeTab === "upcoming" ? "active" : ""}`}
+                    className={`premium-tab ${activeTab === "upcoming" ? "active" : ""}`}
                     onClick={() => setActiveTab("upcoming")}
                 >
                     {t("upcoming")}
-                    <span className="tab-count">{upcomingBookings.length}</span>
+                    <span className="premium-tab-badge">{upcomingBookings.length}</span>
                 </button>
                 <button
-                    className={`tab-btn ${activeTab === "past" ? "active" : ""}`}
+                    className={`premium-tab ${activeTab === "past" ? "active" : ""}`}
                     onClick={() => setActiveTab("past")}
                 >
                     {t("past")}
-                    <span className="tab-count">{pastBookings.length}</span>
+                    <span className="premium-tab-badge">{pastBookings.length}</span>
                 </button>
             </div>
 
-            <main className="page-content bookings-page-layout" style={{ minHeight: "80vh" }}>
+            <main className="page-content premium-page-wrapper" style={{ minHeight: "80vh" }}>
                 {loading ? (
                     <div style={{ padding: "3rem", textAlign: "center" }}>
                         <div className="loading-spinner" style={{ margin: "0 auto" }}></div>
