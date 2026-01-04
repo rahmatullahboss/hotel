@@ -1,4 +1,6 @@
 import { redirect } from "next/navigation";
+import Link from "next/link";
+import { FiArrowLeft, FiDollarSign, FiTrendingUp, FiCalendar, FiCreditCard, FiPieChart, FiCheckCircle, FiClock } from "react-icons/fi";
 import { getEarningsData } from "../actions/earnings";
 import { getAvailableBalance, getPayoutHistory } from "../actions/payout";
 import { getPartnerRole } from "../actions/getPartnerRole";
@@ -8,6 +10,88 @@ import { EarningsExportClient } from "../components/EarningsExportClient";
 
 export const dynamic = 'force-dynamic';
 
+// Reusable style objects
+const styles = {
+    pageContainer: {
+        minHeight: "100vh",
+        background: "linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)",
+        paddingBottom: "100px",
+    } as React.CSSProperties,
+    header: {
+        background: "linear-gradient(135deg, #10b981 0%, #059669 100%)",
+        padding: "24px 20px 32px",
+        borderRadius: "0 0 32px 32px",
+        boxShadow: "0 8px 32px rgba(16, 185, 129, 0.3)",
+        marginBottom: "24px",
+    } as React.CSSProperties,
+    backLink: {
+        display: "inline-flex",
+        alignItems: "center",
+        gap: "8px",
+        color: "rgba(255,255,255,0.9)",
+        fontSize: "14px",
+        fontWeight: "500",
+        textDecoration: "none",
+        marginBottom: "12px",
+    } as React.CSSProperties,
+    pageTitle: {
+        fontSize: "28px",
+        fontWeight: "800",
+        color: "white",
+        margin: 0,
+        marginBottom: "8px",
+    } as React.CSSProperties,
+    pageSubtitle: {
+        color: "rgba(255,255,255,0.8)",
+        fontSize: "15px",
+        margin: 0,
+    } as React.CSSProperties,
+    main: {
+        padding: "0 16px",
+        maxWidth: "800px",
+        margin: "0 auto",
+    } as React.CSSProperties,
+    statsGrid: {
+        display: "grid",
+        gridTemplateColumns: "repeat(2, 1fr)",
+        gap: "16px",
+        marginBottom: "24px",
+    } as React.CSSProperties,
+    statCard: {
+        padding: "20px",
+        background: "white",
+        borderRadius: "20px",
+        boxShadow: "0 4px 20px rgba(0, 0, 0, 0.08)",
+        border: "1px solid #f0f0f0",
+    } as React.CSSProperties,
+    sectionTitle: {
+        fontSize: "18px",
+        fontWeight: "700",
+        color: "#1a1a2e",
+        marginBottom: "16px",
+        display: "flex",
+        alignItems: "center",
+        gap: "10px",
+    } as React.CSSProperties,
+    transactionCard: {
+        padding: "18px 20px",
+        background: "white",
+        borderRadius: "16px",
+        boxShadow: "0 4px 15px rgba(0, 0, 0, 0.06)",
+        border: "1px solid #f0f0f0",
+        marginBottom: "12px",
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+    } as React.CSSProperties,
+    badge: {
+        padding: "6px 12px",
+        borderRadius: "100px",
+        fontSize: "11px",
+        fontWeight: "700",
+    } as React.CSSProperties,
+};
+
 export default async function EarningsPage() {
     const roleInfo = await getPartnerRole();
 
@@ -15,7 +99,6 @@ export default async function EarningsPage() {
         redirect("/auth/signin");
     }
 
-    // Role-based access control: Only OWNER can view earnings
     if (!roleInfo.permissions.canViewEarnings) {
         redirect("/?accessDenied=earnings");
     }
@@ -28,90 +111,134 @@ export default async function EarningsPage() {
     ]);
 
     return (
-        <>
+        <div style={styles.pageContainer}>
             {/* Header */}
-            <header
-                style={{
+            <header style={styles.header}>
+                <div style={{ 
+                    maxWidth: "800px", 
+                    margin: "0 auto",
                     display: "flex",
                     justifyContent: "space-between",
-                    alignItems: "flex-start",
-                    background: "white",
-                    padding: "16px",
-                    borderRadius: "16px",
-                    boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
-                    border: "1px solid #f1f5f9",
-                    marginBottom: "16px",
-                    maxWidth: "1200px",
-                    margin: "0 auto 16px auto"
-                }}
-            >
-                <div>
-                    <h1 style={{ fontSize: "1.5rem", fontWeight: 700, color: "#1e293b", margin: 0 }}>Earnings</h1>
-                    <p style={{ color: "#64748b", fontSize: "0.875rem", margin: 0, marginTop: "4px" }}>
-                        Your revenue summary
-                    </p>
+                    alignItems: "flex-start"
+                }}>
+                    <div>
+                        <Link href="/" style={styles.backLink}>
+                            <FiArrowLeft size={18} />
+                            Back to Dashboard
+                        </Link>
+                        <h1 style={styles.pageTitle}>
+                            <FiTrendingUp style={{ marginRight: "10px", verticalAlign: "middle" }} />
+                            Earnings
+                        </h1>
+                        <p style={styles.pageSubtitle}>
+                            Your revenue summary for this month
+                        </p>
+                    </div>
+                    <div style={{ marginTop: "30px" }}>
+                        <EarningsExportClient
+                            earnings={earnings}
+                            hotelName={hotel?.name || "Hotel"}
+                            period="month"
+                        />
+                    </div>
                 </div>
-                <EarningsExportClient
-                    earnings={earnings}
-                    hotelName={hotel?.name || "Hotel"}
-                    period="month"
-                />
             </header>
 
-            <main style={{ maxWidth: "1200px", margin: "0 auto" }}>
-                {/* Earnings Cards */}
-                <div
-                    style={{
-                        display: "grid",
-                        gridTemplateColumns: "repeat(2, 1fr)",
-                        gap: "1rem",
-                        marginBottom: "1.5rem",
-                    }}
-                >
+            <main style={styles.main}>
+                {/* Earnings Stats Grid */}
+                <div style={styles.statsGrid}>
+                    {/* Total Revenue */}
                     <div style={{
-                        padding: "16px",
-                        background: "white",
-                        borderRadius: "16px",
-                        boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
-                        border: "1px solid #f1f5f9"
+                        ...styles.statCard,
+                        background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
                     }}>
-                        <div className="stat-value" style={{ fontSize: "1.5rem", fontWeight: 700, color: "#1e293b" }}>৳{earnings.totalRevenue.toLocaleString()}</div>
-                        <div className="stat-label" style={{ fontSize: "0.875rem", color: "#64748b" }}>Total Revenue</div>
+                        <div style={{
+                            width: "44px",
+                            height: "44px",
+                            borderRadius: "12px",
+                            background: "rgba(255,255,255,0.2)",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            marginBottom: "12px",
+                        }}>
+                            <FiDollarSign size={22} color="white" />
+                        </div>
+                        <div style={{ fontSize: "24px", fontWeight: "800", color: "white" }}>
+                            ৳{earnings.totalRevenue.toLocaleString()}
+                        </div>
+                        <div style={{ fontSize: "13px", color: "rgba(255,255,255,0.8)", marginTop: "4px" }}>
+                            Total Revenue
+                        </div>
                     </div>
+
+                    {/* Net Earnings */}
                     <div style={{
-                        padding: "16px",
-                        background: "white",
-                        borderRadius: "16px",
-                        boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
-                        border: "1px solid #f1f5f9"
+                        ...styles.statCard,
+                        background: "linear-gradient(135deg, #10b981 0%, #059669 100%)",
                     }}>
-                        <div className="stat-value" style={{ fontSize: "1.5rem", fontWeight: 700, color: "#1e293b" }}>৳{earnings.netEarnings.toLocaleString()}</div>
-                        <div className="stat-label" style={{ fontSize: "0.875rem", color: "#64748b" }}>Net Earnings</div>
+                        <div style={{
+                            width: "44px",
+                            height: "44px",
+                            borderRadius: "12px",
+                            background: "rgba(255,255,255,0.2)",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            marginBottom: "12px",
+                        }}>
+                            <FiTrendingUp size={22} color="white" />
+                        </div>
+                        <div style={{ fontSize: "24px", fontWeight: "800", color: "white" }}>
+                            ৳{earnings.netEarnings.toLocaleString()}
+                        </div>
+                        <div style={{ fontSize: "13px", color: "rgba(255,255,255,0.8)", marginTop: "4px" }}>
+                            Net Earnings
+                        </div>
                     </div>
-                    <div style={{
-                        padding: "16px",
-                        background: "white",
-                        borderRadius: "16px",
-                        boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
-                        border: "1px solid #f1f5f9"
-                    }}>
-                        <div className="stat-value" style={{ fontSize: "1.5rem", fontWeight: 700, color: "#1e293b" }}>{earnings.totalBookings}</div>
-                        <div className="stat-label" style={{ fontSize: "0.875rem", color: "#64748b" }}>Total Bookings</div>
+
+                    {/* Total Bookings */}
+                    <div style={styles.statCard}>
+                        <div style={{
+                            width: "44px",
+                            height: "44px",
+                            borderRadius: "12px",
+                            background: "linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%)",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            marginBottom: "12px",
+                        }}>
+                            <FiCalendar size={22} color="#667eea" />
+                        </div>
+                        <div style={{ fontSize: "24px", fontWeight: "800", color: "#1a1a2e" }}>
+                            {earnings.totalBookings}
+                        </div>
+                        <div style={{ fontSize: "13px", color: "#6b7280", marginTop: "4px" }}>
+                            Total Bookings
+                        </div>
                     </div>
-                    <div style={{
-                        padding: "16px",
-                        background: "white",
-                        borderRadius: "16px",
-                        boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
-                        border: "1px solid #f1f5f9"
-                    }}>
-                        <div
-                            className="stat-value"
-                            style={{ color: "#ef4444", fontSize: "1.5rem", fontWeight: 700 }}
-                        >
+
+                    {/* Platform Commission */}
+                    <div style={styles.statCard}>
+                        <div style={{
+                            width: "44px",
+                            height: "44px",
+                            borderRadius: "12px",
+                            background: "linear-gradient(135deg, #fee2e2 0%, #fecaca 100%)",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            marginBottom: "12px",
+                        }}>
+                            <FiPieChart size={22} color="#ef4444" />
+                        </div>
+                        <div style={{ fontSize: "24px", fontWeight: "800", color: "#ef4444" }}>
                             -৳{earnings.totalCommission.toLocaleString()}
                         </div>
-                        <div className="stat-label" style={{ fontSize: "0.875rem", color: "#64748b" }}>Platform Commission</div>
+                        <div style={{ fontSize: "13px", color: "#6b7280", marginTop: "4px" }}>
+                            Platform Commission
+                        </div>
                     </div>
                 </div>
 
@@ -122,110 +249,130 @@ export default async function EarningsPage() {
                     payouts={payoutHistory.payouts}
                 />
 
-                {/* Commission Info */}
-                <div
-                    className="card"
-                    style={{
-                        marginBottom: "1.5rem",
-                        backgroundColor: "rgba(29, 53, 87, 0.05)",
-                        borderColor: "var(--color-primary)",
-                    }}
-                >
-                    <div
-                        style={{
-                            display: "flex",
-                            justifyContent: "space-between",
-                            alignItems: "center",
-                        }}
-                    >
-                        <div>
-                            <div style={{ fontWeight: 600, marginBottom: "0.25rem" }}>
-                                Platform Commission
+                {/* Commission Info Banner */}
+                <div style={{
+                    background: "linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%)",
+                    borderRadius: "16px",
+                    padding: "20px",
+                    marginBottom: "24px",
+                    border: "2px solid #667eea",
+                }}>
+                    <div style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                    }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
+                            <div style={{
+                                width: "48px",
+                                height: "48px",
+                                borderRadius: "14px",
+                                background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                            }}>
+                                <FiCreditCard size={24} color="white" />
                             </div>
-                            <div style={{ fontSize: "0.875rem", color: "var(--color-text-secondary)" }}>
-                                20% of total bookings
+                            <div>
+                                <div style={{ fontWeight: "700", fontSize: "16px", color: "#4338ca" }}>
+                                    Platform Commission
+                                </div>
+                                <div style={{ fontSize: "14px", color: "#6366f1" }}>
+                                    20% of total bookings
+                                </div>
                             </div>
                         </div>
-                        <div
-                            style={{
-                                fontSize: "1.5rem",
-                                fontWeight: 700,
-                                color: "var(--color-primary)",
-                            }}
-                        >
+                        <div style={{
+                            fontSize: "22px",
+                            fontWeight: "800",
+                            color: "#4338ca",
+                        }}>
                             -৳{earnings.totalCommission.toLocaleString()}
                         </div>
                     </div>
                 </div>
 
                 {/* Recent Transactions */}
-                <section>
-                    <h2
-                        style={{
-                            fontSize: "1.125rem",
-                            fontWeight: 600,
-                            marginBottom: "1rem",
-                            color: "var(--color-text-primary)",
-                        }}
-                    >
+                <section style={{ marginBottom: "24px" }}>
+                    <h2 style={styles.sectionTitle}>
+                        <FiCreditCard size={20} />
                         Recent Transactions
                     </h2>
 
-                    <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+                    <div>
                         {earnings.transactions.length === 0 ? (
-                            <div
-                                style={{
-                                    padding: "32px",
-                                    textAlign: "center",
-                                    color: "#64748b",
-                                    background: "white",
-                                    borderRadius: "16px",
-                                    boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
-                                    border: "1px solid #f1f5f9"
-                                }}
-                            >
-                                No transactions this month
+                            <div style={{
+                                padding: "48px 24px",
+                                textAlign: "center",
+                                background: "white",
+                                borderRadius: "20px",
+                                boxShadow: "0 4px 20px rgba(0, 0, 0, 0.08)",
+                            }}>
+                                <div style={{
+                                    width: "64px",
+                                    height: "64px",
+                                    borderRadius: "50%",
+                                    background: "linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%)",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    margin: "0 auto 16px",
+                                }}>
+                                    <FiCreditCard size={28} color="#9ca3af" />
+                                </div>
+                                <div style={{ fontSize: "16px", fontWeight: "600", color: "#6b7280" }}>
+                                    No transactions this month
+                                </div>
                             </div>
                         ) : (
                             earnings.transactions.map((tx) => (
-                                <div
-                                    key={tx.id}
-                                    className=""
-                                    style={{
-                                        display: "flex",
-                                        justifyContent: "space-between",
-                                        alignItems: "center",
-                                        padding: "16px",
-                                        background: "white",
-                                        borderRadius: "16px",
-                                        boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
-                                        border: "1px solid #f1f5f9"
-                                    }}
-                                >
+                                <div key={tx.id} style={styles.transactionCard}>
                                     <div>
-                                        <div style={{ fontWeight: 600, marginBottom: "0.25rem", color: "#1e293b" }}>
+                                        <div style={{ 
+                                            fontWeight: "700", 
+                                            fontSize: "15px", 
+                                            color: "#1a1a2e",
+                                            marginBottom: "4px" 
+                                        }}>
                                             {tx.guestName}
                                         </div>
-                                        <div style={{ fontSize: "0.875rem", color: "#64748b" }}>
+                                        <div style={{ 
+                                            fontSize: "13px", 
+                                            color: "#6b7280",
+                                            display: "flex",
+                                            alignItems: "center",
+                                            gap: "6px"
+                                        }}>
+                                            <FiCalendar size={12} />
                                             Check-in: {tx.checkIn}
                                         </div>
                                     </div>
                                     <div style={{ textAlign: "right" }}>
-                                        <div
-                                            style={{
-                                                fontWeight: 700,
-                                                color: "var(--color-success)",
-                                                marginBottom: "0.25rem",
-                                            }}
-                                        >
+                                        <div style={{
+                                            fontWeight: "800",
+                                            fontSize: "17px",
+                                            color: "#10b981",
+                                            marginBottom: "6px",
+                                        }}>
                                             ৳{tx.net.toLocaleString()}
                                         </div>
-                                        <span
-                                            className={`badge ${tx.paymentStatus === "PAID" ? "badge-success" : "badge-warning"
-                                                }`}
-                                            style={{ fontSize: "0.75rem" }}
-                                        >
-                                            {tx.paymentStatus === "PAID" ? "Paid" : tx.paymentStatus === "PAY_AT_HOTEL" ? "Pay at Hotel" : "Pending"}
+                                        <span style={{
+                                            ...styles.badge,
+                                            background: tx.paymentStatus === "PAID" 
+                                                ? "linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%)"
+                                                : "linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)",
+                                            color: tx.paymentStatus === "PAID" ? "#059669" : "#d97706",
+                                            display: "inline-flex",
+                                            alignItems: "center",
+                                            gap: "4px",
+                                        }}>
+                                            {tx.paymentStatus === "PAID" 
+                                                ? <><FiCheckCircle size={12} /> Paid</>
+                                                : tx.paymentStatus === "PAY_AT_HOTEL" 
+                                                    ? <><FiClock size={12} /> Pay at Hotel</>
+                                                    : <><FiClock size={12} /> Pending</>
+                                            }
                                         </span>
                                     </div>
                                 </div>
@@ -235,11 +382,8 @@ export default async function EarningsPage() {
                 </section>
             </main>
 
-            {/* Scanner FAB */}
             <ScannerFAB />
-
-            {/* Bottom Navigation */}
             <BottomNav role={roleInfo.role} />
-        </>
+        </div>
     );
 }
