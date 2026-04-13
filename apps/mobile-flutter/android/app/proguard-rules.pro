@@ -32,3 +32,7 @@
 # Prevent R8 from stripping interface info for generic types
 -keepattributes InnerClasses
 -keepattributes EnclosingMethod
+
+# Keep Google Play Core (often used for deferred components or updates)
+-keep class com.google.android.play.core.** { *; }
+-dontwarn com.google.android.play.core.**
