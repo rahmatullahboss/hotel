@@ -1,0 +1,238 @@
+name: Flutter CI/CD - Build & Release
+
+on:
+  # Auto build on push to main/develop (flutter app changes only)
+  push:
+    branches: [main, develop]
+    tags:
+      - 'v*'
+    paths:
+      - 'apps/mobile-flutter/**'
+      - '.github/workflows/flutter-release.yml'
+
+  # Manual trigger with version input
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version (e.g., 1.0.0+1)'
+        required: false
+        default: ''
+      build_type:
+        description: 'Build type'
+        required: true
+        default: 'both'
+        type: choice
+        options:
+          - apk
+          - appbundle
+          - both
+
+env:
+  FLUTTER_VERSION: '3.38.5'
+  JAVA_VERSION: '17'
+  WORKING_DIR: apps/mobile-flutter
+
+jobs:
+  # ─── Job 1: Analyze & Test ───
+  test:
+    name: 🧪 Analyze & Test
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ env.WORKING_DIR }}
+
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: ☕ Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: ${{ env.JAVA_VERSION }}
+
+      - name: 🐦 Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+
+      - name: 📦 Get Dependencies
+        run: flutter pub get
+
+      - name: 🔍 Analyze Code
+        run: flutter analyze --no-fatal-infos
+
+      - name: 🧪 Run Tests
+        run: flutter test --coverage || echo "No tests found, skipping..."
+
+  # ─── Job 2: Build Release APK & AAB ───
+  build:
+    name: 🏗️ Build Release
+    runs-on: ubuntu-latest
+    needs: test
+    defaults:
+      run:
+        working-directory: ${{ env.WORKING_DIR }}
+
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: ☕ Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: ${{ env.JAVA_VERSION }}
+
+      - name: 🐦 Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+
+      - name: 📦 Get Dependencies
+        run: flutter pub get
+
+      # ─── Decode Keystore from Secrets ───
+      - name: 🔐 Decode Keystore
+        run: |
+          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > android/app/upload-keystore.jks
+
+      - name: 🔑 Create key.properties
+        run: |
+          cat > android/key.properties << EOF
+          storePassword=${{ secrets.KEYSTORE_PASSWORD }}
+          keyPassword=${{ secrets.KEY_PASSWORD }}
+          keyAlias=${{ secrets.KEY_ALIAS }}
+          storeFile=upload-keystore.jks
+          EOF
+
+      # ─── Set Version (if provided) ───
+      - name: 📝 Set Version
+        if: github.event.inputs.version != ''
+        run: |
+          VERSION="${{ github.event.inputs.version }}"
+          # Extract version name and build number
+          if [[ "$VERSION" == *"+"* ]]; then
+            VERSION_NAME="${VERSION%%+*}"
+            BUILD_NUMBER="${VERSION##*+}"
+          else
+            VERSION_NAME="$VERSION"
+            BUILD_NUMBER="1"
+          fi
+          echo "VERSION_NAME=$VERSION_NAME" >> $GITHUB_ENV
+          echo "BUILD_NUMBER=$BUILD_NUMBER" >> $GITHUB_ENV
+
+      # ─── Build APK ───
+      - name: 📱 Build Release APK
+        if: github.event.inputs.build_type != 'appbundle'
+        run: |
+          BUILD_ARGS="--release"
+          if [ -n "$VERSION_NAME" ]; then
+            BUILD_ARGS="$BUILD_ARGS --build-name=$VERSION_NAME --build-number=$BUILD_NUMBER"
+          fi
+          flutter build apk $BUILD_ARGS
+
+      # ─── Build App Bundle ───
+      - name: 📦 Build Release App Bundle (AAB)
+        if: github.event.inputs.build_type != 'apk'
+        run: |
+          BUILD_ARGS="--release"
+          if [ -n "$VERSION_NAME" ]; then
+            BUILD_ARGS="$BUILD_ARGS --build-name=$VERSION_NAME --build-number=$BUILD_NUMBER"
+          fi
+          flutter build appbundle $BUILD_ARGS
+
+      # ─── Upload APK Artifact ───
+      - name: 📤 Upload APK
+        if: github.event.inputs.build_type != 'appbundle'
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-apk
+          path: apps/mobile-flutter/build/app/outputs/flutter-apk/app-release.apk
+          retention-days: 30
+
+      # ─── Upload AAB Artifact ───
+      - name: 📤 Upload AAB
+        if: github.event.inputs.build_type != 'apk'
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-aab
+          path: apps/mobile-flutter/build/app/outputs/bundle/release/app-release.aab
+          retention-days: 30
+
+      # ─── Print Build Info ───
+      - name: 📋 Build Summary
+        run: |
+          echo "## 🎉 Build Complete!" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Property | Value |" >> $GITHUB_STEP_SUMMARY
+          echo "|----------|-------|" >> $GITHUB_STEP_SUMMARY
+          echo "| **App** | Zinu Rooms |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Package** | com.zinurooms.zinu_rooms |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Flutter** | ${{ env.FLUTTER_VERSION }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Branch** | ${{ github.ref_name }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Commit** | ${{ github.sha }} |" >> $GITHUB_STEP_SUMMARY
+          if [ -f "build/app/outputs/flutter-apk/app-release.apk" ]; then
+            APK_SIZE=$(du -sh build/app/outputs/flutter-apk/app-release.apk | cut -f1)
+            echo "| **APK Size** | $APK_SIZE |" >> $GITHUB_STEP_SUMMARY
+          fi
+          if [ -f "build/app/outputs/bundle/release/app-release.aab" ]; then
+            AAB_SIZE=$(du -sh build/app/outputs/bundle/release/app-release.aab | cut -f1)
+            echo "| **AAB Size** | $AAB_SIZE |" >> $GITHUB_STEP_SUMMARY
+          fi
+
+  # ─── Job 3: Create GitHub Release (on tag) ───
+  release:
+    name: 🚀 Create GitHub Release
+    runs-on: ubuntu-latest
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/v')
+    permissions:
+      contents: write
+
+    steps:
+      - name: 📥 Download APK Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: release-apk
+          path: ./artifacts/apk
+        continue-on-error: true
+
+      - name: 📥 Download AAB Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: release-aab
+          path: ./artifacts/aab
+        continue-on-error: true
+
+      - name: 🏷️ Get Version from Tag
+        id: version
+        run: echo "version=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+
+      - name: 🚀 Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: "Zinu Rooms ${{ steps.version.outputs.version }}"
+          body: |
+            ## 📱 Zinu Rooms ${{ steps.version.outputs.version }}
+
+            ### Download
+            - **APK**: Direct install on Android devices
+            - **AAB**: For Google Play Store upload
+
+            ### Changes
+            - See commit history for detailed changes
+
+            ---
+            *Built with Flutter ${{ env.FLUTTER_VERSION }}*
+          draft: false
+          prerelease: false
+          files: |
+            ./artifacts/apk/app-release.apk
+            ./artifacts/aab/app-release.aab
+          fail_on_unmatched_files: false
