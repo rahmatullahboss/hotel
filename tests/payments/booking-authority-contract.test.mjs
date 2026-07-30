@@ -28,9 +28,9 @@ test("customer booking request contract contains no client total", async () => {
     service.indexOf("export interface BookingResult"),
   );
   assert.doesNotMatch(inputBlock, /totalAmount/);
-  assert.doesNotMatch(api, /missingFields\.push\(['\"]totalAmount/);
+  assert.doesNotMatch(api, /missingFields\.push\(['"]totalAmount/);
   assert.doesNotMatch(web, /createBooking\([\s\S]*?totalAmount,/);
-  assert.doesNotMatch(flutter, /['\"]totalAmount['\"]\s*:/);
+  assert.doesNotMatch(flutter, /['"]totalAmount['"]\s*:/);
 });
 
 test("server action identity is resolved from Auth.js, not request input", async () => {
@@ -124,6 +124,7 @@ test("Flutter payment callers submit only the booking identity", async () => {
 test("temporary PAY-01 maintenance workflows are absent", async () => {
   for (const workflow of [
     ".github/workflows/pay01-source-snapshot.yml",
+    ".github/workflows/pay01-apply-patch.yml",
     ".github/workflows/pay01-generate-migration.yml",
   ]) {
     assert.equal(await exists(workflow), false, `${workflow} must be absent`);
