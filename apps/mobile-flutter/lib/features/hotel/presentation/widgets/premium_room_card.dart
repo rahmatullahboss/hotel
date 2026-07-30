@@ -323,39 +323,35 @@ class PremiumRoomCard extends ConsumerWidget {
                       ),
 
                       // Book Button
-                      Container(
-                        child: ElevatedButton(
-                          onPressed: isAvailable ? onSelect : null,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: isAvailable
-                                ? AppColors.primary
-                                : AppColors.textTertiary,
-                            foregroundColor: Colors.white,
-                            elevation: isAvailable ? 4 : 0,
-                            shadowColor: AppColors.primary.withValues(
-                              alpha: 0.4,
-                            ),
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 24,
-                              vertical: 12,
-                            ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
+                      ElevatedButton(
+                        onPressed: isAvailable ? onSelect : null,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: isAvailable
+                              ? AppColors.primary
+                              : AppColors.textTertiary,
+                          foregroundColor: Colors.white,
+                          elevation: isAvailable ? 4 : 0,
+                          shadowColor: AppColors.primary.withValues(alpha: 0.4),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 24,
+                            vertical: 12,
                           ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text(
-                                loc.bookNow,
-                                style: AppTypography.button.copyWith(
-                                  fontSize: 14,
-                                ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              loc.bookNow,
+                              style: AppTypography.button.copyWith(
+                                fontSize: 14,
                               ),
-                              const SizedBox(width: 4),
-                              const Icon(Icons.arrow_forward, size: 16),
-                            ],
-                          ),
+                            ),
+                            const SizedBox(width: 4),
+                            const Icon(Icons.arrow_forward, size: 16),
+                          ],
                         ),
                       ),
                     ],
