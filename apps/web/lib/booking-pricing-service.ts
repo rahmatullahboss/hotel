@@ -40,6 +40,12 @@ export interface AuthoritativeBookingCalculation {
     calculation: BookingCalculationResult;
 }
 
+type InventoryRateRow = {
+    date: string;
+    status: "AVAILABLE" | "OCCUPIED" | "BLOCKED";
+    price: string | null;
+};
+
 export async function calculateAuthoritativeBooking(
     tx: typeof db,
     input: AuthoritativeBookingCalculationInput,
@@ -67,7 +73,7 @@ export async function calculateAuthoritativeBooking(
         throw new Error("Room is not available for booking");
     }
 
-    const inventoryRows = await tx
+    const inventoryRows: InventoryRateRow[] = await tx
         .select({
             date: roomInventory.date,
             status: roomInventory.status,
@@ -82,8 +88,8 @@ export async function calculateAuthoritativeBooking(
             ),
         );
 
-    const inventoryByDate = new Map(
-        inventoryRows.map((row) => [row.date, row] as const),
+    const inventoryByDate = new Map<string, InventoryRateRow>(
+        inventoryRows.map((row: InventoryRateRow) => [row.date, row]),
     );
     const nightlyRates: NightlyRateInput[] = stayDates.map((date) => {
         const inventory = inventoryByDate.get(date);
