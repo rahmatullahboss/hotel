@@ -13,7 +13,7 @@ This board is the operational queue. Update status, owner, branch, PR and eviden
 | PAY-01 | READY | Server-authoritative booking calculation | Client money ignored; persisted calculation breakdown; configurable commission; wallet limits; tests | unassigned |
 | PAY-02 | BLOCKED | Stripe idempotency, attempts and webhook | Depends on PAY-01 and DB-01; signed/idempotent webhook and reconciliation | unassigned |
 | RSV-01 | READY | Atomic reservation allocation | DB-level no-overlap/atomic allotment; explicit transaction strategy; concurrent test | unassigned |
-| CI-01 | IN_PROGRESS | Required monorepo CI | install, lint, type-check, build, tests; no suppression; branch checks documented | owner: GPT-5.6; base: `89a1e39dee0d6bd5bec32e42b4d36ce712ae5e68`; branch: `work/CI-01-required-monorepo-ci` |
+| CI-01 | IN_PROGRESS | Required monorepo CI | locked install; changed-file zero-warning lint ratchet; full type-check, tests and production build; no suppression; branch checks documented | owner: GPT-5.6; base: `89a1e39dee0d6bd5bec32e42b4d36ce712ae5e68`; branch: `work/CI-01-required-monorepo-ci`; PR #2 |
 | CI-02 | READY | Strict Flutter CI | format, strict analyze, tests, Android builds; test failure fails workflow | unassigned |
 | OPS-02 | READY | Cron fail-closed hardening | required secret, POST mutations, no `X-No-Auth`, timeout/retry/result checks | unassigned |
 | QA-01 | BLOCKED | Critical integration/E2E test platform | Depends on stable SEC/PAY/RSV contracts | unassigned |
@@ -23,6 +23,7 @@ This board is the operational queue. Update status, owner, branch, PR and eviden
 | ID | Status | Work item | Acceptance summary | Owner/branch |
 |---|---|---|---|---|
 | DB-01 | READY | Migration baseline and environment separation | `generate`/`migrate`; committed history; direct migration URL; pooled app URL; clean/upgrade tests | unassigned |
+| LINT-01 | READY | Retire historical monorepo lint debt | inventory warnings by app/rule; fix without broad suppression; keep changed-file ratchet green; finish with full `npm run lint` at zero warnings | unassigned |
 | SEC-02 | BLOCKED | Tenant/RBAC matrix and enforcement | Explicit permission matrix; negative tests across partner/admin/hotel boundaries | unassigned |
 | API-01 | BLOCKED | Versioned mobile API contract | Typed schemas, stable error envelope, contract tests, no guessed response shapes | unassigned |
 | RSV-02 | BLOCKED | Booking expiry/cancellation/refund state machine | legal transitions, idempotent jobs, inventory release, wallet/payment reconciliation | unassigned |
@@ -85,6 +86,12 @@ Must introduce payment attempts and processed provider events with unique keys. 
 ### CI-01/CI-02
 
 No check may transform a failure into success. Required checks become branch protection gates after workflow validation.
+
+CI-01 uses a zero-warning changed-file lint ratchet while `LINT-01` removes untouched historical warnings. Full type-check, CI tests and production build remain repository-wide gates.
+
+### LINT-01 — Historical lint cleanup
+
+Inventory warnings by workspace and rule. Fix them in bounded app/package batches without increasing warning counts, weakening shared rules or combining unrelated behaviour changes. Completion requires `npm run lint` to pass with zero warnings, after which CI-01 can replace the ratchet with full-repository lint.
 
 ## Board update rules
 
