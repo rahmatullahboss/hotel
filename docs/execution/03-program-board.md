@@ -13,8 +13,8 @@ This board is the operational queue. Update status, owner, branch, PR and eviden
 | PAY-01 | READY | Server-authoritative booking calculation | Client money ignored; persisted calculation breakdown; configurable commission; wallet limits; tests | unassigned |
 | PAY-02 | BLOCKED | Stripe idempotency, attempts and webhook | Depends on PAY-01 and DB-01; signed/idempotent webhook and reconciliation | unassigned |
 | RSV-01 | READY | Atomic reservation allocation | DB-level no-overlap/atomic allotment; explicit transaction strategy; concurrent test | unassigned |
-| CI-01 | READY | Required monorepo CI | install, lint, type-check, build, tests; no suppression; branch checks documented | active independently in PR #2 |
-| CI-02 | IN_PROGRESS | Strict Flutter CI | PR format/analyze/test/debug APK; signed tag/manual release fails closed; mandatory artifacts; no failure suppression | owner: GPT-5.6; base: `89a1e39dee0d6bd5bec32e42b4d36ce712ae5e68`; branch: `work/CI-02-strict-flutter-ci` |
+| CI-01 | BLOCKED_CONFIG | Required monorepo CI | Quality gate green in PR #2; production build requires GitHub Actions secret `CI_DATABASE_URL` from isolated Neon branch `br-bitter-bonus-a1ih1ip8`; tracked by issue #3 | `work/CI-01-required-monorepo-ci`; PR #2 |
+| CI-02 | DONE | Strict Flutter CI | PR #4 merged at `fe0976db95a8bd26706f87d0108d5820606ba7a1`; run `30528984233` passed format, strict analyze, tests, coverage and debug APK build; artifacts verified | `work/CI-02-strict-flutter-ci` |
 | OPS-02 | READY | Cron fail-closed hardening | required secret, POST mutations, no `X-No-Auth`, timeout/retry/result checks | unassigned |
 | QA-01 | BLOCKED | Critical integration/E2E test platform | Depends on stable SEC/PAY/RSV contracts | unassigned |
 
@@ -88,6 +88,8 @@ No check may transform a failure into success. Required checks become branch pro
 
 CI-02 requires ordinary pull requests to pass format, strict analyze, executable tests and an unsigned debug APK build. Signed release jobs are limited to tags/manual dispatch and fail closed when signing credentials or expected artifacts are absent.
 
+CI-01 may move from `BLOCKED_CONFIG` only after issue #3 is resolved and its production-build check has executed successfully against the isolated Neon CI branch.
+
 ## Board update rules
 
 A status change to `IN_PROGRESS` requires owner, base SHA and branch.
@@ -98,14 +100,10 @@ A status change to `DONE` requires merged SHA and integration/runtime evidence. 
 
 ## Current next action
 
-After GOV-01 review, activate in parallel:
-
-1. CI-01
-2. CI-02
-3. DB-01
-4. SEC-01
-5. PAY-01 design/tests
-6. RSV-01 design/database proof
-7. OPS-01 environment inventory
+1. Resolve CI-01 issue #3 and rerun the production build.
+2. Activate DB-01 migration baseline and environment separation.
+3. Activate SEC-01 mobile authentication hardening.
+4. Prepare PAY-01 and RSV-01 with coordinated database ownership.
+5. Activate OPS-01 environment/deployment health inventory.
 
 The coordinator must prevent PAY-01 and RSV-01 from generating conflicting database migrations.
