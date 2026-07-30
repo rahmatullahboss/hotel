@@ -1,0 +1,100 @@
+name: Mobile Auth Security
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "apps/web/app/api/auth/mobile-login/**"
+      - "apps/web/app/api/auth/mobile-register/**"
+      - "apps/web/app/api/auth/mobile-logout/**"
+      - "apps/web/app/api/mobile/google-auth/**"
+      - "apps/web/app/api/bookings/route.ts"
+      - "apps/web/lib/mobile-auth*.ts"
+      - "apps/web/lib/mobile-google-auth.ts"
+      - "apps/mobile-flutter/lib/features/auth/providers/auth_provider.dart"
+      - "tests/security/**"
+      - ".env.example"
+      - "turbo.json"
+      - ".github/workflows/mobile-auth-security.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "apps/web/app/api/auth/mobile-login/**"
+      - "apps/web/app/api/auth/mobile-register/**"
+      - "apps/web/app/api/auth/mobile-logout/**"
+      - "apps/web/app/api/mobile/google-auth/**"
+      - "apps/web/app/api/bookings/route.ts"
+      - "apps/web/lib/mobile-auth*.ts"
+      - "apps/web/lib/mobile-google-auth.ts"
+      - "apps/mobile-flutter/lib/features/auth/providers/auth_provider.dart"
+      - "tests/security/**"
+      - ".env.example"
+      - "turbo.json"
+      - ".github/workflows/mobile-auth-security.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: mobile-auth-security-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  AUTH_SECRET: 0123456789abcdef0123456789abcdef0123456789abcdef
+  MOBILE_JWT_ISSUER: zinurooms-ci
+  MOBILE_JWT_AUDIENCE: zinurooms-mobile-ci
+  MOBILE_JWT_TTL_SECONDS: "3600"
+  AUTH_GOOGLE_ID: web-client.apps.googleusercontent.com
+  MOBILE_GOOGLE_CLIENT_IDS: android-client.apps.googleusercontent.com
+
+jobs:
+  security-verification:
+    name: Tokens, contracts and web types
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v5
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Use declared npm version
+        run: npm install --global npm@11.6.2
+
+      - name: Install locked dependencies
+        run: npm ci
+
+      - name: Run mobile authentication security tests
+        run: node --test tests/security/*.test.mjs
+
+      - name: Lint changed authentication source
+        working-directory: apps/web
+        run: >-
+          npx eslint --max-warnings 0
+          lib/mobile-auth-token.ts
+          lib/mobile-google-auth.ts
+          lib/mobile-auth-rate-limit.ts
+          lib/mobile-auth-http.ts
+          lib/mobile-auth.ts
+          app/api/auth/mobile-login/route.ts
+          app/api/auth/mobile-register/route.ts
+          app/api/auth/mobile-logout/route.ts
+          app/api/mobile/google-auth/route.ts
+          app/api/bookings/route.ts
+
+      - name: Build shared web dependencies
+        run: |
+          npm --workspace @repo/db run build
+          npm --workspace @repo/config run build
+
+      - name: Type-check customer web application
+        run: npm --workspace web run check-types

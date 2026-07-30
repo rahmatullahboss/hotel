@@ -1,5 +1,4 @@
 // Auth Provider - Riverpod 3.0 state management for authentication
-import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:dio/dio.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -7,9 +6,7 @@ import '../../../core/api/api_client.dart';
 import '../../../core/storage/secure_storage.dart';
 import '../../../core/notifications/notification_provider.dart';
 
-// Server Client ID from Firebase
-const _serverClientId =
-    '46787300862-ev3ra7q0t5e1jrr1jal8tas61p33v9hr.apps.googleusercontent.com';
+const _serverClientId = String.fromEnvironment('GOOGLE_SERVER_CLIENT_ID');
 
 // User model
 class User {
@@ -89,14 +86,27 @@ class AuthNotifier extends Notifier<AuthState> {
     return AuthState();
   }
 
+  String _errorMessage(DioException error, String fallback) {
+    final data = error.response?.data;
+    if (data is Map<String, dynamic>) {
+      final message = data['message'];
+      if (message is String && message.isNotEmpty) return message;
+      final legacyError = data['error'];
+      if (legacyError is String && legacyError.isNotEmpty) return legacyError;
+    }
+    return fallback;
+  }
+
   Future<void> _ensureGoogleSignInInitialized() async {
     if (_googleSignInInitialized) return;
-    try {
-      await GoogleSignIn.instance.initialize(clientId: _serverClientId);
-      _googleSignInInitialized = true;
-    } catch (e) {
-      debugPrint('Google Sign-In init error: $e');
+    if (_serverClientId.isEmpty) {
+      throw StateError(
+        'GOOGLE_SERVER_CLIENT_ID must be provided with --dart-define',
+      );
     }
+
+    await GoogleSignIn.instance.initialize(serverClientId: _serverClientId);
+    _googleSignInInitialized = true;
   }
 
   // Initialize auth state from storage
@@ -122,18 +132,16 @@ class AuthNotifier extends Notifier<AuthState> {
         '/auth/mobile-login',
         data: {'email': identifier, 'password': password},
       );
-
       final token = response.data['token'] as String;
       await _storage.setToken(token);
 
       await _fetchCurrentUser();
-      // Register FCM token after successful login
       await _registerFcmToken();
       return true;
     } on DioException catch (e) {
       state = state.copyWith(
         isLoading: false,
-        error: e.response?.data?['message'] ?? 'লগইন ব্যর্থ হয়েছে',
+        error: _errorMessage(e, 'লগইন ব্যর্থ হয়েছে'),
       );
       return false;
     }
@@ -163,13 +171,12 @@ class AuthNotifier extends Notifier<AuthState> {
       await _storage.setToken(token);
 
       await _fetchCurrentUser();
-      // Register FCM token after successful registration
       await _registerFcmToken();
       return true;
     } on DioException catch (e) {
       state = state.copyWith(
         isLoading: false,
-        error: e.response?.data?['error'] ?? 'নিবন্ধন ব্যর্থ হয়েছে',
+        error: _errorMessage(e, 'নিবন্ধন ব্যর্থ হয়েছে'),
       );
       return false;
     }
@@ -181,11 +188,7 @@ class AuthNotifier extends Notifier<AuthState> {
 
     try {
       await _ensureGoogleSignInInitialized();
-
-      // Authenticate with Google Sign-In v7
       final account = await GoogleSignIn.instance.authenticate();
-
-      // Get authentication credentials
       final auth = account.authentication;
       final idToken = auth.idToken;
 
@@ -197,7 +200,6 @@ class AuthNotifier extends Notifier<AuthState> {
         return false;
       }
 
-      // Send to backend
       final response = await _dio.post(
         '/mobile/google-auth',
         data: {'idToken': idToken},
@@ -207,18 +209,15 @@ class AuthNotifier extends Notifier<AuthState> {
       await _storage.setToken(token);
 
       await _fetchCurrentUser();
-      // Register FCM token after successful Google login
       await _registerFcmToken();
       return true;
     } on DioException catch (e) {
       state = state.copyWith(
         isLoading: false,
-        error: e.response?.data?['message'] ?? 'গুগল লগইন ব্যর্থ হয়েছে',
+        error: _errorMessage(e, 'গুগল লগইন ব্যর্থ হয়েছে'),
       );
       return false;
     } catch (e) {
-      debugPrint('Google login error: $e');
-      // Check if user cancelled
       if (e.toString().contains('canceled') ||
           e.toString().contains('cancelled')) {
         state = state.copyWith(isLoading: false);
@@ -234,13 +233,19 @@ class AuthNotifier extends Notifier<AuthState> {
 
   // Logout
   Future<void> logout() async {
-    // Unregister FCM token before logout
     await _unregisterFcmToken();
-    await _storage.deleteToken();
+    try {
+      await _dio.post('/auth/mobile-logout');
+    } on DioException {
+      // Local logout must still complete when the session is already expired.
+    } finally {
+      await _storage.deleteToken();
+    }
+
     try {
       await GoogleSignIn.instance.signOut();
-    } catch (e) {
-      debugPrint('Google sign out error: $e');
+    } catch (_) {
+      // Google sign-out is best effort after the server session is revoked.
     }
     state = AuthState();
   }
@@ -250,8 +255,8 @@ class AuthNotifier extends Notifier<AuthState> {
     try {
       final notifier = ref.read(notificationProvider.notifier);
       await notifier.registerTokenWithServer();
-    } catch (e) {
-      debugPrint('FCM registration error: $e');
+    } catch (_) {
+      // Notification registration is not an authentication failure.
     }
   }
 
@@ -260,8 +265,8 @@ class AuthNotifier extends Notifier<AuthState> {
     try {
       final notifier = ref.read(notificationProvider.notifier);
       await notifier.unregisterTokenFromServer();
-    } catch (e) {
-      debugPrint('FCM unregistration error: $e');
+    } catch (_) {
+      // Logout continues even if notification cleanup is unavailable.
     }
   }
 
@@ -311,14 +316,13 @@ class AuthNotifier extends Notifier<AuthState> {
         },
       );
 
-      // Update local user state with new data
       final updatedUser = User.fromJson(response.data);
       state = state.copyWith(user: updatedUser, isLoading: false);
       return true;
     } on DioException catch (e) {
       state = state.copyWith(
         isLoading: false,
-        error: e.response?.data?['message'] ?? 'প্রোফাইল আপডেট ব্যর্থ হয়েছে',
+        error: _errorMessage(e, 'প্রোফাইল আপডেট ব্যর্থ হয়েছে'),
       );
       return false;
     }

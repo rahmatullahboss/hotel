@@ -72,7 +72,7 @@ export async function POST(request: NextRequest) {
         // If guest info not provided, fetch from user profile
         if (!guestName || !guestEmail) {
             const { verifyMobileToken } = await import("@/lib/mobile-auth");
-            const mobileAuth = verifyMobileToken(request);
+            const mobileAuth = await verifyMobileToken(request);
 
             if (mobileAuth) {
                 guestName = guestName || mobileAuth.name || "Guest";
