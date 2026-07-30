@@ -1,0 +1,112 @@
+name: Reservation Allocation
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "apps/web/lib/reservation-allocation*.ts"
+      - "apps/web/lib/booking-creation-service.ts"
+      - "apps/web/app/api/bookings/route.ts"
+      - "packages/db/src/schema/business.ts"
+      - "packages/db/drizzle/**"
+      - "tests/reservations/**"
+      - "docs/architecture/07-reservation-allocation.md"
+      - ".github/workflows/reservation-allocation.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "apps/web/lib/reservation-allocation*.ts"
+      - "apps/web/lib/booking-creation-service.ts"
+      - "apps/web/app/api/bookings/route.ts"
+      - "packages/db/src/schema/business.ts"
+      - "packages/db/drizzle/**"
+      - "tests/reservations/**"
+      - "docs/architecture/07-reservation-allocation.md"
+      - ".github/workflows/reservation-allocation.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: reservation-allocation-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  DATABASE_URL: postgresql://postgres:postgres@localhost:5432/zinurooms_rsv_ci
+  DATABASE_DIRECT_URL: postgresql://postgres:postgres@localhost:5432/zinurooms_rsv_ci
+  AUTH_SECRET: 0123456789abcdef0123456789abcdef0123456789abcdef
+  MOBILE_JWT_ISSUER: zinurooms-ci
+  MOBILE_JWT_AUDIENCE: zinurooms-mobile-ci
+  APP_ENV: test
+  NODE_ENV: test
+
+jobs:
+  verification:
+    name: PostgreSQL concurrency, contracts and web types
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: zinurooms_rsv_ci
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d zinurooms_rsv_ci"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 12
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Use declared npm version
+        run: npm install --global npm@11.6.2
+
+      - name: Install locked dependencies
+        run: npm ci
+
+      - name: Apply full migration history
+        run: npm run db:migrate
+
+      - name: Run reservation policy and source contracts
+        run: >-
+          node --experimental-strip-types --test
+          tests/reservations/reservation-allocation.test.mjs
+
+      - name: Prove PostgreSQL overlap behavior
+        run: node --test tests/reservations/atomic-reservation.integration.mjs
+
+      - name: Lint reservation and booking boundaries
+        working-directory: apps/web
+        run: >-
+          npx eslint --max-warnings 0
+          lib/reservation-allocation-policy.ts
+          lib/reservation-allocation.ts
+          lib/booking-creation-service.ts
+          app/api/bookings/route.ts
+
+      - name: Build shared web dependencies
+        run: |
+          npm --workspace @repo/db run build
+          npm --workspace @repo/config run build
+
+      - name: Type-check customer web application
+        run: npm --workspace web run check-types

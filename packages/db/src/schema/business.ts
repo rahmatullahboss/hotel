@@ -9,6 +9,7 @@ import {
     date,
     uniqueIndex,
     pgSequence,
+    check,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 import { users } from "./auth";
@@ -302,7 +303,9 @@ export const bookings = pgTable("bookings", {
 
     createdAt: timestamp("createdAt", { mode: "date" }).defaultNow().notNull(),
     updatedAt: timestamp("updatedAt", { mode: "date" }).defaultNow().notNull(),
-});
+}, (table) => [
+    check("bookings_valid_stay", sql`${table.checkIn} < ${table.checkOut}`),
+]);
 
 export const bookingsRelations = relations(bookings, ({ one }) => ({
     hotel: one(hotels, {
@@ -720,5 +723,3 @@ export type SeasonalRule = typeof seasonalRules.$inferSelect;
 export type NewSeasonalRule = typeof seasonalRules.$inferInsert;
 export type SavedHotel = typeof savedHotels.$inferSelect;
 export type NewSavedHotel = typeof savedHotels.$inferInsert;
-
-

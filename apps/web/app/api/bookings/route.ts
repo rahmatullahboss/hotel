@@ -3,12 +3,13 @@ import { getUserBookings } from "@/app/actions/bookings";
 import { createBookingForUser } from "@/lib/booking-creation-service";
 import { isCustomerPaymentMethod } from "@/lib/booking-calculation";
 import { getUserIdFromRequest, verifyMobileToken } from "@/lib/mobile-auth";
+import { RESERVATION_CONFLICT_CODE } from "@/lib/reservation-allocation";
 
 /**
  * GET /api/bookings
- * 
- * Mobile API endpoint to fetch user's bookings
- * Supports both NextAuth sessions and JWT tokens
+ *
+ * Mobile API endpoint to fetch user's bookings.
+ * Supports both NextAuth sessions and JWT tokens.
  */
 export async function GET(request: NextRequest) {
     try {
@@ -17,26 +18,28 @@ export async function GET(request: NextRequest) {
         if (!userId) {
             return NextResponse.json(
                 { error: "Authentication required" },
-                { status: 401 }
+                { status: 401 },
             );
         }
 
         const bookings = await getUserBookings(userId);
         return NextResponse.json(bookings);
     } catch (error) {
-        console.error("Error fetching bookings:", error);
+        console.error("Error fetching bookings", {
+            reason: error instanceof Error ? error.name : "UnknownError",
+        });
         return NextResponse.json(
             { error: "Failed to fetch bookings" },
-            { status: 500 }
+            { status: 500 },
         );
     }
 }
 
 /**
  * POST /api/bookings
- * 
- * Mobile API endpoint to create a new booking
- * Supports both NextAuth sessions and JWT tokens
+ *
+ * Mobile API endpoint to create a new booking.
+ * Supports both NextAuth sessions and JWT tokens.
  */
 export async function POST(request: NextRequest) {
     try {
@@ -45,28 +48,35 @@ export async function POST(request: NextRequest) {
         if (!userId) {
             return NextResponse.json(
                 { error: "Authentication required" },
-                { status: 401 }
+                { status: 401 },
             );
         }
 
         const body = await request.json();
-
-        // Validate required fields
-        const { hotelId, roomId, checkIn, checkOut, guestPhone, paymentMethod, useWalletBalance, walletAmount, guests } = body;
+        const {
+            hotelId,
+            roomId,
+            checkIn,
+            checkOut,
+            guestPhone,
+            paymentMethod,
+            useWalletBalance,
+            walletAmount,
+            guests,
+        } = body;
         let { guestName, guestEmail } = body;
 
-        // Better error messages for debugging
         const missingFields: string[] = [];
-        if (!hotelId) missingFields.push('hotelId');
-        if (!roomId) missingFields.push('roomId');
-        if (!checkIn) missingFields.push('checkIn');
-        if (!checkOut) missingFields.push('checkOut');
+        if (!hotelId) missingFields.push("hotelId");
+        if (!roomId) missingFields.push("roomId");
+        if (!checkIn) missingFields.push("checkIn");
+        if (!checkOut) missingFields.push("checkOut");
 
         if (missingFields.length > 0) {
-            console.warn('Booking request is missing required fields', { missingFields });
+            console.warn("Booking request is missing required fields", { missingFields });
             return NextResponse.json(
-                { error: `Missing required fields: ${missingFields.join(', ')}` },
-                { status: 400 }
+                { error: `Missing required fields: ${missingFields.join(", ")}` },
+                { status: 400 },
             );
         }
 
@@ -79,14 +89,11 @@ export async function POST(request: NextRequest) {
 
         const mobileAuth = await verifyMobileToken(request);
 
-        // If guest info not provided, fetch from user profile
         if (!guestName || !guestEmail) {
-
             if (mobileAuth) {
                 guestName = guestName || mobileAuth.name || "Guest";
                 guestEmail = guestEmail || mobileAuth.email || "";
             } else {
-                // Fallback: use userId to fetch from DB
                 const { db } = await import("@repo/db");
                 const { users } = await import("@repo/db/schema");
                 const { eq } = await import("drizzle-orm");
@@ -102,28 +109,34 @@ export async function POST(request: NextRequest) {
             }
         }
 
-        const result = await createBookingForUser({
-            hotelId,
-            roomId,
-            checkIn,
-            checkOut,
-            guestName: guestName || "Guest",
-            guestEmail: guestEmail || "",
-            guestPhone: guestPhone || "",
-            guestCount: Number.isSafeInteger(guests) ? guests : 1,
-            paymentMethod: paymentMethod ?? "PAY_AT_HOTEL",
-            // Split payment support
-            useWalletBalance: useWalletBalance || false,
-            walletAmount: walletAmount === undefined ? undefined : walletAmount,
-        }, {
-            userId,
-            source: mobileAuth ? "MOBILE" : "WEB",
-        });
+        const result = await createBookingForUser(
+            {
+                hotelId,
+                roomId,
+                checkIn,
+                checkOut,
+                guestName: guestName || "Guest",
+                guestEmail: guestEmail || "",
+                guestPhone: guestPhone || "",
+                guestCount: Number.isSafeInteger(guests) ? guests : 1,
+                paymentMethod: paymentMethod ?? "PAY_AT_HOTEL",
+                useWalletBalance: useWalletBalance || false,
+                walletAmount: walletAmount === undefined ? undefined : walletAmount,
+            },
+            {
+                userId,
+                source: mobileAuth ? "MOBILE" : "WEB",
+            },
+        );
 
         if (!result.success) {
+            const reservationConflict = result.errorCode === RESERVATION_CONFLICT_CODE;
             return NextResponse.json(
-                { error: result.error || "Failed to create booking" },
-                { status: 400 }
+                {
+                    error: result.error || "Failed to create booking",
+                    code: result.errorCode,
+                },
+                { status: reservationConflict ? 409 : 400 },
             );
         }
 
@@ -141,10 +154,12 @@ export async function POST(request: NextRequest) {
             calculation: result.calculation,
         });
     } catch (error) {
-        console.error("Error creating booking:", error);
+        console.error("Error creating booking", {
+            reason: error instanceof Error ? error.name : "UnknownError",
+        });
         return NextResponse.json(
             { error: "Failed to create booking" },
-            { status: 500 }
+            { status: 500 },
         );
     }
 }
