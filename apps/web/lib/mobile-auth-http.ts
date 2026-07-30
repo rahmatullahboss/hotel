@@ -38,8 +38,17 @@ function hashEventSubject(subject: string | null | undefined): string | null {
     if (!subject) {
         return null;
     }
-    const { secret } = getMobileAuthConfig();
-    return createHmac("sha256", secret).update(subject.trim().toLowerCase()).digest("hex");
+
+    try {
+        const { secret } = getMobileAuthConfig();
+        return createHmac("sha256", secret)
+            .update(subject.trim().toLowerCase())
+            .digest("hex");
+    } catch {
+        // Security-event recording must never change the authentication outcome.
+        // Token issuance and verification still fail closed through their own config checks.
+        return null;
+    }
 }
 
 export function recordMobileAuthEvent(
