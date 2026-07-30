@@ -1,28 +1,11 @@
 ---
-description: feature
+description: deprecated feature workflow pointer
 ---
 
-# Workflow: New Feature Development
+# Deprecated Workflow File
 
-Follow these steps when the user asks to build a new feature:
+This misspelled legacy file is retained temporarily so existing agent references do not break.
 
-1.  **Requirement Analysis:**
-    - Identify which app(s) act on this feature (Admin? Web? Mobile?).
-    - Does it need a database change?
+Use [`feature-development.md`](feature-development.md) instead, together with the canonical [`../../AGENTS.md`](../../AGENTS.md), program board and definition of done.
 
-2.  **Database Layer (if needed):**
-    - Modify schema in `packages/db/src/schema`.
-    - Generate migration script.
-    - Run migration locally.
-
-3.  **Backend/API Layer:**
-    - Create Server Actions in the respective Next.js app or `packages/api`.
-    - Define types/interfaces.
-
-4.  **Frontend Implementation:**
-    - **Web:** Create components in `components/` folder. Use shared UI from `packages/ui` if applicable.
-    - **Mobile:** Generate Model -> Repository -> Provider -> Screen.
-
-5.  **Integration & Safety:**
-    - Verify that the new code doesn't conflict with existing variable names.
-    - Check if shared components used were modified.
+Do not add new instructions here. Remove this compatibility file only after confirming no agent configuration references it.
