@@ -60,4 +60,20 @@ void main() {
     expect(workflow, contains('if-no-files-found: error'));
     expect(workflow, contains('fail_on_unmatched_files: true'));
   });
+
+  test('Temporary write-enabled maintenance workflows are absent', () {
+    for (final fileName in <String>[
+      'flutter-autofix.yml',
+      'flutter-targeted-fix.yml',
+    ]) {
+      final temporaryWorkflow = File(
+        '${repositoryRoot.path}/.github/workflows/$fileName',
+      );
+      expect(
+        temporaryWorkflow.existsSync(),
+        isFalse,
+        reason: '$fileName must not be committed to the final CI branch',
+      );
+    }
+  });
 }
