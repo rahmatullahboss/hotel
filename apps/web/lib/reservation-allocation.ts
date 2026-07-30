@@ -1,6 +1,6 @@
 import { db } from "@repo/db";
-import { bookings, rooms } from "@repo/db/schema";
-import { and, asc, eq, gt, lt, ne, sql } from "drizzle-orm";
+import { bookings, roomInventory, rooms } from "@repo/db/schema";
+import { and, asc, eq, gt, gte, lt, ne, sql } from "drizzle-orm";
 
 export const RESERVATION_CONFLICT_CODE = "RESERVATION_CONFLICT";
 const POSTGRES_EXCLUSION_VIOLATION = "23P01";
@@ -136,6 +136,20 @@ export async function lockAndAssertRoomAvailable(
     });
 
     if (existingBooking) {
+        throw new ReservationConflictError();
+    }
+
+    const unavailableInventory = await tx.query.roomInventory.findFirst({
+        columns: { id: true },
+        where: and(
+            eq(roomInventory.roomId, input.roomId),
+            gte(roomInventory.date, input.checkIn),
+            lt(roomInventory.date, input.checkOut),
+            ne(roomInventory.status, "AVAILABLE"),
+        ),
+    });
+
+    if (unavailableInventory) {
         throw new ReservationConflictError();
     }
 }
