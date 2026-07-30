@@ -179,8 +179,8 @@ export default async function BookingsPage({ searchParams }: PageProps) {
         <div style={styles.pageContainer}>
             {/* Header */}
             <header style={styles.header}>
-                <div style={{ 
-                    maxWidth: "800px", 
+                <div style={{
+                    maxWidth: "800px",
                     margin: "0 auto",
                     display: "flex",
                     justifyContent: "space-between",
@@ -273,16 +273,16 @@ export default async function BookingsPage({ searchParams }: PageProps) {
                                 }}
                             >
                                 {/* Header Row */}
-                                <div style={{ 
-                                    display: "flex", 
-                                    justifyContent: "space-between", 
+                                <div style={{
+                                    display: "flex",
+                                    justifyContent: "space-between",
                                     alignItems: "flex-start",
-                                    marginBottom: "16px" 
+                                    marginBottom: "16px"
                                 }}>
                                     <div>
-                                        <div style={{ 
-                                            fontWeight: "700", 
-                                            fontSize: "17px", 
+                                        <div style={{
+                                            fontWeight: "700",
+                                            fontSize: "17px",
                                             color: "#1a1a2e",
                                             marginBottom: "4px",
                                             display: "flex",
@@ -308,7 +308,7 @@ export default async function BookingsPage({ searchParams }: PageProps) {
                                 </div>
 
                                 {/* Room & Dates */}
-                                <div style={{ 
+                                <div style={{
                                     background: "linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)",
                                     borderRadius: "12px",
                                     padding: "14px 16px",
@@ -344,28 +344,27 @@ export default async function BookingsPage({ searchParams }: PageProps) {
 
                                 {/* Footer Row */}
                                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                                    <div style={{ 
-                                        fontSize: "13px", 
-                                        color: "#6b7280",
+                                    <div style={{
+                                        fontSize: "13px",
                                         display: "flex",
                                         alignItems: "center",
                                         gap: "6px",
                                         padding: "6px 12px",
-                                        background: booking.bookingSource === "WALK_IN" 
+                                        background: booking.bookingSource === "WALK_IN"
                                             ? "linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)"
                                             : "linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%)",
                                         borderRadius: "8px",
                                         fontWeight: "600",
                                         color: booking.bookingSource === "WALK_IN" ? "#92400e" : "#1e40af"
                                     }}>
-                                        {booking.bookingSource === "WALK_IN" 
-                                            ? <><MdDirectionsWalk size={16} /> Walk-in</> 
+                                        {booking.bookingSource === "WALK_IN"
+                                            ? <><MdDirectionsWalk size={16} /> Walk-in</>
                                             : <><FiSmartphone size={14} /> Platform</>
                                         }
                                     </div>
                                     <div style={{ textAlign: "right" }}>
-                                        <div style={{ 
-                                            fontWeight: "800", 
+                                        <div style={{
+                                            fontWeight: "800",
                                             fontSize: "18px",
                                             color: "#1a1a2e",
                                             display: "flex",
@@ -376,8 +375,8 @@ export default async function BookingsPage({ searchParams }: PageProps) {
                                             ৳{booking.totalAmount.toLocaleString()}
                                         </div>
                                         {booking.advancePaid > 0 && (
-                                            <div style={{ 
-                                                fontSize: "12px", 
+                                            <div style={{
+                                                fontSize: "12px",
                                                 color: "#10b981",
                                                 fontWeight: "600"
                                             }}>
@@ -416,8 +415,8 @@ export default async function BookingsPage({ searchParams }: PageProps) {
                                 Previous
                             </Link>
                         )}
-                        <span style={{ 
-                            padding: "12px 20px", 
+                        <span style={{
+                            padding: "12px 20px",
                             color: "#6b7280",
                             fontWeight: "600",
                             background: "white",
