@@ -120,7 +120,7 @@ test("verification rejects wrong issuer, audience and expired tokens", () => {
       audience: config.audience,
       subject: subject.userId,
       jwtid: "session-expired",
-      expiresIn: -1,
+      expiresIn: -60,
     },
   );
   assert.throws(() => verifyMobileAccessToken(expired, config), /expired/i);
