@@ -1,6 +1,11 @@
 name: PAY-01 Source Snapshot (temporary)
 
 on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/pay01-source-snapshot.yml"
   push:
     branches:
       - work/PAY-01-server-authoritative-calculation
