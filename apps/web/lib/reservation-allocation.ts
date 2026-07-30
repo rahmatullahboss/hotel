@@ -25,6 +25,8 @@ interface LockReservationInput {
     checkOut: string;
 }
 
+type RoomCandidateRow = { id: string };
+
 /**
  * Resolve reservation candidates from database-owned hotel/type membership.
  * Client roomIds only express room-type allocation intent; their values are not trusted.
@@ -58,7 +60,7 @@ export async function loadReservationCandidates(
         return [requestedRoom.id];
     }
 
-    const roomTypeCandidates = await database
+    const roomTypeCandidates: RoomCandidateRow[] = await database
         .select({ id: rooms.id })
         .from(rooms)
         .where(
