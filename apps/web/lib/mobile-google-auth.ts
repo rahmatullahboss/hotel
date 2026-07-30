@@ -5,12 +5,12 @@ const MAX_GOOGLE_ID_TOKEN_LENGTH = 8192;
 export type GoogleTokenFailureKind = "configuration" | "invalid" | "unavailable";
 
 export class GoogleTokenVerificationError extends Error {
-    constructor(
-        public readonly kind: GoogleTokenFailureKind,
-        message: string,
-    ) {
+    public readonly kind: GoogleTokenFailureKind;
+
+    constructor(kind: GoogleTokenFailureKind, message: string) {
         super(message);
         this.name = "GoogleTokenVerificationError";
+        this.kind = kind;
     }
 }
 
