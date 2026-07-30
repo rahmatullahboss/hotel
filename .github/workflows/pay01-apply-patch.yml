@@ -1,6 +1,11 @@
 name: PAY-01 Apply Patch (temporary)
 
 on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/pay01-apply-patch.yml"
   push:
     branches:
       - work/PAY-01-server-authoritative-calculation
@@ -90,7 +95,7 @@ jobs:
         shell: bash
         run: |
           git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config user.email "4189822+github-actions[bot]@users.noreply.github.com"
           git add --all
           git commit -m "feat(payments): make booking calculation server authoritative"
           git push origin HEAD:work/PAY-01-server-authoritative-calculation
