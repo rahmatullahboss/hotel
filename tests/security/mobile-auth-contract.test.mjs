@@ -40,6 +40,7 @@ test("Google route rejects client assertions and does not persist provider token
 test("mobile sessions are revocable and checked against active database state", async () => {
   const service = await read("apps/web/lib/mobile-auth.ts");
   const logout = await read("apps/web/app/api/auth/mobile-logout/route.ts");
+  const bookings = await read("apps/web/app/api/bookings/route.ts");
 
   assert.match(service, /tx\.insert\(sessions\)/);
   assert.match(service, /gt\(sessions\.expires, new Date\(\)\)/);
@@ -47,6 +48,7 @@ test("mobile sessions are revocable and checked against active database state", 
   assert.match(service, /isNull\(users\.deletedAt\)/);
   assert.match(logout, /revokeMobileSession/);
   assert.match(logout, /export async function POST/);
+  assert.match(bookings, /await verifyMobileToken\(request\)/);
 });
 
 test("rate limits hash request identity and serialize counters in PostgreSQL", async () => {
@@ -85,6 +87,8 @@ test("mobile auth environment and required security workflow are documented", as
   }
 
   assert.match(workflow, /node --test tests\/security\/\*\.test\.mjs/);
+  assert.match(workflow, /npm --workspace @repo\/db run build/);
+  assert.match(workflow, /npm --workspace @repo\/config run build/);
   assert.match(workflow, /npm --workspace web run check-types/);
   assert.doesNotMatch(workflow, /continue-on-error:\s*true/i);
   assert.doesNotMatch(workflow, /\|\|\s*(true|echo)\b/i);
