@@ -6,7 +6,7 @@ interface ZinuDisplayNameOptions {
     zinuCode?: string | null;
     category?: "CLASSIC" | "PREMIUM" | "BUSINESS";
     showCategory?: boolean; // If true, includes category in name (e.g. "Zinu Classic Hotel Name")
-    shortFormat?: boolean;  // If true, returns shorter version (e.g. "Zinu Hotel Name")
+    shortFormat?: boolean;  // Reserved for a future shorter presentation format
 }
 
 /**
@@ -47,15 +47,15 @@ export function generateZinuCode(existingCodes: (string | null)[]): string {
  * 2. If no zinuCode (unverified/pending), show original name only
  *
  * Examples:
- * - formatZinuDisplayName({ name: "Hotel Sunrise", zinuCode: "ZR10001" }) 
+ * - formatZinuDisplayName({ name: "Hotel Sunrise", zinuCode: "ZR10001" })
  *   => "Zinu Hotel Sunrise"
- * - formatZinuDisplayName({ name: "Hotel Sunrise", zinuCode: "ZR10001", category: "PREMIUM" }) 
+ * - formatZinuDisplayName({ name: "Hotel Sunrise", zinuCode: "ZR10001", category: "PREMIUM" })
  *   => "Zinu Premium Hotel Sunrise"
- * - formatZinuDisplayName({ name: "Hotel Sunrise", zinuCode: "ZR10001", showCategory: true }) 
+ * - formatZinuDisplayName({ name: "Hotel Sunrise", zinuCode: "ZR10001", showCategory: true })
  *   => "Zinu Classic Hotel Sunrise"
  */
 export function formatZinuDisplayName(options: ZinuDisplayNameOptions): string {
-    const { name, zinuCode, category, showCategory = false, shortFormat = false } = options;
+    const { name, zinuCode, category, showCategory = false } = options;
 
     if (!zinuCode) {
         return name;
