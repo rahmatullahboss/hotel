@@ -83,7 +83,10 @@ jobs:
           PATHS
 
           git status --short
-          git diff --name-only | sort > /tmp/actual-paths.txt
+          {
+            git diff --name-only
+            git ls-files --others --exclude-standard
+          } | sort -u > /tmp/actual-paths.txt
           sort -o /tmp/expected-paths.txt /tmp/expected-paths.txt
           diff -u /tmp/expected-paths.txt /tmp/actual-paths.txt
 
@@ -95,7 +98,7 @@ jobs:
         shell: bash
         run: |
           git config user.name "github-actions[bot]"
-          git config user.email "4189822+github-actions[bot]@users.noreply.github.com"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add --all
           git commit -m "feat(payments): make booking calculation server authoritative"
           git push origin HEAD:work/PAY-01-server-authoritative-calculation
