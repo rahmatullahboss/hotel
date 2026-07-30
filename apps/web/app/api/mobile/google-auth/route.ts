@@ -105,7 +105,7 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        const user = await db.transaction(async (tx) => {
+        const user = await db.transaction(async (tx: typeof db) => {
             const lockKey = `mobile-google:${googleIdentity.providerAccountId}`;
             await tx.execute(
                 sql`select pg_advisory_xact_lock(hashtextextended(${lockKey}, 0))`,
