@@ -44,7 +44,7 @@ final savedHotelsListProvider = FutureProvider<List<Hotel>>((ref) async {
   final dio = ref.watch(dioProvider);
   try {
     final response = await dio.get('/hotels');
-    
+
     final dynamic responseData = response.data;
     final List<dynamic> data;
     if (responseData is Map<String, dynamic> &&
@@ -55,7 +55,7 @@ final savedHotelsListProvider = FutureProvider<List<Hotel>>((ref) async {
     } else {
       data = [];
     }
-    
+
     final hotels = data.map((json) => Hotel.fromJson(json)).toList();
     return hotels.where((h) => savedIds.contains(h.id)).toList();
   } catch (e) {
