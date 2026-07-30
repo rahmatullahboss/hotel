@@ -34,7 +34,7 @@ export async function createMobileSession(
     const sessionId = randomUUID();
     const expires = new Date(Date.now() + config.ttlSeconds * 1000);
 
-    await db.transaction(async (tx) => {
+    await db.transaction(async (tx: typeof db) => {
         await tx
             .delete(sessions)
             .where(and(eq(sessions.userId, subject.userId), lt(sessions.expires, new Date())));
