@@ -1,5 +1,4 @@
 // Hotel Details Screen - World-Class Premium Design with API Integration
-import 'dart:ui';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
