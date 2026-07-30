@@ -8,7 +8,7 @@ This board is the operational queue. Update status, owner, branch, PR and eviden
 
 | ID | Status | Work item | Acceptance summary | Owner/branch |
 |---|---|---|---|---|
-| GOV-01 | IN_REVIEW | Canonical documentation and multi-agent controls | `AGENTS.md`, audit, architecture, workstreams, DoD, test and operations docs reviewed and merged | `docs/system-audit-2026-07-30` |
+| GOV-01 | DONE | Canonical documentation and multi-agent controls | Merged by PR #1 at `957b724811b728b87e06d887582fda8aec9053c9`; canonical rules, audit, architecture, workstreams, DoD, test and operations docs established | `docs/system-audit-2026-07-30` |
 | SEC-01 | READY | Remove JWT fallback and harden mobile auth | Missing secret fails closed; central issue/verify; algorithm/issuer/audience/expiry; rate limiting; tests | unassigned |
 | PAY-01 | READY | Server-authoritative booking calculation | Client money ignored; persisted calculation breakdown; configurable commission; wallet limits; tests | unassigned |
 | PAY-02 | BLOCKED | Stripe idempotency, attempts and webhook | Depends on PAY-01 and DB-01; signed/idempotent webhook and reconciliation | unassigned |
