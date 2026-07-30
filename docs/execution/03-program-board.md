@@ -9,7 +9,7 @@ This board is the operational queue. Update status, owner, branch, PR and eviden
 | ID | Status | Work item | Acceptance summary | Owner/branch |
 |---|---|---|---|---|
 | GOV-01 | DONE | Canonical documentation and multi-agent controls | Merged by PR #1 at `957b724811b728b87e06d887582fda8aec9053c9`; canonical rules, audit, architecture, workstreams, DoD, test and operations docs established | `docs/system-audit-2026-07-30` |
-| SEC-01 | IN_PROGRESS | Remove JWT fallback and harden mobile auth | Central HS256 issue/verify with required secret/issuer/audience; DB-backed mobile sessions and logout revocation; strict Google token verification; database-backed rate limits; executable security tests | owner: GPT-5.6; base: `f9d69a39e3053c3b6609530a2ec6ef9e76c75954`; branch: `work/SEC-01-mobile-auth-hardening`; paths: web mobile-auth/login/register/google/logout, Flutter auth provider, env/turbo, security tests/workflow |
+| SEC-01 | IN_REVIEW | Remove JWT fallback and harden mobile auth | PR #6; implementation head `f51055039e03489c9292610787e28867c23e72ba`; security run `30534550766`, Flutter run `30534550238` and database run `30534550247` all green; revocable sessions, strict JWT/Google verification, database-backed rate limits, Flutter logout and executable gates delivered | owner: GPT-5.6; branch: `work/SEC-01-mobile-auth-hardening` |
 | PAY-01 | READY | Server-authoritative booking calculation | Client money ignored; persisted calculation breakdown; configurable commission; wallet limits; tests | unassigned |
 | PAY-02 | BLOCKED | Stripe idempotency, attempts and webhook | Depends on PAY-01 and DB-01; signed/idempotent webhook and reconciliation | unassigned |
 | RSV-01 | READY | Atomic reservation allocation | DB-level no-overlap/atomic allotment; explicit transaction strategy; concurrent test | unassigned |
@@ -104,8 +104,8 @@ A status change to `DONE` requires merged SHA and integration/runtime evidence. 
 
 ## Current next action
 
-1. Resolve CI-01 issue #3 and rerun the production build.
-2. Complete SEC-01 mobile authentication hardening and verification.
+1. Merge SEC-01 after final evidence review and configure its required security check on `main`.
+2. Resolve CI-01 issue #3 and rerun the production build.
 3. Prepare PAY-01 and RSV-01 with coordinated database ownership.
 4. Activate OPS-01 environment/deployment health inventory.
 5. Plan a separate, reviewed live migration-adoption workstream after isolated schema equivalence is proven.
