@@ -1,0 +1,153 @@
+name: Database Migrations
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "package.json"
+      - "package-lock.json"
+      - "turbo.json"
+      - "packages/db/**"
+      - "tests/db/**"
+      - "docs/database/**"
+      - ".github/workflows/database-migrations.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "package.json"
+      - "package-lock.json"
+      - "turbo.json"
+      - "packages/db/**"
+      - "tests/db/**"
+      - "docs/database/**"
+      - ".github/workflows/database-migrations.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: database-migrations-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  DATABASE_URL: postgresql://postgres:postgres@localhost:5432/zinurooms_ci
+  DATABASE_DIRECT_URL: postgresql://postgres:postgres@localhost:5432/zinurooms_ci
+  APP_ENV: test
+  NODE_ENV: test
+
+jobs:
+  migration-verification:
+    name: Clean install and repeatability
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: zinurooms_ci
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d zinurooms_ci"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 12
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Use declared npm version
+        run: npm install --global npm@11.6.2
+
+      - name: Install locked dependencies
+        run: npm ci
+
+      - name: Validate migration history
+        run: npm run db:check
+
+      - name: Run migration governance tests
+        run: node --test tests/db/*.test.mjs
+
+      - name: Type-check database package
+        run: npm --workspace @repo/db run check-types
+
+      - name: Verify schema and migration snapshots have no drift
+        shell: bash
+        run: |
+          npm --workspace @repo/db run db:generate -- --name=ci_schema_drift
+          git diff --exit-code -- packages/db/drizzle
+          if [[ -n "$(git ls-files --others --exclude-standard packages/db/drizzle)" ]]; then
+            echo "::error::Schema generation produced untracked migration assets."
+            git status --short packages/db/drizzle
+            exit 1
+          fi
+
+      - name: Apply all migrations to an empty PostgreSQL database
+        run: npm run db:migrate
+
+      - name: Verify migrated schema and migration log
+        shell: bash
+        run: |
+          postgres_container="$(docker ps --filter ancestor=postgres:17-alpine --format '{{.ID}}' | head -n 1)"
+          if [[ -z "${postgres_container}" ]]; then
+            echo "::error::PostgreSQL service container was not found."
+            exit 1
+          fi
+
+          node packages/db/scripts/create-adoption-manifest.mjs --json > /tmp/expected-migrations.json
+          node - <<'NODE' > /tmp/expected-migrations.tsv
+          const fs = require('fs');
+          const manifest = JSON.parse(fs.readFileSync('/tmp/expected-migrations.json', 'utf8'));
+          for (const entry of manifest) {
+            process.stdout.write(`${entry.createdAt}\t${entry.hash}\n`);
+          }
+          NODE
+
+          docker exec "${postgres_container}" \
+            psql -U postgres -d zinurooms_ci -At -F $'\t' \
+            -c 'SELECT created_at, hash FROM drizzle.__drizzle_migrations ORDER BY created_at;' \
+            > /tmp/actual-migrations.tsv
+
+          diff -u /tmp/expected-migrations.tsv /tmp/actual-migrations.tsv
+
+          expected="$(wc -l < /tmp/expected-migrations.tsv | tr -d ' ')"
+          actual="$(wc -l < /tmp/actual-migrations.tsv | tr -d ' ')"
+          if [[ "${actual}" != "${expected}" ]]; then
+            echo "::error::Expected ${expected} applied migrations, found ${actual}."
+            exit 1
+          fi
+
+          core_tables="$(docker exec "${postgres_container}" psql -U postgres -d zinurooms_ci -Atc "SELECT count(*) FROM (VALUES (to_regclass('public.users')), (to_regclass('public.hotels')), (to_regclass('public.rooms')), (to_regclass('public.bookings'))) AS required(table_name) WHERE table_name IS NOT NULL;")"
+          if [[ "${core_tables}" != "4" ]]; then
+            echo "::error::One or more core tables are missing after migration."
+            exit 1
+          fi
+
+      - name: Verify second migration run is a no-op
+        shell: bash
+        run: |
+          postgres_container="$(docker ps --filter ancestor=postgres:17-alpine --format '{{.ID}}' | head -n 1)"
+          before="$(docker exec "${postgres_container}" psql -U postgres -d zinurooms_ci -Atc 'SELECT count(*) FROM drizzle.__drizzle_migrations;')"
+          npm run db:migrate
+          after="$(docker exec "${postgres_container}" psql -U postgres -d zinurooms_ci -Atc 'SELECT count(*) FROM drizzle.__drizzle_migrations;')"
+
+          if [[ "${before}" != "${after}" ]]; then
+            echo "::error::A second migration run changed the migration log (${before} -> ${after})."
+            exit 1
+          fi

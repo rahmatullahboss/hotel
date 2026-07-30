@@ -11,7 +11,10 @@
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "check-types": "turbo run check-types",
     "db:generate": "turbo run db:generate --filter=@repo/db",
-    "db:push": "turbo run db:push --filter=@repo/db",
+    "db:migrate": "turbo run db:migrate --filter=@repo/db",
+    "db:check": "turbo run db:check --filter=@repo/db",
+    "db:adoption-manifest": "node packages/db/scripts/create-adoption-manifest.mjs",
+    "db:push:local": "turbo run db:push:local --filter=@repo/db",
     "db:studio": "turbo run db:studio --filter=@repo/db"
   },
   "devDependencies": {
