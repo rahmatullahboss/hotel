@@ -9,6 +9,7 @@ on:
       - "apps/web/app/api/auth/mobile-register/**"
       - "apps/web/app/api/auth/mobile-logout/**"
       - "apps/web/app/api/mobile/google-auth/**"
+      - "apps/web/app/api/bookings/route.ts"
       - "apps/web/lib/mobile-auth*.ts"
       - "apps/web/lib/mobile-google-auth.ts"
       - "apps/mobile-flutter/lib/features/auth/providers/auth_provider.dart"
@@ -24,6 +25,7 @@ on:
       - "apps/web/app/api/auth/mobile-register/**"
       - "apps/web/app/api/auth/mobile-logout/**"
       - "apps/web/app/api/mobile/google-auth/**"
+      - "apps/web/app/api/bookings/route.ts"
       - "apps/web/lib/mobile-auth*.ts"
       - "apps/web/lib/mobile-google-auth.ts"
       - "apps/mobile-flutter/lib/features/auth/providers/auth_provider.dart"
@@ -87,6 +89,12 @@ jobs:
           app/api/auth/mobile-register/route.ts
           app/api/auth/mobile-logout/route.ts
           app/api/mobile/google-auth/route.ts
+          app/api/bookings/route.ts
+
+      - name: Build shared web dependencies
+        run: |
+          npm --workspace @repo/db run build
+          npm --workspace @repo/config run build
 
       - name: Type-check customer web application
         run: npm --workspace web run check-types
