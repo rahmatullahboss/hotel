@@ -1,6 +1,4 @@
 import { db } from "./index";
-import { promotions, hotels } from "./schema";
-import { eq } from "drizzle-orm";
 
 async function checkPromotions() {
     console.log("Checking promotions in database...\n");
