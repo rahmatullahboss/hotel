@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
 import { access, readFile } from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
@@ -34,6 +35,7 @@ test("root and database packages expose migration-first commands", async () => {
     assert.ok(packageJson.scripts["db:generate"]);
     assert.ok(packageJson.scripts["db:migrate"]);
     assert.ok(packageJson.scripts["db:check"]);
+    assert.ok(packageJson.scripts["db:adoption-manifest"]);
     assert.ok(packageJson.scripts["db:push:local"]);
     assert.equal(packageJson.scripts["db:push"], undefined);
   }
@@ -88,12 +90,31 @@ test("migration journal is contiguous and every entry has SQL and snapshot", asy
   }
 });
 
-test("database migration workflow proves clean install and repeatability", async () => {
+test("adoption manifest is derived from complete committed SQL files", async () => {
+  const journal = await readJson("packages/db/drizzle/meta/_journal.json");
+  const manifestScript = await readText(
+    "packages/db/scripts/create-adoption-manifest.mjs",
+  );
+
+  assert.match(manifestScript, /createHash\("sha256"\)/);
+  assert.match(manifestScript, /--json/);
+  assert.match(manifestScript, /does not connect to a database/);
+
+  for (const entry of journal.entries) {
+    const sql = await readText(`packages/db/drizzle/${entry.tag}.sql`);
+    const hash = createHash("sha256").update(sql).digest("hex");
+    assert.equal(hash.length, 64, `${entry.tag} must produce a SHA-256 hash`);
+  }
+});
+
+test("database migration workflow proves clean install, hashes and repeatability", async () => {
   const workflow = await readText(".github/workflows/database-migrations.yml");
 
   assert.match(workflow, /postgres:17-alpine/);
   assert.match(workflow, /npm run db:check/);
   assert.match(workflow, /npm run db:migrate/);
+  assert.match(workflow, /npm run db:adoption-manifest -- --json/);
+  assert.match(workflow, /diff -u \/tmp\/expected-migrations\.tsv/);
   assert.match(workflow, /Verify second migration run is a no-op/);
   assert.match(workflow, /drizzle\.__drizzle_migrations/);
   assert.doesNotMatch(workflow, /continue-on-error:\s*true/i);
