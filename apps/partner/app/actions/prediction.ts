@@ -1,6 +1,6 @@
 "use server";
 
-import { db, bookings, users } from "@repo/db";
+import { db, bookings } from "@repo/db";
 import { eq, and, gte, lte, desc, sql, count } from "drizzle-orm";
 import { getPartnerRole } from "./getPartnerRole";
 
@@ -30,20 +30,33 @@ export interface BookingRiskScore {
     suggestedActions: string[];
 }
 
+interface BookingPaymentSnapshot {
+    totalAmount: string;
+    paymentStatus: "PENDING" | "PAID" | "REFUNDED" | "PAY_AT_HOTEL";
+    bookingFee: string | null;
+    bookingFeeStatus: "PENDING" | "PAID" | "WAIVED" | null;
+    walletAmountUsed: string | null;
+}
+
+interface GuestHistory {
+    isFirstTimeGuest: boolean;
+    previousNoShowRate: number;
+}
+
 // ====================
 // RISK CALCULATION
 // ====================
 
 /**
- * Calculate no-show risk score based on rule-based factors
- * Returns a score from 0-100 where higher = more likely to no-show
+ * Calculate no-show risk score based on rule-based factors.
+ * Returns a score from 0-100 where higher means more likely to no-show.
  */
 function calculateRiskScore(params: {
     isFirstTimeGuest: boolean;
-    leadDays: number; // Days between booking and check-in
-    advancePercentage: number; // 0-100
+    leadDays: number;
+    advancePercentage: number;
     isPayAtHotel: boolean;
-    previousNoShowRate: number; // 0-100
+    previousNoShowRate: number;
     isWeekend: boolean;
     isHoliday: boolean;
     bookingSource: string;
@@ -52,7 +65,6 @@ function calculateRiskScore(params: {
     let totalWeight = 0;
     let riskPoints = 0;
 
-    // Factor 1: First-time guest (weight: 15)
     const firstTimeWeight = 15;
     totalWeight += firstTimeWeight;
     if (params.isFirstTimeGuest) {
@@ -65,7 +77,6 @@ function calculateRiskScore(params: {
         });
     }
 
-    // Factor 2: Long lead time (weight: 10)
     const leadTimeWeight = 10;
     totalWeight += leadTimeWeight;
     if (params.leadDays > 30) {
@@ -86,7 +97,6 @@ function calculateRiskScore(params: {
         });
     }
 
-    // Factor 3: No advance payment (weight: 30)
     const advanceWeight = 30;
     totalWeight += advanceWeight;
     if (params.advancePercentage === 0) {
@@ -107,7 +117,6 @@ function calculateRiskScore(params: {
         });
     }
 
-    // Factor 4: Pay at hotel booking (weight: 20)
     const payAtHotelWeight = 20;
     totalWeight += payAtHotelWeight;
     if (params.isPayAtHotel) {
@@ -120,7 +129,6 @@ function calculateRiskScore(params: {
         });
     }
 
-    // Factor 5: Previous no-show history (weight: 25)
     const historyWeight = 25;
     totalWeight += historyWeight;
     if (params.previousNoShowRate > 0) {
@@ -134,48 +142,38 @@ function calculateRiskScore(params: {
         });
     }
 
-    // Calculate final score as percentage
     const score = Math.min(100, Math.round((riskPoints / totalWeight) * 100));
-
-    return { score, factors: factors.filter((f) => f.value) };
+    return { score, factors: factors.filter((factor) => factor.value) };
 }
 
-/**
- * Determine risk level from score
- */
 function getRiskLevel(score: number): "LOW" | "MEDIUM" | "HIGH" {
     if (score >= 60) return "HIGH";
     if (score >= 30) return "MEDIUM";
     return "LOW";
 }
 
-/**
- * Generate suggested actions based on risk factors
- */
 function getSuggestedActions(factors: RiskFactor[], advancePaid: number): string[] {
     const actions: string[] = [];
 
-    const hasNoAdvance = factors.some((f) => f.name.includes("No Advance") || f.name.includes("Low Advance"));
-    const isPayAtHotel = factors.some((f) => f.name === "Pay at Hotel");
-    const isFirstTime = factors.some((f) => f.name === "First-time Guest");
-    const hasHistory = factors.some((f) => f.name.includes("No-Show History"));
+    const hasNoAdvance = factors.some((factor) =>
+        factor.name.includes("No Advance") || factor.name.includes("Low Advance")
+    );
+    const isPayAtHotel = factors.some((factor) => factor.name === "Pay at Hotel");
+    const isFirstTime = factors.some((factor) => factor.name === "First-time Guest");
+    const hasHistory = factors.some((factor) => factor.name.includes("No-Show History"));
 
     if (hasNoAdvance || isPayAtHotel) {
         actions.push("📞 Call guest to confirm booking and request partial advance");
     }
-
     if (isFirstTime) {
         actions.push("📱 Send confirmation SMS/WhatsApp 24 hours before check-in");
     }
-
     if (hasHistory) {
         actions.push("⚠️ Consider requiring full prepayment for this guest");
     }
-
     if (advancePaid === 0) {
         actions.push("💳 Collect at least 30% advance to reduce risk");
     }
-
     if (actions.length === 0) {
         actions.push("✅ Low risk - standard confirmation process sufficient");
     }
@@ -183,13 +181,80 @@ function getSuggestedActions(factors: RiskFactor[], advancePaid: number): string
     return actions;
 }
 
+function parseMoney(value: string | null | undefined): number {
+    const parsed = Number.parseFloat(value ?? "0");
+    return Number.isFinite(parsed) ? parsed : 0;
+}
+
+/**
+ * Derive the amount already collected from the current booking fields.
+ * PAY-01 will eventually replace this compatibility calculation with the
+ * canonical persisted payment breakdown.
+ */
+function getAdvancePaidAmount(booking: BookingPaymentSnapshot): number {
+    const totalAmount = parseMoney(booking.totalAmount);
+    if (booking.paymentStatus === "PAID") {
+        return totalAmount;
+    }
+
+    const paidBookingFee = booking.bookingFeeStatus === "PAID"
+        ? parseMoney(booking.bookingFee)
+        : 0;
+    const walletAmount = parseMoney(booking.walletAmountUsed);
+
+    return Math.min(totalAmount, Math.max(paidBookingFee, walletAmount));
+}
+
+async function getGuestHistory(
+    hotelId: string,
+    userId: string | null,
+    currentBookingId: string
+): Promise<GuestHistory> {
+    if (!userId) {
+        return {
+            isFirstTimeGuest: true,
+            previousNoShowRate: 0,
+        };
+    }
+
+    const [guestBookingsCount, guestNoShows] = await Promise.all([
+        db
+            .select({ count: count() })
+            .from(bookings)
+            .where(
+                and(
+                    eq(bookings.hotelId, hotelId),
+                    eq(bookings.userId, userId),
+                    sql`${bookings.id} != ${currentBookingId}`
+                )
+            ),
+        db
+            .select({ count: count() })
+            .from(bookings)
+            .where(
+                and(
+                    eq(bookings.hotelId, hotelId),
+                    eq(bookings.userId, userId),
+                    sql`${bookings.status} = 'NO_SHOW'`
+                )
+            ),
+    ]);
+
+    const previousBookingCount = Number(guestBookingsCount[0]?.count ?? 0);
+    const noShowCount = Number(guestNoShows[0]?.count ?? 0);
+
+    return {
+        isFirstTimeGuest: previousBookingCount === 0,
+        previousNoShowRate: previousBookingCount > 0
+            ? (noShowCount / previousBookingCount) * 100
+            : 0,
+    };
+}
+
 // ====================
 // PUBLIC FUNCTIONS
 // ====================
 
-/**
- * Get risk scores for upcoming confirmed bookings
- */
 export async function getHighRiskBookings(options?: {
     minRiskScore?: number;
     limit?: number;
@@ -201,8 +266,6 @@ export async function getHighRiskBookings(options?: {
         }
 
         const { minRiskScore = 30, limit = 20 } = options || {};
-
-        // Get upcoming confirmed bookings
         const today = new Date();
         const todayStr = today.toISOString().split("T")[0] ?? "";
         const nextWeek = new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000);
@@ -230,52 +293,25 @@ export async function getHighRiskBookings(options?: {
         const results: BookingRiskScore[] = [];
 
         for (const booking of upcomingBookings) {
-            // Calculate lead time
             const bookingDate = new Date(booking.createdAt);
             const checkInDate = new Date(booking.checkIn);
-            const leadDays = Math.ceil((checkInDate.getTime() - bookingDate.getTime()) / (1000 * 60 * 60 * 24));
+            const leadDays = Math.ceil(
+                (checkInDate.getTime() - bookingDate.getTime()) / (1000 * 60 * 60 * 24)
+            );
 
-            // Calculate advance percentage
-            const totalAmount = parseFloat(booking.totalAmount);
-            const advancePaid = parseFloat(booking.advancePaid || "0");
+            const totalAmount = parseMoney(booking.totalAmount);
+            const advancePaid = getAdvancePaidAmount(booking);
             const advancePercentage = totalAmount > 0 ? (advancePaid / totalAmount) * 100 : 0;
+            const { isFirstTimeGuest, previousNoShowRate } = await getGuestHistory(
+                roleInfo.hotelId,
+                booking.userId,
+                booking.id
+            );
 
-            // Check if first-time guest (simplified - check if they have other bookings)
-            const guestBookingsCount = await db
-                .select({ count: count() })
-                .from(bookings)
-                .where(
-                    and(
-                        eq(bookings.hotelId, roleInfo.hotelId),
-                        eq(bookings.userId, booking.userId),
-                        sql`${bookings.id} != ${booking.id}`
-                    )
-                );
-            const isFirstTimeGuest = Number(guestBookingsCount[0]?.count || 0) === 0;
-
-            // Check previous no-show rate for this guest
-            const guestNoShows = await db
-                .select({ count: count() })
-                .from(bookings)
-                .where(
-                    and(
-                        eq(bookings.hotelId, roleInfo.hotelId),
-                        eq(bookings.userId, booking.userId),
-                        sql`${bookings.status} = 'NO_SHOW'`
-                    )
-                );
-            const totalGuestBookings = Number(guestBookingsCount[0]?.count || 0) + 1;
-            const noShowCount = Number(guestNoShows[0]?.count || 0);
-            const previousNoShowRate = totalGuestBookings > 1 ? (noShowCount / (totalGuestBookings - 1)) * 100 : 0;
-
-            // Check if pay at hotel
             const isPayAtHotel = booking.paymentStatus === "PAY_AT_HOTEL" || advancePaid === 0;
-
-            // Check if weekend check-in
             const dayOfWeek = checkInDate.getDay();
-            const isWeekend = dayOfWeek === 5 || dayOfWeek === 6; // Friday or Saturday
+            const isWeekend = dayOfWeek === 5 || dayOfWeek === 6;
 
-            // Calculate risk
             const { score, factors } = calculateRiskScore({
                 isFirstTimeGuest,
                 leadDays,
@@ -283,11 +319,10 @@ export async function getHighRiskBookings(options?: {
                 isPayAtHotel,
                 previousNoShowRate,
                 isWeekend,
-                isHoliday: false, // TODO: Add holiday calendar
-                bookingSource: booking.source || "PLATFORM",
+                isHoliday: false,
+                bookingSource: booking.bookingSource,
             });
 
-            // Only include if above threshold
             if (score >= minRiskScore) {
                 results.push({
                     bookingId: booking.id,
@@ -296,8 +331,8 @@ export async function getHighRiskBookings(options?: {
                     checkIn: booking.checkIn,
                     roomNumber: booking.room?.roomNumber || "",
                     roomName: booking.room?.name || "",
-                    totalAmount: totalAmount,
-                    advancePaid: advancePaid,
+                    totalAmount,
+                    advancePaid,
                     riskScore: score,
                     riskLevel: getRiskLevel(score),
                     riskFactors: factors,
@@ -306,9 +341,8 @@ export async function getHighRiskBookings(options?: {
             }
         }
 
-        // Sort by risk score descending and limit
         return results
-            .sort((a, b) => b.riskScore - a.riskScore)
+            .sort((left, right) => right.riskScore - left.riskScore)
             .slice(0, limit);
     } catch (error) {
         console.error("Error calculating risk scores:", error);
@@ -316,9 +350,6 @@ export async function getHighRiskBookings(options?: {
     }
 }
 
-/**
- * Get risk score for a single booking
- */
 export async function getBookingRiskScore(bookingId: string): Promise<BookingRiskScore | null> {
     try {
         const roleInfo = await getPartnerRole();
@@ -345,40 +376,19 @@ export async function getBookingRiskScore(bookingId: string): Promise<BookingRis
             return null;
         }
 
-        // Calculate all the same factors as above
         const bookingDate = new Date(booking.createdAt);
         const checkInDate = new Date(booking.checkIn);
-        const leadDays = Math.ceil((checkInDate.getTime() - bookingDate.getTime()) / (1000 * 60 * 60 * 24));
-
-        const totalAmount = parseFloat(booking.totalAmount);
-        const advancePaid = parseFloat(booking.advancePaid || "0");
+        const leadDays = Math.ceil(
+            (checkInDate.getTime() - bookingDate.getTime()) / (1000 * 60 * 60 * 24)
+        );
+        const totalAmount = parseMoney(booking.totalAmount);
+        const advancePaid = getAdvancePaidAmount(booking);
         const advancePercentage = totalAmount > 0 ? (advancePaid / totalAmount) * 100 : 0;
-
-        const guestBookingsCount = await db
-            .select({ count: count() })
-            .from(bookings)
-            .where(
-                and(
-                    eq(bookings.hotelId, roleInfo.hotelId),
-                    eq(bookings.userId, booking.userId),
-                    sql`${bookings.id} != ${booking.id}`
-                )
-            );
-        const isFirstTimeGuest = Number(guestBookingsCount[0]?.count || 0) === 0;
-
-        const guestNoShows = await db
-            .select({ count: count() })
-            .from(bookings)
-            .where(
-                and(
-                    eq(bookings.hotelId, roleInfo.hotelId),
-                    eq(bookings.userId, booking.userId),
-                    sql`${bookings.status} = 'NO_SHOW'`
-                )
-            );
-        const totalGuestBookings = Number(guestBookingsCount[0]?.count || 0) + 1;
-        const noShowCount = Number(guestNoShows[0]?.count || 0);
-        const previousNoShowRate = totalGuestBookings > 1 ? (noShowCount / (totalGuestBookings - 1)) * 100 : 0;
+        const { isFirstTimeGuest, previousNoShowRate } = await getGuestHistory(
+            roleInfo.hotelId,
+            booking.userId,
+            booking.id
+        );
 
         const isPayAtHotel = booking.paymentStatus === "PAY_AT_HOTEL" || advancePaid === 0;
         const dayOfWeek = checkInDate.getDay();
@@ -392,7 +402,7 @@ export async function getBookingRiskScore(bookingId: string): Promise<BookingRis
             previousNoShowRate,
             isWeekend,
             isHoliday: false,
-            bookingSource: booking.source || "PLATFORM",
+            bookingSource: booking.bookingSource,
         });
 
         return {
@@ -402,8 +412,8 @@ export async function getBookingRiskScore(bookingId: string): Promise<BookingRis
             checkIn: booking.checkIn,
             roomNumber: booking.room?.roomNumber || "",
             roomName: booking.room?.name || "",
-            totalAmount: totalAmount,
-            advancePaid: advancePaid,
+            totalAmount,
+            advancePaid,
             riskScore: score,
             riskLevel: getRiskLevel(score),
             riskFactors: factors,
@@ -415,9 +425,6 @@ export async function getBookingRiskScore(bookingId: string): Promise<BookingRis
     }
 }
 
-/**
- * Get hotel-wide no-show statistics
- */
 export async function getNoShowStats(): Promise<{
     totalBookings: number;
     noShowCount: number;
@@ -431,37 +438,37 @@ export async function getNoShowStats(): Promise<{
             return null;
         }
 
-        // Last 30 days stats
         const thirtyDaysAgo = new Date();
         thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
         const thirtyDaysAgoStr = thirtyDaysAgo.toISOString().split("T")[0] ?? "";
 
-        const allBookings = await db
-            .select({ count: count() })
-            .from(bookings)
-            .where(
-                and(
-                    eq(bookings.hotelId, roleInfo.hotelId),
-                    gte(bookings.checkIn, thirtyDaysAgoStr)
-                )
-            );
+        const [allBookings, noShows] = await Promise.all([
+            db
+                .select({ count: count() })
+                .from(bookings)
+                .where(
+                    and(
+                        eq(bookings.hotelId, roleInfo.hotelId),
+                        gte(bookings.checkIn, thirtyDaysAgoStr)
+                    )
+                ),
+            db
+                .select({ count: count() })
+                .from(bookings)
+                .where(
+                    and(
+                        eq(bookings.hotelId, roleInfo.hotelId),
+                        sql`${bookings.status} = 'NO_SHOW'`,
+                        gte(bookings.checkIn, thirtyDaysAgoStr)
+                    )
+                ),
+        ]);
 
-        const noShows = await db
-            .select({ count: count() })
-            .from(bookings)
-            .where(
-                and(
-                    eq(bookings.hotelId, roleInfo.hotelId),
-                    sql`${bookings.status} = 'NO_SHOW'`,
-                    gte(bookings.checkIn, thirtyDaysAgoStr)
-                )
-            );
-
-        const totalBookings = Number(allBookings[0]?.count || 0);
-        const noShowCount = Number(noShows[0]?.count || 0);
-        const noShowRate = totalBookings > 0 ? Math.round((noShowCount / totalBookings) * 100) : 0;
-
-        // Get high risk bookings count
+        const totalBookings = Number(allBookings[0]?.count ?? 0);
+        const noShowCount = Number(noShows[0]?.count ?? 0);
+        const noShowRate = totalBookings > 0
+            ? Math.round((noShowCount / totalBookings) * 100)
+            : 0;
         const highRiskBookings = await getHighRiskBookings({ minRiskScore: 60, limit: 100 });
 
         return {
@@ -469,7 +476,10 @@ export async function getNoShowStats(): Promise<{
             noShowCount,
             noShowRate,
             avgRiskScore: highRiskBookings.length > 0
-                ? Math.round(highRiskBookings.reduce((sum, b) => sum + b.riskScore, 0) / highRiskBookings.length)
+                ? Math.round(
+                    highRiskBookings.reduce((sum, booking) => sum + booking.riskScore, 0) /
+                    highRiskBookings.length
+                )
                 : 0,
             highRiskCount: highRiskBookings.length,
         };
