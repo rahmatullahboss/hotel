@@ -293,7 +293,7 @@
         "instantPayment": "Instant payment from wallet",
         "walletPaymentFailed": "Wallet payment failed. Please try again.",
         "firstBookingDiscount": "First Booking Discount (20%)",
-        "payAtHotelFull": "Full payment at hotel check-in",
+        "payAtHotelFull": "Server-calculated deposit now; remaining balance at hotel",
         "cardDetails": "Card Details",
         "completePayment": "Complete Payment",
         "enterCardDetails": "Enter your card details to complete booking",

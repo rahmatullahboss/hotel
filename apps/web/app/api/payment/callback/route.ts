@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@repo/db";
 import { bookings, wallets, walletTransactions } from "@repo/db/schema";
 import { eq, sql } from "drizzle-orm";
+import { parseMoneyToMinor } from "@/lib/booking-calculation";
 import { executeBkashPayment } from "@repo/config/payment";
 
 /**
@@ -113,30 +114,48 @@ export async function GET(request: NextRequest) {
         const result = await executeBkashPayment(paymentID);
 
         if (result.success && result.data) {
-            // Determine if this was an advance payment (20%) or full payment
-            const paidAmount = Number(result.data.amount || 0);
-            const totalAmount = Number(booking.totalAmount);
-            const isAdvancePayment = paidAmount < totalAmount;
+            const paidAmountMinor = parseMoneyToMinor(
+                result.data.amount || "0",
+                "bKash paid amount",
+            );
+            const expectedAmountMinor =
+                parseMoneyToMinor(booking.amountDueNow, "Booking amount due now") -
+                parseMoneyToMinor(
+                    booking.walletAmountUsed ?? "0",
+                    "Booking wallet amount",
+                );
 
-            // Update booking with payment info
+            if (paidAmountMinor !== expectedAmountMinor) {
+                console.error("bKash amount does not match booking calculation", {
+                    bookingId: booking.id,
+                    expectedAmountMinor,
+                    paidAmountMinor,
+                });
+                return NextResponse.redirect(
+                    new URL(`/booking/payment?bookingId=${booking.id}&error=amount_mismatch`, request.url),
+                );
+            }
+
+            const payAtHotel = booking.paymentMethod === "PAY_AT_HOTEL";
             await db
                 .update(bookings)
                 .set({
-                    // For advance payment (Pay at Hotel), keep PAY_AT_HOTEL status
-                    // For full payment, set to PAID
-                    paymentStatus: isAdvancePayment ? "PAY_AT_HOTEL" : "PAID",
+                    paymentStatus: payAtHotel ? "PAY_AT_HOTEL" : "PAID",
                     status: "CONFIRMED",
                     bookingFeeStatus: "PAID",
-                    paymentMethod: isAdvancePayment ? "PAY_AT_HOTEL" : "BKASH",
+                    commissionStatus: "PAID",
                     paymentReference: result.data.trxID || paymentID,
-                    expiresAt: null, // Clear expiry since payment is done
+                    expiresAt: null,
                     updatedAt: new Date(),
                 })
                 .where(eq(bookings.id, booking.id));
 
-            console.log("Payment successful for booking:", booking.id, isAdvancePayment ? "(advance)" : "(full)");
+            console.info("Booking payment matched authoritative calculation", {
+                bookingId: booking.id,
+                paymentMode: payAtHotel ? "deposit" : "full",
+            });
             return NextResponse.redirect(
-                new URL(`/booking/confirmation/${booking.id}`, request.url)
+                new URL(`/booking/confirmation/${booking.id}`, request.url),
             );
         }
 

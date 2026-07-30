@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getUserBookings, createBooking } from "@/app/actions/bookings";
-import { getUserIdFromRequest } from "@/lib/mobile-auth";
+import { getUserBookings } from "@/app/actions/bookings";
+import { createBookingForUser } from "@/lib/booking-creation-service";
+import { isCustomerPaymentMethod } from "@/lib/booking-calculation";
+import { getUserIdFromRequest, verifyMobileToken } from "@/lib/mobile-auth";
 
 /**
  * GET /api/bookings
@@ -50,7 +52,7 @@ export async function POST(request: NextRequest) {
         const body = await request.json();
 
         // Validate required fields
-        const { hotelId, roomId, checkIn, checkOut, guestPhone, totalAmount, paymentMethod, useWalletBalance, walletAmount } = body;
+        const { hotelId, roomId, checkIn, checkOut, guestPhone, paymentMethod, useWalletBalance, walletAmount, guests } = body;
         let { guestName, guestEmail } = body;
 
         // Better error messages for debugging
@@ -59,20 +61,26 @@ export async function POST(request: NextRequest) {
         if (!roomId) missingFields.push('roomId');
         if (!checkIn) missingFields.push('checkIn');
         if (!checkOut) missingFields.push('checkOut');
-        if (totalAmount === undefined || totalAmount === null) missingFields.push('totalAmount');
 
         if (missingFields.length > 0) {
-            console.error('Missing fields in booking request:', missingFields, 'Body:', body);
+            console.warn('Booking request is missing required fields', { missingFields });
             return NextResponse.json(
                 { error: `Missing required fields: ${missingFields.join(', ')}` },
                 { status: 400 }
             );
         }
 
+        if (paymentMethod !== undefined && !isCustomerPaymentMethod(paymentMethod)) {
+            return NextResponse.json(
+                { error: "Unsupported payment method" },
+                { status: 400 },
+            );
+        }
+
+        const mobileAuth = await verifyMobileToken(request);
+
         // If guest info not provided, fetch from user profile
         if (!guestName || !guestEmail) {
-            const { verifyMobileToken } = await import("@/lib/mobile-auth");
-            const mobileAuth = await verifyMobileToken(request);
 
             if (mobileAuth) {
                 guestName = guestName || mobileAuth.name || "Guest";
@@ -94,8 +102,7 @@ export async function POST(request: NextRequest) {
             }
         }
 
-        const result = await createBooking({
-            userId,
+        const result = await createBookingForUser({
             hotelId,
             roomId,
             checkIn,
@@ -103,11 +110,14 @@ export async function POST(request: NextRequest) {
             guestName: guestName || "Guest",
             guestEmail: guestEmail || "",
             guestPhone: guestPhone || "",
-            totalAmount,
-            paymentMethod: paymentMethod || "PAY_AT_HOTEL",
+            guestCount: Number.isSafeInteger(guests) ? guests : 1,
+            paymentMethod: paymentMethod ?? "PAY_AT_HOTEL",
             // Split payment support
             useWalletBalance: useWalletBalance || false,
-            walletAmount: walletAmount || 0,
+            walletAmount: walletAmount === undefined ? undefined : walletAmount,
+        }, {
+            userId,
+            source: mobileAuth ? "MOBILE" : "WEB",
         });
 
         if (!result.success) {
@@ -123,6 +133,12 @@ export async function POST(request: NextRequest) {
             message: "Booking created successfully",
             requiresPayment: result.requiresPayment,
             advanceAmount: result.advanceAmount,
+            totalAmount: result.totalAmount,
+            amountDueNow: result.amountDueNow,
+            walletAmountUsed: result.walletAmountUsed,
+            amountOutstanding: result.amountOutstanding,
+            currency: result.currency,
+            calculation: result.calculation,
         });
     } catch (error) {
         console.error("Error creating booking:", error);

@@ -3,6 +3,8 @@ import Stripe from "stripe";
 import { db } from "@repo/db";
 import { bookings } from "@repo/db/schema";
 import { eq } from "drizzle-orm";
+import { getUserIdFromRequest } from "@/lib/mobile-auth";
+import { parseMoneyToMinor } from "@/lib/booking-calculation";
 
 export const dynamic = "force-dynamic";
 
@@ -15,45 +17,68 @@ function getStripe() {
 
 export async function POST(request: NextRequest) {
     try {
-        const stripe = getStripe();
-
-        const body = await request.json() as {
-            paymentIntentId: string;
-        };
-
-        const { paymentIntentId } = body;
-
-        if (!paymentIntentId) {
+        const userId = await getUserIdFromRequest(request);
+        if (!userId) {
             return NextResponse.json(
-                { success: false, error: "Payment Intent ID is required" },
-                { status: 400 }
+                { success: false, error: "Authentication required" },
+                { status: 401 },
             );
         }
 
-        // Retrieve payment intent
-        const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
+        const body = (await request.json()) as { paymentIntentId?: unknown };
+        const paymentIntentId =
+            typeof body.paymentIntentId === "string" ? body.paymentIntentId : "";
+        if (!paymentIntentId) {
+            return NextResponse.json(
+                { success: false, error: "Payment Intent ID is required" },
+                { status: 400 },
+            );
+        }
 
-        // Find booking by payment reference
+        const paymentIntent = await getStripe().paymentIntents.retrieve(
+            paymentIntentId,
+        );
         const booking = await db.query.bookings.findFirst({
             where: eq(bookings.paymentReference, paymentIntentId),
         });
-
         if (!booking) {
             return NextResponse.json(
                 { success: false, error: "Booking not found for this payment" },
-                { status: 404 }
+                { status: 404 },
+            );
+        }
+        if (booking.userId !== userId) {
+            return NextResponse.json(
+                { success: false, error: "You do not own this booking" },
+                { status: 403 },
+            );
+        }
+
+        const expectedAmountMinor =
+            parseMoneyToMinor(booking.amountDueNow, "Booking amount due now") -
+            parseMoneyToMinor(booking.walletAmountUsed ?? "0", "Booking wallet amount");
+        if (
+            paymentIntent.metadata.bookingId !== booking.id ||
+            paymentIntent.currency.toUpperCase() !== booking.currency ||
+            paymentIntent.amount !== expectedAmountMinor
+        ) {
+            return NextResponse.json(
+                { success: false, error: "Payment does not match the booking calculation" },
+                { status: 409 },
             );
         }
 
         if (paymentIntent.status === "succeeded") {
-            // Update booking to confirmed and paid
+            const paymentStatus =
+                booking.paymentMethod === "PAY_AT_HOTEL" ? "PAY_AT_HOTEL" : "PAID";
             await db
                 .update(bookings)
                 .set({
-                    paymentStatus: "PAID",
+                    paymentStatus,
+                    bookingFeeStatus: "PAID",
+                    commissionStatus: "PAID",
                     status: "CONFIRMED",
-                    paymentMethod: "STRIPE",
-                    expiresAt: null, // Clear expiry
+                    expiresAt: null,
                     updatedAt: new Date(),
                 })
                 .where(eq(bookings.id, booking.id));
@@ -62,39 +87,40 @@ export async function POST(request: NextRequest) {
                 success: true,
                 status: "succeeded",
                 bookingId: booking.id,
-                message: "Payment successful and booking confirmed",
+                message: "Payment verified and booking confirmed",
             });
-        } else if (paymentIntent.status === "processing") {
+        }
+
+        if (paymentIntent.status === "processing") {
             return NextResponse.json({
                 success: true,
                 status: "processing",
                 bookingId: booking.id,
                 message: "Payment is being processed",
             });
-        } else if (paymentIntent.status === "requires_payment_method") {
-            return NextResponse.json({
-                success: false,
-                status: "failed",
-                error: "Payment failed. Please try again with a different payment method.",
-            });
-        } else {
-            return NextResponse.json({
+        }
+
+        return NextResponse.json(
+            {
                 success: false,
                 status: paymentIntent.status,
-                error: `Payment status: ${paymentIntent.status}`,
-            });
-        }
+                error: "Payment has not succeeded",
+            },
+            { status: 409 },
+        );
     } catch (error: unknown) {
-        console.error("Error verifying Stripe payment:", error);
+        console.error("Stripe payment verification failed", {
+            reason: error instanceof Error ? error.name : "UnknownError",
+        });
         if (error instanceof Stripe.errors.StripeError) {
             return NextResponse.json(
                 { success: false, error: error.message },
-                { status: error.statusCode || 500 }
+                { status: error.statusCode || 500 },
             );
         }
         return NextResponse.json(
             { success: false, error: "Failed to verify payment" },
-            { status: 500 }
+            { status: 500 },
         );
     }
 }

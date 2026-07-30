@@ -63,7 +63,7 @@ function CheckoutForm({ bookingId, amount, onSuccess, onError, t }: StripePaymen
             const intentResponse = await fetch("/api/payment/stripe/create-intent", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ bookingId, amount }),
+                body: JSON.stringify({ bookingId }),
             });
 
             const intentData = await intentResponse.json();
