@@ -1,5 +1,4 @@
 // Auth Provider - Riverpod 3.0 state management for authentication
-import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:dio/dio.dart';
 import 'package:google_sign_in/google_sign_in.dart';
