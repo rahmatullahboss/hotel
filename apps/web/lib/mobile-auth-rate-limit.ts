@@ -55,7 +55,7 @@ export async function enforceMobileAuthRateLimit(
     const now = new Date();
     const expires = new Date(now.getTime() + policy.windowSeconds * 1000);
 
-    return db.transaction(async (tx) => {
+    return db.transaction(async (tx: typeof db) => {
         await tx.execute(
             sql`select pg_advisory_xact_lock(hashtextextended(${identifier}, 0))`,
         );
