@@ -5,7 +5,7 @@ import {
     wallets,
     walletTransactions,
 } from "@repo/db/schema";
-import { eq, and, lt, gt, ne, sql } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { pushRealtimeEvent } from "@/lib/realtime";
 import {
@@ -21,10 +21,20 @@ import {
     calculateAuthoritativeBooking,
     type BookingSource,
 } from "@/lib/booking-pricing-service";
+import {
+    isReservationConflict,
+    loadReservationCandidates,
+    lockAndAssertRoomAvailable,
+    ReservationConflictError,
+} from "@/lib/reservation-allocation";
 
 export interface CreateBookingInput {
     hotelId: string;
     roomId: string;
+    /**
+     * Compatibility signal for room-type auto allocation. Values are not trusted;
+     * the server resolves the candidate set from the requested room's hotel/type.
+     */
     roomIds?: string[];
     guestName: string;
     guestPhone: string;
@@ -42,6 +52,7 @@ export interface BookingResult {
     success: boolean;
     bookingId?: string;
     error?: string;
+    errorCode?: string;
     bookingFee?: number;
     requiresPayment?: boolean;
     advanceAmount?: number;
@@ -56,7 +67,8 @@ export interface BookingResult {
 
 /**
  * Create a customer booking from server-owned room/date pricing and policy.
- * Request-body totals are intentionally absent from the input contract.
+ * Request-body totals and candidate-room membership are intentionally absent
+ * from the authoritative contract.
  */
 export interface CreateBookingContext {
     userId: string;
@@ -96,44 +108,123 @@ export async function createBookingForUser(
     }
 
     try {
-        const result = await db.transaction(async (tx: typeof db) => {
-            let actualRoomId = roomId;
+        const candidates = await loadReservationCandidates(db, {
+            hotelId,
+            requestedRoomId: roomId,
+            allowRoomTypeAllocation: Boolean(input.roomIds?.length),
+        });
 
-            if (input.roomIds && input.roomIds.length > 0) {
-                let foundAvailableRoom = false;
-                for (const candidateRoomId of [...new Set(input.roomIds)]) {
-                    const existingBookingForCandidate = await tx.query.bookings.findFirst({
-                        where: and(
-                            eq(bookings.roomId, candidateRoomId),
-                            ne(bookings.status, "CANCELLED"),
-                            lt(bookings.checkIn, checkOut),
-                            gt(bookings.checkOut, checkIn),
-                        ),
-                    });
-                    if (!existingBookingForCandidate) {
-                        actualRoomId = candidateRoomId;
-                        foundAvailableRoom = true;
-                        break;
-                    }
+        let result: Awaited<ReturnType<typeof createBookingAttempt>> | undefined;
+
+        for (const candidateRoomId of candidates) {
+            try {
+                result = await createBookingAttempt(candidateRoomId);
+                break;
+            } catch (error) {
+                if (isReservationConflict(error)) {
+                    continue;
                 }
-                if (!foundAvailableRoom) {
-                    throw new Error(
-                        "No rooms of this type are available for the selected dates.",
-                    );
-                }
+                throw error;
             }
+        }
 
-            const existingBooking = await tx.query.bookings.findFirst({
-                where: and(
-                    eq(bookings.roomId, actualRoomId),
-                    ne(bookings.status, "CANCELLED"),
-                    lt(bookings.checkIn, checkOut),
-                    gt(bookings.checkOut, checkIn),
-                ),
+        if (!result) {
+            throw new ReservationConflictError();
+        }
+
+        revalidatePath("/bookings");
+        revalidatePath("/wallet");
+
+        const checkInDate = new Date(`${checkIn}T00:00:00.000Z`).toLocaleDateString(
+            "en-GB",
+            { day: "numeric", month: "short", timeZone: "UTC" },
+        );
+        const title = result.calculation.requiresPayment
+            ? "🏨 Booking Created!"
+            : "🎉 Booking Confirmed!";
+        const body = result.calculation.requiresPayment
+            ? `${result.hotelName} is held for ${checkInDate}. Complete the authoritative payment to confirm.`
+            : `${result.hotelName} is confirmed for ${checkInDate}. See you soon!`;
+
+        import("@/lib/notifications").then(({ sendPushNotification }) => {
+            sendPushNotification(userId, {
+                title,
+                body,
+                data: {
+                    type: result.calculation.requiresPayment
+                        ? "BOOKING_PENDING"
+                        : "BOOKING_CONFIRMED",
+                    bookingId: result.booking.id,
+                },
+            }).catch((error) =>
+                console.error("Failed to send booking notification", {
+                    reason: error instanceof Error ? error.name : "UnknownError",
+                }),
+            );
+        });
+
+        pushRealtimeEvent({
+            type: "NEW_BOOKING",
+            hotelId,
+            data: {
+                bookingId: result.booking.id,
+                guestName: guestName.trim(),
+                checkIn,
+                checkOut,
+                totalAmount: Number(result.booking.totalAmount),
+                status: result.booking.status,
+            },
+        }).catch((error) =>
+            console.error("Failed to push realtime event", {
+                reason: error instanceof Error ? error.name : "UnknownError",
+            }),
+        );
+
+        return {
+            success: true,
+            bookingId: result.booking.id,
+            bookingFee: Number(result.booking.bookingFee),
+            requiresPayment: result.calculation.requiresPayment,
+            advanceAmount: result.calculation.requiresPayment
+                ? result.calculation.amountOutstandingMinor / 100
+                : undefined,
+            walletPaymentSuccess: result.calculation.walletPaymentSuccess,
+            totalAmount: result.calculation.totalAmountMinor / 100,
+            amountDueNow: result.calculation.amountDueNowMinor / 100,
+            walletAmountUsed: result.calculation.walletAmountUsedMinor / 100,
+            amountOutstanding: result.calculation.amountOutstandingMinor / 100,
+            currency: BOOKING_CURRENCY,
+            calculation: result.calculation.breakdown,
+        };
+    } catch (error) {
+        const reservationConflict = isReservationConflict(error);
+        console.error("Error creating booking", {
+            reason: reservationConflict
+                ? "ReservationConflict"
+                : error instanceof Error
+                  ? error.name
+                  : "UnknownError",
+        });
+        return {
+            success: false,
+            error: reservationConflict
+                ? "No room is available for the selected dates."
+                : error instanceof Error
+                  ? error.message
+                  : "Failed to create booking",
+            errorCode: reservationConflict ? "RESERVATION_CONFLICT" : undefined,
+        };
+    }
+
+    async function createBookingAttempt(actualRoomId: string) {
+        return db.transaction(async (tx: typeof db) => {
+            // Allocation is the first mutating boundary. A failed room attempt
+            // rolls back before wallet or booking data can be changed.
+            await lockAndAssertRoomAvailable(tx, {
+                roomId: actualRoomId,
+                checkIn,
+                checkOut,
             });
-            if (existingBooking) {
-                throw new Error("This room is already booked for the selected dates.");
-            }
 
             await tx.execute(
                 sql`select pg_advisory_xact_lock(hashtextextended(${`booking-wallet:${userId}`}, 0))`,
@@ -160,7 +251,10 @@ export async function createBookingForUser(
                 if (!wallet) {
                     throw new Error("Wallet not found");
                 }
-                const currentBalanceMinor = parseMoneyToMinor(wallet.balance, "Wallet balance");
+                const currentBalanceMinor = parseMoneyToMinor(
+                    wallet.balance,
+                    "Wallet balance",
+                );
                 if (currentBalanceMinor < calculation.walletAmountUsedMinor) {
                     throw new Error("Insufficient wallet balance");
                 }
@@ -267,79 +361,5 @@ export async function createBookingForUser(
                 calculation,
             };
         });
-
-        revalidatePath("/bookings");
-        revalidatePath("/wallet");
-
-        const checkInDate = new Date(`${checkIn}T00:00:00.000Z`).toLocaleDateString(
-            "en-GB",
-            { day: "numeric", month: "short", timeZone: "UTC" },
-        );
-        const title = result.calculation.requiresPayment
-            ? "🏨 Booking Created!"
-            : "🎉 Booking Confirmed!";
-        const body = result.calculation.requiresPayment
-            ? `${result.hotelName} is held for ${checkInDate}. Complete the authoritative payment to confirm.`
-            : `${result.hotelName} is confirmed for ${checkInDate}. See you soon!`;
-
-        import("@/lib/notifications").then(({ sendPushNotification }) => {
-            sendPushNotification(userId, {
-                title,
-                body,
-                data: {
-                    type: result.calculation.requiresPayment
-                        ? "BOOKING_PENDING"
-                        : "BOOKING_CONFIRMED",
-                    bookingId: result.booking.id,
-                },
-            }).catch((error) =>
-                console.error("Failed to send booking notification", {
-                    reason: error instanceof Error ? error.name : "UnknownError",
-                }),
-            );
-        });
-
-        pushRealtimeEvent({
-            type: "NEW_BOOKING",
-            hotelId,
-            data: {
-                bookingId: result.booking.id,
-                guestName: guestName.trim(),
-                checkIn,
-                checkOut,
-                totalAmount: Number(result.booking.totalAmount),
-                status: result.booking.status,
-            },
-        }).catch((error) =>
-            console.error("Failed to push realtime event", {
-                reason: error instanceof Error ? error.name : "UnknownError",
-            }),
-        );
-
-        return {
-            success: true,
-            bookingId: result.booking.id,
-            bookingFee: Number(result.booking.bookingFee),
-            requiresPayment: result.calculation.requiresPayment,
-            advanceAmount: result.calculation.requiresPayment
-                ? result.calculation.amountOutstandingMinor / 100
-                : undefined,
-            walletPaymentSuccess: result.calculation.walletPaymentSuccess,
-            totalAmount: result.calculation.totalAmountMinor / 100,
-            amountDueNow: result.calculation.amountDueNowMinor / 100,
-            walletAmountUsed: result.calculation.walletAmountUsedMinor / 100,
-            amountOutstanding: result.calculation.amountOutstandingMinor / 100,
-            currency: BOOKING_CURRENCY,
-            calculation: result.calculation.breakdown,
-        };
-    } catch (error) {
-        console.error("Error creating booking", {
-            reason: error instanceof Error ? error.name : "UnknownError",
-        });
-        return {
-            success: false,
-            error: error instanceof Error ? error.message : "Failed to create booking",
-        };
     }
 }
-
