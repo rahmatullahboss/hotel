@@ -1,0 +1,109 @@
+name: Booking Calculation
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "apps/web/app/actions/bookings.ts"
+      - "apps/web/app/api/bookings/**"
+      - "apps/web/app/api/payment/**"
+      - "apps/web/app/booking/**"
+      - "apps/web/app/components/stripe-payment-form.tsx"
+      - "apps/web/messages/*.json"
+      - "apps/web/lib/booking-*.ts"
+      - "apps/mobile-flutter/lib/features/bookings/providers/booking_provider.dart"
+      - "apps/mobile-flutter/lib/features/bookings/presentation/booking_details_screen.dart"
+      - "apps/mobile-flutter/lib/features/booking_flow/**"
+      - "packages/db/src/schema/business.ts"
+      - "packages/db/drizzle/**"
+      - "tests/payments/**"
+      - ".env.example"
+      - "turbo.json"
+      - ".github/workflows/booking-calculation.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "apps/web/app/actions/bookings.ts"
+      - "apps/web/app/api/bookings/**"
+      - "apps/web/app/api/payment/**"
+      - "apps/web/app/booking/**"
+      - "apps/web/app/components/stripe-payment-form.tsx"
+      - "apps/web/messages/*.json"
+      - "apps/web/lib/booking-*.ts"
+      - "apps/mobile-flutter/lib/features/bookings/providers/booking_provider.dart"
+      - "apps/mobile-flutter/lib/features/bookings/presentation/booking_details_screen.dart"
+      - "apps/mobile-flutter/lib/features/booking_flow/**"
+      - "packages/db/src/schema/business.ts"
+      - "packages/db/drizzle/**"
+      - "tests/payments/**"
+      - ".env.example"
+      - "turbo.json"
+      - ".github/workflows/booking-calculation.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: booking-calculation-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  AUTH_SECRET: 0123456789abcdef0123456789abcdef0123456789abcdef
+  MOBILE_JWT_ISSUER: zinurooms-ci
+  MOBILE_JWT_AUDIENCE: zinurooms-mobile-ci
+  BOOKING_TAX_RATE_PERCENT: "15.00"
+  FIRST_BOOKING_DISCOUNT_PERCENT: "20.00"
+  FIRST_BOOKING_DISCOUNT_CAP: "1000.00"
+
+jobs:
+  verification:
+    name: Money tests, lint and web types
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v5
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Use declared npm version
+        run: npm install --global npm@11.6.2
+
+      - name: Install locked dependencies
+        run: npm ci
+
+      - name: Run authoritative money and contract tests
+        run: node --experimental-strip-types --test tests/payments/*.test.mjs
+
+      - name: Lint changed booking and payment source
+        working-directory: apps/web
+        run: >-
+          npx eslint --max-warnings 0
+          lib/booking-calculation.ts
+          lib/booking-pricing-service.ts
+          lib/booking-creation-service.ts
+          app/actions/bookings.ts
+          app/api/bookings/route.ts
+          app/api/payment/initiate/route.ts
+          app/api/payment/stripe/create-intent/route.ts
+          app/api/payment/stripe/verify/route.ts
+          app/api/payment/callback/route.ts
+          app/booking/page.tsx
+          app/components/stripe-payment-form.tsx
+
+      - name: Build shared web dependencies
+        run: |
+          npm --workspace @repo/db run build
+          npm --workspace @repo/config run build
+
+      - name: Type-check customer web application
+        run: npm --workspace web run check-types
