@@ -115,7 +115,11 @@ test("database migration workflow proves clean install, hashes and repeatability
   assert.match(workflow, /postgres:17-alpine/);
   assert.match(workflow, /npm run db:check/);
   assert.match(workflow, /npm run db:migrate/);
-  assert.match(workflow, /npm run db:adoption-manifest -- --json/);
+  assert.match(
+    workflow,
+    /node packages\/db\/scripts\/create-adoption-manifest\.mjs --json/,
+  );
+  assert.doesNotMatch(workflow, /npm run db:adoption-manifest -- --json/);
   assert.match(workflow, /diff -u \/tmp\/expected-migrations\.tsv/);
   assert.match(workflow, /Verify second migration run is a no-op/);
   assert.match(workflow, /drizzle\.__drizzle_migrations/);
