@@ -123,9 +123,11 @@ test("database migration workflow proves clean install, hashes and repeatability
   assert.doesNotMatch(workflow, /\|\|\s*(true|echo)\b/i);
 });
 
-test("temporary database generator workflow is absent", async () => {
-  assert.equal(
-    await fileExists(".github/workflows/db-baseline-generate.yml"),
-    false,
-  );
+test("temporary write-enabled database workflows are absent", async () => {
+  for (const workflow of [
+    ".github/workflows/db-baseline-generate.yml",
+    ".github/workflows/db-driver-lockfile.yml",
+  ]) {
+    assert.equal(await fileExists(workflow), false, `${workflow} must be absent`);
+  }
 });
