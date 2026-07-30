@@ -10,9 +10,9 @@ This board is the operational queue. Update status, owner, branch, PR and eviden
 |---|---|---|---|---|
 | GOV-01 | DONE | Canonical documentation and multi-agent controls | Merged by PR #1 at `957b724811b728b87e06d887582fda8aec9053c9`; canonical rules, audit, architecture, workstreams, DoD, test and operations docs established | `docs/system-audit-2026-07-30` |
 | SEC-01 | DONE | Remove JWT fallback and harden mobile auth | PR #6 merged at `1df23f4b28be5860dc9c689802fb260f37d0ac0a`; security run `30534550766`, Flutter run `30534550238` and database run `30534550247` green; revocable sessions, strict JWT/Google verification, shared rate limits, Flutter logout and executable gates delivered | `work/SEC-01-mobile-auth-hardening` |
-| PAY-01 | READY | Server-authoritative booking calculation | Client money ignored; persisted calculation breakdown; configurable commission; wallet limits; tests | unassigned |
+| PAY-01 | IN_PROGRESS | Server-authoritative booking calculation | Client totals/commission ignored; nightly DB pricing, persisted immutable calculation breakdown, configured hotel commission, bounded wallet application and tampering tests | owner: GPT-5.6; base: `b4dc87b7a2b56653ef04371bf122d750f1703fcb`; branch: `work/PAY-01-server-authoritative-calculation`; owns booking money schema/action/API/mobile callers/tests/migration until merge |
 | PAY-02 | BLOCKED | Stripe idempotency, attempts and webhook | Depends on PAY-01 and DB-01; signed/idempotent webhook and reconciliation | unassigned |
-| RSV-01 | READY | Atomic reservation allocation | DB-level no-overlap/atomic allotment; explicit transaction strategy; concurrent test | unassigned |
+| RSV-01 | BLOCKED_OWNERSHIP | Atomic reservation allocation | DB-level no-overlap/atomic allotment; explicit transaction strategy; concurrent test | Wait for PAY-01 to release booking schema/migration ownership |
 | CI-01 | BLOCKED_CONFIG | Required monorepo CI | Quality gate green in PR #2; production build requires GitHub Actions secret `CI_DATABASE_URL` from isolated Neon branch `br-bitter-bonus-a1ih1ip8`; tracked by issue #3 | `work/CI-01-required-monorepo-ci`; PR #2 |
 | CI-02 | DONE | Strict Flutter CI | PR #4 merged at `fe0976db95a8bd26706f87d0108d5820606ba7a1`; run `30528984233` passed format, strict analyze, tests, coverage and debug APK build; artifacts verified | `work/CI-02-strict-flutter-ci` |
 | OPS-02 | READY | Cron fail-closed hardening | required secret, POST mutations, no `X-No-Auth`, timeout/retry/result checks | unassigned |
@@ -104,9 +104,9 @@ A status change to `DONE` requires merged SHA and integration/runtime evidence. 
 
 ## Current next action
 
-1. Activate PAY-01 calculation authority while reserving booking/money schema ownership from RSV-01.
+1. Complete PAY-01 authoritative calculation and release booking/money migration ownership.
 2. Resolve CI-01 issue #3 and rerun the production build.
-3. Prepare RSV-01 after PAY-01 migration ownership is released.
+3. Activate RSV-01 from the PAY-01 integration head after schema ownership release.
 4. Activate OPS-01 environment/deployment health inventory.
 5. Plan a separate, reviewed live migration-adoption workstream after isolated schema equivalence is proven.
 
