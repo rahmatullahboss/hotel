@@ -8,11 +8,12 @@
     "dev:partner": "dotenv -e .env -- turbo run dev --filter=partner",
     "dev:admin": "dotenv -e .env -- turbo run dev --filter=admin",
     "lint": "turbo run lint",
+    "lint:ci": "node scripts/ci/lint-changed.mjs",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "check-types": "turbo run check-types",
     "test": "npm run test:ci",
     "test:ci": "node --test tests/ci/*.test.mjs",
-    "verify:ci": "npm run lint && npm run check-types && npm run test:ci && npm run build",
+    "verify:ci": "npm run lint:ci && npm run check-types && npm run test:ci && npm run build",
     "db:generate": "turbo run db:generate --filter=@repo/db",
     "db:push": "turbo run db:push --filter=@repo/db",
     "db:studio": "turbo run db:studio --filter=@repo/db"
