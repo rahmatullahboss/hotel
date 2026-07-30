@@ -322,10 +322,11 @@ export async function broadcastToAllMobileUsers(
             response.responses.forEach((resp, idx) => {
                 if (!resp.success) {
                     const errorCode = resp.error?.code;
+                    const token = validTokens[idx];
                     // Deactivate invalid/unregistered tokens
-                    if (errorCode === 'messaging/invalid-registration-token' ||
-                        errorCode === 'messaging/registration-token-not-registered') {
-                        tokensToDeactivate.push(validTokens[idx]);
+                    if (token && (errorCode === 'messaging/invalid-registration-token' ||
+                        errorCode === 'messaging/registration-token-not-registered')) {
+                        tokensToDeactivate.push(token);
                     }
                 }
             });

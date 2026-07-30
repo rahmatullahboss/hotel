@@ -70,7 +70,7 @@ export async function updateAutomationSettings(
 
     // In a real implementation, this would save to a settings table
     console.log("Updating automation settings:", settings);
-    
+
     revalidatePath("/messaging");
     return { success: true };
 }
@@ -101,7 +101,7 @@ export async function updateMessageTemplate(
     }
 
     console.log("Updating template:", templateId, updates);
-    
+
     revalidatePath("/messaging");
     return { success: true };
 }
@@ -135,8 +135,8 @@ export async function getRecentMessages(limit: number = 20): Promise<GuestMessag
         id: `msg-${booking.id}`,
         bookingId: booking.id,
         guestName: booking.guestName,
-        guestEmail: booking.guestEmail,
-        guestPhone: booking.guestPhone,
+        guestEmail: booking.guestEmail ?? "",
+        guestPhone: booking.guestPhone ?? "",
         type: "PRE_ARRIVAL" as const,
         subject: `Your stay is coming up!`,
         status: booking.status === "CHECKED_IN" ? "SENT" as const : "PENDING" as const,
@@ -221,11 +221,11 @@ export async function getUpcomingCheckInsForMessaging(): Promise<{
     }) => {
         const checkInDate = new Date(booking.checkIn);
         const hoursUntil = Math.max(0, (checkInDate.getTime() - now.getTime()) / (1000 * 60 * 60));
-        
+
         return {
             bookingId: booking.id,
             guestName: booking.guestName,
-            guestEmail: booking.guestEmail,
+            guestEmail: booking.guestEmail ?? "",
             checkIn: checkInDate,
             hoursUntilCheckIn: Math.round(hoursUntil),
         };

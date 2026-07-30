@@ -6,13 +6,15 @@ import * as schema from "./schema";
 // Enable WebSocket support for transactions
 neonConfig.webSocketConstructor = globalThis.WebSocket;
 
+function assertServerEnvironment(): void {
+    if (typeof window !== "undefined") {
+        throw new Error("The database client is server-only and cannot be initialized in a browser bundle");
+    }
+}
+
 // Create Neon client with transaction support (WebSocket-based)
 const createClient = () => {
-    // Prevent client-side execution
-    if (typeof window !== "undefined") {
-        console.warn("⚠️ Attempted to initialize database client in browser environment. This is likely a bundling issue.");
-        return null as any;
-    }
+    assertServerEnvironment();
 
     const databaseUrl = process.env.DATABASE_URL;
     if (!databaseUrl) {
@@ -27,9 +29,7 @@ const createClient = () => {
 // Create HTTP-based client for Auth.js adapter (compatible with DrizzleAdapter)
 // Note: No schema option is passed to keep the PgDatabase type check working
 const createHttpClient = () => {
-    if (typeof window !== "undefined") {
-        return null as any;
-    }
+    assertServerEnvironment();
 
     const databaseUrl = process.env.DATABASE_URL;
     if (!databaseUrl) {
@@ -48,7 +48,7 @@ export const getDb = () => {
     if (!dbInstance) {
         dbInstance = createClient();
     }
-    return dbInstance!;
+    return dbInstance;
 };
 
 // HTTP-based client for Auth.js adapter compatibility
@@ -56,7 +56,7 @@ export const getDbHttp = () => {
     if (!dbHttpInstance) {
         dbHttpInstance = createHttpClient();
     }
-    return dbHttpInstance!;
+    return dbHttpInstance;
 };
 
 // For direct import usage - same as getDb but with lazy initialization

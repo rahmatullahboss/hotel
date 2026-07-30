@@ -6,7 +6,7 @@ import {
     jsonb,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
-import { hotels, rooms, bookings } from "./business";
+import { hotels, rooms } from "./business";
 
 // ====================
 // CHANNEL TYPES

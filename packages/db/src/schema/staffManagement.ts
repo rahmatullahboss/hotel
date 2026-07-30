@@ -8,7 +8,6 @@ import {
     uniqueIndex,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
-import { users } from "./auth";
 import { hotels } from "./business";
 import { hotelStaff } from "./hotelStaff";
 

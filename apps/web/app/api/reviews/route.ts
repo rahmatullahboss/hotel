@@ -142,6 +142,10 @@ export async function POST(request: NextRequest) {
             locationRating: locationRating || null,
         }).returning();
 
+        if (!newReview) {
+            throw new Error("Review insert did not return a record");
+        }
+
         // Update hotel's average rating
         const hotelReviews = await db.query.reviews.findMany({
             where: eq(reviews.hotelId, booking.hotelId),
