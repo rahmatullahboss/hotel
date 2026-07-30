@@ -14,7 +14,7 @@ Triggers:
 - every push to `main`;
 - manual dispatch for recovery or configuration verification.
 
-The workflow has least-privilege repository access (`contents: read`), cancels superseded runs on the same ref and applies explicit job timeouts.
+The workflow has least-privilege repository access (`contents: read`), cancels superseded runs on the same ref and applies explicit job timeouts. Official Node 24-based `actions/checkout@v5` and `actions/setup-node@v6` are used so the workflow does not depend on deprecated Node 20 action runtimes.
 
 ## Required checks
 
@@ -33,12 +33,40 @@ Runs with the committed lockfile and declared Node/npm versions:
 
 ```bash
 npm ci
-npm run lint
+npm run lint:ci
 npm run check-types
 npm run test:ci
 ```
 
+### Changed-file lint ratchet
+
+The repository contains pre-existing lint debt in the admin, partner and customer applications. Blocking CI on the complete historical warning set would turn `CI-01` into an unrelated broad refactor and encourage warning suppression.
+
+Instead, `npm run lint:ci` applies a strict ratchet:
+
+- resolves the pull-request base branch or previous push commit from Git history;
+- finds added, copied, modified and renamed JavaScript/TypeScript source files;
+- maps each file to its owning workspace;
+- requires an ESLint flat config and `lint` script for that workspace;
+- runs ESLint only on the changed source files with `--max-warnings 0`;
+- fails when a changed source file is outside a configured workspace;
+- never converts a lint failure into success.
+
+This means new or modified code must be warning-free immediately, while existing untouched warning debt is frozen rather than silently accepted as a new standard.
+
+The full inventory command remains:
+
+```bash
+npm run lint
+```
+
+`LINT-01` owns the measured removal of existing warnings until the full-repository command can replace the ratchet as the required gate. Warning counts may not be increased and broad rule disabling is prohibited.
+
 `test:ci` currently protects the CI/workspace contract itself. Domain workstreams must add unit and integration tests for their changed behaviour; this command is the stable root entry point through which CI-level tests are expanded.
+
+### Full type-check
+
+`npm run check-types` remains a full-workspace gate rather than a changed-file ratchet. TypeScript contracts cross package and application boundaries, so a local change can break an untouched consumer.
 
 ### Production build
 
@@ -73,10 +101,16 @@ From a clean checkout using Node 22 and npm 11.6.2:
 
 ```bash
 npm ci
-npm run lint
+npm run lint:ci
 npm run check-types
 npm run test:ci
 CI_DATABASE_URL='<isolated-neon-url>' DATABASE_URL="$CI_DATABASE_URL" npm run build
+```
+
+For a complete historical lint inventory, run separately:
+
+```bash
+npm run lint
 ```
 
 For a single canonical command after exporting `DATABASE_URL`:
@@ -92,16 +126,19 @@ CI commands may not use:
 - `continue-on-error: true`;
 - `|| true` or failure-to-success echo fallbacks;
 - `--if-present` for required scripts;
-- conditional skipping when a required credential or service is absent.
+- conditional skipping when a required credential or service is absent;
+- a global warning allowance that lets new warnings replace removed legacy warnings;
+- broad disabling of lint rules to make a gate green.
 
 An unavailable dependency is a failed or blocked check, not a passing check.
 
 ## Scope and follow-up
 
-CI-01 establishes deterministic install, lint, type-check, CI contract tests and full production build. It does not claim complete domain test coverage.
+CI-01 establishes deterministic install, a zero-warning changed-file lint ratchet, full type-check, CI contract tests and full production build. It does not claim complete domain test coverage or historical lint cleanup.
 
 Follow-up owners:
 
+- `LINT-01`: remove the frozen historical lint debt and retire the ratchet;
 - `CI-02`: strict Flutter format/analyse/test/build workflow;
 - `DB-01`: repeatable CI database migration/bootstrap;
 - `QA-01`: booking/payment/tenant integration and end-to-end suites;
