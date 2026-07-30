@@ -5,7 +5,7 @@ on:
     branches:
       - main
     paths:
-      - "apps/web/lib/reservation-allocation.ts"
+      - "apps/web/lib/reservation-allocation*.ts"
       - "apps/web/lib/booking-creation-service.ts"
       - "apps/web/app/api/bookings/route.ts"
       - "packages/db/src/schema/business.ts"
@@ -17,7 +17,7 @@ on:
     branches:
       - main
     paths:
-      - "apps/web/lib/reservation-allocation.ts"
+      - "apps/web/lib/reservation-allocation*.ts"
       - "apps/web/lib/booking-creation-service.ts"
       - "apps/web/app/api/bookings/route.ts"
       - "packages/db/src/schema/business.ts"
@@ -98,6 +98,7 @@ jobs:
         working-directory: apps/web
         run: >-
           npx eslint --max-warnings 0
+          lib/reservation-allocation-policy.ts
           lib/reservation-allocation.ts
           lib/booking-creation-service.ts
           app/api/bookings/route.ts
