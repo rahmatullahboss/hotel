@@ -1,135 +1,179 @@
-# Turborepo starter
+# ZinuRooms
 
-This Turborepo starter is maintained by the Turborepo core team.
+ZinuRooms is a hotel booking and property-operations platform with customer web/mobile booking, a hotel partner/PMS application and a platform administration application.
 
-## Using this example
+> Current phase: development and stabilisation. Read the audit before treating any module as production-ready.
 
-Run the following command:
+## Applications
 
-```sh
-npx create-turbo@latest
+| Path | Application | Default local port |
+|---|---|---:|
+| `apps/web` | Customer booking website and customer/mobile APIs | 3000 |
+| `apps/partner` | Hotel partner/PMS dashboard | 3001 |
+| `apps/admin` | ZinuRooms platform administration | 3002 |
+| `apps/mobile-flutter` | Active Flutter Android/iOS customer app | device/emulator |
+
+Shared services/packages:
+
+- `packages/db` — Neon PostgreSQL and Drizzle schema/migrations;
+- `packages/api` — reusable server-side domain/API code;
+- `packages/realtime` — Cloudflare Worker/Durable Object realtime service;
+- `packages/ui` and config packages — shared UI/tooling.
+
+The previous Expo mobile application/guidance is legacy. New mobile work belongs in `apps/mobile-flutter`.
+
+## Technology baseline
+
+- Next.js 16 / React 19 / TypeScript;
+- Turborepo with npm workspaces;
+- Neon PostgreSQL and Drizzle ORM;
+- Auth.js/NextAuth for web sessions plus a custom mobile-token API that is scheduled for hardening;
+- Flutter, Riverpod, go_router and Dio;
+- Stripe payments;
+- Firebase Cloud Messaging;
+- Cloudflare Workers/Durable Objects for realtime;
+- Vercel for the three Next.js applications during the current development phase.
+
+## Start here
+
+Every agent and contributor must read:
+
+1. [`AGENTS.md`](AGENTS.md)
+2. [`docs/README.md`](docs/README.md)
+3. [`docs/audit/2026-07-30-static-system-audit.md`](docs/audit/2026-07-30-static-system-audit.md)
+4. [`docs/execution/03-program-board.md`](docs/execution/03-program-board.md)
+5. the documents relevant to the assigned workstream
+
+Do not begin parallel implementation without claiming a workstream and paths on the program board.
+
+## Requirements
+
+- Node.js 22 or newer;
+- npm version declared by the root `packageManager`;
+- Flutter/Dart versions compatible with `apps/mobile-flutter/pubspec.yaml`;
+- PostgreSQL/Neon development database;
+- required local environment variables.
+
+## Environment
+
+Copy the example and configure local-only values:
+
+```bash
+cp .env.example .env
 ```
 
-## What's inside?
+The current `.env.example` is being expanded under `OPS-01`. Never commit real secrets. Preview/staging/production must use separate credentials and databases where appropriate.
 
-This Turborepo includes the following packages/apps:
+Database connections should eventually be split into:
 
-### Apps and Packages
+- pooled application connection;
+- direct migration/administrative connection.
 
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
+## Install
 
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
-
-### Utilities
-
-This Turborepo has some additional tools already setup for you:
-
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
-
-### Build
-
-To build all apps and packages, run the following command:
-
-```
-cd my-turborepo
-
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo build
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo build
-yarn dlx turbo build
-pnpm exec turbo build
+```bash
+npm install
 ```
 
-You can build a specific package by using a [filter](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters):
+## Development
 
-```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo build --filter=docs
+Run all Next.js applications/packages:
 
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo build --filter=docs
-yarn exec turbo build --filter=docs
-pnpm exec turbo build --filter=docs
+```bash
+npm run dev
 ```
 
-### Develop
+Run one application:
 
-To develop all apps and packages, run the following command:
-
-```
-cd my-turborepo
-
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo dev
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo dev
-yarn exec turbo dev
-pnpm exec turbo dev
+```bash
+npm run dev:web
+npm run dev:partner
+npm run dev:admin
 ```
 
-You can develop a specific package by using a [filter](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters):
+Flutter:
 
-```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo dev --filter=web
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo dev --filter=web
-yarn exec turbo dev --filter=web
-pnpm exec turbo dev --filter=web
+```bash
+cd apps/mobile-flutter
+flutter pub get
+flutter run
 ```
 
-### Remote Caching
+## Verification
 
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
+Current baseline commands:
 
-Turborepo can use a technique known as [Remote Caching](https://turborepo.com/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
-
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
-
-```
-cd my-turborepo
-
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo login
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo login
-yarn exec turbo login
-pnpm exec turbo login
+```bash
+npm run lint
+npm run check-types
+npm run build
 ```
 
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
+Flutter:
 
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
-
-```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo link
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo link
-yarn exec turbo link
-pnpm exec turbo link
+```bash
+cd apps/mobile-flutter
+dart format --output=none --set-exit-if-changed .
+flutter analyze
+flutter test
 ```
 
-## Useful Links
+The repository audit found that automated tests and CI gates are incomplete. Passing a build alone does not establish booking, payment, authorisation or concurrency correctness. Follow [`docs/quality/01-test-strategy.md`](docs/quality/01-test-strategy.md).
 
-Learn more about the power of Turborepo:
+## Database changes
 
-- [Tasks](https://turborepo.com/docs/crafting-your-repository/running-tasks)
-- [Caching](https://turborepo.com/docs/crafting-your-repository/caching)
-- [Remote Caching](https://turborepo.com/docs/core-concepts/remote-caching)
-- [Filtering](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters)
-- [Configuration Options](https://turborepo.com/docs/reference/configuration)
-- [CLI Usage](https://turborepo.com/docs/reference/command-line-reference)
+Schema source:
+
+```text
+packages/db/src/schema/
+```
+
+Required shared-environment workflow:
+
+1. edit schema;
+2. generate a named SQL migration;
+3. review the SQL;
+4. apply with Drizzle migration tooling using a direct database connection;
+5. test empty-database and upgrade paths;
+6. update affected contracts/tests/docs.
+
+`db:push` is only for disposable local prototyping. It must not be used against shared staging or production.
+
+## Deployment
+
+Current baseline:
+
+- customer web, partner and admin: Vercel;
+- database: Neon;
+- realtime: Cloudflare;
+- mobile release: GitHub Actions/Flutter tooling.
+
+Vercel remains suitable while the product is under development and traffic is low. The Next.js stack is portable; see [`docs/operations/01-environments-and-deployment.md`](docs/operations/01-environments-and-deployment.md) for the future Docker/VPS path.
+
+## High-priority stabilisation work
+
+The current P0 queue includes:
+
+- mobile JWT secret/token hardening;
+- server-authoritative booking and payment amounts;
+- Stripe idempotency and signed webhook reconciliation;
+- database-enforced reservation concurrency;
+- consistent commission/booking-fee policy;
+- cron endpoints that fail closed;
+- strict web and Flutter CI without failure suppression;
+- critical integration/end-to-end tests.
+
+The source of truth is the [program board](docs/execution/03-program-board.md).
+
+## Contribution and PR expectations
+
+- one workstream per branch;
+- minimal, coherent commits;
+- no resetting or overwriting unknown work;
+- tests and documentation in the same PR;
+- explicit schema/API/event/environment impact;
+- exact verification results;
+- security, tenant, money and concurrency review where applicable;
+- program board update before completion.
+
+Use the handoff template in [`docs/execution/01-multi-agent-operating-model.md`](docs/execution/01-multi-agent-operating-model.md).
