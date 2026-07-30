@@ -13,7 +13,7 @@ This board is the operational queue. Update status, owner, branch, PR and eviden
 | PAY-01 | READY | Server-authoritative booking calculation | Client money ignored; persisted calculation breakdown; configurable commission; wallet limits; tests | unassigned |
 | PAY-02 | BLOCKED | Stripe idempotency, attempts and webhook | Depends on PAY-01 and DB-01; signed/idempotent webhook and reconciliation | unassigned |
 | RSV-01 | READY | Atomic reservation allocation | DB-level no-overlap/atomic allotment; explicit transaction strategy; concurrent test | unassigned |
-| CI-01 | IN_PROGRESS | Required monorepo CI | locked install; changed-file zero-warning lint ratchet; full type-check, tests and production build; no suppression; branch checks documented | owner: GPT-5.6; base: `89a1e39dee0d6bd5bec32e42b4d36ce712ae5e68`; branch: `work/CI-01-required-monorepo-ci`; PR #2 |
+| CI-01 | BLOCKED_CONFIG | Required monorepo CI | Quality gate green in run `30527084577`; production build fails closed until issue #3 configures `CI_DATABASE_URL` from isolated Neon branch `br-bitter-bonus-a1ih1ip8` and a full build succeeds | owner: GPT-5.6; base: `89a1e39dee0d6bd5bec32e42b4d36ce712ae5e68`; branch: `work/CI-01-required-monorepo-ci`; PR #2 |
 | CI-02 | READY | Strict Flutter CI | format, strict analyze, tests, Android builds; test failure fails workflow | unassigned |
 | OPS-02 | READY | Cron fail-closed hardening | required secret, POST mutations, no `X-No-Auth`, timeout/retry/result checks | unassigned |
 | QA-01 | BLOCKED | Critical integration/E2E test platform | Depends on stable SEC/PAY/RSV contracts | unassigned |
@@ -24,6 +24,7 @@ This board is the operational queue. Update status, owner, branch, PR and eviden
 |---|---|---|---|---|
 | DB-01 | READY | Migration baseline and environment separation | `generate`/`migrate`; committed history; direct migration URL; pooled app URL; clean/upgrade tests | unassigned |
 | LINT-01 | READY | Retire historical monorepo lint debt | inventory warnings by app/rule; fix without broad suppression; keep changed-file ratchet green; finish with full `npm run lint` at zero warnings | unassigned |
+| DEP-01 | READY | Dependency vulnerability remediation | inventory 54 current npm audit findings by direct/transitive package; prioritize exploitable runtime paths; upgrade without forced blind changes; verify CI/build/regression evidence | unassigned |
 | SEC-02 | BLOCKED | Tenant/RBAC matrix and enforcement | Explicit permission matrix; negative tests across partner/admin/hotel boundaries | unassigned |
 | API-01 | BLOCKED | Versioned mobile API contract | Typed schemas, stable error envelope, contract tests, no guessed response shapes | unassigned |
 | RSV-02 | BLOCKED | Booking expiry/cancellation/refund state machine | legal transitions, idempotent jobs, inventory release, wallet/payment reconciliation | unassigned |
@@ -89,9 +90,15 @@ No check may transform a failure into success. Required checks become branch pro
 
 CI-01 uses a zero-warning changed-file lint ratchet while `LINT-01` removes untouched historical warnings. Full type-check, CI tests and production build remain repository-wide gates.
 
+CI-01 may move from `BLOCKED_CONFIG` to `IN_REVIEW` only after issue #3 is resolved and the production-build check has executed successfully against the isolated Neon CI branch.
+
 ### LINT-01 — Historical lint cleanup
 
 Inventory warnings by workspace and rule. Fix them in bounded app/package batches without increasing warning counts, weakening shared rules or combining unrelated behaviour changes. Completion requires `npm run lint` to pass with zero warnings, after which CI-01 can replace the ratchet with full-repository lint.
+
+### DEP-01 — Dependency remediation
+
+Start from a committed `npm audit --json` inventory. Separate runtime from development-only exposure, identify direct upgrade paths and avoid `npm audit fix --force` without review. Each batch requires locked install, CI quality, production build and relevant runtime smoke evidence.
 
 ## Board update rules
 
@@ -103,14 +110,13 @@ A status change to `DONE` requires merged SHA and integration/runtime evidence. 
 
 ## Current next action
 
-After GOV-01 review, activate in parallel:
+Active or immediately activatable streams:
 
-1. CI-01
-2. CI-02
-3. DB-01
-4. SEC-01
-5. PAY-01 design/tests
-6. RSV-01 design/database proof
-7. OPS-01 environment inventory
+1. resolve CI-01 issue #3 and rerun production build;
+2. activate CI-02 strict Flutter CI;
+3. activate DB-01 migration baseline;
+4. activate SEC-01 mobile auth hardening;
+5. prepare PAY-01 and RSV-01 designs with coordinated migration ownership;
+6. activate OPS-01 environment inventory.
 
 The coordinator must prevent PAY-01 and RSV-01 from generating conflicting database migrations.
