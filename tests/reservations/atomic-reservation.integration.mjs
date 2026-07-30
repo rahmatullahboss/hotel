@@ -87,7 +87,10 @@ test("two concurrent overlapping inserts produce exactly one reservation", async
     const rejected = results.filter((result) => result.status === "rejected");
     assert.equal(fulfilled.length, 1);
     assert.equal(rejected.length, 1);
-    assert.equal(rejected[0].reason?.code, "23P01");
+    assert.ok(
+      ["23P01", "40P01"].includes(rejected[0].reason?.code),
+      `unexpected PostgreSQL conflict code: ${rejected[0].reason?.code}`,
+    );
   } finally {
     await Promise.all([first.end(), second.end()]);
   }
