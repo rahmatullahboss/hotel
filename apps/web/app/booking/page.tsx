@@ -1,7 +1,7 @@
 "use client";
 
 import { Suspense, useState, useEffect } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
@@ -11,7 +11,7 @@ import { getUserProfile } from "../actions/profile";
 import { getWalletBalance } from "../actions/wallet";
 import { checkFirstBookingEligibility } from "../actions/first-booking";
 import { FIRST_BOOKING_DISCOUNT_PERCENT, FIRST_BOOKING_MAX_DISCOUNT, TAX_RATE } from "../constants";
-import { BottomNav, BookingQRCode } from "../components";
+import { BookingQRCode } from "../components";
 import { FiLock, FiClock, FiCreditCard, FiSmartphone, FiCheck } from "react-icons/fi";
 import { FaHotel, FaWallet } from "react-icons/fa";
 
@@ -32,7 +32,6 @@ const paymentMethods: { id: PaymentMethod; nameKey: string; icon: React.ReactNod
 ];
 
 function BookingContent() {
-    const router = useRouter();
     const searchParams = useSearchParams();
     const { data: session, status } = useSession();
     const t = useTranslations("booking");
@@ -220,7 +219,7 @@ function BookingContent() {
                 } else {
                     setError(result.error || t("failedToCreate"));
                 }
-            } catch (err) {
+            } catch {
                 setError(t("errorOccurred"));
             } finally {
                 setIsSubmitting(false);
@@ -246,7 +245,7 @@ function BookingContent() {
             } else {
                 setError(paymentData.error || t("failedToInitiate"));
             }
-        } catch (err) {
+        } catch {
             setError(t("paymentServiceUnavailable"));
         } finally {
             setIsSubmitting(false);
@@ -277,6 +276,7 @@ function BookingContent() {
                     {/* Booking Summary Card with Room Photo */}
                     <div className="premium-summary-card">
                         <div className="premium-summary-image">
+                            {/* eslint-disable-next-line @next/next/no-img-element -- provider room-photo URLs are dynamic */}
                             <img
                                 src={roomPhoto || "https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=800&h=400&fit=crop"}
                                 alt={roomName}

@@ -123,7 +123,6 @@ export async function cancelBooking(
 
         // Handle refund for partial payment bookings
         const walletAmountUsed = Number(booking.walletAmountUsed) || 0;
-        const totalAmount = Number(booking.totalAmount) || 0;
         const advanceAmount = Number(booking.amountDueNow) || 0;
 
         if (booking.bookingFeeStatus === "PAID" && (bookingFee > 0 || walletAmountUsed > 0)) {
@@ -253,7 +252,6 @@ export async function getCancellationInfo(bookingId: string, userId: string) {
         const hoursUntilCheckIn = (checkInDate.getTime() - now.getTime()) / (1000 * 60 * 60);
         const bookingFee = Number(booking.bookingFee) || 0;
         const walletAmountUsed = Number(booking.walletAmountUsed) || 0;
-        const totalAmount = Number(booking.totalAmount) || 0;
         const advanceAmount = Number(booking.amountDueNow) || 0;
         const amountPaid = walletAmountUsed > 0 ? walletAmountUsed : bookingFee;
 

@@ -48,7 +48,7 @@ export async function GET(request: NextRequest) {
                     const amount = Number(result.data.amount || 0);
 
                     // database transaction to ensure consistency
-                    await db.transaction(async (tx: any) => {
+                    await db.transaction(async (tx: typeof db) => {
                         // 1. Get or create wallet
                         let wallet = await tx.query.wallets.findFirst({
                             where: eq(wallets.userId, userId),
