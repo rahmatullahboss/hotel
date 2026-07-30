@@ -123,7 +123,7 @@ export async function getBkashToken(): Promise<string> {
         try {
             const refreshed = await refreshBkashToken(cachedToken.refresh_token);
             if (refreshed) return refreshed;
-        } catch (e) {
+        } catch {
             console.log("Refresh failed, getting new token");
         }
     }
