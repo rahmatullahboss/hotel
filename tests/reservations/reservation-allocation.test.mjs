@@ -32,7 +32,7 @@ test("candidate ordering keeps the requested room first and is deterministic", (
   );
 });
 
-test("reservation conflict detection handles domain and nested PostgreSQL errors", () => {
+test("reservation conflict detection handles domain and PostgreSQL race errors", () => {
   assert.equal(
     allocation.isReservationConflict(new allocation.ReservationConflictError()),
     true,
@@ -41,6 +41,7 @@ test("reservation conflict detection handles domain and nested PostgreSQL errors
     allocation.isReservationConflict({ cause: { code: "23P01" } }),
     true,
   );
+  assert.equal(allocation.isReservationConflict({ code: "40P01" }), true);
   assert.equal(allocation.isReservationConflict({ code: "23514" }), false);
 });
 
