@@ -13,8 +13,8 @@ This board is the operational queue. Update status, owner, branch, PR and eviden
 | PAY-01 | READY | Server-authoritative booking calculation | Client money ignored; persisted calculation breakdown; configurable commission; wallet limits; tests | unassigned |
 | PAY-02 | BLOCKED | Stripe idempotency, attempts and webhook | Depends on PAY-01 and DB-01; signed/idempotent webhook and reconciliation | unassigned |
 | RSV-01 | READY | Atomic reservation allocation | DB-level no-overlap/atomic allotment; explicit transaction strategy; concurrent test | unassigned |
-| CI-01 | READY | Required monorepo CI | install, lint, type-check, build, tests; no suppression; branch checks documented | unassigned |
-| CI-02 | READY | Strict Flutter CI | format, strict analyze, tests, Android builds; test failure fails workflow | unassigned |
+| CI-01 | READY | Required monorepo CI | install, lint, type-check, build, tests; no suppression; branch checks documented | active independently in PR #2 |
+| CI-02 | IN_PROGRESS | Strict Flutter CI | PR format/analyze/test/debug APK; signed tag/manual release fails closed; mandatory artifacts; no failure suppression | owner: GPT-5.6; base: `89a1e39dee0d6bd5bec32e42b4d36ce712ae5e68`; branch: `work/CI-02-strict-flutter-ci` |
 | OPS-02 | READY | Cron fail-closed hardening | required secret, POST mutations, no `X-No-Auth`, timeout/retry/result checks | unassigned |
 | QA-01 | BLOCKED | Critical integration/E2E test platform | Depends on stable SEC/PAY/RSV contracts | unassigned |
 
@@ -85,6 +85,8 @@ Must introduce payment attempts and processed provider events with unique keys. 
 ### CI-01/CI-02
 
 No check may transform a failure into success. Required checks become branch protection gates after workflow validation.
+
+CI-02 requires ordinary pull requests to pass format, strict analyze, executable tests and an unsigned debug APK build. Signed release jobs are limited to tags/manual dispatch and fail closed when signing credentials or expected artifacts are absent.
 
 ## Board update rules
 

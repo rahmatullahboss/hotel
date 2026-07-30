@@ -658,7 +658,7 @@ class _ProfileHeader extends StatelessWidget {
                                   width: 94,
                                   height: 94,
                                   fit: BoxFit.cover,
-                                  errorBuilder: (_, __, ___) => Icon(
+                                  errorBuilder: (_, _, _) => Icon(
                                     Icons.person,
                                     size: 50,
                                     color: AppColors.primary,

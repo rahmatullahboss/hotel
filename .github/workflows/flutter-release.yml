@@ -1,238 +1,303 @@
-name: Flutter CI/CD - Build & Release
+name: Flutter CI/CD
 
 on:
-  # Auto build on push to main/develop (flutter app changes only)
-  push:
-    branches: [main, develop]
-    tags:
-      - 'v*'
+  pull_request:
+    branches:
+      - main
     paths:
-      - 'apps/mobile-flutter/**'
-      - '.github/workflows/flutter-release.yml'
-
-  # Manual trigger with version input
+      - "apps/mobile-flutter/**"
+      - ".github/workflows/flutter-release.yml"
+  push:
+    branches:
+      - main
+      - develop
+    tags:
+      - "v*"
+    paths:
+      - "apps/mobile-flutter/**"
+      - ".github/workflows/flutter-release.yml"
   workflow_dispatch:
     inputs:
       version:
-        description: 'Version (e.g., 1.0.0+1)'
+        description: "Version (for example 1.0.0+1)"
         required: false
-        default: ''
+        default: ""
       build_type:
-        description: 'Build type'
+        description: "Signed release output"
         required: true
-        default: 'both'
+        default: both
         type: choice
         options:
           - apk
           - appbundle
           - both
 
+permissions:
+  contents: read
+
+concurrency:
+  group: flutter-ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 env:
-  FLUTTER_VERSION: '3.38.5'
-  JAVA_VERSION: '17'
+  FLUTTER_VERSION: "3.38.5"
+  JAVA_VERSION: "17"
   WORKING_DIR: apps/mobile-flutter
 
 jobs:
-  # ─── Job 1: Analyze & Test ───
-  test:
-    name: 🧪 Analyze & Test
+  quality:
+    name: Format, analyze and test
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     defaults:
       run:
         working-directory: ${{ env.WORKING_DIR }}
 
     steps:
-      - name: 📥 Checkout Repository
-        uses: actions/checkout@v4
+      - name: Check out repository
+        uses: actions/checkout@v5
 
-      - name: ☕ Setup Java
+      - name: Set up Java
         uses: actions/setup-java@v4
         with:
-          distribution: 'temurin'
+          distribution: temurin
           java-version: ${{ env.JAVA_VERSION }}
 
-      - name: 🐦 Setup Flutter
+      - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
           flutter-version: ${{ env.FLUTTER_VERSION }}
           channel: stable
           cache: true
 
-      - name: 📦 Get Dependencies
+      - name: Show toolchain versions
+        run: |
+          flutter --version
+          dart --version
+          java -version
+
+      - name: Resolve locked dependencies
         run: flutter pub get
 
-      - name: 🔍 Analyze Code
-        run: flutter analyze --no-fatal-infos --no-fatal-warnings
+      - name: Verify dependency lockfile is unchanged
+        run: git diff --exit-code -- pubspec.lock
 
-      - name: 🧪 Run Tests
-        run: flutter test --coverage || echo "No tests found, skipping..."
+      - name: Verify tests exist
+        shell: bash
+        run: |
+          if ! find test -type f -name '*_test.dart' -print -quit | grep -q .; then
+            echo "::error::At least one committed *_test.dart file is required."
+            exit 1
+          fi
 
-  # ─── Job 2: Build Release APK & AAB ───
-  build:
-    name: 🏗️ Build Release
+      - name: Check Dart formatting
+        run: dart format --output=none --set-exit-if-changed lib test
+
+      - name: Analyze Dart and Flutter code
+        run: flutter analyze
+
+      - name: Run Flutter tests
+        run: flutter test --coverage
+
+      - name: Upload coverage
+        uses: actions/upload-artifact@v4
+        with:
+          name: flutter-coverage-${{ github.run_id }}
+          path: apps/mobile-flutter/coverage/lcov.info
+          if-no-files-found: error
+          retention-days: 14
+
+  android-debug-build:
+    name: Android debug build
+    needs: quality
+    if: github.event_name == 'pull_request' || (github.event_name == 'push' && !startsWith(github.ref, 'refs/tags/v'))
     runs-on: ubuntu-latest
-    needs: test
+    timeout-minutes: 40
     defaults:
       run:
         working-directory: ${{ env.WORKING_DIR }}
 
     steps:
-      - name: 📥 Checkout Repository
-        uses: actions/checkout@v4
+      - name: Check out repository
+        uses: actions/checkout@v5
 
-      - name: ☕ Setup Java
+      - name: Set up Java
         uses: actions/setup-java@v4
         with:
-          distribution: 'temurin'
+          distribution: temurin
           java-version: ${{ env.JAVA_VERSION }}
 
-      - name: 🐦 Setup Flutter
+      - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
           flutter-version: ${{ env.FLUTTER_VERSION }}
           channel: stable
           cache: true
 
-      - name: 📦 Get Dependencies
+      - name: Resolve locked dependencies
         run: flutter pub get
 
-      # ─── Decode Keystore from Secrets ───
-      - name: 🔐 Decode Keystore
-        run: |
-          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > android/app/upload-keystore.jks
+      - name: Build debug APK
+        run: flutter build apk --debug
 
-      - name: 🔑 Create key.properties
-        run: |
-          cat > android/key.properties << EOF
-          storePassword=${{ secrets.KEYSTORE_PASSWORD }}
-          keyPassword=${{ secrets.KEY_PASSWORD }}
-          keyAlias=${{ secrets.KEY_ALIAS }}
-          storeFile=upload-keystore.jks
-          EOF
+      - name: Upload debug APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-debug-apk-${{ github.run_id }}
+          path: apps/mobile-flutter/build/app/outputs/flutter-apk/app-debug.apk
+          if-no-files-found: error
+          retention-days: 14
 
-      # ─── Set Version (if provided) ───
-      - name: 📝 Set Version
-        if: github.event.inputs.version != ''
+  signed-release-build:
+    name: Signed Android release build
+    needs: quality
+    if: startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 50
+    env:
+      KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+      KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+      KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+      KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+    defaults:
+      run:
+        working-directory: ${{ env.WORKING_DIR }}
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v5
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: ${{ env.JAVA_VERSION }}
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+
+      - name: Verify signing configuration
+        shell: bash
         run: |
-          VERSION="${{ github.event.inputs.version }}"
-          # Extract version name and build number
-          if [[ "$VERSION" == *"+"* ]]; then
-            VERSION_NAME="${VERSION%%+*}"
-            BUILD_NUMBER="${VERSION##*+}"
+          missing=0
+          for variable in KEYSTORE_BASE64 KEYSTORE_PASSWORD KEY_PASSWORD KEY_ALIAS; do
+            if [[ -z "${!variable}" ]]; then
+              echo "::error::Required signing secret ${variable} is not configured."
+              missing=1
+            fi
+          done
+          exit "${missing}"
+
+      - name: Resolve locked dependencies
+        run: flutter pub get
+
+      - name: Decode keystore
+        shell: bash
+        run: printf '%s' "${KEYSTORE_BASE64}" | base64 --decode > android/app/upload-keystore.jks
+
+      - name: Create key properties
+        shell: bash
+        run: |
+          {
+            printf 'storePassword=%s\n' "${KEYSTORE_PASSWORD}"
+            printf 'keyPassword=%s\n' "${KEY_PASSWORD}"
+            printf 'keyAlias=%s\n' "${KEY_ALIAS}"
+            printf 'storeFile=upload-keystore.jks\n'
+          } > android/key.properties
+
+      - name: Resolve release version
+        if: github.event_name == 'workflow_dispatch' && github.event.inputs.version != ''
+        shell: bash
+        run: |
+          version='${{ github.event.inputs.version }}'
+          if [[ "${version}" == *+* ]]; then
+            version_name="${version%%+*}"
+            build_number="${version##*+}"
           else
-            VERSION_NAME="$VERSION"
-            BUILD_NUMBER="1"
+            version_name="${version}"
+            build_number="1"
           fi
-          echo "VERSION_NAME=$VERSION_NAME" >> $GITHUB_ENV
-          echo "BUILD_NUMBER=$BUILD_NUMBER" >> $GITHUB_ENV
+          echo "VERSION_NAME=${version_name}" >> "${GITHUB_ENV}"
+          echo "BUILD_NUMBER=${build_number}" >> "${GITHUB_ENV}"
 
-      # ─── Build APK ───
-      - name: 📱 Build Release APK
+      - name: Build signed release APK
         if: github.event.inputs.build_type != 'appbundle'
+        shell: bash
         run: |
-          BUILD_ARGS="--release"
-          if [ -n "$VERSION_NAME" ]; then
-            BUILD_ARGS="$BUILD_ARGS --build-name=$VERSION_NAME --build-number=$BUILD_NUMBER"
+          arguments=(--release)
+          if [[ -n "${VERSION_NAME:-}" ]]; then
+            arguments+=(--build-name="${VERSION_NAME}" --build-number="${BUILD_NUMBER}")
           fi
-          flutter build apk $BUILD_ARGS
+          flutter build apk "${arguments[@]}"
 
-      # ─── Build App Bundle ───
-      - name: 📦 Build Release App Bundle (AAB)
+      - name: Build signed release app bundle
         if: github.event.inputs.build_type != 'apk'
+        shell: bash
         run: |
-          BUILD_ARGS="--release"
-          if [ -n "$VERSION_NAME" ]; then
-            BUILD_ARGS="$BUILD_ARGS --build-name=$VERSION_NAME --build-number=$BUILD_NUMBER"
+          arguments=(--release)
+          if [[ -n "${VERSION_NAME:-}" ]]; then
+            arguments+=(--build-name="${VERSION_NAME}" --build-number="${BUILD_NUMBER}")
           fi
-          flutter build appbundle $BUILD_ARGS
+          flutter build appbundle "${arguments[@]}"
 
-      # ─── Upload APK Artifact ───
-      - name: 📤 Upload APK
+      - name: Upload release APK
         if: github.event.inputs.build_type != 'appbundle'
         uses: actions/upload-artifact@v4
         with:
           name: release-apk
           path: apps/mobile-flutter/build/app/outputs/flutter-apk/app-release.apk
+          if-no-files-found: error
           retention-days: 30
 
-      # ─── Upload AAB Artifact ───
-      - name: 📤 Upload AAB
+      - name: Upload release app bundle
         if: github.event.inputs.build_type != 'apk'
         uses: actions/upload-artifact@v4
         with:
           name: release-aab
           path: apps/mobile-flutter/build/app/outputs/bundle/release/app-release.aab
+          if-no-files-found: error
           retention-days: 30
 
-      # ─── Print Build Info ───
-      - name: 📋 Build Summary
-        run: |
-          echo "## 🎉 Build Complete!" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "| Property | Value |" >> $GITHUB_STEP_SUMMARY
-          echo "|----------|-------|" >> $GITHUB_STEP_SUMMARY
-          echo "| **App** | Zinu Rooms |" >> $GITHUB_STEP_SUMMARY
-          echo "| **Package** | com.zinurooms.zinu_rooms |" >> $GITHUB_STEP_SUMMARY
-          echo "| **Flutter** | ${{ env.FLUTTER_VERSION }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| **Branch** | ${{ github.ref_name }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| **Commit** | ${{ github.sha }} |" >> $GITHUB_STEP_SUMMARY
-          if [ -f "build/app/outputs/flutter-apk/app-release.apk" ]; then
-            APK_SIZE=$(du -sh build/app/outputs/flutter-apk/app-release.apk | cut -f1)
-            echo "| **APK Size** | $APK_SIZE |" >> $GITHUB_STEP_SUMMARY
-          fi
-          if [ -f "build/app/outputs/bundle/release/app-release.aab" ]; then
-            AAB_SIZE=$(du -sh build/app/outputs/bundle/release/app-release.aab | cut -f1)
-            echo "| **AAB Size** | $AAB_SIZE |" >> $GITHUB_STEP_SUMMARY
-          fi
+      - name: Remove signing material
+        if: always()
+        shell: bash
+        run: rm -f android/app/upload-keystore.jks android/key.properties
 
-  # ─── Job 3: Create GitHub Release (on tag) ───
   release:
-    name: 🚀 Create GitHub Release
-    runs-on: ubuntu-latest
-    needs: build
+    name: Create GitHub release
+    needs: signed-release-build
     if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
     permissions:
       contents: write
 
     steps:
-      - name: 📥 Download APK Artifact
+      - name: Download release APK
         uses: actions/download-artifact@v4
         with:
           name: release-apk
-          path: ./artifacts/apk
-        continue-on-error: true
+          path: artifacts/apk
 
-      - name: 📥 Download AAB Artifact
+      - name: Download release app bundle
         uses: actions/download-artifact@v4
         with:
           name: release-aab
-          path: ./artifacts/aab
-        continue-on-error: true
+          path: artifacts/aab
 
-      - name: 🏷️ Get Version from Tag
-        id: version
-        run: echo "version=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
-
-      - name: 🚀 Create GitHub Release
+      - name: Create GitHub release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ github.ref_name }}
-          name: "Zinu Rooms ${{ steps.version.outputs.version }}"
-          body: |
-            ## 📱 Zinu Rooms ${{ steps.version.outputs.version }}
-
-            ### Download
-            - **APK**: Direct install on Android devices
-            - **AAB**: For Google Play Store upload
-
-            ### Changes
-            - See commit history for detailed changes
-
-            ---
-            *Built with Flutter ${{ env.FLUTTER_VERSION }}*
+          name: Zinu Rooms ${{ github.ref_name }}
+          generate_release_notes: true
           draft: false
           prerelease: false
+          fail_on_unmatched_files: true
           files: |
-            ./artifacts/apk/app-release.apk
-            ./artifacts/aab/app-release.aab
-          fail_on_unmatched_files: false
+            artifacts/apk/app-release.apk
+            artifacts/aab/app-release.aab
