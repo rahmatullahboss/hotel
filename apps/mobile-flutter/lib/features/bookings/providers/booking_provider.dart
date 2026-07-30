@@ -316,8 +316,12 @@ class BookingsNotifier extends Notifier<BookingsState> {
           return BookingCreationResult(
             bookingId: bookingId,
             success: true,
-            totalAmount: double.tryParse(data['totalAmount']?.toString() ?? '')?.round(),
-            amountDueNow: double.tryParse(data['amountDueNow']?.toString() ?? '')?.round(),
+            totalAmount: double.tryParse(
+              data['totalAmount']?.toString() ?? '',
+            )?.round(),
+            amountDueNow: double.tryParse(
+              data['amountDueNow']?.toString() ?? '',
+            )?.round(),
             amountOutstanding: double.tryParse(
               data['amountOutstanding']?.toString() ?? '',
             )?.round(),

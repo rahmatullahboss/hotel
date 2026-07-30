@@ -514,9 +514,7 @@ class _BookingFlowScreenState extends ConsumerState<BookingFlowScreen> {
       builder: (context) => const Center(child: CircularProgressIndicator()),
     );
 
-    debugPrint(
-      'Creating booking: hotelId=$hotelId, roomId=${widget.roomId}',
-    );
+    debugPrint('Creating booking: hotelId=$hotelId, roomId=${widget.roomId}');
 
     // Call booking API to create pending booking
     final result = await ref
