@@ -40,23 +40,24 @@ jobs:
           xz --decompress --stdout /tmp/pay01-patch.xz > /tmp/pay01.patch
           git apply --check /tmp/pay01.patch
 
-      - name: Apply exact PAY-01 checkpoint
+      - name: Apply exact PAY-01 source checkpoint
         shell: bash
         run: |
           git apply /tmp/pay01.patch
+
+          # Workflow files are applied separately through the GitHub connector because
+          # the Actions token is not allowed to create/delete workflow files.
+          rm .github/workflows/booking-calculation.yml
           rm \
             .github/pay01-patch-aa.b64 \
             .github/pay01-patch-ab.b64 \
-            .github/pay01-patch-ac.b64 \
-            .github/workflows/pay01-apply-patch.yml
+            .github/pay01-patch-ac.b64
 
           cat > /tmp/expected-paths.txt <<'PATHS'
           .env.example
           .github/pay01-patch-aa.b64
           .github/pay01-patch-ab.b64
           .github/pay01-patch-ac.b64
-          .github/workflows/booking-calculation.yml
-          .github/workflows/pay01-apply-patch.yml
           apps/mobile-flutter/lib/features/booking_flow/presentation/booking_flow_screen.dart
           apps/mobile-flutter/lib/features/booking_flow/providers/stripe_payment_provider.dart
           apps/mobile-flutter/lib/features/bookings/presentation/booking_details_screen.dart
@@ -92,9 +93,8 @@ jobs:
 
           test ! -e .github/workflows/pay01-source-snapshot.yml
           test ! -e .github/workflows/pay01-generate-migration.yml
-          test ! -e .github/workflows/pay01-apply-patch.yml
 
-      - name: Commit checkpoint
+      - name: Commit source checkpoint
         shell: bash
         run: |
           git config user.name "github-actions[bot]"
