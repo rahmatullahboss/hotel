@@ -2,6 +2,7 @@
   "$schema": "https://turborepo.com/schema.json",
   "ui": "tui",
   "globalEnv": [
+    "NODE_ENV",
     "DATABASE_URL",
     "AUTH_SECRET",
     "AUTH_GOOGLE_ID",
@@ -22,7 +23,13 @@
     "VAPID_PUBLIC_KEY",
     "VAPID_SUBJECT",
     "STRIPE_SECRET_KEY",
-    "NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY"
+    "NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY",
+    "BKASH_APP_KEY",
+    "BKASH_APP_SECRET",
+    "BKASH_USERNAME",
+    "BKASH_PASSWORD",
+    "BKASH_IS_SANDBOX",
+    "NEXT_PUBLIC_BASE_URL"
   ],
   "tasks": {
     "build": {
