@@ -1,14 +1,15 @@
 import {
-    pgTable,
-    text,
-    timestamp,
-    integer,
-    boolean,
-    decimal,
-    jsonb,
-    date,
-    uniqueIndex,
-    pgSequence,
+  pgTable,
+  text,
+  timestamp,
+  integer,
+  boolean,
+  decimal,
+  jsonb,
+  date,
+  uniqueIndex,
+  pgSequence,
+  check,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 import { users } from "./auth";
@@ -21,11 +22,11 @@ export type RoomType = "SINGLE" | "DOUBLE" | "SUITE" | "DORMITORY";
 
 // Booking Status Enum
 export type BookingStatus =
-    | "PENDING"
-    | "CONFIRMED"
-    | "CHECKED_IN"
-    | "CHECKED_OUT"
-    | "CANCELLED";
+  | "PENDING"
+  | "CONFIRMED"
+  | "CHECKED_IN"
+  | "CHECKED_OUT"
+  | "CANCELLED";
 
 // Payment Status Enum
 export type PaymentStatus = "PENDING" | "PAID" | "REFUNDED" | "PAY_AT_HOTEL";
@@ -44,52 +45,57 @@ import { sql } from "drizzle-orm";
 export const hotelIdSeq = pgSequence("hotel_id_seq");
 
 export const hotels = pgTable("hotels", {
-    id: text("id")
-        .primaryKey()
-        .$defaultFn(() => crypto.randomUUID()),
-    ownerId: text("ownerId")
-        .notNull()
-        .references(() => users.id, { onDelete: "cascade" }),
-    name: text("name").notNull(),
-    // Auto-incrementing serial number using sequence
-    serialNumber: integer("serialNumber").default(sql`nextval('hotel_id_seq')`),
-    // Zinu branding - auto-generated unique code (e.g., ZR10001)
-    zinuCode: text("zinuCode").unique(),
-    // Hotel category for branding (Zinu Classic, Zinu Premium, Zinu Business)
-    category: text("category", { enum: ["CLASSIC", "PREMIUM", "BUSINESS"] })
-        .default("CLASSIC")
-        .notNull(),
-    description: text("description"),
-    address: text("address").notNull(),
-    city: text("city").notNull(),
-    latitude: decimal("latitude", { precision: 10, scale: 7 }),
-    longitude: decimal("longitude", { precision: 10, scale: 7 }),
-    amenities: jsonb("amenities").$type<string[]>().default([]),
-    photos: jsonb("photos").$type<string[]>().default([]),
-    coverImage: text("coverImage"),
-    rating: decimal("rating", { precision: 2, scale: 1 }).default("0"),
-    reviewCount: integer("reviewCount").default(0).notNull(),
-    payAtHotelEnabled: boolean("payAtHotelEnabled").default(true).notNull(),
-    status: text("status", { enum: ["PENDING", "ACTIVE", "SUSPENDED"] })
-        .default("PENDING")
-        .notNull(),
-    commissionRate: decimal("commissionRate", { precision: 5, scale: 2 })
-        .default("12.00")
-        .notNull(),
-    // Pre-computed dynamic price (updated by cron job) - single source of truth
-    lowestDynamicPrice: decimal("lowestDynamicPrice", { precision: 10, scale: 2 }),
-    lowestDynamicPriceUpdatedAt: timestamp("lowestDynamicPriceUpdatedAt", { mode: "date" }),
-    createdAt: timestamp("createdAt", { mode: "date" }).defaultNow().notNull(),
-    updatedAt: timestamp("updatedAt", { mode: "date" }).defaultNow().notNull(),
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  ownerId: text("ownerId")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  name: text("name").notNull(),
+  // Auto-incrementing serial number using sequence
+  serialNumber: integer("serialNumber").default(sql`nextval('hotel_id_seq')`),
+  // Zinu branding - auto-generated unique code (e.g., ZR10001)
+  zinuCode: text("zinuCode").unique(),
+  // Hotel category for branding (Zinu Classic, Zinu Premium, Zinu Business)
+  category: text("category", { enum: ["CLASSIC", "PREMIUM", "BUSINESS"] })
+    .default("CLASSIC")
+    .notNull(),
+  description: text("description"),
+  address: text("address").notNull(),
+  city: text("city").notNull(),
+  latitude: decimal("latitude", { precision: 10, scale: 7 }),
+  longitude: decimal("longitude", { precision: 10, scale: 7 }),
+  amenities: jsonb("amenities").$type<string[]>().default([]),
+  photos: jsonb("photos").$type<string[]>().default([]),
+  coverImage: text("coverImage"),
+  rating: decimal("rating", { precision: 2, scale: 1 }).default("0"),
+  reviewCount: integer("reviewCount").default(0).notNull(),
+  payAtHotelEnabled: boolean("payAtHotelEnabled").default(true).notNull(),
+  status: text("status", { enum: ["PENDING", "ACTIVE", "SUSPENDED"] })
+    .default("PENDING")
+    .notNull(),
+  commissionRate: decimal("commissionRate", { precision: 5, scale: 2 })
+    .default("12.00")
+    .notNull(),
+  // Pre-computed dynamic price (updated by cron job) - single source of truth
+  lowestDynamicPrice: decimal("lowestDynamicPrice", {
+    precision: 10,
+    scale: 2,
+  }),
+  lowestDynamicPriceUpdatedAt: timestamp("lowestDynamicPriceUpdatedAt", {
+    mode: "date",
+  }),
+  createdAt: timestamp("createdAt", { mode: "date" }).defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt", { mode: "date" }).defaultNow().notNull(),
 });
 
 export const hotelsRelations = relations(hotels, ({ one, many }) => ({
-    owner: one(users, {
-        fields: [hotels.ownerId],
-        references: [users.id],
-    }),
-    rooms: many(rooms),
-    bookings: many(bookings),
+  owner: one(users, {
+    fields: [hotels.ownerId],
+    references: [users.id],
+  }),
+  rooms: many(rooms),
+  bookings: many(bookings),
 }));
 
 // ====================
@@ -97,34 +103,34 @@ export const hotelsRelations = relations(hotels, ({ one, many }) => ({
 // ====================
 
 export const rooms = pgTable("rooms", {
-    id: text("id")
-        .primaryKey()
-        .$defaultFn(() => crypto.randomUUID()),
-    hotelId: text("hotelId")
-        .notNull()
-        .references(() => hotels.id, { onDelete: "cascade" }),
-    roomNumber: text("roomNumber").notNull(),
-    name: text("name").notNull(),
-    type: text("type", { enum: ["SINGLE", "DOUBLE", "SUITE", "DORMITORY"] })
-        .default("DOUBLE")
-        .notNull(),
-    description: text("description"),
-    basePrice: decimal("basePrice", { precision: 10, scale: 2 }).notNull(),
-    maxGuests: integer("maxGuests").default(2).notNull(),
-    amenities: jsonb("amenities").$type<string[]>().default([]),
-    photos: jsonb("photos").$type<string[]>().default([]),
-    isActive: boolean("isActive").default(true).notNull(),
-    createdAt: timestamp("createdAt", { mode: "date" }).defaultNow().notNull(),
-    updatedAt: timestamp("updatedAt", { mode: "date" }).defaultNow().notNull(),
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  hotelId: text("hotelId")
+    .notNull()
+    .references(() => hotels.id, { onDelete: "cascade" }),
+  roomNumber: text("roomNumber").notNull(),
+  name: text("name").notNull(),
+  type: text("type", { enum: ["SINGLE", "DOUBLE", "SUITE", "DORMITORY"] })
+    .default("DOUBLE")
+    .notNull(),
+  description: text("description"),
+  basePrice: decimal("basePrice", { precision: 10, scale: 2 }).notNull(),
+  maxGuests: integer("maxGuests").default(2).notNull(),
+  amenities: jsonb("amenities").$type<string[]>().default([]),
+  photos: jsonb("photos").$type<string[]>().default([]),
+  isActive: boolean("isActive").default(true).notNull(),
+  createdAt: timestamp("createdAt", { mode: "date" }).defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt", { mode: "date" }).defaultNow().notNull(),
 });
 
 export const roomsRelations = relations(rooms, ({ one, many }) => ({
-    hotel: one(hotels, {
-        fields: [rooms.hotelId],
-        references: [hotels.id],
-    }),
-    inventory: many(roomInventory),
-    bookings: many(bookings),
+  hotel: one(hotels, {
+    fields: [rooms.hotelId],
+    references: [hotels.id],
+  }),
+  inventory: many(roomInventory),
+  bookings: many(bookings),
 }));
 
 // ====================
@@ -132,34 +138,34 @@ export const roomsRelations = relations(rooms, ({ one, many }) => ({
 // ====================
 
 export const roomInventory = pgTable(
-    "roomInventory",
-    {
-        id: text("id")
-            .primaryKey()
-            .$defaultFn(() => crypto.randomUUID()),
-        roomId: text("roomId")
-            .notNull()
-            .references(() => rooms.id, { onDelete: "cascade" }),
-        date: date("date", { mode: "string" }).notNull(),
-        status: text("status", { enum: ["AVAILABLE", "OCCUPIED", "BLOCKED"] })
-            .default("AVAILABLE")
-            .notNull(),
-        price: decimal("price", { precision: 10, scale: 2 }), // Override price for specific date
-        notes: text("notes"),
-        createdAt: timestamp("createdAt", { mode: "date" }).defaultNow().notNull(),
-        updatedAt: timestamp("updatedAt", { mode: "date" }).defaultNow().notNull(),
-    },
-    (table) => [
-        // Unique constraint for upserts - each room can only have one inventory entry per date
-        uniqueIndex("room_date_unique").on(table.roomId, table.date),
-    ]
+  "roomInventory",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    roomId: text("roomId")
+      .notNull()
+      .references(() => rooms.id, { onDelete: "cascade" }),
+    date: date("date", { mode: "string" }).notNull(),
+    status: text("status", { enum: ["AVAILABLE", "OCCUPIED", "BLOCKED"] })
+      .default("AVAILABLE")
+      .notNull(),
+    price: decimal("price", { precision: 10, scale: 2 }), // Override price for specific date
+    notes: text("notes"),
+    createdAt: timestamp("createdAt", { mode: "date" }).defaultNow().notNull(),
+    updatedAt: timestamp("updatedAt", { mode: "date" }).defaultNow().notNull(),
+  },
+  (table) => [
+    // Unique constraint for upserts - each room can only have one inventory entry per date
+    uniqueIndex("room_date_unique").on(table.roomId, table.date),
+  ],
 );
 
 export const roomInventoryRelations = relations(roomInventory, ({ one }) => ({
-    room: one(rooms, {
-        fields: [roomInventory.roomId],
-        references: [rooms.id],
-    }),
+  room: one(rooms, {
+    fields: [roomInventory.roomId],
+    references: [rooms.id],
+  }),
 }));
 
 // ====================
@@ -168,53 +174,54 @@ export const roomInventoryRelations = relations(roomInventory, ({ one }) => ({
 
 // Booking Source Enum - tracks where booking originated
 export type BookingSource =
-    | "PLATFORM"
-    | "WALK_IN"
-    | "BOOKING_COM"
-    | "EXPEDIA"
-    | "AGODA"
-    | "SHARETRIP"
-    | "GOZAYAAN";
+  | "PLATFORM"
+  | "WALK_IN"
+  | "BOOKING_COM"
+  | "EXPEDIA"
+  | "AGODA"
+  | "SHARETRIP"
+  | "GOZAYAAN";
 
 // Commission Status Enum - tracks commission collection
 export type CommissionStatus = "PENDING" | "PAID" | "WAIVED" | "NOT_APPLICABLE";
 
 export interface BookingPricingBreakdown {
-    version: string;
-    currency: string;
-    nightlyRates: Array<{
-        date: string;
-        amount: string;
-        source: "BASE" | "INVENTORY_OVERRIDE";
-    }>;
-    roomSubtotal: string;
-    discountRate: string;
-    discountCap: string;
-    discountAmount: string;
-    taxableAmount: string;
-    taxRate: string;
-    taxAmount: string;
-    totalAmount: string;
-    commissionRate: string;
-    commissionAmount: string;
-    netAmount: string;
-    amountDueNow: string;
-    walletAmountUsed: string;
-    amountOutstanding: string;
+  version: string;
+  currency: string;
+  nightlyRates: Array<{
+    date: string;
+    amount: string;
+    source: "BASE" | "INVENTORY_OVERRIDE";
+  }>;
+  roomSubtotal: string;
+  discountRate: string;
+  discountCap: string;
+  discountAmount: string;
+  taxableAmount: string;
+  taxRate: string;
+  taxAmount: string;
+  totalAmount: string;
+  commissionRate: string;
+  commissionAmount: string;
+  netAmount: string;
+  amountDueNow: string;
+  walletAmountUsed: string;
+  amountOutstanding: string;
 }
 
-export const bookings = pgTable("bookings", {
+export const bookings = pgTable(
+  "bookings",
+  {
     id: text("id")
-        .primaryKey()
-        .$defaultFn(() => crypto.randomUUID()),
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
     hotelId: text("hotelId")
-        .notNull()
-        .references(() => hotels.id, { onDelete: "cascade" }),
-    userId: text("userId")
-        .references(() => users.id, { onDelete: "set null" }),
+      .notNull()
+      .references(() => hotels.id, { onDelete: "cascade" }),
+    userId: text("userId").references(() => users.id, { onDelete: "set null" }),
     roomId: text("roomId")
-        .notNull()
-        .references(() => rooms.id, { onDelete: "cascade" }),
+      .notNull()
+      .references(() => rooms.id, { onDelete: "cascade" }),
     checkIn: date("checkIn", { mode: "string" }).notNull(),
     checkOut: date("checkOut", { mode: "string" }).notNull(),
     numberOfNights: integer("numberOfNights").default(1).notNull(),
@@ -225,60 +232,76 @@ export const bookings = pgTable("bookings", {
 
     // Booking source - platform bookings have commission, walk-ins don't
     bookingSource: text("bookingSource", {
-        enum: [
-            "PLATFORM",
-            "WALK_IN",
-            "BOOKING_COM",
-            "EXPEDIA",
-            "AGODA",
-            "SHARETRIP",
-            "GOZAYAAN",
-        ],
+      enum: [
+        "PLATFORM",
+        "WALK_IN",
+        "BOOKING_COM",
+        "EXPEDIA",
+        "AGODA",
+        "SHARETRIP",
+        "GOZAYAAN",
+      ],
     })
-        .default("PLATFORM")
-        .notNull(),
+      .default("PLATFORM")
+      .notNull(),
 
     // External OTA booking reference
     externalBookingId: text("externalBookingId"), // OTA's reservation ID
     channelConnectionId: text("channelConnectionId"), // Reference to channelConnections table
 
     status: text("status", {
-        enum: ["PENDING", "CONFIRMED", "CHECKED_IN", "CHECKED_OUT", "CANCELLED"],
+      enum: ["PENDING", "CONFIRMED", "CHECKED_IN", "CHECKED_OUT", "CANCELLED"],
     })
-        .default("PENDING")
-        .notNull(),
+      .default("PENDING")
+      .notNull(),
     paymentStatus: text("paymentStatus", {
-        enum: ["PENDING", "PAID", "REFUNDED", "PAY_AT_HOTEL"],
+      enum: ["PENDING", "PAID", "REFUNDED", "PAY_AT_HOTEL"],
     })
-        .default("PENDING")
-        .notNull(),
+      .default("PENDING")
+      .notNull(),
 
     // Commission tracking
     commissionStatus: text("commissionStatus", {
-        enum: ["PENDING", "PAID", "WAIVED", "NOT_APPLICABLE"],
+      enum: ["PENDING", "PAID", "WAIVED", "NOT_APPLICABLE"],
     })
-        .default("PENDING")
-        .notNull(),
+      .default("PENDING")
+      .notNull(),
 
     // Immutable server-authoritative booking-v1 calculation evidence.
     pricingVersion: text("pricingVersion").default("legacy").notNull(),
     currency: text("currency").default("BDT").notNull(),
-    roomSubtotal: decimal("roomSubtotal", { precision: 10, scale: 2 }).default("0").notNull(),
-    discountAmount: decimal("discountAmount", { precision: 10, scale: 2 }).default("0").notNull(),
-    taxRate: decimal("taxRate", { precision: 5, scale: 2 }).default("0").notNull(),
-    taxAmount: decimal("taxAmount", { precision: 10, scale: 2 }).default("0").notNull(),
-    commissionRate: decimal("commissionRate", { precision: 5, scale: 2 }).default("0").notNull(),
-    amountDueNow: decimal("amountDueNow", { precision: 10, scale: 2 }).default("0").notNull(),
-    pricingBreakdown: jsonb("pricingBreakdown").$type<BookingPricingBreakdown>(),
+    roomSubtotal: decimal("roomSubtotal", { precision: 10, scale: 2 })
+      .default("0")
+      .notNull(),
+    discountAmount: decimal("discountAmount", { precision: 10, scale: 2 })
+      .default("0")
+      .notNull(),
+    taxRate: decimal("taxRate", { precision: 5, scale: 2 })
+      .default("0")
+      .notNull(),
+    taxAmount: decimal("taxAmount", { precision: 10, scale: 2 })
+      .default("0")
+      .notNull(),
+    commissionRate: decimal("commissionRate", { precision: 5, scale: 2 })
+      .default("0")
+      .notNull(),
+    amountDueNow: decimal("amountDueNow", { precision: 10, scale: 2 })
+      .default("0")
+      .notNull(),
+    pricingBreakdown:
+      jsonb("pricingBreakdown").$type<BookingPricingBreakdown>(),
 
     totalAmount: decimal("totalAmount", { precision: 10, scale: 2 }).notNull(),
-    commissionAmount: decimal("commissionAmount", { precision: 10, scale: 2 }).notNull(),
+    commissionAmount: decimal("commissionAmount", {
+      precision: 10,
+      scale: 2,
+    }).notNull(),
     netAmount: decimal("netAmount", { precision: 10, scale: 2 }).notNull(),
 
     // Booking Fee (Advance Payment) - Platform's guaranteed commission
     bookingFee: decimal("bookingFee", { precision: 10, scale: 2 }).default("0"),
     bookingFeeStatus: text("bookingFeeStatus", {
-        enum: ["PENDING", "PAID", "WAIVED"],
+      enum: ["PENDING", "PAID", "WAIVED"],
     }).default("PENDING"),
 
     paymentMethod: text("paymentMethod"),
@@ -292,7 +315,10 @@ export const bookings = pgTable("bookings", {
     refundAmount: decimal("refundAmount", { precision: 10, scale: 2 }),
 
     // Track wallet amount used for proper refund on cancellation
-    walletAmountUsed: decimal("walletAmountUsed", { precision: 10, scale: 2 }).default("0"),
+    walletAmountUsed: decimal("walletAmountUsed", {
+      precision: 10,
+      scale: 2,
+    }).default("0"),
 
     // Guest ID photo for security/verification (stored as URL)
     guestIdPhoto: text("guestIdPhoto"),
@@ -302,21 +328,25 @@ export const bookings = pgTable("bookings", {
 
     createdAt: timestamp("createdAt", { mode: "date" }).defaultNow().notNull(),
     updatedAt: timestamp("updatedAt", { mode: "date" }).defaultNow().notNull(),
-});
+  },
+  (table) => [
+    check("bookings_valid_stay", sql`${table.checkIn} < ${table.checkOut}`),
+  ],
+);
 
 export const bookingsRelations = relations(bookings, ({ one }) => ({
-    hotel: one(hotels, {
-        fields: [bookings.hotelId],
-        references: [hotels.id],
-    }),
-    user: one(users, {
-        fields: [bookings.userId],
-        references: [users.id],
-    }),
-    room: one(rooms, {
-        fields: [bookings.roomId],
-        references: [rooms.id],
-    }),
+  hotel: one(hotels, {
+    fields: [bookings.hotelId],
+    references: [hotels.id],
+  }),
+  user: one(users, {
+    fields: [bookings.userId],
+    references: [users.id],
+  }),
+  room: one(rooms, {
+    fields: [bookings.roomId],
+    references: [rooms.id],
+  }),
 }));
 
 // ====================
@@ -327,33 +357,33 @@ export const bookingsRelations = relations(bookings, ({ one }) => ({
 export type PromotionType = "PERCENTAGE" | "FIXED";
 
 export const promotions = pgTable("promotions", {
-    id: text("id")
-        .primaryKey()
-        .$defaultFn(() => crypto.randomUUID()),
-    code: text("code").notNull().unique(),
-    name: text("name").notNull(),
-    description: text("description"),
-    type: text("type", { enum: ["PERCENTAGE", "FIXED"] })
-        .notNull()
-        .default("PERCENTAGE"),
-    value: decimal("value", { precision: 10, scale: 2 }).notNull(), // % or fixed amount
-    hotelId: text("hotelId").references(() => hotels.id, { onDelete: "cascade" }), // null = platform-wide
-    minBookingAmount: decimal("minBookingAmount", { precision: 10, scale: 2 }),
-    maxDiscountAmount: decimal("maxDiscountAmount", { precision: 10, scale: 2 }),
-    maxUses: integer("maxUses"), // null = unlimited
-    currentUses: integer("currentUses").default(0).notNull(),
-    validFrom: date("validFrom", { mode: "string" }),
-    validTo: date("validTo", { mode: "string" }),
-    isActive: boolean("isActive").default(true).notNull(),
-    createdAt: timestamp("createdAt", { mode: "date" }).defaultNow().notNull(),
-    updatedAt: timestamp("updatedAt", { mode: "date" }).defaultNow().notNull(),
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  code: text("code").notNull().unique(),
+  name: text("name").notNull(),
+  description: text("description"),
+  type: text("type", { enum: ["PERCENTAGE", "FIXED"] })
+    .notNull()
+    .default("PERCENTAGE"),
+  value: decimal("value", { precision: 10, scale: 2 }).notNull(), // % or fixed amount
+  hotelId: text("hotelId").references(() => hotels.id, { onDelete: "cascade" }), // null = platform-wide
+  minBookingAmount: decimal("minBookingAmount", { precision: 10, scale: 2 }),
+  maxDiscountAmount: decimal("maxDiscountAmount", { precision: 10, scale: 2 }),
+  maxUses: integer("maxUses"), // null = unlimited
+  currentUses: integer("currentUses").default(0).notNull(),
+  validFrom: date("validFrom", { mode: "string" }),
+  validTo: date("validTo", { mode: "string" }),
+  isActive: boolean("isActive").default(true).notNull(),
+  createdAt: timestamp("createdAt", { mode: "date" }).defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt", { mode: "date" }).defaultNow().notNull(),
 });
 
 export const promotionsRelations = relations(promotions, ({ one }) => ({
-    hotel: one(hotels, {
-        fields: [promotions.hotelId],
-        references: [hotels.id],
-    }),
+  hotel: one(hotels, {
+    fields: [promotions.hotelId],
+    references: [hotels.id],
+  }),
 }));
 
 // ====================
@@ -362,60 +392,62 @@ export const promotionsRelations = relations(promotions, ({ one }) => ({
 
 // Activity Type Enum
 export type ActivityType =
-    | "BOOKING_CREATED"
-    | "BOOKING_CONFIRMED"
-    | "BOOKING_CANCELLED"
-    | "CHECK_IN"
-    | "CHECK_OUT"
-    | "PAYMENT_RECEIVED"
-    | "HOTEL_REGISTERED"
-    | "HOTEL_APPROVED"
-    | "HOTEL_SUSPENDED"
-    | "PRICE_UPDATED"
-    | "ROOM_BLOCKED"
-    | "ROOM_UNBLOCKED";
+  | "BOOKING_CREATED"
+  | "BOOKING_CONFIRMED"
+  | "BOOKING_CANCELLED"
+  | "CHECK_IN"
+  | "CHECK_OUT"
+  | "PAYMENT_RECEIVED"
+  | "HOTEL_REGISTERED"
+  | "HOTEL_APPROVED"
+  | "HOTEL_SUSPENDED"
+  | "PRICE_UPDATED"
+  | "ROOM_BLOCKED"
+  | "ROOM_UNBLOCKED";
 
 export const activityLog = pgTable("activityLog", {
-    id: text("id")
-        .primaryKey()
-        .$defaultFn(() => crypto.randomUUID()),
-    type: text("type", {
-        enum: [
-            "BOOKING_CREATED",
-            "BOOKING_CONFIRMED",
-            "BOOKING_CANCELLED",
-            "CHECK_IN",
-            "CHECK_OUT",
-            "PAYMENT_RECEIVED",
-            "HOTEL_REGISTERED",
-            "HOTEL_APPROVED",
-            "HOTEL_SUSPENDED",
-            "PRICE_UPDATED",
-            "ROOM_BLOCKED",
-            "ROOM_UNBLOCKED",
-        ],
-    }).notNull(),
-    actorId: text("actorId").references(() => users.id, { onDelete: "set null" }), // Who performed the action
-    hotelId: text("hotelId").references(() => hotels.id, { onDelete: "cascade" }),
-    bookingId: text("bookingId").references(() => bookings.id, { onDelete: "cascade" }),
-    description: text("description").notNull(),
-    metadata: jsonb("metadata").$type<Record<string, unknown>>(),
-    createdAt: timestamp("createdAt", { mode: "date" }).defaultNow().notNull(),
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  type: text("type", {
+    enum: [
+      "BOOKING_CREATED",
+      "BOOKING_CONFIRMED",
+      "BOOKING_CANCELLED",
+      "CHECK_IN",
+      "CHECK_OUT",
+      "PAYMENT_RECEIVED",
+      "HOTEL_REGISTERED",
+      "HOTEL_APPROVED",
+      "HOTEL_SUSPENDED",
+      "PRICE_UPDATED",
+      "ROOM_BLOCKED",
+      "ROOM_UNBLOCKED",
+    ],
+  }).notNull(),
+  actorId: text("actorId").references(() => users.id, { onDelete: "set null" }), // Who performed the action
+  hotelId: text("hotelId").references(() => hotels.id, { onDelete: "cascade" }),
+  bookingId: text("bookingId").references(() => bookings.id, {
+    onDelete: "cascade",
+  }),
+  description: text("description").notNull(),
+  metadata: jsonb("metadata").$type<Record<string, unknown>>(),
+  createdAt: timestamp("createdAt", { mode: "date" }).defaultNow().notNull(),
 });
 
 export const activityLogRelations = relations(activityLog, ({ one }) => ({
-    actor: one(users, {
-        fields: [activityLog.actorId],
-        references: [users.id],
-    }),
-    hotel: one(hotels, {
-        fields: [activityLog.hotelId],
-        references: [hotels.id],
-    }),
-    booking: one(bookings, {
-        fields: [activityLog.bookingId],
-        references: [bookings.id],
-    }),
+  actor: one(users, {
+    fields: [activityLog.actorId],
+    references: [users.id],
+  }),
+  hotel: one(hotels, {
+    fields: [activityLog.hotelId],
+    references: [hotels.id],
+  }),
+  booking: one(bookings, {
+    fields: [activityLog.bookingId],
+    references: [bookings.id],
+  }),
 }));
 
 // ====================
@@ -423,24 +455,26 @@ export const activityLogRelations = relations(activityLog, ({ one }) => ({
 // ====================
 
 export const wallets = pgTable("wallets", {
-    id: text("id")
-        .primaryKey()
-        .$defaultFn(() => crypto.randomUUID()),
-    userId: text("userId")
-        .notNull()
-        .unique()
-        .references(() => users.id, { onDelete: "cascade" }),
-    balance: decimal("balance", { precision: 10, scale: 2 }).default("0").notNull(),
-    createdAt: timestamp("createdAt", { mode: "date" }).defaultNow().notNull(),
-    updatedAt: timestamp("updatedAt", { mode: "date" }).defaultNow().notNull(),
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  userId: text("userId")
+    .notNull()
+    .unique()
+    .references(() => users.id, { onDelete: "cascade" }),
+  balance: decimal("balance", { precision: 10, scale: 2 })
+    .default("0")
+    .notNull(),
+  createdAt: timestamp("createdAt", { mode: "date" }).defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt", { mode: "date" }).defaultNow().notNull(),
 });
 
 export const walletsRelations = relations(wallets, ({ one, many }) => ({
-    user: one(users, {
-        fields: [wallets.userId],
-        references: [users.id],
-    }),
-    transactions: many(walletTransactions),
+  user: one(users, {
+    fields: [wallets.userId],
+    references: [users.id],
+  }),
+  transactions: many(walletTransactions),
 }));
 
 // ====================
@@ -449,40 +483,45 @@ export const walletsRelations = relations(wallets, ({ one, many }) => ({
 
 export type WalletTransactionType = "CREDIT" | "DEBIT";
 export type WalletTransactionReason =
-    | "TOP_UP"           // User added money
-    | "BOOKING_FEE"      // Deducted for booking
-    | "REFUND"           // Refunded amount
-    | "REWARD"           // Loyalty reward
-    | "CASHBACK"         // Promotional cashback
-    | "REFERRAL";        // Referral bonus
+  | "TOP_UP" // User added money
+  | "BOOKING_FEE" // Deducted for booking
+  | "REFUND" // Refunded amount
+  | "REWARD" // Loyalty reward
+  | "CASHBACK" // Promotional cashback
+  | "REFERRAL"; // Referral bonus
 
 export const walletTransactions = pgTable("walletTransactions", {
-    id: text("id")
-        .primaryKey()
-        .$defaultFn(() => crypto.randomUUID()),
-    walletId: text("walletId")
-        .notNull()
-        .references(() => wallets.id, { onDelete: "cascade" }),
-    type: text("type", { enum: ["CREDIT", "DEBIT"] }).notNull(),
-    amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
-    reason: text("reason", {
-        enum: ["TOP_UP", "BOOKING_FEE", "REFUND", "REWARD", "CASHBACK", "REFERRAL"],
-    }).notNull(),
-    bookingId: text("bookingId").references(() => bookings.id, { onDelete: "set null" }),
-    description: text("description"),
-    createdAt: timestamp("createdAt", { mode: "date" }).defaultNow().notNull(),
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  walletId: text("walletId")
+    .notNull()
+    .references(() => wallets.id, { onDelete: "cascade" }),
+  type: text("type", { enum: ["CREDIT", "DEBIT"] }).notNull(),
+  amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
+  reason: text("reason", {
+    enum: ["TOP_UP", "BOOKING_FEE", "REFUND", "REWARD", "CASHBACK", "REFERRAL"],
+  }).notNull(),
+  bookingId: text("bookingId").references(() => bookings.id, {
+    onDelete: "set null",
+  }),
+  description: text("description"),
+  createdAt: timestamp("createdAt", { mode: "date" }).defaultNow().notNull(),
 });
 
-export const walletTransactionsRelations = relations(walletTransactions, ({ one }) => ({
+export const walletTransactionsRelations = relations(
+  walletTransactions,
+  ({ one }) => ({
     wallet: one(wallets, {
-        fields: [walletTransactions.walletId],
-        references: [wallets.id],
+      fields: [walletTransactions.walletId],
+      references: [wallets.id],
     }),
     booking: one(bookings, {
-        fields: [walletTransactions.bookingId],
-        references: [bookings.id],
+      fields: [walletTransactions.bookingId],
+      references: [bookings.id],
     }),
-}));
+  }),
+);
 
 // ====================
 // LOYALTY POINTS
@@ -491,27 +530,27 @@ export const walletTransactionsRelations = relations(walletTransactions, ({ one 
 export type LoyaltyTier = "BRONZE" | "SILVER" | "GOLD" | "PLATINUM";
 
 export const loyaltyPoints = pgTable("loyaltyPoints", {
-    id: text("id")
-        .primaryKey()
-        .$defaultFn(() => crypto.randomUUID()),
-    userId: text("userId")
-        .notNull()
-        .unique()
-        .references(() => users.id, { onDelete: "cascade" }),
-    points: integer("points").default(0).notNull(),
-    lifetimePoints: integer("lifetimePoints").default(0).notNull(), // Total earned ever
-    tier: text("tier", { enum: ["BRONZE", "SILVER", "GOLD", "PLATINUM"] })
-        .default("BRONZE")
-        .notNull(),
-    createdAt: timestamp("createdAt", { mode: "date" }).defaultNow().notNull(),
-    updatedAt: timestamp("updatedAt", { mode: "date" }).defaultNow().notNull(),
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  userId: text("userId")
+    .notNull()
+    .unique()
+    .references(() => users.id, { onDelete: "cascade" }),
+  points: integer("points").default(0).notNull(),
+  lifetimePoints: integer("lifetimePoints").default(0).notNull(), // Total earned ever
+  tier: text("tier", { enum: ["BRONZE", "SILVER", "GOLD", "PLATINUM"] })
+    .default("BRONZE")
+    .notNull(),
+  createdAt: timestamp("createdAt", { mode: "date" }).defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt", { mode: "date" }).defaultNow().notNull(),
 });
 
 export const loyaltyPointsRelations = relations(loyaltyPoints, ({ one }) => ({
-    user: one(users, {
-        fields: [loyaltyPoints.userId],
-        references: [users.id],
-    }),
+  user: one(users, {
+    fields: [loyaltyPoints.userId],
+    references: [users.id],
+  }),
 }));
 
 // ====================
@@ -519,74 +558,84 @@ export const loyaltyPointsRelations = relations(loyaltyPoints, ({ one }) => ({
 // ====================
 
 export const hotelMetrics = pgTable("hotelMetrics", {
-    id: text("id")
-        .primaryKey()
-        .$defaultFn(() => crypto.randomUUID()),
-    hotelId: text("hotelId")
-        .notNull()
-        .unique()
-        .references(() => hotels.id, { onDelete: "cascade" }),
-    totalBookings: integer("totalBookings").default(0).notNull(),
-    totalCancellations: integer("totalCancellations").default(0).notNull(),
-    totalWalkIns: integer("totalWalkIns").default(0).notNull(),
-    cancellationRate: decimal("cancellationRate", { precision: 5, scale: 2 }).default("0"),
-    redFlags: integer("redFlags").default(0).notNull(),
-    lastRedFlagDate: timestamp("lastRedFlagDate", { mode: "date" }),
-    searchRankPenalty: integer("searchRankPenalty").default(0).notNull(), // Lower rank by this amount
-    createdAt: timestamp("createdAt", { mode: "date" }).defaultNow().notNull(),
-    updatedAt: timestamp("updatedAt", { mode: "date" }).defaultNow().notNull(),
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  hotelId: text("hotelId")
+    .notNull()
+    .unique()
+    .references(() => hotels.id, { onDelete: "cascade" }),
+  totalBookings: integer("totalBookings").default(0).notNull(),
+  totalCancellations: integer("totalCancellations").default(0).notNull(),
+  totalWalkIns: integer("totalWalkIns").default(0).notNull(),
+  cancellationRate: decimal("cancellationRate", {
+    precision: 5,
+    scale: 2,
+  }).default("0"),
+  redFlags: integer("redFlags").default(0).notNull(),
+  lastRedFlagDate: timestamp("lastRedFlagDate", { mode: "date" }),
+  searchRankPenalty: integer("searchRankPenalty").default(0).notNull(), // Lower rank by this amount
+  createdAt: timestamp("createdAt", { mode: "date" }).defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt", { mode: "date" }).defaultNow().notNull(),
 });
 
 export const hotelMetricsRelations = relations(hotelMetrics, ({ one }) => ({
-    hotel: one(hotels, {
-        fields: [hotelMetrics.hotelId],
-        references: [hotels.id],
-    }),
+  hotel: one(hotels, {
+    fields: [hotelMetrics.hotelId],
+    references: [hotels.id],
+  }),
 }));
 
 // ====================
 // PAYOUT REQUESTS (Hotel Owner Settlements)
 // ====================
 
-export type PayoutStatus = "PENDING" | "APPROVED" | "REJECTED" | "PROCESSING" | "PAID";
+export type PayoutStatus =
+  | "PENDING"
+  | "APPROVED"
+  | "REJECTED"
+  | "PROCESSING"
+  | "PAID";
 export type PayoutMethod = "BKASH" | "BANK" | "NAGAD";
 
 export const payoutRequests = pgTable("payoutRequests", {
-    id: text("id")
-        .primaryKey()
-        .$defaultFn(() => crypto.randomUUID()),
-    hotelId: text("hotelId")
-        .notNull()
-        .references(() => hotels.id, { onDelete: "cascade" }),
-    requestedBy: text("requestedBy")
-        .notNull()
-        .references(() => users.id),
-    amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
-    status: text("status", {
-        enum: ["PENDING", "APPROVED", "REJECTED", "PROCESSING", "PAID"],
-    })
-        .default("PENDING")
-        .notNull(),
-    paymentMethod: text("paymentMethod", { enum: ["BKASH", "BANK", "NAGAD"] }).notNull(),
-    accountNumber: text("accountNumber").notNull(),
-    accountName: text("accountName"),
-    transactionReference: text("transactionReference"), // Bank/bKash Trx ID after payment
-    rejectionReason: text("rejectionReason"),
-    processedBy: text("processedBy").references(() => users.id),
-    processedAt: timestamp("processedAt", { mode: "date" }),
-    createdAt: timestamp("createdAt", { mode: "date" }).defaultNow().notNull(),
-    updatedAt: timestamp("updatedAt", { mode: "date" }).defaultNow().notNull(),
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  hotelId: text("hotelId")
+    .notNull()
+    .references(() => hotels.id, { onDelete: "cascade" }),
+  requestedBy: text("requestedBy")
+    .notNull()
+    .references(() => users.id),
+  amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
+  status: text("status", {
+    enum: ["PENDING", "APPROVED", "REJECTED", "PROCESSING", "PAID"],
+  })
+    .default("PENDING")
+    .notNull(),
+  paymentMethod: text("paymentMethod", {
+    enum: ["BKASH", "BANK", "NAGAD"],
+  }).notNull(),
+  accountNumber: text("accountNumber").notNull(),
+  accountName: text("accountName"),
+  transactionReference: text("transactionReference"), // Bank/bKash Trx ID after payment
+  rejectionReason: text("rejectionReason"),
+  processedBy: text("processedBy").references(() => users.id),
+  processedAt: timestamp("processedAt", { mode: "date" }),
+  createdAt: timestamp("createdAt", { mode: "date" }).defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt", { mode: "date" }).defaultNow().notNull(),
 });
 
 export const payoutRequestsRelations = relations(payoutRequests, ({ one }) => ({
-    hotel: one(hotels, {
-        fields: [payoutRequests.hotelId],
-        references: [hotels.id],
-    }),
-    requester: one(users, {
-        fields: [payoutRequests.requestedBy],
-        references: [users.id],
-    }),
+  hotel: one(hotels, {
+    fields: [payoutRequests.hotelId],
+    references: [hotels.id],
+  }),
+  requester: one(users, {
+    fields: [payoutRequests.requestedBy],
+    references: [users.id],
+  }),
 }));
 
 // ====================
@@ -594,49 +643,49 @@ export const payoutRequestsRelations = relations(payoutRequests, ({ one }) => ({
 // ====================
 
 export const reviews = pgTable("reviews", {
-    id: text("id")
-        .primaryKey()
-        .$defaultFn(() => crypto.randomUUID()),
-    bookingId: text("bookingId")
-        .notNull()
-        .unique()
-        .references(() => bookings.id, { onDelete: "cascade" }),
-    hotelId: text("hotelId")
-        .notNull()
-        .references(() => hotels.id, { onDelete: "cascade" }),
-    userId: text("userId")
-        .notNull()
-        .references(() => users.id, { onDelete: "cascade" }),
-    rating: integer("rating").notNull(), // 1-5 stars
-    title: text("title"),
-    content: text("content"),
-    photos: jsonb("photos").$type<string[]>().default([]),
-    // Breakdown ratings (1-5)
-    cleanlinessRating: integer("cleanlinessRating"),
-    serviceRating: integer("serviceRating"),
-    valueRating: integer("valueRating"),
-    locationRating: integer("locationRating"),
-    // Hotel response
-    hotelResponse: text("hotelResponse"),
-    hotelRespondedAt: timestamp("hotelRespondedAt", { mode: "date" }),
-    isVisible: boolean("isVisible").default(true).notNull(),
-    createdAt: timestamp("createdAt", { mode: "date" }).defaultNow().notNull(),
-    updatedAt: timestamp("updatedAt", { mode: "date" }).defaultNow().notNull(),
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  bookingId: text("bookingId")
+    .notNull()
+    .unique()
+    .references(() => bookings.id, { onDelete: "cascade" }),
+  hotelId: text("hotelId")
+    .notNull()
+    .references(() => hotels.id, { onDelete: "cascade" }),
+  userId: text("userId")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  rating: integer("rating").notNull(), // 1-5 stars
+  title: text("title"),
+  content: text("content"),
+  photos: jsonb("photos").$type<string[]>().default([]),
+  // Breakdown ratings (1-5)
+  cleanlinessRating: integer("cleanlinessRating"),
+  serviceRating: integer("serviceRating"),
+  valueRating: integer("valueRating"),
+  locationRating: integer("locationRating"),
+  // Hotel response
+  hotelResponse: text("hotelResponse"),
+  hotelRespondedAt: timestamp("hotelRespondedAt", { mode: "date" }),
+  isVisible: boolean("isVisible").default(true).notNull(),
+  createdAt: timestamp("createdAt", { mode: "date" }).defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt", { mode: "date" }).defaultNow().notNull(),
 });
 
 export const reviewsRelations = relations(reviews, ({ one }) => ({
-    booking: one(bookings, {
-        fields: [reviews.bookingId],
-        references: [bookings.id],
-    }),
-    hotel: one(hotels, {
-        fields: [reviews.hotelId],
-        references: [hotels.id],
-    }),
-    user: one(users, {
-        fields: [reviews.userId],
-        references: [users.id],
-    }),
+  booking: one(bookings, {
+    fields: [reviews.bookingId],
+    references: [bookings.id],
+  }),
+  hotel: one(hotels, {
+    fields: [reviews.hotelId],
+    references: [hotels.id],
+  }),
+  user: one(users, {
+    fields: [reviews.userId],
+    references: [users.id],
+  }),
 }));
 
 // ====================
@@ -644,16 +693,16 @@ export const reviewsRelations = relations(reviews, ({ one }) => ({
 // ====================
 
 export const seasonalRules = pgTable("seasonalRules", {
-    id: text("id")
-        .primaryKey()
-        .$defaultFn(() => crypto.randomUUID()),
-    name: text("name").notNull(),           // "Eid-ul-Fitr 2024", "Pohela Boishakh"
-    startDate: date("startDate", { mode: "string" }).notNull(),
-    endDate: date("endDate", { mode: "string" }).notNull(),
-    multiplier: decimal("multiplier", { precision: 4, scale: 2 }).notNull(), // 1.25 = +25%
-    isActive: boolean("isActive").default(true).notNull(),
-    createdAt: timestamp("createdAt", { mode: "date" }).defaultNow().notNull(),
-    updatedAt: timestamp("updatedAt", { mode: "date" }).defaultNow().notNull(),
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  name: text("name").notNull(), // "Eid-ul-Fitr 2024", "Pohela Boishakh"
+  startDate: date("startDate", { mode: "string" }).notNull(),
+  endDate: date("endDate", { mode: "string" }).notNull(),
+  multiplier: decimal("multiplier", { precision: 4, scale: 2 }).notNull(), // 1.25 = +25%
+  isActive: boolean("isActive").default(true).notNull(),
+  createdAt: timestamp("createdAt", { mode: "date" }).defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt", { mode: "date" }).defaultNow().notNull(),
 });
 
 // ====================
@@ -661,35 +710,34 @@ export const seasonalRules = pgTable("seasonalRules", {
 // ====================
 
 export const savedHotels = pgTable(
-    "savedHotels",
-    {
-        id: text("id")
-            .primaryKey()
-            .$defaultFn(() => crypto.randomUUID()),
-        userId: text("userId")
-            .notNull()
-            .references(() => users.id, { onDelete: "cascade" }),
-        hotelId: text("hotelId")
-            .notNull()
-            .references(() => hotels.id, { onDelete: "cascade" }),
-        createdAt: timestamp("createdAt", { mode: "date" }).defaultNow().notNull(),
-    },
-    (table) => [
-        uniqueIndex("user_hotel_saved_unique").on(table.userId, table.hotelId),
-    ]
+  "savedHotels",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    userId: text("userId")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    hotelId: text("hotelId")
+      .notNull()
+      .references(() => hotels.id, { onDelete: "cascade" }),
+    createdAt: timestamp("createdAt", { mode: "date" }).defaultNow().notNull(),
+  },
+  (table) => [
+    uniqueIndex("user_hotel_saved_unique").on(table.userId, table.hotelId),
+  ],
 );
 
 export const savedHotelsRelations = relations(savedHotels, ({ one }) => ({
-    user: one(users, {
-        fields: [savedHotels.userId],
-        references: [users.id],
-    }),
-    hotel: one(hotels, {
-        fields: [savedHotels.hotelId],
-        references: [hotels.id],
-    }),
+  user: one(users, {
+    fields: [savedHotels.userId],
+    references: [users.id],
+  }),
+  hotel: one(hotels, {
+    fields: [savedHotels.hotelId],
+    references: [hotels.id],
+  }),
 }));
-
 
 // Type exports
 export type Hotel = typeof hotels.$inferSelect;
@@ -720,5 +768,3 @@ export type SeasonalRule = typeof seasonalRules.$inferSelect;
 export type NewSeasonalRule = typeof seasonalRules.$inferInsert;
 export type SavedHotel = typeof savedHotels.$inferSelect;
 export type NewSavedHotel = typeof savedHotels.$inferInsert;
-
-
