@@ -5,6 +5,7 @@ import { NextRequest, NextResponse } from "next/server";
 import {
     GoogleTokenVerificationError,
     verifyGoogleIdToken,
+    type VerifiedGoogleIdentity,
 } from "@/lib/mobile-google-auth";
 import {
     mobileAuthError,
@@ -52,7 +53,7 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        let googleIdentity;
+        let googleIdentity: VerifiedGoogleIdentity;
         try {
             googleIdentity = await verifyGoogleIdToken(idToken);
         } catch (error) {
@@ -170,6 +171,10 @@ export async function POST(request: NextRequest) {
 
                 await tx.insert(wallets).values({ userId: matchedUser.id });
                 await tx.insert(loyaltyPoints).values({ userId: matchedUser.id });
+            }
+
+            if (!matchedUser) {
+                throw new Error("Google authentication did not resolve a user");
             }
 
             await tx.insert(accounts).values({
