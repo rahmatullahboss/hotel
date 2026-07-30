@@ -22,7 +22,7 @@ This board is the operational queue. Update status, owner, branch, PR and eviden
 
 | ID | Status | Work item | Acceptance summary | Owner/branch |
 |---|---|---|---|---|
-| DB-01 | IN_REVIEW | Migration baseline and environment separation | PR #5; run `30532072176` passed 19-migration history validation, clean PostgreSQL install, schema-drift check, exact timestamp/hash verification and second-run no-op; existing production adoption remains blocked pending isolated semantic schema-equivalence evidence | owner: GPT-5.6; branch: `work/DB-01-migration-baseline`; head: `0d8db7bd662b0ea75784b1822594213fc53b6c84` |
+| DB-01 | DONE | Migration baseline and environment separation | PR #5 merged at `8c8a4e696b6f7705496518670f65184072b0042f`; run `30532072176` passed 19-migration validation, clean PostgreSQL install, schema-drift check, exact timestamp/hash verification and second-run no-op; live adoption remains separately blocked pending isolated semantic schema equivalence | `work/DB-01-migration-baseline` |
 | SEC-02 | BLOCKED | Tenant/RBAC matrix and enforcement | Explicit permission matrix; negative tests across partner/admin/hotel boundaries | unassigned |
 | API-01 | BLOCKED | Versioned mobile API contract | Typed schemas, stable error envelope, contract tests, no guessed response shapes | unassigned |
 | RSV-02 | BLOCKED | Booking expiry/cancellation/refund state machine | legal transitions, idempotent jobs, inventory release, wallet/payment reconciliation | unassigned |
@@ -105,9 +105,9 @@ A status change to `DONE` requires merged SHA and integration/runtime evidence. 
 ## Current next action
 
 1. Resolve CI-01 issue #3 and rerun the production build.
-2. Merge DB-01 after final review; keep live adoption blocked until isolated schema equivalence is proven.
-3. Activate SEC-01 mobile authentication hardening.
-4. Prepare PAY-01 and RSV-01 with coordinated database ownership.
-5. Activate OPS-01 environment/deployment health inventory.
+2. Activate SEC-01 mobile authentication hardening.
+3. Prepare PAY-01 and RSV-01 with coordinated database ownership.
+4. Activate OPS-01 environment/deployment health inventory.
+5. Plan a separate, reviewed live migration-adoption workstream after isolated schema equivalence is proven.
 
 The coordinator must prevent PAY-01 and RSV-01 from generating conflicting database migrations.
