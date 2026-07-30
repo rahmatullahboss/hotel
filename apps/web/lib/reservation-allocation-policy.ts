@@ -1,5 +1,5 @@
 export const RESERVATION_CONFLICT_CODE = "RESERVATION_CONFLICT";
-const POSTGRES_EXCLUSION_VIOLATION = "23P01";
+const POSTGRES_RESERVATION_CONFLICT_CODES = new Set(["23P01", "40P01"]);
 
 export class ReservationConflictError extends Error {
     readonly code = RESERVATION_CONFLICT_CODE;
@@ -30,10 +30,9 @@ function postgresErrorCode(error: unknown): string | undefined {
 }
 
 export function isReservationConflict(error: unknown): boolean {
-    return (
-        error instanceof ReservationConflictError ||
-        postgresErrorCode(error) === POSTGRES_EXCLUSION_VIOLATION
-    );
+    if (error instanceof ReservationConflictError) return true;
+    const code = postgresErrorCode(error);
+    return code !== undefined && POSTGRES_RESERVATION_CONFLICT_CODES.has(code);
 }
 
 export function orderReservationCandidates(
