@@ -1,0 +1,58 @@
+name: DB Baseline Generator (temporary)
+
+on:
+  push:
+    branches:
+      - work/DB-01-migration-baseline
+    paths:
+      - ".github/workflows/db-baseline-generate.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      DATABASE_DIRECT_URL: postgresql://baseline:baseline@localhost:5432/baseline
+
+    steps:
+      - name: Check out workstream branch
+        uses: actions/checkout@v5
+        with:
+          ref: work/DB-01-migration-baseline
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Use declared npm version
+        run: npm install --global npm@11.6.2
+
+      - name: Install locked dependencies
+        run: npm ci
+
+      - name: Generate initial Drizzle baseline
+        run: npm --workspace @repo/db run db:generate -- --name=initial_baseline
+
+      - name: Commit generated migration assets
+        shell: bash
+        run: |
+          if [[ ! -d packages/db/drizzle ]]; then
+            echo "::error::Drizzle did not create packages/db/drizzle."
+            exit 1
+          fi
+          if git diff --quiet -- packages/db/drizzle && [[ -z "$(git ls-files --others --exclude-standard packages/db/drizzle)" ]]; then
+            echo "::error::No migration assets were generated."
+            exit 1
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add packages/db/drizzle
+          git commit -m "db: generate initial Drizzle migration baseline"
+          git push origin HEAD:work/DB-01-migration-baseline
