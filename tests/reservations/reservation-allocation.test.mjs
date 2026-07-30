@@ -93,6 +93,7 @@ test("temporary RSV-01 workflows are absent", async () => {
     ".github/workflows/rsv01-generate-migration.yml",
     ".github/workflows/rsv01-source-snapshot.yml",
     ".github/workflows/rsv01-patch.yml",
+    ".github/workflows/rsv01-minimize-schema-diff.yml",
   ]) {
     assert.equal(await exists(workflow), false, `${workflow} must be absent`);
   }
