@@ -63,7 +63,8 @@ Payment-intent creation loads the booking and derives the outstanding amount fro
 - Existing client payloads may temporarily include `totalAmount`; the server ignores it and regression tests forbid using it.
 - New responses include authoritative `calculation`, `totalAmount`, `amountDueNow`, `walletAmountUsed` and `amountOutstanding`.
 - Web and Flutter payment flows use response amounts rather than pre-booking estimates.
-- Historical rows receive migration defaults; only bookings created under `booking-v1` claim a complete nightly breakdown.
+- This project has no active production booking history at PAY-01 integration time, so no historical money backfill is performed.
+- Migration defaults are compatibility placeholders for non-customer or seed inserts; only `booking-v1` customer bookings claim a complete nightly breakdown.
 
 ## Ownership boundary
 
