@@ -50,7 +50,8 @@ jobs:
           if not block.endswith("});"):
               raise SystemExit("Unexpected bookings table ending")
           replacement = block[:-3] + "}, (table) => [\n    check(\"bookings_valid_stay\", sql`${table.checkIn} < ${table.checkOut}`),\n]);"
-          path.write_text(text[:start] + replacement + text[end:])
+          updated = text[:start] + replacement + text[end:]
+          path.write_text(updated.rstrip() + "\n")
           PY
 
           git diff --check
