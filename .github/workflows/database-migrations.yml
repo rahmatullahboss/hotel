@@ -110,9 +110,24 @@ jobs:
             exit 1
           fi
 
-          expected="$(node -e "const fs=require('fs'); const journal=JSON.parse(fs.readFileSync('packages/db/drizzle/meta/_journal.json','utf8')); process.stdout.write(String(journal.entries.length));")"
-          actual="$(docker exec "${postgres_container}" psql -U postgres -d zinurooms_ci -Atc 'SELECT count(*) FROM drizzle.__drizzle_migrations;')"
+          npm run db:adoption-manifest -- --json > /tmp/expected-migrations.json
+          node - <<'NODE' > /tmp/expected-migrations.tsv
+          const fs = require('fs');
+          const manifest = JSON.parse(fs.readFileSync('/tmp/expected-migrations.json', 'utf8'));
+          for (const entry of manifest) {
+            process.stdout.write(`${entry.createdAt}\t${entry.hash}\n`);
+          }
+          NODE
 
+          docker exec "${postgres_container}" \
+            psql -U postgres -d zinurooms_ci -At -F $'\t' \
+            -c 'SELECT created_at, hash FROM drizzle.__drizzle_migrations ORDER BY created_at;' \
+            > /tmp/actual-migrations.tsv
+
+          diff -u /tmp/expected-migrations.tsv /tmp/actual-migrations.tsv
+
+          expected="$(wc -l < /tmp/expected-migrations.tsv | tr -d ' ')"
+          actual="$(wc -l < /tmp/actual-migrations.tsv | tr -d ' ')"
           if [[ "${actual}" != "${expected}" ]]; then
             echo "::error::Expected ${expected} applied migrations, found ${actual}."
             exit 1
@@ -127,9 +142,10 @@ jobs:
       - name: Verify second migration run is a no-op
         shell: bash
         run: |
-          before="$(docker exec "$(docker ps --filter ancestor=postgres:17-alpine --format '{{.ID}}' | head -n 1)" psql -U postgres -d zinurooms_ci -Atc 'SELECT count(*) FROM drizzle.__drizzle_migrations;')"
+          postgres_container="$(docker ps --filter ancestor=postgres:17-alpine --format '{{.ID}}' | head -n 1)"
+          before="$(docker exec "${postgres_container}" psql -U postgres -d zinurooms_ci -Atc 'SELECT count(*) FROM drizzle.__drizzle_migrations;')"
           npm run db:migrate
-          after="$(docker exec "$(docker ps --filter ancestor=postgres:17-alpine --format '{{.ID}}' | head -n 1)" psql -U postgres -d zinurooms_ci -Atc 'SELECT count(*) FROM drizzle.__drizzle_migrations;')"
+          after="$(docker exec "${postgres_container}" psql -U postgres -d zinurooms_ci -Atc 'SELECT count(*) FROM drizzle.__drizzle_migrations;')"
 
           if [[ "${before}" != "${after}" ]]; then
             echo "::error::A second migration run changed the migration log (${before} -> ${after})."
