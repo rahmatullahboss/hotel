@@ -11,12 +11,12 @@ This board is the operational queue. Update status, owner, branch, PR and eviden
 | GOV-01 | DONE | Canonical documentation and multi-agent controls | Merged by PR #1 at `957b724811b728b87e06d887582fda8aec9053c9`; canonical rules, audit, architecture, workstreams, DoD, test and operations docs established | `docs/system-audit-2026-07-30` |
 | SEC-01 | DONE | Remove JWT fallback and harden mobile auth | PR #6 merged at `1df23f4b28be5860dc9c689802fb260f37d0ac0a`; security run `30534550766`, Flutter run `30534550238` and database run `30534550247` green; revocable sessions, strict JWT/Google verification, shared rate limits, Flutter logout and executable gates delivered | `work/SEC-01-mobile-auth-hardening` |
 | PAY-01 | DONE | Server-authoritative booking calculation | PR #7 merged at `f02bd6e28119c58a9feb2becad934d6550e6d81b`; booking run `30540978346`, database run `30540978440`, security run `30540978334` and Flutter run `30540978340` green; migration `0019`, persisted calculation evidence and debug APK artifact `8758885570` verified | `work/PAY-01-server-authoritative-calculation` |
-| PAY-02 | READY | Stripe idempotency, attempts and webhook | PAY-01 and DB-01 complete; signed/idempotent webhook, provider-event uniqueness and reconciliation required | unassigned |
-| RSV-01 | IN_REVIEW | Atomic reservation allocation | PR #8; implementation head `134c228eec0ee9d2957c24458fac969d653bf83c`; reservation run `30545421895`, database run `30545418980`, booking run `30545421964` and security run `30545422346` green; migration `0020` and real PostgreSQL exactly-one-success concurrency proof delivered | owner: GPT-5.6; branch: `work/RSV-01-atomic-reservation-allocation`; reservation schema ownership releases after merge |
+| PAY-02 | READY | Stripe idempotency, attempts and webhook | PAY-01, RSV-01 and DB-01 complete; signed/idempotent webhook, provider-event uniqueness and reconciliation required | unassigned |
+| RSV-01 | DONE | Atomic reservation allocation | PR #8 merged at `bff4c48bd6de5b7a1a8b9bd8753f829641347e58`; reservation run `30545421895`, database run `30545418980`, booking run `30545421964` and security run `30545422346` green; migration `0020` and real PostgreSQL exactly-one-success concurrency proof delivered | `work/RSV-01-atomic-reservation-allocation` |
 | CI-01 | BLOCKED_CONFIG | Required monorepo CI | Quality gate green in PR #2; production build requires GitHub Actions secret `CI_DATABASE_URL` from isolated Neon branch `br-bitter-bonus-a1ih1ip8`; tracked by issue #3 | `work/CI-01-required-monorepo-ci`; PR #2 |
 | CI-02 | DONE | Strict Flutter CI | PR #4 merged at `fe0976db95a8bd26706f87d0108d5820606ba7a1`; run `30528984233` passed format, strict analyze, tests, coverage and debug APK build; artifacts verified | `work/CI-02-strict-flutter-ci` |
-| OPS-02 | READY | Cron fail-closed hardening | required secret, POST mutations, no `X-No-Auth`, timeout/retry/result checks | unassigned |
-| QA-01 | BLOCKED | Critical integration/E2E test platform | Depends on stable SEC/PAY/RSV contracts | unassigned |
+| OPS-02 | IN_PROGRESS | Cron fail-closed hardening | required secret, POST mutations, no `X-No-Auth`, timeout/retry/result checks | owner: GPT-5.6; base: `bff4c48bd6de5b7a1a8b9bd8753f829641347e58`; branch: `work/OPS-02-cron-fail-closed`; owns cron workflows, cron auth/helper, mutation routes and tests |
+| QA-01 | BLOCKED | Critical integration/E2E test platform | Depends on stable SEC/PAY/RSV contracts and PAY-02 provider finalization | unassigned |
 
 ## P1 — high-priority stabilisation
 
@@ -25,7 +25,7 @@ This board is the operational queue. Update status, owner, branch, PR and eviden
 | DB-01 | DONE | Migration baseline and environment separation | PR #5 merged at `8c8a4e696b6f7705496518670f65184072b0042f`; run `30532072176` passed 19-migration validation, clean PostgreSQL install, schema-drift check, exact timestamp/hash verification and second-run no-op; live adoption remains separately blocked pending isolated semantic schema equivalence | `work/DB-01-migration-baseline` |
 | SEC-02 | BLOCKED | Tenant/RBAC matrix and enforcement | Explicit permission matrix; negative tests across partner/admin/hotel boundaries | unassigned |
 | API-01 | BLOCKED | Versioned mobile API contract | Typed schemas, stable error envelope, contract tests, no guessed response shapes | unassigned |
-| RSV-02 | BLOCKED | Booking expiry/cancellation/refund state machine | legal transitions, idempotent jobs, inventory release, wallet/payment reconciliation | unassigned |
+| RSV-02 | READY | Booking expiry/cancellation/refund state machine | legal transitions, idempotent jobs, inventory release, wallet/payment reconciliation | unassigned |
 | EVT-01 | BLOCKED | Outbox and reliable domain events | transactional outbox, event IDs/versioning, retry/dead-letter/replay | unassigned |
 | OPS-01 | READY | Environment/deployment health matrix | complete env registry; `/health`/`/ready`; smoke users/data; Vercel status verified | unassigned |
 | OBS-01 | BLOCKED | PII-safe logs, metrics and alerts | correlation IDs, redaction, Sentry/alerts, payment/booking dashboards | unassigned |
@@ -104,10 +104,10 @@ A status change to `DONE` requires merged SHA and integration/runtime evidence. 
 
 ## Current next action
 
-1. Merge RSV-01 after final evidence review and release reservation migration ownership.
-2. Activate OPS-02 fail-closed cron hardening without a schema migration.
-3. Prepare PAY-02 payment-attempt/webhook architecture from the RSV-01 integration head.
-4. Resolve CI-01 issue #3 and rerun the production build.
-5. Activate OPS-01 environment/deployment health inventory.
+1. Execute OPS-02 fail-closed cron hardening and executable workflow contracts.
+2. Prepare PAY-02 payment-attempt/webhook architecture from the RSV-01 integration head.
+3. Resolve CI-01 issue #3 and rerun the production build.
+4. Activate OPS-01 environment/deployment health inventory.
+5. Prepare RSV-02 expiry/cancellation/refund state-machine contracts.
 
-RSV-01 owns reservation migration changes until integration. PAY-02 may design contracts but must not generate a conflicting migration before RSV-01 merges.
+OPS-02 is schema-free. PAY-02 owns the next payment schema/migration only after explicit activation.
