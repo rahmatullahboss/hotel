@@ -110,13 +110,6 @@ class _BookingFlowScreenState extends ConsumerState<BookingFlowScreen> {
 
   // The backend calculates the authoritative total and Pay-at-Hotel deposit.
 
-  String _formatPrice(int price) {
-    return price.toString().replaceAllMapped(
-      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-      (Match m) => '${m[1]},',
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     // Fetch room data to get dynamic price
