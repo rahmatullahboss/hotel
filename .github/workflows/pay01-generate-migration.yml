@@ -1,0 +1,80 @@
+name: PAY-01 Generate Migration (temporary)
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/pay01-generate-migration.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      DATABASE_DIRECT_URL: postgresql://pay01:pay01@localhost:5432/pay01
+
+    steps:
+      - name: Check out PAY-01 branch
+        uses: actions/checkout@v5
+        with:
+          ref: work/PAY-01-server-authoritative-calculation
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Use declared npm version
+        run: npm install --global npm@11.6.2
+
+      - name: Install locked dependencies
+        run: npm ci
+
+      - name: Generate PAY-01 Drizzle migration
+        run: >-
+          npm --workspace @repo/db run db:generate --
+          --name=server_authoritative_booking_calculation
+
+      - name: Verify generated migration assets
+        shell: bash
+        run: |
+          test -f packages/db/drizzle/0019_server_authoritative_booking_calculation.sql
+          test -f packages/db/drizzle/meta/0019_snapshot.json
+
+          last_tag="$(node -e "const j=require('./packages/db/drizzle/meta/_journal.json'); process.stdout.write(j.entries.at(-1)?.tag ?? '')")"
+          if [[ "${last_tag}" != "0019_server_authoritative_booking_calculation" ]]; then
+            echo "::error::Unexpected migration head: ${last_tag}"
+            exit 1
+          fi
+
+          git diff --check
+          git status --short packages/db/drizzle
+
+          mapfile -t changed < <(
+            {
+              git diff --name-only -- packages/db/drizzle
+              git ls-files --others --exclude-standard packages/db/drizzle
+            } | sort -u
+          )
+
+          printf '%s\n' "${changed[@]}"
+          if [[ "${#changed[@]}" -ne 3 ]]; then
+            echo "::error::Expected SQL, snapshot and journal only; found ${#changed[@]} paths."
+            exit 1
+          fi
+
+      - name: Commit generated migration
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add packages/db/drizzle
+          git commit -m "db: persist authoritative booking calculation"
+          git push origin HEAD:work/PAY-01-server-authoritative-calculation
