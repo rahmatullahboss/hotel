@@ -128,6 +128,7 @@ test("temporary PAY-01 maintenance workflows are absent", async () => {
     ".github/workflows/pay01-generate-migration.yml",
     ".github/workflows/pay01-format-flutter.yml",
     ".github/workflows/pay01-lint-fix.yml",
+    ".github/workflows/pay01-flutter-cleanup.yml",
   ]) {
     assert.equal(await exists(workflow), false, `${workflow} must be absent`);
   }
