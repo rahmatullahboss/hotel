@@ -79,10 +79,12 @@ test("migration journal is contiguous and every entry has SQL and snapshot", asy
       true,
       `missing SQL for ${entry.tag}`,
     );
+
+    const snapshotPrefix = String(entry.idx).padStart(4, "0");
     assert.equal(
-      await fileExists(`packages/db/drizzle/meta/${entry.tag}_snapshot.json`),
+      await fileExists(`packages/db/drizzle/meta/${snapshotPrefix}_snapshot.json`),
       true,
-      `missing snapshot for ${entry.tag}`,
+      `missing snapshot for ${entry.tag} (${snapshotPrefix}_snapshot.json)`,
     );
 
     tags.add(entry.tag);
