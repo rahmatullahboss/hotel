@@ -1,150 +1,203 @@
-import { NextRequest, NextResponse } from "next/server";
 import { db } from "@repo/db";
-import { users, accounts, wallets, loyaltyPoints } from "@repo/db/schema";
-import { eq, and } from "drizzle-orm";
-import jwt from "jsonwebtoken";
+import { accounts, loyaltyPoints, users, wallets } from "@repo/db/schema";
+import { and, eq, isNull, sql } from "drizzle-orm";
+import { NextRequest, NextResponse } from "next/server";
+import {
+    GoogleTokenVerificationError,
+    verifyGoogleIdToken,
+} from "@/lib/mobile-google-auth";
+import {
+    mobileAuthError,
+    recordMobileAuthEvent,
+} from "@/lib/mobile-auth-http";
+import { enforceMobileAuthRateLimit } from "@/lib/mobile-auth-rate-limit";
+import { createMobileSession } from "@/lib/mobile-auth";
 
 export const dynamic = "force-dynamic";
 
-function getJwtSecret(): string {
-    const secret = process.env.AUTH_SECRET;
-    if (!secret) {
-        throw new Error("AUTH_SECRET environment variable is required");
-    }
-    return secret;
-}
-
-interface GoogleTokenPayload {
-    email: string;
-    name: string;
-    picture: string;
-    sub: string; // Google user ID
-    email_verified: boolean;
-}
-
-/**
- * Verify Google ID token and return user info
- */
-async function verifyGoogleToken(idToken: string): Promise<GoogleTokenPayload | null> {
-    try {
-        // Verify with Google's tokeninfo endpoint
-        const response = await fetch(
-            `https://oauth2.googleapis.com/tokeninfo?id_token=${idToken}`
-        );
-
-        if (!response.ok) {
-            console.error("Google token verification failed:", response.status);
-            return null;
-        }
-
-        const payload = await response.json();
-
-        // Verify the token is for our app - check both web and mobile client IDs
-        const validClientIds = [
-            process.env.AUTH_GOOGLE_ID,
-            process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID,
-            // Add any additional client IDs here
-        ].filter(Boolean);
-
-        if (!validClientIds.includes(payload.aud)) {
-            console.error("Token audience mismatch. Got:", payload.aud, "Expected one of:", validClientIds);
-            // Log but don't reject - return the payload anyway for mobile clients
-            console.log("Continuing with token despite audience mismatch (mobile client)");
-        }
-
-        return payload as GoogleTokenPayload;
-    } catch (error) {
-        console.error("Error verifying Google token:", error);
+function readIdToken(body: unknown): string | null {
+    if (!body || typeof body !== "object") {
         return null;
     }
+    const idToken = (body as Record<string, unknown>).idToken;
+    return typeof idToken === "string" && idToken ? idToken : null;
 }
 
 export async function POST(request: NextRequest) {
+    let body: unknown;
     try {
-        const body = await request.json();
-        const { idToken, accessToken, userInfo } = body;
+        body = await request.json();
+    } catch {
+        return mobileAuthError("INVALID_REQUEST", "A valid JSON body is required", 400);
+    }
 
-        let googleUser: GoogleTokenPayload | null = null;
+    const idToken = readIdToken(body);
+    if (!idToken) {
+        return mobileAuthError("INVALID_REQUEST", "Google ID token is required", 400);
+    }
 
-        // Try idToken first, then fall back to userInfo from accessToken
-        if (idToken) {
-            googleUser = await verifyGoogleToken(idToken);
-        } else if (userInfo && userInfo.email) {
-            // Trust userInfo from accessToken (already verified by Google)
-            googleUser = {
-                email: userInfo.email,
-                name: userInfo.name || userInfo.email.split('@')[0],
-                picture: userInfo.picture || '',
-                sub: userInfo.sub || userInfo.id || `google-${Date.now()}`,
-                email_verified: true,
-            };
-        }
-
-        if (!googleUser) {
-            return NextResponse.json({ error: "Authentication data required" }, { status: 400 });
-        }
-
-        // Find or create user
-        let user = await db.query.users.findFirst({
-            where: eq(users.email, googleUser.email),
+    try {
+        const ipLimit = await enforceMobileAuthRateLimit(request, {
+            scope: "mobile-google-ip",
+            limit: 10,
+            windowSeconds: 15 * 60,
         });
-
-        if (!user) {
-            // Create new user
-            const [newUser] = await db
-                .insert(users)
-                .values({
-                    email: googleUser.email,
-                    name: googleUser.name,
-                    image: googleUser.picture,
-                    emailVerified: googleUser.email_verified ? new Date() : null,
-                    role: "TRAVELER",
-                })
-                .returning();
-            user = newUser!;
-
-            // Create wallet for new user
-            await db.insert(wallets).values({ userId: user.id });
-
-            // Create loyalty record for new user
-            await db.insert(loyaltyPoints).values({ userId: user.id });
+        if (!ipLimit.allowed) {
+            recordMobileAuthEvent("rate_limited", { reason: "google_login" });
+            return mobileAuthError(
+                "RATE_LIMITED",
+                "Too many Google login attempts. Try again later.",
+                429,
+                ipLimit.retryAfterSeconds,
+            );
         }
 
-        // Check if Google account is linked
-        const existingAccount = await db.query.accounts.findFirst({
-            where: and(
-                eq(accounts.userId, user.id),
-                eq(accounts.provider, "google")
-            ),
-        });
+        let googleIdentity;
+        try {
+            googleIdentity = await verifyGoogleIdToken(idToken);
+        } catch (error) {
+            if (
+                error instanceof GoogleTokenVerificationError &&
+                error.kind === "invalid"
+            ) {
+                recordMobileAuthEvent("google_login_rejected", {
+                    reason: "invalid_google_token",
+                });
+                return mobileAuthError(
+                    "INVALID_GOOGLE_TOKEN",
+                    "Google authentication failed",
+                    401,
+                );
+            }
+            if (
+                error instanceof GoogleTokenVerificationError &&
+                error.kind === "unavailable"
+            ) {
+                return mobileAuthError(
+                    "GOOGLE_AUTH_UNAVAILABLE",
+                    "Google authentication is temporarily unavailable",
+                    503,
+                );
+            }
+            throw error;
+        }
 
-        if (!existingAccount) {
-            // Link Google account
-            await db.insert(accounts).values({
-                userId: user.id,
+        const accountLimit = await enforceMobileAuthRateLimit(
+            request,
+            {
+                scope: "mobile-google-account",
+                limit: 5,
+                windowSeconds: 15 * 60,
+            },
+            googleIdentity.email,
+        );
+        if (!accountLimit.allowed) {
+            recordMobileAuthEvent("rate_limited", {
+                subject: googleIdentity.email,
+                reason: "google_account",
+            });
+            return mobileAuthError(
+                "RATE_LIMITED",
+                "Too many Google login attempts. Try again later.",
+                429,
+                accountLimit.retryAfterSeconds,
+            );
+        }
+
+        const user = await db.transaction(async (tx) => {
+            const lockKey = `mobile-google:${googleIdentity.providerAccountId}`;
+            await tx.execute(
+                sql`select pg_advisory_xact_lock(hashtextextended(${lockKey}, 0))`,
+            );
+
+            const [linkedAccount] = await tx
+                .select({ userId: accounts.userId })
+                .from(accounts)
+                .where(
+                    and(
+                        eq(accounts.provider, "google"),
+                        eq(
+                            accounts.providerAccountId,
+                            googleIdentity.providerAccountId,
+                        ),
+                    ),
+                )
+                .limit(1);
+
+            if (linkedAccount) {
+                const [linkedUser] = await tx
+                    .select()
+                    .from(users)
+                    .where(
+                        and(
+                            eq(users.id, linkedAccount.userId),
+                            isNull(users.deletedAt),
+                        ),
+                    )
+                    .limit(1);
+                if (!linkedUser) {
+                    throw new Error("Linked Google account has no active user");
+                }
+                return linkedUser;
+            }
+
+            let [matchedUser] = await tx
+                .select()
+                .from(users)
+                .where(
+                    and(
+                        eq(users.email, googleIdentity.email),
+                        isNull(users.deletedAt),
+                    ),
+                )
+                .limit(1);
+
+            if (!matchedUser) {
+                [matchedUser] = await tx
+                    .insert(users)
+                    .values({
+                        email: googleIdentity.email,
+                        name: googleIdentity.name,
+                        image: googleIdentity.picture,
+                        emailVerified: new Date(),
+                        role: "TRAVELER",
+                    })
+                    .returning();
+
+                if (!matchedUser) {
+                    throw new Error("Google user insert returned no record");
+                }
+
+                await tx.insert(wallets).values({ userId: matchedUser.id });
+                await tx.insert(loyaltyPoints).values({ userId: matchedUser.id });
+            }
+
+            await tx.insert(accounts).values({
+                userId: matchedUser.id,
                 type: "oauth",
                 provider: "google",
-                providerAccountId: googleUser.sub,
-                access_token: accessToken,
-                id_token: idToken,
+                providerAccountId: googleIdentity.providerAccountId,
             });
+
+            return matchedUser;
+        });
+
+        if (!user.email) {
+            throw new Error("Google-authenticated user has no email");
         }
 
-        // Generate JWT token for mobile session
-        const token = jwt.sign(
-            {
-                id: user.id,
-                email: user.email,
-                name: user.name,
-                role: user.role,
-            },
-            getJwtSecret(),
-            { expiresIn: "30d" }
-        );
+        const session = await createMobileSession({
+            userId: user.id,
+            email: user.email,
+            name: user.name,
+            role: user.role,
+        });
 
-        return NextResponse.json({
+        recordMobileAuthEvent("google_login_succeeded", { userId: user.id });
+        const response = NextResponse.json({
             success: true,
-            token,
+            token: session.token,
+            expiresAt: session.expiresAt,
             user: {
                 id: user.id,
                 email: user.email,
@@ -153,8 +206,19 @@ export async function POST(request: NextRequest) {
                 role: user.role,
             },
         });
+        response.headers.set("Cache-Control", "no-store");
+        return response;
     } catch (error) {
-        console.error("Error in mobile Google auth:", error);
-        return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+        console.error("Mobile Google authentication failed", {
+            reason: error instanceof Error ? error.name : "UnknownError",
+        });
+        recordMobileAuthEvent("google_login_rejected", {
+            reason: "internal_failure",
+        });
+        return mobileAuthError(
+            "GOOGLE_AUTH_UNAVAILABLE",
+            "Google authentication is temporarily unavailable",
+            503,
+        );
     }
 }
