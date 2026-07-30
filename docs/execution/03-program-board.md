@@ -22,7 +22,7 @@ This board is the operational queue. Update status, owner, branch, PR and eviden
 
 | ID | Status | Work item | Acceptance summary | Owner/branch |
 |---|---|---|---|---|
-| DB-01 | READY | Migration baseline and environment separation | `generate`/`migrate`; committed history; direct migration URL; pooled app URL; clean/upgrade tests | unassigned |
+| DB-01 | IN_PROGRESS | Migration baseline and environment separation | 19 committed migrations; direct tooling URL; pooled runtime URL; local-only push guard; clean-install/hash/repeatability CI; existing production adoption blocked pending schema-equivalence evidence | owner: GPT-5.6; base: `7297ea7007cc4495a75f863f638082d103c4d8fd`; branch: `work/DB-01-migration-baseline` |
 | SEC-02 | BLOCKED | Tenant/RBAC matrix and enforcement | Explicit permission matrix; negative tests across partner/admin/hotel boundaries | unassigned |
 | API-01 | BLOCKED | Versioned mobile API contract | Typed schemas, stable error envelope, contract tests, no guessed response shapes | unassigned |
 | RSV-02 | BLOCKED | Booking expiry/cancellation/refund state machine | legal transitions, idempotent jobs, inventory release, wallet/payment reconciliation | unassigned |
@@ -90,6 +90,10 @@ CI-02 requires ordinary pull requests to pass format, strict analyze, executable
 
 CI-01 may move from `BLOCKED_CONFIG` only after issue #3 is resolved and its production-build check has executed successfully against the isolated Neon CI branch.
 
+### DB-01 — Migration baseline
+
+Shared environments use committed Drizzle migrations with `DATABASE_DIRECT_URL`; application traffic uses pooled `DATABASE_URL`. The existing production environment has application tables but no Drizzle migration log, so migration execution there remains prohibited until clean-history CI and isolated semantic schema comparison approve a controlled adoption plan.
+
 ## Board update rules
 
 A status change to `IN_PROGRESS` requires owner, base SHA and branch.
@@ -101,7 +105,7 @@ A status change to `DONE` requires merged SHA and integration/runtime evidence. 
 ## Current next action
 
 1. Resolve CI-01 issue #3 and rerun the production build.
-2. Activate DB-01 migration baseline and environment separation.
+2. Complete DB-01 clean migration and adoption evidence.
 3. Activate SEC-01 mobile authentication hardening.
 4. Prepare PAY-01 and RSV-01 with coordinated database ownership.
 5. Activate OPS-01 environment/deployment health inventory.
