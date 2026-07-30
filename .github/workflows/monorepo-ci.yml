@@ -28,10 +28,12 @@ jobs:
 
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
 
       - name: Set up Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version-file: .nvmrc
           cache: npm
@@ -43,8 +45,10 @@ jobs:
       - name: Install locked dependencies
         run: npm ci
 
-      - name: Lint all workspaces
-        run: npm run lint
+      - name: Lint changed source files
+        env:
+          GITHUB_EVENT_BEFORE: ${{ github.event.before }}
+        run: npm run lint:ci
 
       - name: Type-check all workspaces
         run: npm run check-types
@@ -66,10 +70,10 @@ jobs:
 
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Set up Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version-file: .nvmrc
           cache: npm
