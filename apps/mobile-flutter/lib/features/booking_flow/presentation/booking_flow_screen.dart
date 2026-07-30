@@ -35,6 +35,7 @@ class _BookingFlowScreenState extends ConsumerState<BookingFlowScreen> {
   DateTime? _checkOut;
   int _guests = 2;
   String _paymentMethod = 'PAY_AT_HOTEL';
+  int? _authoritativeTotal;
 
   // Guest details controllers
   final _guestNameController = TextEditingController();
@@ -104,23 +105,10 @@ class _BookingFlowScreenState extends ConsumerState<BookingFlowScreen> {
 
   // Calculate prices
   int get _roomTotal => _roomPrice * _nights;
-  int get _tax => (_roomTotal * 0.10).round(); // 10% tax
+  int get _tax => (_roomTotal * 0.15).round(); // 15% tax estimate
   int get _grandTotal => _roomTotal + _tax;
 
-  // Booking fee calculation (20% for PAH, 100% for online)
-  int get _bookingFee {
-    if (_paymentMethod == 'PAY_AT_HOTEL') {
-      return (_grandTotal * 0.20).round();
-    }
-    return _grandTotal;
-  }
-
-  String _formatPrice(int price) {
-    return price.toString().replaceAllMapped(
-      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-      (Match m) => '${m[1]},',
-    );
-  }
+  // The backend calculates the authoritative total and Pay-at-Hotel deposit.
 
   @override
   Widget build(BuildContext context) {
@@ -443,7 +431,7 @@ class _BookingFlowScreenState extends ConsumerState<BookingFlowScreen> {
                 value: ref.watch(currencyProvider).formatPrice(_roomTotal),
               ),
               _PriceRow(
-                label: '${loc.tax} (10%)',
+                label: '${loc.tax} (15% estimate)',
                 value: ref.watch(currencyProvider).formatPrice(_tax),
               ),
               const Divider(),
@@ -452,34 +440,6 @@ class _BookingFlowScreenState extends ConsumerState<BookingFlowScreen> {
                 value: ref.watch(currencyProvider).formatPrice(_grandTotal),
                 isTotal: true,
               ),
-              if (_paymentMethod == 'PAY_AT_HOTEL') ...[
-                const SizedBox(height: 12),
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: AppColors.success.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Row(
-                    children: [
-                      const Icon(
-                        Icons.info_outline,
-                        color: AppColors.success,
-                        size: 20,
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          loc.advancePaymentMessage(_formatPrice(_bookingFee)),
-                          style: AppTypography.bodySmall.copyWith(
-                            color: AppColors.success,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
             ],
           ),
         ),
@@ -547,9 +507,7 @@ class _BookingFlowScreenState extends ConsumerState<BookingFlowScreen> {
       builder: (context) => const Center(child: CircularProgressIndicator()),
     );
 
-    debugPrint(
-      'Creating booking: hotelId=$hotelId, roomId=${widget.roomId}, total=$_grandTotal',
-    );
+    debugPrint('Creating booking: hotelId=$hotelId, roomId=${widget.roomId}');
 
     // Call booking API to create pending booking
     final result = await ref
@@ -564,7 +522,6 @@ class _BookingFlowScreenState extends ConsumerState<BookingFlowScreen> {
           guestPhone: _guestPhoneController.text,
           guestEmail: _guestEmailController.text,
           paymentMethod: _paymentMethod,
-          totalAmount: _grandTotal,
         );
 
     // If booking creation failed, show actual error message
@@ -584,6 +541,11 @@ class _BookingFlowScreenState extends ConsumerState<BookingFlowScreen> {
     }
 
     final bookingId = result.bookingId!;
+    if (mounted) {
+      setState(() {
+        _authoritativeTotal = result.totalAmount;
+      });
+    }
     debugPrint('Booking created successfully: $bookingId');
 
     // For STRIPE payment, process payment before confirming
@@ -595,7 +557,7 @@ class _BookingFlowScreenState extends ConsumerState<BookingFlowScreen> {
       // Process Stripe payment
       success = await ref
           .read(stripePaymentProvider.notifier)
-          .processPayment(bookingId: bookingId, amount: _grandTotal);
+          .processPayment(bookingId: bookingId);
     } else {
       // For other payment methods, hide loading
       if (mounted) Navigator.of(context).pop();
@@ -642,7 +604,7 @@ class _BookingFlowScreenState extends ConsumerState<BookingFlowScreen> {
                         style: AppTypography.bodySmall,
                       ),
                       Text(
-                        '${loc.total}: ${ref.watch(currencyProvider).formatPrice(_grandTotal)}',
+                        '${loc.total}: ${ref.watch(currencyProvider).formatPrice(_authoritativeTotal ?? _grandTotal)}',
                         style: AppTypography.labelMedium,
                       ),
                     ],

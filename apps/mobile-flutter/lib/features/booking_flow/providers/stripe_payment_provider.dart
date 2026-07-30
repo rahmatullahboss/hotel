@@ -4,7 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:dio/dio.dart';
 import 'package:zinu_rooms/core/api/api_client.dart';
-import 'package:zinu_rooms/core/providers/currency_provider.dart';
 
 // Stripe publishable key (from environment or hardcoded for test)
 const String stripePublishableKey = String.fromEnvironment(
@@ -56,25 +55,14 @@ class StripePaymentNotifier extends Notifier<StripePaymentState> {
   StripePaymentState build() => const StripePaymentState();
 
   // Create payment intent and process payment
-  Future<bool> processPayment({
-    required String bookingId,
-    required int amount,
-  }) async {
+  Future<bool> processPayment({required String bookingId}) async {
     state = state.copyWith(isLoading: true, error: null, isSuccess: false);
 
     try {
-      // Get current currency selection from provider
-      final currencyState = ref.read(currencyProvider);
-      final currency = currencyState.currency == Currency.usd ? 'usd' : 'bdt';
-
       // Step 1: Create payment intent on server
       final response = await _dio.post(
         '/payment/stripe/create-intent',
-        data: {
-          'bookingId': bookingId,
-          'amount': amount,
-          'currency': currency, // Send selected currency
-        },
+        data: {'bookingId': bookingId},
       );
 
       final data = response.data;

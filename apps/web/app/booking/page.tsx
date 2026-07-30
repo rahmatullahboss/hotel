@@ -1,7 +1,7 @@
 "use client";
 
 import { Suspense, useState, useEffect } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
@@ -11,7 +11,7 @@ import { getUserProfile } from "../actions/profile";
 import { getWalletBalance } from "../actions/wallet";
 import { checkFirstBookingEligibility } from "../actions/first-booking";
 import { FIRST_BOOKING_DISCOUNT_PERCENT, FIRST_BOOKING_MAX_DISCOUNT, TAX_RATE } from "../constants";
-import { BottomNav, BookingQRCode } from "../components";
+import { BookingQRCode } from "../components";
 import { FiLock, FiClock, FiCreditCard, FiSmartphone, FiCheck } from "react-icons/fi";
 import { FaHotel, FaWallet } from "react-icons/fa";
 
@@ -25,14 +25,13 @@ const StripePaymentForm = dynamic(() => import("../components/stripe-payment-for
 type PaymentMethod = "PAY_AT_HOTEL" | "WALLET" | "STRIPE";
 
 // Payment methods array with Stripe card payment
-const paymentMethods: { id: PaymentMethod; nameKey: string; icon: React.ReactNode; advancePercent: number }[] = [
-    { id: "WALLET", nameKey: "payByWallet", icon: <FaWallet size={24} />, advancePercent: 100 },
-    { id: "STRIPE", nameKey: "creditDebitCard", icon: <FiCreditCard size={24} />, advancePercent: 100 },
-    { id: "PAY_AT_HOTEL", nameKey: "payAtHotel", icon: <FaHotel size={24} />, advancePercent: 0 },
+const paymentMethods: { id: PaymentMethod; nameKey: string; icon: React.ReactNode }[] = [
+    { id: "WALLET", nameKey: "payByWallet", icon: <FaWallet size={24} /> },
+    { id: "STRIPE", nameKey: "creditDebitCard", icon: <FiCreditCard size={24} /> },
+    { id: "PAY_AT_HOTEL", nameKey: "payAtHotel", icon: <FaHotel size={24} /> },
 ];
 
 function BookingContent() {
-    const router = useRouter();
     const searchParams = useSearchParams();
     const { data: session, status } = useSession();
     const t = useTranslations("booking");
@@ -64,6 +63,7 @@ function BookingContent() {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [bookingId, setBookingId] = useState("");
     const [pendingAdvanceAmount, setPendingAdvanceAmount] = useState(0);
+    const [authoritativePaymentAmount, setAuthoritativePaymentAmount] = useState<number | null>(null);
     const [walletBalance, setWalletBalance] = useState<number>(0);
     const [useWalletPartial, setUseWalletPartial] = useState(false); // Use wallet for partial payment
     const [error, setError] = useState("");
@@ -81,14 +81,7 @@ function BookingContent() {
     const taxAmount = Math.round(discountedSubtotal * TAX_RATE);
     const totalAmount = discountedSubtotal + taxAmount;
 
-    // Get current payment method's advance requirement (after paymentMethod state is declared)
-    const currentMethod = paymentMethods.find(m => m.id === paymentMethod);
-    const advancePercent = currentMethod?.advancePercent || 0;
-    // TODO: Uncomment when payment gateway is implemented
-    // const advanceAmount = paymentMethod === "PAY_AT_HOTEL"
-    //     ? Math.round(totalAmount * 0.20)  // 20% for Pay at Hotel
-    //     : totalAmount;  // Full payment for online methods
-    const advanceAmount = 0;  // No advance payment required - 100% pay at hotel
+    // Displayed totals are estimates; the server persists the authoritative calculation.
 
     // Pre-fill form with session data and profile (including phone)
     useEffect(() => {
@@ -175,21 +168,23 @@ function BookingContent() {
                     checkIn,
                     checkOut,
                     paymentMethod,
-                    totalAmount,
-                    userId: session?.user?.id,
+                    useWalletBalance: useWalletPartial,
                 });
 
                 if (result.success && result.bookingId) {
                     setBookingId(result.bookingId);
+                    setAuthoritativePaymentAmount(
+                        result.amountOutstanding ?? result.amountDueNow ?? result.totalAmount ?? null,
+                    );
 
                     // Handle payment based on method
                     if (paymentMethod === "PAY_AT_HOTEL") {
                         if (result.requiresPayment && result.advanceAmount) {
-                            // Wallet insufficient - go to step 4 to select payment method for 20% advance
+                            // Wallet did not fully cover the server-calculated deposit.
                             setPendingAdvanceAmount(result.advanceAmount);
                             setStep(4);
                         } else {
-                            // Wallet had enough, 20% already paid - confirm booking
+                            // Wallet covered the server-calculated deposit.
                             setStep(3);
                         }
                     } else if (paymentMethod === "WALLET") {
@@ -224,7 +219,7 @@ function BookingContent() {
                 } else {
                     setError(result.error || t("failedToCreate"));
                 }
-            } catch (err) {
+            } catch {
                 setError(t("errorOccurred"));
             } finally {
                 setIsSubmitting(false);
@@ -232,7 +227,7 @@ function BookingContent() {
         }
     };
 
-    // Handle advance payment for Pay at Hotel when wallet is insufficient
+    // Handle the authoritative Pay-at-Hotel deposit when wallet is insufficient
     const handleAdvancePayment = async () => {
         setIsSubmitting(true);
         setError("");
@@ -241,10 +236,7 @@ function BookingContent() {
             const paymentResponse = await fetch("/api/payment/initiate", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    bookingId: bookingId,
-                    amount: pendingAdvanceAmount,
-                }),
+                body: JSON.stringify({ bookingId }),
             });
             const paymentData = await paymentResponse.json();
 
@@ -253,7 +245,7 @@ function BookingContent() {
             } else {
                 setError(paymentData.error || t("failedToInitiate"));
             }
-        } catch (err) {
+        } catch {
             setError(t("paymentServiceUnavailable"));
         } finally {
             setIsSubmitting(false);
@@ -284,6 +276,7 @@ function BookingContent() {
                     {/* Booking Summary Card with Room Photo */}
                     <div className="premium-summary-card">
                         <div className="premium-summary-image">
+                            {/* eslint-disable-next-line @next/next/no-img-element -- provider room-photo URLs are dynamic */}
                             <img
                                 src={roomPhoto || "https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=800&h=400&fit=crop"}
                                 alt={roomName}
@@ -556,34 +549,8 @@ function BookingContent() {
                                         ৳{totalAmount.toLocaleString()}
                                     </span>
                                 </div>
-                                {/* 20% Advance Payment Logic - Commented out: Payment gateway not yet implemented
-                                   TODO: Uncomment when bKash/Nagad payment gateway is ready */}
-                                {/* {paymentMethod === "PAY_AT_HOTEL" && (() => {
-                                    const requiredAdvance = Math.round(totalAmount * 0.2);
-                                    const walletCoversAdvance = useWalletPartial && walletBalance >= requiredAdvance;
-                                    const remainingAdvance = useWalletPartial
-                                        ? Math.max(0, requiredAdvance - walletBalance)
-                                        : requiredAdvance;
-                                    const payAtHotelAmount = totalAmount - (useWalletPartial ? Math.min(walletBalance, totalAmount) : 0) - remainingAdvance;
-
-                                    if (walletCoversAdvance) {
-                                        return (
-                                            <div style={{ padding: "0.75rem", marginTop: "0.75rem", background: "rgba(42, 157, 143, 0.1)", borderRadius: "0.5rem", textAlign: "center" }}>
-                                                <span style={{ color: "var(--color-success)", fontWeight: 600 }}>✓ {t("advanceCoveredByWallet")}</span>
-                                            </div>
-                                        );
-                                    } else if (remainingAdvance > 0) {
-                                        return (
-                                            <div style={{ display: "flex", justifyContent: "space-between", padding: "0.75rem", marginTop: "0.75rem", background: "rgba(42, 157, 143, 0.1)", borderRadius: "0.5rem", fontWeight: 600 }}>
-                                                <span style={{ color: "var(--color-success)" }}>{t("payNow20")}</span>
-                                                <span style={{ color: "var(--color-success)" }}>৳{remainingAdvance.toLocaleString()}</span>
-                                            </div>
-                                        );
-                                    }
-                                    return null;
-                                })()} */}
-
-                                {/* Pay at Hotel - Full amount at check-in */}
+                                {/* The server calculates the configured deposit after submission. */}
+                                {/* Pay at Hotel deposit and remaining balance are server-calculated. */}
                                 {paymentMethod === "PAY_AT_HOTEL" && (
                                     <div
                                         style={{
@@ -653,7 +620,7 @@ function BookingContent() {
 
                             <StripePaymentForm
                                 bookingId={bookingId}
-                                amount={totalAmount}
+                                amount={authoritativePaymentAmount ?? totalAmount}
                                 onSuccess={() => {
                                     setShowStripeForm(false);
                                     setStep(3);

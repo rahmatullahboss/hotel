@@ -291,7 +291,7 @@
     "instantPayment": "ওয়ালেট থেকে তাৎক্ষণিক পেমেন্ট",
     "walletPaymentFailed": "ওয়ালেট পেমেন্ট ব্যর্থ। আবার চেষ্টা করুন।",
     "firstBookingDiscount": "প্রথম বুকিং ছাড় (২০%)",
-    "payAtHotelFull": "হোটেল চেক-ইনে সম্পূর্ণ টাকা পরিশোধ করুন",
+    "payAtHotelFull": "সার্ভার নির্ধারিত ডিপোজিট এখন, বাকি টাকা হোটেলে",
     "cardDetails": "কার্ড তথ্য",
     "completePayment": "পেমেন্ট সম্পন্ন করুন",
     "enterCardDetails": "বুকিং সম্পন্ন করতে আপনার কার্ড তথ্য দিন",

@@ -179,6 +179,30 @@ export type BookingSource =
 // Commission Status Enum - tracks commission collection
 export type CommissionStatus = "PENDING" | "PAID" | "WAIVED" | "NOT_APPLICABLE";
 
+export interface BookingPricingBreakdown {
+    version: string;
+    currency: string;
+    nightlyRates: Array<{
+        date: string;
+        amount: string;
+        source: "BASE" | "INVENTORY_OVERRIDE";
+    }>;
+    roomSubtotal: string;
+    discountRate: string;
+    discountCap: string;
+    discountAmount: string;
+    taxableAmount: string;
+    taxRate: string;
+    taxAmount: string;
+    totalAmount: string;
+    commissionRate: string;
+    commissionAmount: string;
+    netAmount: string;
+    amountDueNow: string;
+    walletAmountUsed: string;
+    amountOutstanding: string;
+}
+
 export const bookings = pgTable("bookings", {
     id: text("id")
         .primaryKey()
@@ -235,6 +259,17 @@ export const bookings = pgTable("bookings", {
     })
         .default("PENDING")
         .notNull(),
+
+    // Immutable server-authoritative booking-v1 calculation evidence.
+    pricingVersion: text("pricingVersion").default("legacy").notNull(),
+    currency: text("currency").default("BDT").notNull(),
+    roomSubtotal: decimal("roomSubtotal", { precision: 10, scale: 2 }).default("0").notNull(),
+    discountAmount: decimal("discountAmount", { precision: 10, scale: 2 }).default("0").notNull(),
+    taxRate: decimal("taxRate", { precision: 5, scale: 2 }).default("0").notNull(),
+    taxAmount: decimal("taxAmount", { precision: 10, scale: 2 }).default("0").notNull(),
+    commissionRate: decimal("commissionRate", { precision: 5, scale: 2 }).default("0").notNull(),
+    amountDueNow: decimal("amountDueNow", { precision: 10, scale: 2 }).default("0").notNull(),
+    pricingBreakdown: jsonb("pricingBreakdown").$type<BookingPricingBreakdown>(),
 
     totalAmount: decimal("totalAmount", { precision: 10, scale: 2 }).notNull(),
     commissionAmount: decimal("commissionAmount", { precision: 10, scale: 2 }).notNull(),

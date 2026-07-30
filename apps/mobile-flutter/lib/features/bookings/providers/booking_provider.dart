@@ -138,8 +138,20 @@ class BookingCreationResult {
   final String? bookingId;
   final String? error;
   final bool success;
+  final int? totalAmount;
+  final int? amountDueNow;
+  final int? amountOutstanding;
+  final String? currency;
 
-  BookingCreationResult({this.bookingId, this.error, required this.success});
+  BookingCreationResult({
+    this.bookingId,
+    this.error,
+    required this.success,
+    this.totalAmount,
+    this.amountDueNow,
+    this.amountOutstanding,
+    this.currency,
+  });
 }
 
 // Bookings notifier (Riverpod 3.0)
@@ -211,7 +223,6 @@ class BookingsNotifier extends Notifier<BookingsState> {
     required DateTime checkOut,
     required int guests,
     required String paymentMethod,
-    required int totalAmount,
     String? guestName,
     String? guestPhone,
     String? guestEmail,
@@ -226,7 +237,6 @@ class BookingsNotifier extends Notifier<BookingsState> {
           'checkOut': checkOut.toIso8601String().split('T')[0],
           'guests': guests,
           'paymentMethod': paymentMethod,
-          'totalAmount': totalAmount,
           if (guestName != null) 'guestName': guestName,
           if (guestPhone != null) 'guestPhone': guestPhone,
           if (guestEmail != null) 'guestEmail': guestEmail,
@@ -265,7 +275,6 @@ class BookingsNotifier extends Notifier<BookingsState> {
     required DateTime checkOut,
     required int guests,
     required String paymentMethod,
-    required int totalAmount,
     String? guestName,
     String? guestPhone,
     String? guestEmail,
@@ -282,7 +291,6 @@ class BookingsNotifier extends Notifier<BookingsState> {
         'checkOut': checkOut.toIso8601String().split('T')[0],
         'guests': guests,
         'paymentMethod': paymentMethod,
-        'totalAmount': totalAmount,
         if (guestName != null && guestName.isNotEmpty) 'guestName': guestName,
         if (guestPhone != null && guestPhone.isNotEmpty)
           'guestPhone': guestPhone,
@@ -290,13 +298,7 @@ class BookingsNotifier extends Notifier<BookingsState> {
           'guestEmail': guestEmail,
       };
 
-      debugPrint('BookingProvider: REQUEST BODY = $requestBody');
-
       final response = await _dio.post('/bookings', data: requestBody);
-
-      debugPrint(
-        'BookingProvider: Response status=${response.statusCode}, data=${response.data}',
-      );
 
       // Check for success response
       final data = response.data;
@@ -311,7 +313,20 @@ class BookingsNotifier extends Notifier<BookingsState> {
           debugPrint(
             'BookingProvider: Booking created successfully, ID = $bookingId',
           );
-          return BookingCreationResult(bookingId: bookingId, success: true);
+          return BookingCreationResult(
+            bookingId: bookingId,
+            success: true,
+            totalAmount: double.tryParse(
+              data['totalAmount']?.toString() ?? '',
+            )?.round(),
+            amountDueNow: double.tryParse(
+              data['amountDueNow']?.toString() ?? '',
+            )?.round(),
+            amountOutstanding: double.tryParse(
+              data['amountOutstanding']?.toString() ?? '',
+            )?.round(),
+            currency: data['currency']?.toString(),
+          );
         }
 
         // If we get here, check if success flag exists
@@ -340,18 +355,7 @@ class BookingsNotifier extends Notifier<BookingsState> {
         'BookingProvider: DioException - status=$statusCode, data=$responseData',
       );
 
-      // Check if booking was actually created despite error status
-      // This can happen if booking succeeds but post-processing fails
       if (responseData is Map<String, dynamic>) {
-        final bookingId =
-            responseData['bookingId']?.toString() ??
-            responseData['booking']?['id']?.toString();
-        if (bookingId != null && bookingId.isNotEmpty) {
-          debugPrint(
-            'BookingProvider: Found bookingId in error response: $bookingId',
-          );
-          return BookingCreationResult(bookingId: bookingId, success: true);
-        }
         final error =
             responseData['error'] ??
             responseData['message'] ??

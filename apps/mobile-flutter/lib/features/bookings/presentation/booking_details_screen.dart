@@ -550,7 +550,7 @@ class BookingDetailsScreen extends ConsumerWidget {
     // Process Stripe payment
     final success = await ref
         .read(stripePaymentProvider.notifier)
-        .processPayment(bookingId: booking.id, amount: booking.totalAmount);
+        .processPayment(bookingId: booking.id);
 
     // Hide loading
     if (context.mounted) Navigator.of(context).pop();
