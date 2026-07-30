@@ -6,6 +6,11 @@ on:
       - main
     paths:
       - ".github/workflows/pay01-flutter-cleanup.yml"
+  push:
+    branches:
+      - work/PAY-01-server-authoritative-calculation
+    paths:
+      - ".github/workflows/pay01-flutter-cleanup.yml"
 
 permissions:
   contents: write
