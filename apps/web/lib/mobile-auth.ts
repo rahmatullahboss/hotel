@@ -1,57 +1,124 @@
+import { randomUUID } from "node:crypto";
 import { NextRequest } from "next/server";
-import jwt from "jsonwebtoken";
+import { db } from "@repo/db";
+import { sessions, users } from "@repo/db/schema";
+import { and, eq, gt, isNull, lt } from "drizzle-orm";
 import { auth } from "@/auth";
+import {
+    getMobileAuthConfig,
+    signMobileAccessToken,
+    verifyMobileAccessToken,
+    type MobileTokenSubject,
+    type VerifiedMobileToken,
+} from "./mobile-auth-token";
 
-function getJwtSecret(): string {
-    const secret = process.env.AUTH_SECRET;
-    if (!secret) {
-        throw new Error("AUTH_SECRET environment variable is required for JWT authentication");
-    }
-    return secret;
+export interface CreatedMobileSession {
+    token: string;
+    expiresAt: string;
 }
 
-interface JWTPayload {
-    id: string;
-    email: string;
-    name: string;
-    role: string;
-}
-
-/**
- * Verify JWT token from mobile clients
- */
-export function verifyMobileToken(request: NextRequest): JWTPayload | null {
+export function extractBearerToken(request: Request): string | null {
     const authHeader = request.headers.get("authorization");
-    if (!authHeader?.startsWith("Bearer ")) {
+    if (!authHeader) {
         return null;
     }
 
-    const token = authHeader.substring(7);
+    const match = /^Bearer\s+([^\s]+)$/i.exec(authHeader.trim());
+    return match?.[1] ?? null;
+}
+
+export async function createMobileSession(
+    subject: MobileTokenSubject,
+): Promise<CreatedMobileSession> {
+    const config = getMobileAuthConfig();
+    const sessionId = randomUUID();
+    const expires = new Date(Date.now() + config.ttlSeconds * 1000);
+
+    await db.transaction(async (tx) => {
+        await tx
+            .delete(sessions)
+            .where(and(eq(sessions.userId, subject.userId), lt(sessions.expires, new Date())));
+
+        await tx.insert(sessions).values({
+            sessionToken: sessionId,
+            userId: subject.userId,
+            expires,
+        });
+    });
+
+    return {
+        token: signMobileAccessToken(subject, sessionId, config),
+        expiresAt: expires.toISOString(),
+    };
+}
+
+export async function verifyMobileToken(
+    request: Request,
+): Promise<VerifiedMobileToken | null> {
+    const token = extractBearerToken(request);
+    if (!token) {
+        return null;
+    }
+
     try {
-        const decoded = jwt.verify(token, getJwtSecret()) as JWTPayload;
-        return decoded;
+        const claims = verifyMobileAccessToken(token);
+        const [activeSession] = await db
+            .select({ sessionId: sessions.sessionToken })
+            .from(sessions)
+            .innerJoin(users, eq(users.id, sessions.userId))
+            .where(
+                and(
+                    eq(sessions.sessionToken, claims.sessionId),
+                    eq(sessions.userId, claims.userId),
+                    gt(sessions.expires, new Date()),
+                    isNull(users.deletedAt),
+                ),
+            )
+            .limit(1);
+
+        return activeSession ? claims : null;
     } catch (error) {
-        console.error("JWT verification failed:", error);
+        console.warn("Mobile access token rejected", {
+            reason: error instanceof Error ? error.name : "UnknownError",
+        });
         return null;
     }
 }
 
+export async function revokeMobileSession(request: Request): Promise<boolean> {
+    const token = extractBearerToken(request);
+    if (!token) {
+        return false;
+    }
+
+    try {
+        const claims = verifyMobileAccessToken(token);
+        const revoked = await db
+            .delete(sessions)
+            .where(
+                and(
+                    eq(sessions.sessionToken, claims.sessionId),
+                    eq(sessions.userId, claims.userId),
+                ),
+            )
+            .returning({ sessionId: sessions.sessionToken });
+        return revoked.length > 0;
+    } catch {
+        return false;
+    }
+}
+
 /**
- * Get user ID from either NextAuth session or mobile JWT token
- * Returns userId or null if not authenticated
+ * Get a user ID from either an Auth.js browser session or a revocable mobile JWT session.
  */
-export async function getUserIdFromRequest(request: NextRequest): Promise<string | null> {
-    // First try NextAuth session (for web)
+export async function getUserIdFromRequest(
+    request: NextRequest,
+): Promise<string | null> {
     const session = await auth();
     if (session?.user?.id) {
         return session.user.id;
     }
 
-    // If no session, try JWT token (for mobile)
-    const mobileAuth = verifyMobileToken(request);
-    if (mobileAuth?.id) {
-        return mobileAuth.id;
-    }
-
-    return null;
+    const mobileAuth = await verifyMobileToken(request);
+    return mobileAuth?.userId ?? null;
 }
