@@ -6,20 +6,21 @@ import * as schema from "@repo/db/schema";
 const { users, accounts, sessions, verificationTokens } = schema;
 import { neon } from "@neondatabase/serverless";
 import { drizzle } from "drizzle-orm/neon-http";
+import { eq } from "drizzle-orm";
 
 /**
  * Shared Auth.js v5 configuration factory for all apps
- * 
+ *
  * IMPORTANT: This returns a FUNCTION, not the config directly.
  * This is required because Neon serverless cannot keep connections alive
  * between requests, so the DB client must be created inside the request handler.
- * 
+ *
  * Apps should use this pattern:
- * 
+ *
  * ```ts
  * import { getAuthConfig } from "@repo/config/auth";
  * import NextAuth from "next-auth";
- * 
+ *
  * export const { handlers, auth, signIn, signOut } = NextAuth(getAuthConfig);
  * ```
  */
@@ -45,16 +46,19 @@ const createQueryDb = () => {
     return drizzle(sql, { schema });
 };
 
+type AdapterDatabase = Parameters<typeof DrizzleAdapter>[0];
+
 /**
  * Auth config factory function
- * 
+ *
  * This function is called per-request by NextAuth, ensuring that:
  * 1. Database connections are created fresh for each request (required for Neon serverless)
  * 2. Environment variables are read at runtime, not at module evaluation time
  */
 export const getAuthConfig = (): NextAuthConfig => ({
-    // Create adapter with fresh DB connection per request
-    adapter: DrizzleAdapter(createAdapterDb() as any, {
+    // Auth.js and Drizzle currently expose structurally compatible but separately
+    // versioned database types, so the boundary is narrowed through unknown.
+    adapter: DrizzleAdapter(createAdapterDb() as unknown as AdapterDatabase, {
         usersTable: users,
         accountsTable: accounts,
         sessionsTable: sessions,
@@ -87,7 +91,7 @@ export const getAuthConfig = (): NextAuthConfig => ({
                 // Find user by email
                 const db = createQueryDb();
                 const existingUser = await db.query.users.findFirst({
-                    where: (users: any, { eq }: any) => eq(users.email, email),
+                    where: eq(users.email, email),
                 });
 
                 if (!existingUser) {
