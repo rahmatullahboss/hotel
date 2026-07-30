@@ -16,8 +16,9 @@ async function exists(relativePath) {
   }
 }
 
-process.env.DATABASE_URL ??= "postgresql://postgres:postgres@localhost:5432/zinurooms_rsv_ci";
-const allocation = await import("../../apps/web/lib/reservation-allocation.ts");
+const allocation = await import(
+  "../../apps/web/lib/reservation-allocation-policy.ts"
+);
 
 test("candidate ordering keeps the requested room first and is deterministic", () => {
   assert.deepEqual(
